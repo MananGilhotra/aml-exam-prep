@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mock Test · 60 Questions — AML Exam Prep</title>
+<meta name="description" content="Full-syllabus mock test for Advanced Machine Learning: 60 exam-level MCQs with instant scoring and detailed explanations.">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.src{display:inline-block;font-size:.62rem;font-weight:850;letter-spacing:.1em;text-transform:uppercase;
+  padding:.1rem .45rem;border-radius:999px;background:var(--surface-2);border:1px solid var(--border);
+  color:var(--text-3);margin-right:.5rem;vertical-align:2px}
+</style>
+</head>
+<body data-page="mock">
+<div class="shell">
+<main class="main">
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Self Assessment</div>
+  <h1>Mock Test · <span class="gradtext">60 Questions</span></h1>
+  <p class="sub">Poore syllabus se mixed, exam-level MCQs. Har question ke saath uska source lecture tag hai. Instant scoring aur har answer ka detailed explanation.</p>
+  <div class="chips">
+    <span class="chip accent">⏱ Suggested: 75 min</span>
+    <span class="chip">📘 All 12 lectures</span>
+    <span class="chip">🎯 Pass mark: 42/60 (70%)</span>
+  </div>
+</header>
+
+<div class="box warn">
+  <div class="box-title">How to take this test honestly</div>
+  <ul style="margin:0">
+    <li><b>Timer set karo: 75 minutes.</b> Har question par ~75 seconds.</li>
+    <li>Formula sheet <b>band</b> rakho. Rough paper aur calculator allowed hai (exam ki tarah).</li>
+    <li>Ek baar option click karne par answer <b>lock</b> ho jaata hai — guess karke check mat karo.</li>
+    <li>Explanation sirf <b>lock hone ke baad</b> dikhta hai. Poora padho, especially "why not the others".</li>
+    <li>Score page ke top-right counter mein live update hota rehta hai.</li>
+  </ul>
+</div>
+
+<div class="grid g4">
+  <div class="stat"><div class="k">Target</div><div class="v gradtext">70%</div><div class="d">42 / 60 correct</div></div>
+  <div class="stat"><div class="k">Below 50%</div><div class="v" style="color:#f87171">📚</div><div class="d">Lectures dobara padho</div></div>
+  <div class="stat"><div class="k">50–70%</div><div class="v" style="color:#fbbf24">⚡</div><div class="d">Common Mistakes revise karo</div></div>
+  <div class="stat"><div class="k">Above 80%</div><div class="v" style="color:#34d399">🏆</div><div class="d">Exam ready</div></div>
+</div>
+
+<h2 id="test">Begin</h2>
+<div id="mcq-root"></div>
+
+<div class="box hinglish" style="margin-top:2.5rem">
+  <div class="box-title">📊 After the test</div>
+  <p style="margin:0">Jo questions galat hue, unka <b>source tag</b> note karo (e.g. <span class="src">L4</span>). Phir sirf un lectures ke <b>⚠ Common Mistakes</b> aur <b>⚡ Quick Revision</b> sections dobara padho — poora page nahi. Agar ek hi lecture ke 3+ questions galat hue, to us lecture ke solved numericals dobara hand se karo.</p>
+  <p style="margin:.7rem 0 0">Reset button page ke neeche hai — dobara attempt karne se pehle <b>kam se kam ek din</b> ka gap rakho, warna tum answers yaad kar loge, concepts nahi.</p>
+</div>
+
+</div>
+</main>
+</div>
+
+<script>
+const T = n => `<span class="src">L${n}</span>`;
+const MCQS = [
+
+/* ================= L0 (4) ================= */
+{ d:'easy', q: T(0)+'Which of these is AI but NOT Machine Learning?',
+  o:['A spam filter trained on 100,000 labelled emails','A Dijkstra shortest-path engine that never learns from data',
+     'A CNN that recognises faces','A clustering algorithm that segments customers'],
+  a:1, e:'<b>B.</b> Search algorithms AI ke key areas mein listed hain par wo data se <b>seekhte nahi</b>. Sheet: "AI includes non-learning systems too (e.g., search algorithms)." <b>A</b>, <b>C</b>, <b>D</b> sab data se seekhte hain, to ML hain.' },
+
+{ d:'med', q: T(0)+'A hospital has 200,000 chest X-rays with no annotations and wants to discover naturally occurring groups. The correct triple is:',
+  o:['Labelled · Supervised · Classification','Unlabelled · Unsupervised · Clustering',
+     'Unlabelled · Reinforcement · Regression','Labelled · Unsupervised · Clustering'],
+  a:1, e:'<b>B.</b> No annotations = <b>unlabelled</b>. No target = <b>unsupervised</b>. "Discover natural groups" = <b>clustering</b>. <b>A</b> and <b>D</b> claim labels that do not exist. <b>C</b> has no environment/reward and the output is a group, not a number.' },
+
+{ d:'hard', q: T(0)+'Google Photos clusters faces, then asks you once "Is this Alex?" and labels thousands of photos. Which paradigm, and why not the alternatives?',
+  o:['Unsupervised — because it starts with clustering','Supervised — because you provided a label',
+     'Semi-supervised — a tiny labelled pool propagated across a massive unlabelled pool','Reinforcement — because the app learns from your feedback'],
+  a:2, e:'<b>C.</b> Dono steps milkar semi-supervised banate hain: clustering (unsupervised) + <b>ek single label</b> (supervised propagation). <b>A</b> incomplete — label use hua. <b>B</b> galat — poora dataset labelled nahi. <b>D</b> galat — koi reward/penalty loop nahi hai, sirf ek one-shot label.' },
+
+{ d:'med', q: T(0)+'Uber outputs a surge multiplier of 1.4× or 2.1×. Someone argues this is classification because there are only a few values. What is wrong?',
+  o:['Nothing — it really is classification','The multiplier is a continuous scalar on an infinite continuum; the two example values do not make the output discrete, so it is regression',
+     'It is clustering, since zones are grouped','It is semi-supervised, since some fares are unlabelled'],
+  a:1, e:'<b>B.</b> 1.4× and 2.1× sirf <b>examples</b> hain — multiplier 1.73× bhi ho sakta hai. Output continuous hai ⟹ <b>regression</b>. <b>A</b> falls for the trap. <b>C</b> confuses the geo-fencing with the output type. <b>D</b> names a learning paradigm, not a task.' },
+
+/* ================= L1 (6) ================= */
+{ d:'med', q: T(1)+'For $X = [10,20,30,40,50]$, what is the Min-Max scaled value of $X = 40$?',
+  o:['$0.50$','$0.75$','$0.80$','$0.40$'],
+  a:1, e:'<b>B.</b> $\\frac{40-10}{50-10} = \\frac{30}{40} = 0.75$. <b>A</b> is the value for $X=30$. <b>C</b> divides by 50 instead of the range 40. <b>D</b> just scales by 100.' },
+
+{ d:'hard', q: T(1)+'A weather station logs wind speed in km/h every 10 minutes for a year. Classify the structure AND feature type.',
+  o:['Unstructured · Categorical (Nominal)','Structured + Time-series · Numerical (Continuous)',
+     'Semi-structured · Numerical (Discrete)','Time-series only · Categorical (Ordinal)'],
+  a:1, e:'<b>B.</b> Fixed columns with timestamps = <b>Structured + Time-series</b>. Wind speed infinitely divisible hai (12.4, 12.43 km/h) = <b>Continuous</b>. <b>C</b> — discrete is for countable integers. <b>A</b> and <b>D</b> misread numeric readings as categories.' },
+
+{ d:'hard', q: T(1)+'You must scale a TF-IDF bag-of-words matrix that is 90% zeros. Which scaler, and what is the key reason?',
+  o:['Z-Score, because text data is Gaussian','Min-Max, because TF-IDF is already bounded',
+     'Max Absolute, because it divides by $\\max|X|$ without subtracting anything, so the zeros stay zero','Robust, because sparse data is full of outliers'],
+  a:2, e:'<b>C.</b> Min-Max aur Z-Score dono <b>subtract</b> karte hain ($X_{\\min}$ or $\\mu$), jisse har zero ek non-zero number ban jaata hai — sparsity destroy ho jaati hai aur memory explode. Max Abs sirf divide karta hai. <b>A</b>, <b>B</b>, <b>D</b> sab subtraction wale scalers suggest karte hain.' },
+
+{ d:'med', q: T(1)+'In one-hot encoding of {Red, Blue, Green}, how many columns are produced and how many 1s appear in each row?',
+  o:['3 columns, exactly one 1 per row','2 columns, one or two 1s per row',
+     '1 column, values 0/1/2','3 columns, three 1s per row'],
+  a:0, e:'<b>A.</b> $N$ categories → $N$ columns, aur har row mein exactly ek 1 (us row ki category). <b>B</b> describes binary encoding. <b>C</b> describes label encoding. <b>D</b> would make every row identical.' },
+
+{ d:'hard', q: T(1)+'You compute the mean of a column BEFORE splitting and use it to impute missing values in the training set only. What is the correct verdict?',
+  o:['Safe, because only the training set was imputed','Data leakage — the mean itself was contaminated by validation and test rows',
+     'Safe, because imputation is not a model','Overfitting, not leakage'],
+  a:1, e:'<b>B.</b> Yeh sabse subtle version hai: imputation train par hui, par <b>jo value use hui</b> wo test rows se computed thi. Test set ne training ko influence kiya ⟹ leakage. <b>A</b> and <b>C</b> focus on where the imputation happened, not where the value came from. <b>D</b> names the wrong failure.' },
+
+{ d:'hard', q: T(1)+'For $X = [100,150,200,250,50000]$, Min-Max gives $200 \\to 0.002$ while Robust gives $200 \\to 0$. What does this comparison demonstrate?',
+  o:['Robust scaling always produces smaller numbers','Min-Max squashes all normal values together because the outlier inflates the denominator, destroying their relative differences',
+     'The two scalers are equivalent up to a constant','Robust scaling removed the outlier'],
+  a:1, e:'<b>B.</b> Min-Max ka denominator $49900$ ho jaata hai, to $100,150,200,250$ sab $0$–$0.003$ mein collapse. Robust median+IQR use karta hai, jo outlier se barely move hote hain, to normal values distinguishable rehti hain. <b>C</b> is false (not a linear reparametrisation of each other here in effect). <b>D</b> is false — Robust <b>keeps</b> the outlier, it just is not distorted by it.' },
+
+/* ================= L2 (5) ================= */
+{ d:'easy', q: T(2)+'Which item is a PARAMETER (not a hyperparameter)?',
+  o:['<code>learning_rate</code>','<code>max_depth</code>','The bias term learned during backpropagation','<code>n_estimators</code>'],
+  a:2, e:'<b>C.</b> "Learned during" = <b>parameter</b>. <b>A</b>, <b>B</b>, <b>D</b> engineer training se pehle set karta hai.' },
+
+{ d:'med', q: T(2)+'Actual $y = [20, 25, 30]$, predicted $\\hat y = [22, 20, 30]$. What are MSE and RMSE?',
+  o:['MSE $=2.33$, RMSE $=1.53$','MSE $=9.67$, RMSE $=3.11$','MSE $=29$, RMSE $=5.39$','MSE $=3.11$, RMSE $=9.67$'],
+  a:1, e:'<b>B.</b> Errors: $-2, +5, 0$. Squares: $4, 25, 0$; sum $=29$; MSE $=29/3 = 9.67$; RMSE $=\\sqrt{9.67} = 3.11$. <b>A</b> is MAE ($\\frac{2+5+0}{3}$) and its root. <b>C</b> forgets to divide by $n$. <b>D</b> swaps MSE and RMSE.' },
+
+{ d:'hard', q: T(2)+'A baseline predicts with MAE 12; your model achieves MAE 11 for ₹15 lakh. Which reasoning follows the sheet?',
+  o:['Deploy — any improvement over baseline is worth it','Do not deploy by default: an ~8% gain must be shown to be worth ₹15 lakh in business value',
+     'Deploy, because MAE is the wrong metric anyway','Do not deploy, because a baseline can never be beaten'],
+  a:1, e:'<b>B.</b> Phase 7 ka <b>business benchmark</b>: kya marginal gain marginal cost justify karta hai? <b>A</b> ignores cost entirely. <b>C</b> is irrelevant — MAE is valid here. <b>D</b> is factually wrong; the model <b>did</b> beat it, just barely.' },
+
+{ d:'hard', q: T(2)+'A self-driving car company must choose between an 85% explainable model and a 92% black-box model. Which reasoning is correct?',
+  o:['Choose the explainable model, as hospitals do — interpretability always wins in safety-critical systems',
+     'Choose the black-box: decisions happen in milliseconds with no human review, so aggregate safety dominates',
+     'Choose neither; 92% is too low','Choose whichever trains faster'],
+  a:1, e:'<b>B.</b> Decisive question hai: <b>kya decision ko human review chahiye?</b> Hospital mein haan (liability, consent, audit) → explainable. Car mein nahi (milliseconds) → aggregate safety. <b>A</b> applies the hospital answer universally, which is exactly what the sheet warns against. <b>C</b> avoids the question. <b>D</b> is irrelevant.' },
+
+{ d:'med', q: T(2)+'Which deployment pathway suits "fraud detection at checkout"?',
+  o:['Batch predictions, run nightly','Real-time inference, one request at a time','Periodic retraining','Edge deployment only'],
+  a:1, e:'<b>B.</b> Checkout ek live transaction hai — decision <b>abhi</b> chahiye. <b>A</b> is the opposite (the sheet\'s batch example is weekly product recommendations). <b>C</b> is a retraining strategy, not an ingestion strategy. <b>D</b> is a hosting pathway, and checkout runs server-side anyway.' },
+
+/* ================= L3 (6) ================= */
+{ d:'med', q: T(3)+'For $x = [2,4,6]$ and $y = [5,11,14]$, compute the OLS slope $m$.',
+  o:['$2.25$','$3.00$','$1.50$','$4.50$'],
+  a:0, e:'<b>A.</b> $\\bar x = 4$, $\\bar y = 10$. Deviations $x$: $-2,0,2$; $y$: $-5,1,4$. Numerator $= 10+0+8 = 18$; denominator $= 4+0+4 = 8$; $m = 18/8 = 2.25$. <b>C</b> divides 18 by 12. <b>D</b> forgets to square the $x$ deviations. <b>B</b> is a rough eyeball guess.' },
+
+{ d:'hard', q: T(3)+'Continuing the previous question ($m = 2.25$, $\\bar x = 4$, $\\bar y = 10$), what is $c$ and what is $\\hat y$ at $x = 5$?',
+  o:['$c = 1$, $\\hat y = 12.25$','$c = 10$, $\\hat y = 21.25$','$c = -1$, $\\hat y = 10.25$','$c = 1$, $\\hat y = 11.25$'],
+  a:0, e:'<b>A.</b> $c = \\bar y - m\\bar x = 10 - 2.25(4) = 10 - 9 = 1$. Then $\\hat y = 2.25(5) + 1 = 11.25 + 1 = 12.25$. <b>D</b> forgets to add $c$. <b>B</b> uses $\\bar y$ as the intercept. <b>C</b> gets the sign of $c$ wrong.' },
+
+{ d:'hard', q: T(3)+'Six residuals are $+8, +3, -6, -5, +2, -2$. What is the total signed error and what does it prove?',
+  o:['$0$; the model is perfect','$0$; nothing — signed errors cancel, so this total cannot distinguish a perfect model from a bad one',
+     '$26$; the model is bad','$-2$; the model slightly over-predicts overall'],
+  a:1, e:'<b>B.</b> $8+3-6-5+2-2 = 0$. Har single residual nonzero hai, phir bhi total 0 — yahi cancellation trap hai. <b>A</b> is the trap. <b>C</b> is $\\sum|e_i|$. <b>D</b> is arithmetically wrong.' },
+
+{ d:'med', q: T(3)+'Why is $|e|$ rejected for the OLS derivation?',
+  o:['It can be negative','It is not differentiable at $e = 0$ — the V-corner has slope $-1$ on the left and $+1$ on the right',
+     'It is more outlier-sensitive than $e^2$','It always sums to zero'],
+  a:1, e:'<b>B.</b> Sharp corner par derivative undefined hai, jo $\\partial E/\\partial m = 0$ wala clean approach todh deta hai. <b>A</b> is false ($|e| \\ge 0$). <b>C</b> is exactly backwards — absolute error is <b>more</b> robust. <b>D</b> is the signed-error problem.' },
+
+{ d:'hard', q: T(3)+'What does the OLS slope formula reduce to in statistical terms?',
+  o:['$\\operatorname{Var}(X)/\\operatorname{Cov}(X,Y)$','$\\operatorname{Cov}(X,Y)/\\operatorname{Var}(X)$','$\\operatorname{Cov}(X,Y)/\\operatorname{Var}(Y)$','$\\operatorname{Corr}(X,Y)$'],
+  a:1, e:'<b>B.</b> Dividing numerator and denominator by $n$: numerator becomes $\\operatorname{Cov}(X,Y)$, denominator becomes $\\operatorname{Var}(X)$. <b>A</b> is inverted (the classic trap). <b>C</b> uses the wrong variance — the denominator involves <b>$x$</b> deviations only. <b>D</b> is unitless and would not have the right scale.' },
+
+{ d:'hard', q: T(3)+'A 6th point $(x=10, y=20)$ is added to a fit $\\hat y = 6.75x + 19.25$. Which penalty pair is correct?',
+  o:['$|e| \\approx 4456$, $e^2 \\approx 66.75$','$|e| \\approx 66.75$, $e^2 \\approx 4456$','Both $\\approx 66.75$','Both $\\approx 4456$'],
+  a:1, e:'<b>B.</b> $\\hat y = 6.75(10)+19.25 = 86.75$; $e = 20 - 86.75 = -66.75$; $|e| = 66.75$; $e^2 \\approx 4455.6$. <b>A</b> swaps them. <b>C</b> and <b>D</b> deny that squaring changes anything.' },
+
+/* ================= L4 (6) ================= */
+{ d:'med', q: T(4)+'A dataset has $n = 500$ rows and $m = 8$ features. What are the dimensions of $\\mathbf X$, $\\boldsymbol\\beta$ and $\\mathbf X^\\top\\mathbf X$?',
+  o:['$500\\times8$, $8\\times1$, $8\\times8$','$500\\times9$, $9\\times1$, $9\\times9$','$500\\times9$, $9\\times1$, $500\\times500$','$8\\times500$, $1\\times9$, $9\\times9$'],
+  a:1, e:'<b>B.</b> Intercept column adds one: $\\mathbf X$ is $n\\times(m{+}1) = 500\\times9$; $\\boldsymbol\\beta$ is $9\\times1$; $\\mathbf X^\\top\\mathbf X$ is $(9\\times500)(500\\times9) = 9\\times9$. <b>A</b> forgets the intercept. <b>C</b> computes $\\mathbf X\\mathbf X^\\top$. <b>D</b> transposes $\\mathbf X$.' },
+
+{ d:'hard', q: T(4)+'For $\\mathbf X = \\begin{bmatrix}1&2\\\\1&4\\end{bmatrix}$, $\\mathbf y = [6,10]^\\top$, $\\boldsymbol\\beta = [2,1]^\\top$, what is $\\mathbf e^\\top\\mathbf e$?',
+  o:['$0$','$6$','$10$','$20$'],
+  a:3, e:'<b>D.</b> $\\mathbf X\\boldsymbol\\beta$: row 1 $= 1(2)+2(1) = 4$; row 2 $= 1(2)+4(1) = 6$. So $\\mathbf e = \\mathbf y - \\mathbf X\\boldsymbol\\beta = [6-4,\\ 10-6]^\\top = [2,4]^\\top$, and $\\mathbf e^\\top\\mathbf e = 2^2+4^2 = 4+16 = \\mathbf{20}$. <b>B</b> is $\\sum|e_i| = 2+4$ — forgetting to square. <b>C</b> is $\\sum e_i^2$ miscomputed as $2+4+4$. <b>A</b> would require a perfect fit, which this $\\boldsymbol\\beta$ does not give.' },
+
+{ d:'hard', q: T(4)+'Which transpose rule is correct?',
+  o:['$(\\mathbf{AB})^\\top = \\mathbf A^\\top\\mathbf B^\\top$','$(\\mathbf{AB})^\\top = \\mathbf B^\\top\\mathbf A^\\top$',
+     '$(\\mathbf{AB})^\\top = \\mathbf{AB}$','$(\\mathbf{AB})^\\top = (\\mathbf{BA})^\\top$'],
+  a:1, e:'<b>B.</b> Transposing a product <b>reverses the order</b>. Yahi rule loss expansion mein $(\\mathbf X\\boldsymbol\\beta)^\\top = \\boldsymbol\\beta^\\top\\mathbf X^\\top$ dene ke liye use hota hai. <b>A</b> would not even conform dimensionally in general. <b>C</b> and <b>D</b> are false.' },
+
+{ d:'hard', q: T(4)+'Why can Identity 3 ($\\partial(\\boldsymbol\\beta^\\top\\mathbf A\\boldsymbol\\beta)/\\partial\\boldsymbol\\beta = 2\\mathbf A\\boldsymbol\\beta$) be applied to $\\boldsymbol\\beta^\\top\\mathbf X^\\top\\mathbf X\\boldsymbol\\beta$?',
+  o:['Because $\\mathbf X^\\top\\mathbf X$ is square','Because $(\\mathbf X^\\top\\mathbf X)^\\top = \\mathbf X^\\top(\\mathbf X^\\top)^\\top = \\mathbf X^\\top\\mathbf X$, so it is symmetric',
+     'Because $\\mathbf X$ is symmetric','Because $\\boldsymbol\\beta$ is a unit vector'],
+  a:1, e:'<b>B.</b> Identity 3 <b>symmetry</b> require karta hai, sirf squareness nahi. Verify: $(\\mathbf X^\\top\\mathbf X)^\\top = \\mathbf X^\\top\\mathbf X$ ✓. <b>A</b> cites an insufficient condition. <b>C</b> is false ($\\mathbf X$ is usually not even square). <b>D</b> is irrelevant.' },
+
+{ d:'med', q: T(4)+'The Normal Equation is:',
+  o:['$\\mathbf X\\boldsymbol\\beta = \\mathbf y$','$\\mathbf X^\\top\\mathbf X\\boldsymbol\\beta = \\mathbf X^\\top\\mathbf y$','$\\boldsymbol\\beta = \\mathbf X^{-1}\\mathbf y$','$\\mathbf X^\\top\\boldsymbol\\beta = \\mathbf y$'],
+  a:1, e:'<b>B.</b> Setting $\\partial L/\\partial\\boldsymbol\\beta = \\mathbf 0$ gives $-2\\mathbf X^\\top\\mathbf y + 2\\mathbf X^\\top\\mathbf X\\boldsymbol\\beta = \\mathbf 0$, hence $\\mathbf X^\\top\\mathbf X\\boldsymbol\\beta = \\mathbf X^\\top\\mathbf y$. <b>A</b> generally has no solution ($n &gt; m+1$). <b>C</b> requires $\\mathbf X$ to be square and invertible. <b>D</b> is dimensionally inconsistent.' },
+
+{ d:'hard', q: T(4)+'"Adding more features always reduces Total Squared Error on the TRAINING data." Which analysis is right?',
+  o:['False — extra features add noise and raise training error','True — the optimiser can always set the new coefficient to 0, so training error cannot increase; but test error may rise',
+     'True, and test error falls too','False — training error is fixed once $n$ is fixed'],
+  a:1, e:'<b>B.</b> Naya feature search space ko strictly enlarge karta hai; purana solution ($\\beta_{\\text{new}} = 0$) abhi bhi available hai, to minimum badh nahi sakta. Catch: <b>test</b> error badh sakta hai. <b>C</b> is the dangerous version. <b>A</b> and <b>D</b> misstate the mechanism.' },
+
+/* ================= L5 (5) ================= */
+{ d:'med', q: T(5)+'With $\\boldsymbol\\theta = \\mathbf 0$, $\\mathbf X = \\begin{bmatrix}1&2\\\\1&4\\end{bmatrix}$ and $\\mathbf y = [10, 20]^\\top$, what is $\\mathbf X\\boldsymbol\\theta - \\mathbf y$?',
+  o:['$[10, 20]^\\top$','$[-10, -20]^\\top$','$[0,0]^\\top$','$[-30, -30]^\\top$'],
+  a:1, e:'<b>B.</b> $\\mathbf X\\boldsymbol\\theta = [0,0]^\\top$ since $\\boldsymbol\\theta = \\mathbf 0$, so $\\mathbf X\\boldsymbol\\theta - \\mathbf y = [0-10,\\ 0-20]^\\top = [-10,-20]^\\top$. <b>A</b> computes $\\mathbf y - \\mathbf X\\boldsymbol\\theta$ (the opposite sign convention). <b>C</b> forgets to subtract $\\mathbf y$. <b>D</b> is invented.' },
+
+{ d:'hard', q: T(5)+'For $f(x,y) = x^2+y^2$ at $(4,3)$ with $\\alpha = 0.5$, what is the next point?',
+  o:['$(2, 1.5)$','$(0, 0)$','$(-4, -3)$','$(3.6, 2.7)$'],
+  a:1, e:'<b>B.</b> $\\nabla f = [2x, 2y]^\\top = [8,6]^\\top$. Update: $[4,3] - 0.5[8,6] = [4-4,\\ 3-3] = [0,0]$ — the exact minimum in one step. <b>A</b> halves the coordinates (that would be $\\alpha = 0.25$). <b>C</b> is the $\\alpha = 1$ overshoot. <b>D</b> is $\\alpha = 0.05$.' },
+
+{ d:'hard', q: T(5)+'Why must all parameters be updated SIMULTANEOUSLY?',
+  o:['To exploit vectorisation','Because every partial derivative must be evaluated at the SAME old $\\boldsymbol\\theta$; mixing old and new values computes the gradient at a point you never intended',
+     'Because the gradient must be a unit vector','It is only a coding convention'],
+  a:1, e:'<b>B.</b> $\\nabla L(\\boldsymbol\\theta_{\\text{old}})$ ek <b>specific point</b> par evaluate hota hai. Sequential updating ek mixed, undefined point ka gradient deta hai. <b>A</b> is a side benefit. <b>C</b> is invented. <b>D</b> is exactly what the worksheet warns against.' },
+
+{ d:'hard', q: T(5)+'Three runs give validation losses: $\\alpha=0.1 \\to 22.0$, $\\alpha=0.01 \\to 5.4$, $\\alpha=0.001 \\to 8.8$. What does the U-shape tell you?',
+  o:['$\\alpha = 0.1$ is best because it is the largest step','$\\alpha = 0.01$ is best; $0.1$ oscillates/overshoots and $0.001$ is undertrained within the epoch budget',
+     '$\\alpha = 0.001$ is best because smaller is safer','The losses are random; pick any'],
+  a:1, e:'<b>B.</b> Selection criterion hamesha <b>lowest validation loss</b> hai. High side = overshooting; low side = too slow to converge in the given epochs. <b>A</b> confuses step size with progress. <b>C</b> ignores the evidence. <b>D</b> dismisses a clean signal.' },
+
+{ d:'hard', q: T(5)+'A junior engineer adds both <code>Price_USD</code> and <code>Price_Cents</code> ($= 100\\times$ USD). What happens to OLS and to Gradient Descent?',
+  o:['Both fail','OLS fails with a singular matrix; GD still runs (it never inverts), though the individual coefficients are not uniquely determined',
+     'OLS works; GD diverges','Both work perfectly'],
+  a:1, e:'<b>B.</b> Exact linear dependence ⟹ $\\det(\\mathbf X^\\top\\mathbf X) = 0$ ⟹ no inverse ⟹ OLS undefined. GD sirf $\\mathbf X^\\top(\\mathbf X\\boldsymbol\\theta - \\mathbf y)$ compute karta hai, jo hamesha defined hai. <b>A</b> and <b>C</b> misassign the failure. <b>D</b> ignores the singularity.' },
+
+/* ================= L6 (5) ================= */
+{ d:'med', q: T(6)+'Dataset has $m = 5000$ examples. How many parameter updates occur in 10 epochs of SGD?',
+  o:['10','5000','50,000','500'],
+  a:2, e:'<b>C.</b> SGD mein 1 epoch = $m$ updates. $10 \\times 5000 = 50{,}000$. <b>A</b> is the Batch GD answer. <b>B</b> is one epoch. <b>D</b> is $m/10$.' },
+
+{ d:'hard', q: T(6)+'Dataset has $m = 5000$, batch size $b = 250$. Updates per epoch for Mini-Batch GD?',
+  o:['250','20','5000','1'],
+  a:1, e:'<b>B.</b> $\\lceil m/b \\rceil = \\lceil 5000/250 \\rceil = 20$. <b>A</b> confuses batch size with update count. <b>C</b> is the SGD answer. <b>D</b> is the Batch GD answer.' },
+
+{ d:'hard', q: T(6)+'In the SGD dry run, Step 1 used sample $(x=2, y=4)$ with $\\boldsymbol\\theta = [0,0]^\\top$ and $\\alpha = 0.1$. What is the new $\\boldsymbol\\theta$?',
+  o:['$[0.4, 0.8]^\\top$','$[-0.4, -0.8]^\\top$','$[0.4, 0.4]^\\top$','$[4, 8]^\\top$'],
+  a:0, e:'<b>A.</b> $\\hat y = 0$, $e = 0-4 = -4$. $\\nabla J = [e,\\ e x]^\\top = [-4,\\ -8]^\\top$. Update: $[0,0] - 0.1[-4,-8] = [0.4, 0.8]$. <b>B</b> gets the sign wrong (forgets the minus in the update). <b>C</b> forgets to multiply by $x$. <b>D</b> forgets $\\alpha$.' },
+
+{ d:'med', q: T(6)+'Which statement about "Mini-Batch GD with $b = 1$" is correct?',
+  o:['It is identical to Batch GD','It is mathematically identical to SGD, since averaging one gradient returns that gradient',
+     'It is invalid; $b$ must be at least 2','It performs 1 update per epoch'],
+  a:1, e:'<b>B.</b> Ek sample ka average wahi sample hai, to formula exactly SGD update ban jaata hai. <b>A</b> would be $b = m$. <b>C</b> is invented. <b>D</b> is the Batch GD count.' },
+
+{ d:'hard', q: T(6)+'Why are batch sizes usually powers of two?',
+  o:['Gradient averaging mathematically requires it','GPU and hardware kernels handle those sizes most efficiently — the maths itself does not require it',
+     'It guarantees faster convergence','$\\lceil m/b\\rceil$ is only defined for powers of two'],
+  a:1, e:'<b>B.</b> Yeh purely ek <b>hardware</b> optimisation hai. $b = 37$ perfectly valid hai, bas GPU cores par slightly less efficient. <b>A</b> and <b>D</b> invent a mathematical requirement. <b>C</b> confuses throughput with convergence rate.' },
+
+/* ================= L7 (8) ================= */
+{ d:'med', q: T(7)+'Residuals are $[-2, +1, -3, +3, +1, -3, +4, -5]$ over $n=8$. What is MAE?',
+  o:['$2.75$','$-0.50$','$9.25$','$3.04$'],
+  a:0, e:'<b>A.</b> $\\sum|e_i| = 2+1+3+3+1+3+4+5 = 22$; MAE $= 22/8 = 2.75$. <b>B</b> is the <b>signed</b> mean ($-4/8$) — a classic trap. <b>C</b> is MSE. <b>D</b> is RMSE.' },
+
+{ d:'hard', q: T(7)+'With $\\text{TSS} = 1050$ and $\\text{RSS} = 74$, what is $R^2$ and what does it NOT mean?',
+  o:['$0.9295$; it does not mean 93% of predictions are correct','$0.0705$; it means 7% error',
+     '$0.9295$; it means the model is 93% accurate','$14.19$; the model explains 14× the baseline'],
+  a:0, e:'<b>A.</b> $R^2 = 1 - 74/1050 = 0.9295$. Yeh ek <b>sum-of-squares comparison</b> hai mean baseline ke saath — accuracy nahi, prediction-correctness rate nahi, average-error rate nahi. <b>B</b> reports $1-R^2$ and misreads it. <b>C</b> repeats the exact banned interpretation. <b>D</b> computes $1050/74$.' },
+
+{ d:'hard', q: T(7)+'Model A: $p=2$, RSS $=74$. Model B: $p=3$, RSS $=60$. $n=8$, TSS $=1050$. Which has the higher Adjusted $R^2$?',
+  o:['B, since it has lower RSS','A, with $0.9013$ vs B\'s $0.9000$','They are equal','Cannot be determined without $R^2$'],
+  a:1, e:'<b>Option B is correct — Model A wins on Adjusted $R^2$.</b> $R^2_{\\text{adj},A} = 1 - \\frac{74}{1050}\\cdot\\frac75 = 0.9013$; $R^2_{\\text{adj},B} = 1 - \\frac{60}{1050}\\cdot\\frac74 = 0.9000$. Model B ka <b>raw</b> $R^2$ zyada hai (0.9429 vs 0.9295), par uske teesre predictor se penalty factor $1.4 \\to 1.75$ jump kar gaya — a 25% bigger penalty against only a 19% smaller unexplained fraction. <b>Option A</b> is the trap of looking only at RSS. <b>Option D</b> is false — the formula works directly from RSS/TSS without needing $R^2$ first.' },
+
+{ d:'med', q: T(7)+'A confusion matrix row for Actual R reads $[6, 1, 1]$ across Pred R/P/S. What does the row total 8 represent?',
+  o:['The model predicted R eight times','There are 8 students whose ACTUAL class is R','8 predictions were correct','8 errors occurred'],
+  a:1, e:'<b>B.</b> Rows = <b>actual</b> classes, so the row total is the true class size. <b>A</b> describes a <b>column</b> total. <b>C</b> is only the diagonal cell (6). <b>D</b> is the off-diagonal sum (2 in this row).' },
+
+{ d:'hard', q: T(7)+'For a class: $TP=3$, $FP=2$, $FN=1$, $TN=12$. Compute precision, recall and F1.',
+  o:['$0.600$, $0.750$, $0.667$','$0.750$, $0.600$, $0.667$','$0.600$, $0.750$, $0.675$','$0.500$, $0.500$, $0.500$'],
+  a:0, e:'<b>A.</b> Precision $= \\frac{3}{3+2} = 0.600$; Recall $= \\frac{3}{3+1} = 0.750$; $F1 = \\frac{2(3)}{2(3)+2+1} = \\frac69 = 0.667$. <b>B</b> swaps precision and recall (check the denominators!). <b>C</b> uses the arithmetic mean instead of harmonic. <b>D</b> is the original, uncorrected counts.' },
+
+{ d:'hard', q: T(7)+'Missing actual positives is the costliest error in your application. Which metric do you optimise, and which error type are you fighting?',
+  o:['Precision; fighting False Positives','Recall; fighting False Negatives','Accuracy; fighting all errors equally','Specificity; fighting True Negatives'],
+  a:1, e:'<b>B.</b> "Missing" = <b>FN</b> (Type II). Only recall\'s denominator ($TP+FN$) punishes FN. <b>A</b> is the mirror answer for false alerts. <b>C</b> masks minority-class failure. <b>D</b> concerns the negative class and "fighting TN" is nonsense.' },
+
+{ d:'hard', q: T(7)+'Class F1 scores are $0.80$ (n=8), $0.615$ (n=6), $0.50$ (n=4). What are macro F1 and weighted F1?',
+  o:['Macro $0.672$, Weighted $0.638$','Macro $0.638$, Weighted $0.672$','Both $0.667$','Macro $0.638$, Weighted $0.638$'],
+  a:1, e:'<b>B.</b> Macro $= \\frac{0.80+0.615+0.50}{3} = 0.638$. Weighted $= \\frac{8(0.80)+6(0.615)+4(0.50)}{18} = \\frac{12.09}{18} = 0.672$. <b>A</b> swaps them. <b>C</b> is the micro/accuracy value. Weighted &gt; macro here because the weakest class is also the smallest.' },
+
+{ d:'hard', q: T(7)+'Why do micro precision, micro recall and micro F1 all equal accuracy in single-label multiclass?',
+  o:['Because the classes are balanced','Because every wrong prediction contributes exactly one pooled FP (to the predicted class) and one pooled FN (to the missed actual class), so $FP = FN$',
+     'Because micro averaging weights by class size','It is a coincidence in this dataset only'],
+  a:1, e:'<b>B.</b> Single-label multiclass mein har error simultaneously ek FP aur ek FN banta hai, to pooled $FP = FN$, aur teeno formulas $\\frac{TP}{TP+FP} = \\frac{TP}{\\text{total}}$ = accuracy ban jaate hain. <b>A</b> is not required. <b>C</b> describes <b>weighted</b>. <b>D</b> understates a general result.' },
+
+/* ================= L8 (5) ================= */
+{ d:'med', q: T(8)+'A degree-3 polynomial regression. How many columns does $\\mathbf X$ have including the intercept?',
+  o:['3','4','6','2'],
+  a:1, e:'<b>B.</b> $[\\mathbf 1,\\ x,\\ x^2,\\ x^3] = n+1 = 4$ columns. <b>A</b> forgets the intercept column. <b>C</b> is the degree-5 answer. <b>D</b> is degree 1.' },
+
+{ d:'hard', q: T(8)+'For $\\mathbf X = \\begin{bmatrix}1&1&2\\\\1&2&3\\\\1&3&4\\end{bmatrix}$, what is $\\det(\\mathbf X^\\top\\mathbf X)$ and what does it imply?',
+  o:['$1$; invertible','$0$; singular, so $(\\mathbf X^\\top\\mathbf X)^{-1}$ does not exist and OLS has no unique solution',
+     '$6$; invertible but unstable','$29$; invertible'],
+  a:1, e:'<b>B.</b> Column 3 = Column 1 + Column 2, so the columns are linearly dependent. $\\mathbf X^\\top\\mathbf X = \\begin{bmatrix}3&6&9\\\\6&14&20\\\\9&20&29\\end{bmatrix}$ and $\\det = 18+36-54 = 0$. <b>A</b> is the exact mistake the worksheet asks you to find. <b>C</b> is a first minor. <b>D</b> is the $(3,3)$ entry.' },
+
+{ d:'hard', q: T(8)+'Which diagnostic detects AUTOCORRELATION (not heteroscedasticity)?',
+  o:['Residuals vs predicted value, looking for a funnel','Residuals vs OBSERVATION ORDER, looking for runs or waves',
+     'Histogram of residuals','Input–input correlation matrix'],
+  a:1, e:'<b>B.</b> Autocorrelation ka matlab ek residual agle ko predict karta hai — yeh sirf <b>order</b> ke against dikhta hai. <b>A</b> is homoscedasticity. <b>C</b> is normality. <b>D</b> is multicollinearity. Yeh chaaron ko mix karna sabse common exam galti hai.' },
+
+{ d:'hard', q: T(8)+'Coefficients come out as $\\beta_1 = 15.2$ and $\\beta_2 = -14.8$ for two features with $r = 0.98$. What is the correct reading?',
+  o:['Feature 2 genuinely reduces the target','Severe multicollinearity: the model cannot separate the two effects, so the individual coefficients are unstable and must not be interpreted',
+     'The model is broken and cannot predict','The correlation is irrelevant to the coefficients'],
+  a:1, e:'<b>B.</b> Bade opposite-signed coefficients jo lagbhag cancel karte hain ($15.2 - 14.8 = 0.4$) — classic signature. Kuch rows change karne par wo $(40,-39)$ ban sakte hain jabki predictions same rahengi. <b>A</b> takes an absurd coefficient literally. <b>C</b> overstates — prediction usually survives. <b>D</b> reverses the truth.' },
+
+{ d:'med', q: T(8)+'"Polynomial Regression requires a different training algorithm." Evaluate.',
+  o:['True — it uses a nonlinear solver','False — the model stays linear in its parameters, so the same OLS / Gradient Descent applies; only $\\mathbf X$ gains columns',
+     'True — it requires gradient descent, never OLS','False — but it does require a kernel matrix'],
+  a:1, e:'<b>B.</b> $y = \\beta_0+\\beta_1x+\\beta_2x^2$ is linear in $\\beta$. Wahi Normal Equation apply hoti hai. <b>A</b> and <b>C</b> invent an algorithm change. <b>D</b> describes kernel methods, a different topic.' },
+
+/* ================= L9 (4) ================= */
+{ d:'med', q: T(9)+'If $E[\\hat f(x)] = 15$, $f(x) = 11$, variance $= 2$ and noise variance $= 3$, what is the expected MSE?',
+  o:['$9$','$21$','$20$','$16$'],
+  a:1, e:'<b>B.</b> Bias $= 15 - 11 = 4$; $\\text{MSE} = 4^2 + 2 + 3 = 16 + 5 = 21$. <b>A</b> forgets to square the bias ($4+2+3$). <b>D</b> reports only $\\text{Bias}^2$. <b>C</b> is a miscount.' },
+
+{ d:'hard', q: T(9)+'Three degree-5 fits on three samples have low average error but wildly different shapes. Which pair describes this?',
+  o:['High bias, low variance','Low bias, high variance — the classic overfitting signature',
+     'High bias, high variance','Low bias, low variance'],
+  a:1, e:'<b>B.</b> "Low average error" ⟹ low bias. "Wildly different shapes across samples" ⟹ high variance. Yeh exactly overfitting hai. <b>A</b> describes the degree-1 case (similar lines that all miss the curve). <b>C</b> and <b>D</b> contradict one of the two observations.' },
+
+{ d:'hard', q: T(9)+'Learning curves: training error 0.2, validation error 2.8, and the gap is slowly closing as data grows. What is the highest-value action?',
+  o:['Increase model complexity','Collect more representative training data (and/or add regularization) — this is a high-variance problem where more data demonstrably helps',
+     'Nothing; this is irreducible error','Reduce the learning rate'],
+  a:1, e:'<b>B.</b> Bada gap = high variance. Gap ka <b>closing</b> hona explicitly signal karta hai ki zyada data help karega. <b>A</b> would widen the gap. <b>C</b> is false — irreducible error raises <b>both</b> curves equally, it does not create a gap. <b>D</b> is an optimisation knob, not a generalisation fix.' },
+
+{ d:'hard', q: T(9)+'"A better algorithm can eliminate the irreducible error." Evaluate.',
+  o:['True, with enough model capacity','False — $\\operatorname{Var}(\\varepsilon)$ is a property of the DATA; reducing it requires better measurements or features, not a better algorithm',
+     'True, if you use cross-validation','False — but more training epochs will remove it'],
+  a:1, e:'<b>B.</b> Lab: "More flexible modelling cannot remove randomness already present in the data." Yeh MSE decomposition ka wo term hai jise <b>koi bhi model</b> kam nahi kar sakta. <b>A</b>, <b>C</b>, <b>D</b> all propose modelling fixes for a data property.' },
+
+/* ================= L10 (3) ================= */
+{ d:'hard', q: T(10)+'For $p = 10$ candidate features, how many models does exhaustive search evaluate versus a sequential backward path?',
+  o:['1023 and 55','1024 and 100','100 and 55','1023 and 45'],
+  a:0, e:'<b>A.</b> Exhaustive $= 2^{10} - 1 = 1023$. Sequential $= \\frac{p(p+1)}{2} = \\frac{10\\times11}{2} = 55$. <b>B</b> forgets to subtract the empty set and uses $p^2$. <b>C</b> uses $p^2$ for exhaustive. <b>D</b> uses $\\frac{p(p-1)}{2}$.' },
+
+{ d:'hard', q: T(10)+'A student selects features on the full dataset, then runs 5-fold CV. What exactly is wrong?',
+  o:['Nothing — CV protects the pipeline','The selection step already saw the rows that later become validation folds, so the CV score is optimistically biased; selection must move inside the CV loop',
+     'Only that 5 folds is too few','Only that the features were numeric'],
+  a:1, e:'<b>B.</b> Leakage <b>selection</b> step mein hui, model-fitting step mein nahi — CV uske baad honest <b>lagta</b> hai. Fix: har fold ke training portion se hi features select karo (different folds may pick different features, which is fine and informative). <b>A</b> treats CV as a universal safety net. <b>C</b> and <b>D</b> miss the mechanism.' },
+
+{ d:'med', q: T(10)+'You have 100 features and want to keep about 90. Which search direction is more natural and why?',
+  o:['Forward, because it starts small','Backward, because you reach a 90-feature subset in roughly 10 removal stages instead of 90 addition stages',
+     'Exhaustive, because 100 is small','Neither; only filters work at this size'],
+  a:1, e:'<b>B.</b> Backward saare features se start hota hai aur ~10 removals mein destination par pahuch jaata hai. Forward ko 90 addition stages chahiye. <b>A</b> is the right method for the <b>opposite</b> goal (keep 10 of 100). <b>C</b> — $2^{100}$ is astronomically infeasible. <b>D</b> ignores wrappers entirely.' },
+
+/* ================= L11 (3) ================= */
+{ d:'hard', q: T(11)+'Centered data $X_c = \\begin{bmatrix}-1&-1\\\\0&0\\\\1&1\\end{bmatrix}$ with $n=3$. What is $S$ and the eigenvalue of $\\mathbf v_1 = \\frac{1}{\\sqrt2}[1,1]^\\top$?',
+  o:['$S = \\begin{bmatrix}2&2\\\\2&2\\end{bmatrix}$, $\\lambda_1 = 4$','$S = \\begin{bmatrix}1&1\\\\1&1\\end{bmatrix}$, $\\lambda_1 = 2$',
+     '$S = \\begin{bmatrix}1&0\\\\0&1\\end{bmatrix}$, $\\lambda_1 = 1$','$S = \\begin{bmatrix}2&2\\\\2&2\\end{bmatrix}$, $\\lambda_1 = 2$'],
+  a:1, e:'<b>B.</b> $X_c^\\top X_c = \\begin{bmatrix}2&2\\\\2&2\\end{bmatrix}$, and $S = \\frac{1}{n-1}(\\cdot) = \\frac12\\begin{bmatrix}2&2\\\\2&2\\end{bmatrix} = \\begin{bmatrix}1&1\\\\1&1\\end{bmatrix}$. Then $S\\mathbf v_1 = \\frac{1}{\\sqrt2}[2,2]^\\top = 2\\mathbf v_1$, so $\\lambda_1 = 2$. <b>A</b> and <b>D</b> forget to divide by $n-1$. <b>C</b> claims zero covariance, which contradicts perfectly correlated features.' },
+
+{ d:'hard', q: T(11)+'Which statement about PCA is FALSE?',
+  o:['Standard PCA is unsupervised and never uses $y$','Mean centering is compulsory',
+     'Standardization is compulsory before every PCA','Principal components are mutually orthogonal'],
+  a:2, e:'<b>C</b> is FALSE (and therefore the answer). <b>Centering</b> is always required; <b>standardization is conditional</b> — apply it when features have different units or scales. In the worksheet\'s running example both features share units, so centering alone sufficed. <b>A</b>, <b>B</b>, <b>D</b> are all true.' },
+
+{ d:'hard', q: T(11)+'Eigenvalues are $[10, 5, 3, 2]$. What is the cumulative EVR through $k = 2$, and is $k=2$ automatically the right choice?',
+  o:['$0.50$; yes, half the variance is enough','$0.75$; no — EVR is unsupervised and says nothing about the target, so $k$ must be validated inside cross-validation',
+     '$0.75$; yes, above 70% is the standard rule','$0.15$; no'],
+  a:1, e:'<b>B.</b> Total $= 20$; cumulative through $k=2$ is $\\frac{10+5}{20} = 0.75$. Par EVR $y$ dekhta hi nahi — discarded 25% mein wo direction ho sakti hai jo target ki sabse zyada predictive hai. <b>A</b> miscomputes. <b>C</b> invents a "70% rule" and ignores the supervision gap. <b>D</b> computes $3/20$.' },
+];
+</script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="window.dispatchEvent(new Event('katex-ready'))"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

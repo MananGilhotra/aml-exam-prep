@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Advanced Machine Learning · CSA 333 — Complete Exam Prep</title>
+<meta name="description" content="Complete AML (CSA 333) exam preparation: all 12 worksheets explained in Hinglish from basics to advanced, with step-by-step numericals, diagrams, formula sheet and 180 MCQs.">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page="index">
+<div class="shell">
+<main class="main">
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Newton School of Technology · CSA 333 · 4 Credits</div>
+  <h1>Advanced Machine Learning<br><span class="gradtext">Complete Exam Handbook</span></h1>
+  <p class="sub">Worksheets 0 → 11 ka poora content — easy Hinglish mein, basics se leke Silicon-Valley level tak. Har topic ke saath diagrams, step-by-step solved numericals, formula sheet, common mistakes aur <b>180 competitive MCQs</b>.</p>
+  <div class="chips">
+    <span class="chip accent">📘 12 Lectures</span>
+    <span class="chip">🧮 107 solved problems</span>
+    <span class="chip">📊 68 diagrams</span>
+    <span class="chip">✓ 180 MCQs</span>
+    <span class="chip">⌛ ~6 hrs full read</span>
+  </div>
+  <div style="display:flex;gap:.7rem;flex-wrap:wrap;margin-top:1.5rem">
+    <a class="btn primary" href="l00.html">Start from Lecture 0 →</a>
+    <a class="btn" href="formula-sheet.html">∑ Formula Sheet</a>
+    <a class="btn" href="mock-test.html">✓ Mock Test</a>
+    <a class="btn" href="revision.html">⚡ 1-Hour Revision</a>
+  </div>
+</header>
+
+<div class="grid g4">
+  <div class="stat"><div class="k">Evaluation</div><div class="v gradtext">40%</div><div class="d">End Sem · biggest chunk</div></div>
+  <div class="stat"><div class="k">Mid Sem</div><div class="v gradtext">25%</div><div class="d">Projects &amp; Viva 20%</div></div>
+  <div class="stat"><div class="k">Contest</div><div class="v gradtext">10%</div><div class="d">Only 1 contest</div></div>
+  <div class="stat"><div class="k">Assignments</div><div class="v gradtext">5%</div><div class="d">Lecture + Lab</div></div>
+</div>
+
+<!-- ============================ -->
+<h2 id="map">Syllabus Map — How everything connects</h2>
+<p>Yeh course ek <b>straight line story</b> hai. Har lecture pichle lecture ke gap ko fill karta hai. Yeh flow samajh lo to revision 3× fast ho jaata hai:</p>
+
+<figure>
+<svg viewBox="0 0 760 460" role="img" aria-label="Course dependency map from Lecture 0 to Lecture 11">
+  <defs>
+    <marker id="am" markerWidth="8" markerHeight="8" refX="6.5" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#8b5cf6"/></marker>
+    <linearGradient id="gm" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#6366f1"/><stop offset="100%" stop-color="#06b6d4"/></linearGradient>
+  </defs>
+
+  <rect x="270" y="10" width="220" height="44" rx="11" fill="url(#gm)"/>
+  <text x="380" y="30" text-anchor="middle" font-size="12.5" font-weight="800" fill="#fff">L0 · Code → AI → ML → DL</text>
+  <text x="380" y="46" text-anchor="middle" font-size="10.5" fill="rgba(255,255,255,.85)">Vocabulary &amp; task types</text>
+
+  <line x1="380" y1="54" x2="380" y2="76" stroke="#8b5cf6" stroke-width="2" marker-end="url(#am)"/>
+
+  <rect x="230" y="80" width="300" height="46" rx="11" fill="rgba(99,102,241,.18)" stroke="#6366f1"/>
+  <text x="380" y="101" text-anchor="middle" font-size="12.5" font-weight="700" style="fill:var(--text)">L1 + L2 · ML Project Lifecycle (11 phases)</text>
+  <text x="380" y="117" text-anchor="middle" font-size="10.5" style="fill:var(--text-3)">Problem → Data → EDA → Preprocess → Split → … → Monitor</text>
+
+  <line x1="380" y1="126" x2="380" y2="148" stroke="#8b5cf6" stroke-width="2" marker-end="url(#am)"/>
+
+  <rect x="255" y="152" width="250" height="40" rx="11" fill="rgba(139,92,246,.18)" stroke="#8b5cf6"/>
+  <text x="380" y="177" text-anchor="middle" font-size="12.5" font-weight="700" style="fill:var(--text)">L3 · Simple Linear Regression (OLS)</text>
+
+  <line x1="380" y1="192" x2="380" y2="214" stroke="#8b5cf6" stroke-width="2" marker-end="url(#am)"/>
+
+  <rect x="255" y="218" width="250" height="40" rx="11" fill="rgba(139,92,246,.18)" stroke="#8b5cf6"/>
+  <text x="380" y="243" text-anchor="middle" font-size="12.5" font-weight="700" style="fill:var(--text)">L4 · Multiple LR — Normal Equation</text>
+
+  <path d="M255 238 L140 238 L140 276" stroke="#8b5cf6" stroke-width="2" fill="none" marker-end="url(#am)"/>
+  <text x="180" y="232" font-size="10" style="fill:var(--text-3)">inverse too costly</text>
+
+  <rect x="30" y="280" width="220" height="40" rx="11" fill="rgba(6,182,212,.18)" stroke="#06b6d4"/>
+  <text x="140" y="305" text-anchor="middle" font-size="12.5" font-weight="700" style="fill:var(--text)">L5 · Batch Gradient Descent</text>
+  <line x1="140" y1="320" x2="140" y2="342" stroke="#8b5cf6" stroke-width="2" marker-end="url(#am)"/>
+  <rect x="30" y="346" width="220" height="40" rx="11" fill="rgba(6,182,212,.18)" stroke="#06b6d4"/>
+  <text x="140" y="371" text-anchor="middle" font-size="12.5" font-weight="700" style="fill:var(--text)">L6 · SGD &amp; Mini-Batch GD</text>
+
+  <path d="M505 238 L620 238 L620 276" stroke="#8b5cf6" stroke-width="2" fill="none" marker-end="url(#am)"/>
+  <text x="560" y="232" font-size="10" style="fill:var(--text-3)">kitna accha hai?</text>
+
+  <rect x="510" y="280" width="220" height="40" rx="11" fill="rgba(245,158,11,.18)" stroke="#f59e0b"/>
+  <text x="620" y="305" text-anchor="middle" font-size="12.5" font-weight="700" style="fill:var(--text)">L7 · Evaluation Metrics</text>
+  <line x1="620" y1="320" x2="620" y2="342" stroke="#8b5cf6" stroke-width="2" marker-end="url(#am)"/>
+  <rect x="510" y="346" width="220" height="40" rx="11" fill="rgba(245,158,11,.18)" stroke="#f59e0b"/>
+  <text x="620" y="366" text-anchor="middle" font-size="12.5" font-weight="700" style="fill:var(--text)">L8 · Polynomial Reg.</text>
+  <text x="620" y="380" text-anchor="middle" font-size="10.5" style="fill:var(--text-3)">+ 5 Assumptions</text>
+
+  <path d="M140 386 L140 412 L620 412 L620 386" stroke="#8b5cf6" stroke-width="2" fill="none" stroke-dasharray="4 3"/>
+  <line x1="380" y1="412" x2="380" y2="420" stroke="#8b5cf6" stroke-width="2" marker-end="url(#am)"/>
+
+  <rect x="195" y="422" width="370" height="34" rx="11" fill="rgba(236,72,153,.18)" stroke="#ec4899"/>
+  <text x="380" y="444" text-anchor="middle" font-size="12.5" font-weight="700" style="fill:var(--text)">L9 Bias–Variance → L10 Feature Selection → L11 PCA</text>
+</svg>
+<figcaption>Poora course ek hi thread hai: <b>model banao → optimize karo → measure karo → generalization improve karo.</b></figcaption>
+</figure>
+
+<!-- ============================ -->
+<h2 id="lectures">All Lectures</h2>
+<div class="grid g2">
+
+<a class="lcard" href="l00.html">
+  <div class="tag">Worksheet 0</div>
+  <h3>From Code to AI, ML &amp; DL</h3>
+  <p>Traditional programming ka breakdown, AI umbrella, ML paradigm flip, DL depth, labelled vs unlabelled, 4 learning types, 3 core tasks.</p>
+  <div class="meta"><span>7 parts</span><span>10 MCQs</span><span>~22 min</span></div>
+</a>
+
+<a class="lcard" href="l01.html">
+  <div class="tag">Worksheet 1</div>
+  <h3>ML Project Lifecycle · Part 1</h3>
+  <p>5-step problem blueprint, 5 data sources, data structures &amp; feature types, EDA checklist, missing values, <b>feature scaling (4 formulas)</b> aur categorical encoding.</p>
+  <div class="meta"><span>Phases 1–4</span><span>10 MCQs</span><span>6 numericals</span></div>
+</a>
+
+<a class="lcard" href="l02.html">
+  <div class="tag">Worksheet 2</div>
+  <h3>ML Project Lifecycle · Part 2</h3>
+  <p>Parameters vs hyperparameters, 70/15/15 split &amp; data leakage, feature engineering, baseline, training loop, MAE/RMSE/R², deployment, model drift.</p>
+  <div class="meta"><span>Phases 5–11</span><span>10 MCQs</span><span>4 numericals</span></div>
+</a>
+
+<a class="lcard" href="l03.html">
+  <div class="tag">Worksheet 3</div>
+  <h3>Simple Linear Regression (OLS)</h3>
+  <p>Infinite candidate lines, residuals, three loss attempts (signed → absolute → squared), convex error surface, aur <b>poori OLS derivation</b> for $m$ and $c$.</p>
+  <div class="meta"><span>12 sections</span><span>10 MCQs</span><span>Full derivation</span></div>
+</a>
+
+<a class="lcard" href="l04.html">
+  <div class="tag">Worksheet 4</div>
+  <h3>Multiple Linear Regression (OLS)</h3>
+  <p>Design matrix, $\hat{\mathbf y}=\mathbf X\boldsymbol\beta$, loss expansion, 3 matrix-calculus identities, <b>Normal Equation</b>, multicollinearity, $O(k^3)$ proof.</p>
+  <div class="meta"><span>15 sections</span><span>10 MCQs</span><span>Matrix calculus</span></div>
+</a>
+
+<a class="lcard" href="l05.html">
+  <div class="tag">Worksheet 5</div>
+  <h3>Batch Gradient Descent</h3>
+  <p>OLS kyun kaafi nahi, gradient ka geometric meaning, update rule derivation, simultaneous update, epochs, learning-rate tuning, ek poora epoch by hand.</p>
+  <div class="meta"><span>6 sections</span><span>10 MCQs</span><span>Full dry run</span></div>
+</a>
+
+<a class="lcard" href="l06.html">
+  <div class="tag">Worksheet 6</div>
+  <h3>Stochastic &amp; Mini-Batch GD</h3>
+  <p>BGD ki 5 limitations, SGD ka single-sample update, shuffling, noise ka fayda/nuksaan, mini-batch compromise, teeno ka side-by-side comparison + pseudocode.</p>
+  <div class="meta"><span>12 sections</span><span>10 MCQs</span><span>3 dry runs</span></div>
+</a>
+
+<a class="lcard" href="l07.html">
+  <div class="tag">Worksheet 7</div>
+  <h3>Evaluation Metrics</h3>
+  <p>MAE, MAPE, MSE, RMSE, $R^2$, Adjusted $R^2$ — full master-table computation. Phir confusion matrix, TP/FP/FN/TN, precision, recall, F1, macro/weighted/micro.</p>
+  <div class="meta"><span>10 sections</span><span>10 MCQs</span><span>Both parts solved</span></div>
+</a>
+
+<a class="lcard" href="l08.html">
+  <div class="tag">Worksheet 8</div>
+  <h3>Polynomial Reg. &amp; 5 Assumptions</h3>
+  <p>Feature transformation $\phi(x)=(x,x^2)$, curve → plane, overfitting, aur Linearity · Normality · Homoscedasticity · No Autocorrelation · No Multicollinearity.</p>
+  <div class="meta"><span>10 sections</span><span>10 MCQs</span><span>Singularity proof</span></div>
+</a>
+
+<a class="lcard" href="l09.html">
+  <div class="tag">Worksheet 9 · Lab 9</div>
+  <h3>Bias–Variance Tradeoff</h3>
+  <p>Bias kya, variance kya, error decomposition, underfit vs overfit, model complexity curve, learning curves, aur cross-validation ka role.</p>
+  <div class="meta"><span>Bridge lecture</span><span>10 MCQs</span><span>Decomposition proof</span></div>
+</a>
+
+<a class="lcard" href="l10.html">
+  <div class="tag">Worksheet 10</div>
+  <h3>Feature Selection</h3>
+  <p>Relevant/redundant/irrelevant features, duplicate removal, variance threshold, Pearson correlation (+ nonlinear counterexample), wrapper methods, leakage trap.</p>
+  <div class="meta"><span>16 sections</span><span>10 MCQs</span><span>Forward+backward traced</span></div>
+</a>
+
+<a class="lcard" href="l11.html">
+  <div class="tag">Worksheet 11</div>
+  <h3>Dimensionality Reduction &amp; PCA</h3>
+  <p>Selection vs extraction, mean centering, projections, covariance matrix, eigenvalues/eigenvectors, scree plot, choosing $k$, aur PCA kab fail hota hai.</p>
+  <div class="meta"><span>5 parts</span><span>10 MCQs</span><span>Full PCA by hand</span></div>
+</a>
+
+</div>
+
+<!-- ============================ -->
+<h2 id="tools">Revision Tools</h2>
+<div class="grid g3">
+  <a class="lcard" href="formula-sheet.html">
+    <div class="tag">∑ Cheat Sheet</div>
+    <h3>Master Formula Sheet</h3>
+    <p>Course ka har single formula — scaling, OLS, gradients, metrics, PCA — ek scrollable page par, symbol meanings ke saath.</p>
+    <div class="meta"><span>All 12 lectures</span></div>
+  </a>
+  <a class="lcard" href="revision.html">
+    <div class="tag">⚡ Last Minute</div>
+    <h3>1-Hour Quick Revision</h3>
+    <p>Har lecture ke 6–8 flash points, high-yield definitions aur "yeh pakka aayega" list. Exam se 1 ghanta pehle ke liye.</p>
+    <div class="meta"><span>~60 min</span></div>
+  </a>
+  <a class="lcard" href="mock-test.html">
+    <div class="tag">✓ Self Assessment</div>
+    <h3>Mock Test · 60 Questions</h3>
+    <p>Poore syllabus se mixed, exam-level MCQs. Instant scoring aur har answer ka explanation.</p>
+    <div class="meta"><span>60 Qs · all lectures</span></div>
+  </a>
+  <a class="lcard" href="labs.html">
+    <div class="tag">{} Practical</div>
+    <h3>Lab Code Companion</h3>
+    <p>Har lecture ka NumPy/scikit-learn implementation — viva aur lab exam ke liye reference code.</p>
+    <div class="meta"><span>Labs 3–11</span></div>
+  </a>
+</div>
+
+<!-- ============================ -->
+<h2 id="how">How to use this handbook</h2>
+<div class="grid g2">
+  <div class="box def" style="margin:0">
+    <div class="box-title">First pass · seekhne ke liye</div>
+    <p style="margin:0">Lecture 0 se order mein padho. Har page par <b>Hook → Concept → Diagram → Solved Numerical → MCQs</b> follow karo. MCQs ko skip mat karna — wahi actual exam difficulty hai.</p>
+  </div>
+  <div class="box takeaway" style="margin:0">
+    <div class="box-title">Second pass · revision ke liye</div>
+    <p style="margin:0">Sirf har page ke <b>⚡ Quick Revision</b> aur <b>⚠ Common Mistakes</b> sections padho + Formula Sheet. Phir Mock Test attempt karo.</p>
+  </div>
+  <div class="box warn" style="margin:0">
+    <div class="box-title">Exam se 1 din pehle</div>
+    <p style="margin:0"><a href="revision.html">Quick Revision page</a> → <a href="formula-sheet.html">Formula Sheet</a> → <a href="mock-test.html">Mock Test</a>. Jo galat ho, sirf un lectures ke Common Mistakes dobara padho.</p>
+  </div>
+  <div class="box insight" style="margin:0">
+    <div class="box-title">Pro tips</div>
+    <p style="margin:0">Top-right icons: <span class="kbd">◐</span> light/dark theme, <span class="kbd">⎙</span> print/save-as-PDF (MCQ explanations auto-expand ho jaate hain print mein). Mobile par <span class="kbd">☰</span> se menu.</p>
+  </div>
+</div>
+
+<div class="box hinglish">
+  <div class="box-title">📌 Source &amp; Scope</div>
+  <p style="margin:0">Yeh handbook <b>AML_combined.pdf</b> ke Worksheets 0–8, 10 aur 11 (162 pages) ke exact content par bana hai — har definition, formula, table, case study aur practice question cover kiya gaya hai. <b>Lecture 9 (Bias–Variance)</b> ka worksheet us PDF mein nahi tha, lekin Worksheet 10 aur course outline usko explicitly reference karte hain — isliye wo page course ke Lab 9 (<code>bias_variance_tools.py</code> + notebook) aur sheets ke internal references se banaya gaya hai, aur uske top par clearly marked hai.</p>
+</div>
+
+</div>
+</main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="window.dispatchEvent(new Event('katex-ready'))"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

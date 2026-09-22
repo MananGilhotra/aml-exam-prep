@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Master Formula Sheet — AML Exam Prep</title>
+<meta name="description" content="Every formula from the Advanced Machine Learning course in one page: scaling, OLS, gradients, evaluation metrics, bias-variance, and PCA.">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page="formula">
+<div class="shell">
+<main class="main">
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Cheat Sheet</div>
+  <h1><span class="gradtext">Master Formula Sheet</span></h1>
+  <p class="sub">Course ka har single formula — symbol meanings, units aur "kab use karna hai" ke saath. Print karke exam se pehle ek baar pura scan karo.</p>
+  <div class="chips">
+    <span class="chip accent">📘 All 12 lectures</span><span class="chip">⎙ Print-friendly</span><span class="chip">⏱ ~12 min scan</span>
+  </div>
+</header>
+
+<!-- ============================================ -->
+<h2 id="f1"><span class="h2-num">L1</span>Feature Scaling &amp; Encoding</h2>
+
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Technique</th><th>Formula</th><th>Range</th><th>Use when</th></tr></thead>
+<tbody>
+<tr><td><b>Min-Max</b><br>(Normalization)</td><td>$X_{\text{scaled}} = \dfrac{X - X_{\min}}{X_{\max} - X_{\min}}$</td><td>$[0, 1]$</td><td>Bounded, clean data; neural nets. <b>Outliers ke liye NAHI.</b></td></tr>
+<tr><td><b>Z-Score</b><br>(Standardization)</td><td>$Z = \dfrac{X - \mu}{\sigma}$</td><td>mean 0, std 1</td><td>Approximately Gaussian features</td></tr>
+<tr><td><b>Max Absolute</b></td><td>$X_{\text{scaled}} = \dfrac{X}{\max(|X|)}$</td><td>$[-1, 1]$</td><td>Sparse data — preserves zeros and sign</td></tr>
+<tr><td><b>Robust</b></td><td>$X_{\text{scaled}} = \dfrac{X - \text{Median}}{Q_3 - Q_1}$</td><td>unbounded</td><td>Heavy outliers you cannot drop</td></tr>
+</tbody>
+</table>
+</div>
+<div class="formula tight"><span class="flabel">Supporting</span>$$\text{IQR} = Q_3 - Q_1 \qquad \mu = \frac1n\sum X_i \qquad \sigma = \sqrt{\frac1n\sum(X_i - \mu)^2}$$</div>
+
+<div class="tbl-wrap">
+<table class="compact">
+<thead><tr><th>Encoding</th><th>Columns produced</th><th>Safe for</th></tr></thead>
+<tbody>
+<tr><td>Label</td><td class="num">1</td><td>Tree models; binary targets</td></tr>
+<tr><td>Ordinal</td><td class="num">1</td><td>Genuinely ranked categories</td></tr>
+<tr><td>One-Hot</td><td class="num">$N$</td><td>Nominal with <b>few</b> categories</td></tr>
+<tr><td>Binary</td><td class="num">$\lceil\log_2 N\rceil$</td><td>Nominal with <b>many</b> categories</td></tr>
+</tbody>
+</table>
+</div>
+
+<!-- ============================================ -->
+<h2 id="f2"><span class="h2-num">L2</span>Lifecycle · Loss &amp; Training Loop</h2>
+<div class="formula"><span class="flabel">Multiple Linear Regression model</span>$$y = w_0 + w_1x_1 + w_2x_2$$</div>
+<div class="formula"><span class="flabel">Mean Squared Error</span>$$\text{MSE} = \frac{1}{n}\sum_{i=1}^{n}(y_i - \hat y_i)^2 \qquad\qquad \text{RMSE} = \sqrt{\text{MSE}}$$</div>
+<div class="box def">
+  <div class="box-title">Split ratio &amp; training loop</div>
+  <p style="margin:0"><b>Train 70% · Validation 15% · Test 15%.</b> &nbsp; Loop: Initialize → Forward Pass → Compute Loss → Backward Pass (Gradient Descent) → Convergence Check.</p>
+</div>
+
+<!-- ============================================ -->
+<h2 id="f3"><span class="h2-num">L3</span>Simple Linear Regression (OLS)</h2>
+<div class="formula"><span class="flabel">Model &amp; residual</span>$$\hat y_i = mx_i + c \qquad\qquad e_i = y_i - \hat y_i = y_i - (mx_i + c)$$</div>
+<div class="formula"><span class="flabel">Loss function</span>$$E(m,c) = \sum_{i=1}^{n}e_i^2 = \sum_{i=1}^{n}(y_i - mx_i - c)^2$$</div>
+<div class="formula"><span class="flabel">Closed-form OLS solution ⭐</span>
+$$\boxed{\;m = \frac{\sum_{i=1}^{n}(x_i - \bar x)(y_i - \bar y)}{\sum_{i=1}^{n}(x_i - \bar x)^2} = \frac{\operatorname{Cov}(X,Y)}{\operatorname{Var}(X)}\;}$$
+$$\boxed{\;c = \bar y - m\bar x\;}$$</div>
+<div class="box insight">
+  <div class="box-title">Remember</div>
+  <p style="margin:0">Compute <b>$m$ first</b>, then $c$. The OLS line <b>always</b> passes through $(\bar x, \bar y)$. Undefined when $\sum(x_i - \bar x)^2 = 0$.</p>
+</div>
+<div class="formula tight"><span class="flabel">Stationarity conditions</span>$$\frac{\partial E}{\partial m} = 0 \qquad \frac{\partial E}{\partial c} = 0 \qquad (\text{surface is convex} \Rightarrow \text{global minimum})$$</div>
+<div class="tbl-wrap" style="max-width:520px">
+<table class="compact">
+<thead><tr><th>Loss attempt</th><th>Formula</th><th>Problem</th></tr></thead>
+<tbody>
+<tr><td>Signed</td><td>$\sum e_i$</td><td>Cancellation</td></tr>
+<tr><td>Absolute</td><td>$\sum|e_i|$</td><td>Not differentiable at $e=0$</td></tr>
+<tr><td><b>Squared ✓</b></td><td>$\sum e_i^2$</td><td>Sensitive to outliers</td></tr>
+</tbody>
+</table>
+</div>
+
+<!-- ============================================ -->
+<h2 id="f4"><span class="h2-num">L4</span>Multiple Linear Regression (Matrix OLS)</h2>
+<div class="formula"><span class="flabel">Model</span>$$\hat y = \beta_0 + \beta_1x_1 + \cdots + \beta_mx_m \qquad\Longleftrightarrow\qquad \hat{\mathbf y} = \mathbf X\boldsymbol\beta$$</div>
+<div class="tbl-wrap" style="max-width:480px">
+<table class="compact">
+<thead><tr><th>Object</th><th>Dimensions</th></tr></thead>
+<tbody>
+<tr><td>$\mathbf X$ (design matrix, 1s column first)</td><td class="num">$n \times (m+1)$</td></tr>
+<tr><td>$\boldsymbol\beta$ (parameter vector)</td><td class="num">$(m+1) \times 1$</td></tr>
+<tr><td>$\hat{\mathbf y}$ (predictions)</td><td class="num">$n \times 1$</td></tr>
+<tr><td>$\mathbf X^\top\mathbf X$</td><td class="num">$(m+1) \times (m+1)$</td></tr>
+</tbody>
+</table>
+</div>
+<div class="formula"><span class="flabel">Loss (compact and expanded)</span>
+$$L(\boldsymbol\beta) = \mathbf e^\top\mathbf e = (\mathbf y - \mathbf X\boldsymbol\beta)^\top(\mathbf y - \mathbf X\boldsymbol\beta)$$
+$$L(\boldsymbol\beta) = \mathbf y^\top\mathbf y - 2\,\mathbf y^\top\mathbf X\boldsymbol\beta + \boldsymbol\beta^\top\mathbf X^\top\mathbf X\boldsymbol\beta$$</div>
+
+<div class="formula"><span class="flabel">Three matrix-calculus identities ⭐</span>
+$$\frac{\partial(c)}{\partial\boldsymbol\beta} = \mathbf 0 \qquad\qquad \frac{\partial(\mathbf a^\top\boldsymbol\beta)}{\partial\boldsymbol\beta} = \mathbf a \qquad\qquad \frac{\partial(\boldsymbol\beta^\top\mathbf A\boldsymbol\beta)}{\partial\boldsymbol\beta} = 2\mathbf A\boldsymbol\beta \;\;(\mathbf A \text{ symmetric})$$</div>
+
+<div class="formula"><span class="flabel">Normal Equation &amp; solution ⭐</span>
+$$\boxed{\;\mathbf X^\top\mathbf X\boldsymbol\beta = \mathbf X^\top\mathbf y\;} \qquad\qquad \boxed{\;\boldsymbol\beta^* = (\mathbf X^\top\mathbf X)^{-1}\mathbf X^\top\mathbf y\;}$$</div>
+<div class="box warn">
+  <div class="box-title">Conditions &amp; cost</div>
+  <p style="margin:0">Works only if $\det(\mathbf X^\top\mathbf X) \ne 0$ (no perfect multicollinearity). Inversion of a $k\times k$ matrix costs $O(k^3)$ — from three nested Gauss–Jordan loops: $k \times k \times 2k = 2k^3$.</p>
+</div>
+
+<!-- ============================================ -->
+<h2 id="f5"><span class="h2-num">L5–L6</span>Gradient Descent Family</h2>
+<div class="formula"><span class="flabel">Generic update rule</span>$$\boldsymbol\theta_{\text{new}} = \boldsymbol\theta_{\text{old}} - \alpha\,\nabla L(\boldsymbol\theta_{\text{old}})$$</div>
+<div class="formula"><span class="flabel">MSE gradient &amp; Batch GD update ⭐</span>
+$$\nabla L = \frac{2}{m}\,\mathbf X^\top(\mathbf X\boldsymbol\theta - \mathbf y) \qquad\Longrightarrow\qquad \boldsymbol\theta := \boldsymbol\theta - \alpha\frac{2}{m}\mathbf X^\top(\mathbf X\boldsymbol\theta - \mathbf y)$$</div>
+<div class="box warn">
+  <div class="box-title">Convention alert</div>
+  <p style="margin:0">If the loss is defined as $L = \frac{1}{2m}\|\mathbf X\boldsymbol\theta - \mathbf y\|_2^2$, the factor 2 <b>disappears</b>: $\nabla L = \frac{1}{m}\mathbf X^\top(\mathbf X\boldsymbol\theta - \mathbf y)$. Check the question's convention.</p>
+</div>
+
+<div class="formula"><span class="flabel">Per-sample gradient (SGD, linear regression with $J_i = \frac12 e_i^2$)</span>
+$$\nabla J_i(\boldsymbol\theta) = \begin{bmatrix}e_i\\ e_i x_i\end{bmatrix}, \qquad e_i = \hat y_i - y_i$$</div>
+<div class="formula"><span class="flabel">Stochastic update</span>$$i_t \sim \text{Uniform}\{1,\dots,m\}, \qquad \boldsymbol\theta_{t+1} = \boldsymbol\theta_t - \alpha\nabla J_{i_t}(\boldsymbol\theta_t)$$</div>
+
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Method</th><th class="num">Samples / update</th><th class="num">Updates / epoch</th><th class="num">Cost / update</th><th>Noise</th></tr></thead>
+<tbody>
+<tr><td><b>Batch GD</b></td><td class="num">$m$</td><td class="num">1</td><td class="num">$O(md)$</td><td>Very low</td></tr>
+<tr><td><b>Stochastic GD</b></td><td class="num">1</td><td class="num">$m$</td><td class="num">$O(d)$</td><td>High</td></tr>
+<tr><td><b>Mini-Batch GD</b></td><td class="num">$b$</td><td class="num">$\lceil m/b\rceil$</td><td class="num">$O(bd)$</td><td>Moderate</td></tr>
+</tbody>
+</table>
+</div>
+<div class="formula tight"><span class="flabel">Validation loss (for tuning $\alpha$)</span>$$L_{\text{val}} = \frac{1}{m_{\text{val}}}\sum_{i=1}^{m_{\text{val}}}(y_i - \hat y_i)^2$$</div>
+
+<!-- ============================================ -->
+<h2 id="f7"><span class="h2-num">L7</span>Evaluation Metrics — Regression</h2>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Metric</th><th>Formula</th><th>Units</th><th>Key property</th></tr></thead>
+<tbody>
+<tr><td><b>MAE</b></td><td>$\dfrac{1}{n}\sum_{i=1}^{n}|e_i|$</td><td>target units</td><td>Equal linear weight per unit</td></tr>
+<tr><td><b>MAPE</b></td><td>$\dfrac{100}{n}\sum_{i=1}^{n}\left|\dfrac{e_i}{y_i}\right|$</td><td>%</td><td><b>Undefined at $y_i = 0$</b></td></tr>
+<tr><td><b>MSE</b></td><td>$\dfrac{1}{n}\sum_{i=1}^{n}e_i^2$</td><td><b>squared</b> units</td><td>Penalises large errors</td></tr>
+<tr><td><b>RMSE</b></td><td>$\sqrt{\text{MSE}}$</td><td>target units</td><td>Large-error penalty, readable units</td></tr>
+<tr><td><b>$R^2$</b></td><td>$1 - \dfrac{\text{RSS}}{\text{TSS}} = \dfrac{\text{TSS} - \text{RSS}}{\text{TSS}}$</td><td>unitless</td><td>Relative to the <b>mean-only baseline</b></td></tr>
+<tr><td><b>Adjusted $R^2$</b></td><td>$1 - (1-R^2)\dfrac{n-1}{n-p-1}$</td><td>unitless</td><td>Charges for <b>extra predictors</b></td></tr>
+</tbody>
+</table>
+</div>
+<div class="formula tight"><span class="flabel">The two sums of squares</span>$$\text{TSS} = \sum_{i=1}^{n}(y_i - \bar y)^2 \qquad\qquad \text{RSS} = \sum_{i=1}^{n}(y_i - \hat y_i)^2$$</div>
+<div class="box danger">
+  <div class="box-title">Traps</div>
+  <ul style="margin:0">
+    <li>$R^2 = 0.93$ is <b>NOT</b> 93% accuracy. It is a sum-of-squares comparison with the mean baseline.</li>
+    <li>MSE is in <b>squared</b> units. The typical miss is RMSE, not MSE.</li>
+    <li>In Adjusted $R^2$, $p$ <b>excludes</b> the intercept. Requires $n &gt; p+1$.</li>
+    <li>Use $1 - R^2 = \text{RSS}/\text{TSS}$ to avoid carrying rounded $R^2$ values.</li>
+  </ul>
+</div>
+
+<h2 id="f7b"><span class="h2-num">L7</span>Evaluation Metrics — Classification</h2>
+<figure>
+<svg viewBox="0 0 460 210" role="img" aria-label="Binary confusion matrix quick reference">
+  <text x="240" y="26" text-anchor="middle" font-size="11.5" font-weight="700" style="fill:var(--text-2)">Predicted</text>
+  <text x="150" y="46" text-anchor="middle" font-size="11" font-weight="700" style="fill:var(--text-3)">Positive</text>
+  <text x="330" y="46" text-anchor="middle" font-size="11" font-weight="700" style="fill:var(--text-3)">Negative</text>
+  <text x="26" y="130" font-size="11.5" font-weight="700" transform="rotate(-90 26 130)" text-anchor="middle" style="fill:var(--text-2)">Actual</text>
+  <text x="56" y="90" text-anchor="middle" font-size="11" font-weight="700" style="fill:var(--text-3)">Pos</text>
+  <text x="56" y="160" text-anchor="middle" font-size="11" font-weight="700" style="fill:var(--text-3)">Neg</text>
+  <rect x="80" y="56" width="140" height="62" fill="rgba(16,185,129,.18)" stroke="#10b981" stroke-width="2"/>
+  <text x="150" y="94" text-anchor="middle" font-size="17" font-weight="800" fill="#34d399">TP</text>
+  <rect x="220" y="56" width="180" height="62" fill="rgba(239,68,68,.16)" stroke="#ef4444" stroke-width="2"/>
+  <text x="310" y="86" text-anchor="middle" font-size="17" font-weight="800" fill="#f87171">FN</text>
+  <text x="310" y="104" text-anchor="middle" font-size="9.5" fill="#f87171">Type II · miss · hurts RECALL</text>
+  <rect x="80" y="118" width="140" height="62" fill="rgba(245,158,11,.16)" stroke="#f59e0b" stroke-width="2"/>
+  <text x="150" y="146" text-anchor="middle" font-size="17" font-weight="800" fill="#fbbf24">FP</text>
+  <text x="150" y="164" text-anchor="middle" font-size="9" fill="#fbbf24">Type I · hurts PRECISION</text>
+  <rect x="220" y="118" width="180" height="62" fill="rgba(99,102,241,.14)" stroke="#6366f1" stroke-width="2"/>
+  <text x="310" y="156" text-anchor="middle" font-size="17" font-weight="800" fill="#a5b4fc">TN</text>
+  <text x="426" y="90" font-size="10" font-weight="700" style="fill:var(--text-3)">← Recall row</text>
+  <text x="150" y="200" text-anchor="middle" font-size="10" font-weight="700" style="fill:var(--text-3)">↑ Precision column</text>
+</svg>
+</figure>
+
+<div class="formula">
+$$\text{Accuracy} = \frac{TP+TN}{TP+TN+FP+FN} = \frac{\text{diagonal}}{\text{total}}$$
+$$\text{Precision} = \frac{TP}{TP+FP} \qquad\qquad \text{Recall (TPR)} = \frac{TP}{TP+FN}$$
+$$F1 = \frac{2\,\text{Prec}\cdot\text{Rec}}{\text{Prec}+\text{Rec}} = \frac{2TP}{2TP+FP+FN}$$</div>
+<div class="box insight">
+  <div class="box-title">Denominator memory hook</div>
+  <p style="margin:0"><b>Precision</b> uses <b>P</b>redicted positives ($TP+FP$). <b>Recall</b> uses <b>R</b>eal (actual) positives ($TP+FN$). <b>F1 never uses TN.</b></p>
+</div>
+
+<div class="formula"><span class="flabel">Aggregation across classes</span>
+$$\text{Macro}(M) = \frac{1}{C}\sum_{c=1}^{C}M_c \qquad\qquad \text{Weighted}(M) = \frac{\sum_c n_c M_c}{\sum_c n_c}$$
+$$\text{Micro}: \text{pool } TP, FP, FN \text{ first, then apply the formulas}$$</div>
+<p><small>In single-label multiclass, micro precision $=$ micro recall $=$ micro F1 $=$ <b>accuracy</b>. Macro F1 is the <b>arithmetic mean of class F1s</b> — <em>not</em> the harmonic mean of macro-P and macro-R.</small></p>
+
+<!-- ============================================ -->
+<h2 id="f8"><span class="h2-num">L8</span>Polynomial Regression &amp; Assumptions</h2>
+<div class="formula"><span class="flabel">Degree-$n$ polynomial</span>$$y = \beta_0 + \beta_1x + \beta_2x^2 + \cdots + \beta_nx^n$$</div>
+<div class="tbl-wrap" style="max-width:520px">
+<table class="compact">
+<thead><tr><th class="num">Degree</th><th class="num">Feature columns (incl. intercept)</th><th class="num">Max bends</th></tr></thead>
+<tbody>
+<tr><td class="num">1</td><td class="num">2</td><td class="num">0</td></tr>
+<tr><td class="num">2</td><td class="num">3</td><td class="num">1</td></tr>
+<tr><td class="num">5</td><td class="num">6</td><td class="num">4</td></tr>
+<tr><td class="num">$n$</td><td class="num">$n+1$</td><td class="num">$n-1$</td></tr>
+</tbody>
+</table>
+</div>
+<div class="formula tight"><span class="flabel">Feature map</span>$$\phi(x) = (x,\ x^2) \qquad\text{— a transformation, NOT a new algorithm}$$</div>
+
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Assumption</th><th>Check with</th><th>Fix</th></tr></thead>
+<tbody>
+<tr><td><b>1. Linearity</b></td><td>Residual vs fitted (U-shape = bad)</td><td>Transformations; polynomial terms</td></tr>
+<tr><td><b>2. Normality of residuals</b></td><td>Histogram of residuals</td><td>Transform target; check outliers</td></tr>
+<tr><td><b>3. Homoscedasticity</b></td><td>Residual vs fitted (funnel = bad)</td><td>log / sqrt / inverse transform</td></tr>
+<tr><td><b>4. No autocorrelation</b></td><td>Residual vs <b>observation order</b></td><td>Time-series methods; lag features</td></tr>
+<tr><td><b>5. No multicollinearity</b></td><td>Input–input correlation; $\det(\mathbf X^\top\mathbf X)$</td><td>Remove a correlated feature; regularize; PCA</td></tr>
+</tbody>
+</table>
+</div>
+<div class="formula tight"><span class="flabel">Singularity chain (perfect multicollinearity)</span>
+$$\mathbf X\mathbf c = \mathbf 0\ (\mathbf c \ne \mathbf 0) \;\Rightarrow\; \mathbf X^\top\mathbf X\mathbf c = \mathbf 0 \;\Rightarrow\; \mathbf X^\top\mathbf X \text{ singular} \;\Rightarrow\; \det = 0 \;\Rightarrow\; (\mathbf X^\top\mathbf X)^{-1} \text{ DNE}$$</div>
+
+<!-- ============================================ -->
+<h2 id="f9"><span class="h2-num">L9</span>Bias–Variance</h2>
+<div class="formula"><span class="flabel">Data model &amp; definitions</span>
+$$Y = f(X) + \varepsilon$$
+$$\text{Bias}(x) = E[\hat f(x)] - f(x) \qquad\qquad \text{Variance}(x) = E\!\left[\left(\hat f(x) - E[\hat f(x)]\right)^2\right]$$</div>
+<div class="formula"><span class="flabel">The decomposition ⭐</span>$$\boxed{\;\text{MSE} = \text{Bias}^2 + \text{Variance} + \operatorname{Var}(\varepsilon)\;}$$</div>
+<div class="tbl-wrap" style="max-width:600px">
+<table class="compact">
+<thead><tr><th>Model</th><th class="num">Bias</th><th class="num">Variance</th><th>Symptom (train vs val error)</th></tr></thead>
+<tbody>
+<tr><td>Too simple</td><td class="num">High</td><td class="num">Low</td><td>Both <b>high and close</b> → underfit</td></tr>
+<tr><td>Suitable</td><td class="num">Mod/low</td><td class="num">Mod/low</td><td>Val error low, gap reasonable</td></tr>
+<tr><td>Too flexible</td><td class="num">Low</td><td class="num">High</td><td>Train low, val <b>much higher</b> → overfit</td></tr>
+</tbody>
+</table>
+</div>
+<p><small><b>More data helps only for high variance.</b> Split: 60% train / 20% validation / 20% test.</small></p>
+
+<!-- ============================================ -->
+<h2 id="f10"><span class="h2-num">L10</span>Feature Selection</h2>
+<div class="formula"><span class="flabel">Variance filter</span>$$\operatorname{Var}(f_j) = \frac1n\sum_{i=1}^{n}(x_{ij} - \bar x_j)^2; \qquad \text{remove if } \operatorname{Var}(f_j) &lt; \tau$$</div>
+<div class="formula"><span class="flabel">Pearson correlation filter</span>$$r_{jY} = \frac{\sum_i(x_{ij}-\bar x_j)(y_i-\bar y)}{\sqrt{\sum_i(x_{ij}-\bar x_j)^2 \;\sum_i(y_i-\bar y)^2}}; \qquad \text{remove if } |r_{jY}| &lt; 0.30$$</div>
+<div class="formula"><span class="flabel">Search-space sizes ⭐</span>
+$$\text{Exhaustive: } 2^p - 1 \ \text{(exponential)} \qquad\qquad \text{Sequential path: } \frac{p(p+1)}{2} \ \text{(quadratic)}$$</div>
+<div class="tbl-wrap" style="max-width:520px">
+<table class="compact">
+<thead><tr><th class="num">$p$</th><th class="num">$2^p - 1$</th><th class="num">$p(p+1)/2$</th></tr></thead>
+<tbody>
+<tr><td class="num">4</td><td class="num">15</td><td class="num">10</td></tr>
+<tr><td class="num">6</td><td class="num">63</td><td class="num">21</td></tr>
+<tr><td class="num">20</td><td class="num">1,048,575</td><td class="num">210</td></tr>
+<tr><td class="num">30</td><td class="num">1,073,741,823</td><td class="num">465</td></tr>
+</tbody>
+</table>
+</div>
+<div class="box danger">
+  <div class="box-title">Traps</div>
+  <ul style="margin:0">
+    <li>$r = 0$ does <b>not</b> mean no relationship — $y = x^2$ gives $r = 0$.</li>
+    <li>High variance does <b>not</b> imply relevance (Student_ID).</li>
+    <li>Selection must sit <b>inside</b> cross-validation. Test set touched <b>once</b>.</li>
+    <li><b>Forward</b>: keep few of many. <b>Backward</b>: keep most of many.</li>
+  </ul>
+</div>
+
+<!-- ============================================ -->
+<h2 id="f11"><span class="h2-num">L11</span>PCA</h2>
+<div class="formula"><span class="flabel">Step 1 — Centering (always) &amp; standardization (conditional)</span>
+$$X_c = X - \mathbf 1\boldsymbol\mu^\top \qquad\qquad z_{ij} = \frac{x_{ij}-\mu_j}{s_j}, \quad s_j = \sqrt{\frac{1}{n-1}\sum_i(x_{ij}-\mu_j)^2}$$</div>
+<div class="formula"><span class="flabel">Step 2 — Covariance matrix</span>
+$$S = \frac{1}{n-1}X_c^\top X_c \quad (p\times p) \qquad\qquad \operatorname{Cov}(x,y) = \frac{1}{n-1}\sum_i(x_i-\bar x)(y_i-\bar y)$$</div>
+<div class="formula"><span class="flabel">Step 3 — Eigen-decomposition</span>$$S\mathbf v = \lambda\mathbf v \qquad\Longleftrightarrow\qquad |S - \lambda I| = 0$$</div>
+<div class="formula"><span class="flabel">Step 4 — Projection</span>
+$$z_i = \mathbf u^\top\mathbf x_i \qquad\qquad Z = X_cW_k, \quad W_k \text{ is } p\times k, \quad Z \text{ is } n\times k$$</div>
+<div class="formula"><span class="flabel">Step 5 — Explained variance</span>
+$$\text{total variance} = \sum_{j=1}^{p}\lambda_j = \operatorname{trace}(S)$$
+$$\text{EVR of PC}_j = \frac{\lambda_j}{\sum_\ell\lambda_\ell} \qquad\qquad \text{cumulative EVR through } k = \frac{\sum_{j=1}^{k}\lambda_j}{\sum_\ell\lambda_\ell}$$</div>
+<div class="formula"><span class="flabel">Applying to test data (never refit!)</span>$$Z_{\text{test}} = \left(X_{\text{test}} - \mathbf 1_{\text{test}}\boldsymbol\mu_{\text{tr}}^\top\right)W_k$$</div>
+<div class="formula tight"><span class="flabel">Variance–reconstruction equivalence</span>
+$$\|\mathbf x_i\|^2 = z_i^2 + \|\mathbf e_i\|^2 \qquad\Longrightarrow\qquad \max_{\|\mathbf u\|=1}\operatorname{Var}(\mathbf z) \iff \min_{\|\mathbf u\|=1}\sum_i\|\mathbf e_i\|^2$$</div>
+<div class="box danger">
+  <div class="box-title">PCA fails when</div>
+  <p style="margin:0">(1) Data is isotropic/circular ($\lambda_1 \approx \lambda_2$) · (2) Classes are symmetric about PC₁ (projection <b>merges</b> them) · (3) Structure is nonlinear (linear PCA cannot unroll manifolds).</p>
+</div>
+
+<!-- ============================================ -->
+<h2 id="constants">📌 Numbers Worth Memorising</h2>
+<div class="grid g2">
+  <div class="box def" style="margin:0"><div class="box-title">Worked OLS (L3)</div>
+    <p style="margin:0">$x=[1,3,5,7,9]$, $y=[25,40,55,65,80]$ → $\bar x = 5$, $\bar y = 53$, $m = \frac{270}{40} = 6.75$, $c = 19.25$</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Worked MLR (L4)</div>
+    <p style="margin:0">$\det(\mathbf X^\top\mathbf X) = 1$, $\mathbf X^\top\mathbf y = [11,8,9]^\top$, $\boldsymbol\beta^* = [-1,3,4]^\top$ → $\hat y = -1+3x_1+4x_2$</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Worked metrics (L7)</div>
+    <p style="margin:0">MAE $=22/8 = 2.75$ · MAPE $\approx 5.69\%$ · MSE $=74/8 = 9.25$ · RMSE $=3.04$ · TSS $=1050$ · $R^2 = 0.9295$ · $R^2_{\text{adj}} = 0.9013$</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Worked classification (L7)</div>
+    <p style="margin:0">Accuracy $=12/18 = 0.667$ · Support $TP{=}2, FP{=}2, FN{=}2, TN{=}12$ · P $=$ R $=$ F1 $= 0.500$ · Macro F1 $=0.638$ · Weighted F1 $=0.672$ · Micro $=0.667$</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Worked PCA (L11)</div>
+    <p style="margin:0">$\boldsymbol\mu = [4,3]^\top$ · $S = \begin{bmatrix}4&4\\4&4\end{bmatrix}$ · $\lambda_1 = 8$, $\lambda_2 = 0$ · $\mathbf v_1 = \frac{1}{\sqrt2}[1,1]^\top$ · EVR $=100\%$</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Worked scaling (L1)</div>
+    <p style="margin:0">Robust on $[100,150,200,250,50000]$: Med $=200$, $Q_1 = 125$, $Q_3 = 25125$, IQR $=25000$ → $X{=}100 \to -0.004$, $X{=}50000 \to 1.992$</p></div>
+</div>
+
+<div class="box insight">
+  <div class="box-title">⎙ Print tip</div>
+  <p style="margin:0">Top-right <span class="kbd">⎙</span> button se is page ko PDF mein save karo — sidebar aur nav automatically hide ho jaate hain, sirf formulas print hote hain.</p>
+</div>
+
+</div>
+</main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="window.dispatchEvent(new Event('katex-ready'))"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

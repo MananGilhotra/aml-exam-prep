@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lecture 9 · Bias–Variance Tradeoff — AML Exam Prep</title>
+<meta name="description" content="Y = f(X) + noise, bias and variance at a point, the MSE decomposition, underfitting vs overfitting, and diagnosing real models with validation error, cross-validation and learning curves.">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page="l09">
+<div class="shell">
+<main class="main">
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Lecture 9 · Lab 9</div>
+  <h1>The <span class="gradtext">Bias–Variance</span> Tradeoff</h1>
+  <p class="sub">Underfitting vs Overfitting · Error decomposition · Cross-validation · Learning curves</p>
+  <div class="chips">
+    <span class="chip accent">⏱ ~28 min</span><span class="chip">📐 MSE decomposition</span>
+    <span class="chip">🧮 4 solved numericals</span><span class="chip">✓ 10 MCQs</span>
+  </div>
+</header>
+
+<div class="box warn">
+  <div class="box-title">📌 A note on this page's source</div>
+  <p style="margin:0">Jo <b>AML_combined.pdf</b> diya gaya tha usme <b>Worksheet 09 shamil nahi tha</b> (wo Worksheet 08 se seedha Worksheet 10 par jaata hai). Lekin Bias &amp; Variance course ke official content list mein hai, aur <b>Worksheet 10 explicitly ise reference karti hai</b>: <em>"In Lecture 9, we saw that extra flexibility can reduce bias but can also increase variance."</em> Isliye yeh page course ke apne <b>Lab 9 (<code>Lab_9_Bias_Variance.ipynb</code> + <code>bias_variance_tools.py</code>)</b> par banaya gaya hai — jo apne header mein kehta hai <em>"This lab follows the ideas and sequence of AML Lecture 9"</em> — aur Worksheets 8 &amp; 10 ke cross-references par. Formulas, numbers aur diagnosis rules sab lab se hi liye gaye hain.</p>
+</div>
+
+<div class="box hinglish">
+  <div class="box-title">⚡ Ek Line Mein</div>
+  <p style="margin:0">Har training sample thoda alag model deta hai. <b>Bias</b> = average prediction truth se kitni door hai. <b>Variance</b> = samples badalne par predictions kitni hilti hain. Simple model → high bias, low variance (<b>underfit</b>). Bohot flexible model → low bias, high variance (<b>overfit</b>). Aur:<br>$\text{MSE} = \text{Bias}^2 + \text{Variance} + \text{Irreducible Error}$</p>
+</div>
+
+<h3>Learning outcomes</h3>
+<ol>
+  <li>Explain the model $Y = f(X) + \varepsilon$.</li>
+  <li>Explain why different training samples produce different fitted models.</li>
+  <li>Identify high bias, high variance, underfitting and overfitting.</li>
+  <li>Use $\text{MSE} = \text{Bias}^2 + \text{Variance} + \text{Irreducible Error}$ in a controlled simulation.</li>
+  <li>Keep training, validation and test data separate.</li>
+  <li>Use cross-validation and learning curves to diagnose a regression model.</li>
+</ol>
+
+<!-- ============================================ -->
+<h2 id="partA" style="border-top:2px solid var(--border-2);padding-top:2rem">PART A · Controlled experiment — the true function is known</h2>
+
+<h3 id="s1"><span class="h2-num">1</span>Start with $Y = f(X) + \varepsilon$</h3>
+<div class="formula"><span class="flabel">The data-generating model</span>$$Y = f(X) + \varepsilon$$</div>
+<ul>
+  <li>$f(X)$ — the <b>true pattern</b> we are trying to learn.</li>
+  <li>$Y$ — the <b>observed output</b> (what we actually see in the dataset).</li>
+  <li>$\varepsilon$ — <b>random noise</b> that the model can never predict.</li>
+</ul>
+
+<div class="box def">
+  <div class="box-title">The lab's controlled setting</div>
+  <p style="margin:0">Lab mein <b>$f(x) = x^2$</b> use kiya gaya. Population mein $-15$ se $10$ ke beech 100 evenly spaced input values hain. Har point par normally distributed noise add kiya gaya: mean $0$, standard deviation $20$.</p>
+  <p style="margin:.5rem 0 0"><b>Yeh deliberately artificial hai.</b> Hum true function <b>jaante</b> hain kyunki humne khud data banaya hai. Real data mein $f(x)$ hume <b>kabhi pata nahi hota</b> — isliye Part B mein hume alag diagnostic tools chahiye.</p>
+</div>
+
+<figure>
+<svg viewBox="0 0 560 260" role="img" aria-label="True quadratic function with noisy observations around it">
+  <line x1="50" y1="220" x2="530" y2="220" stroke-width="1.4" style="stroke:var(--border-2)"/>
+  <line x1="50" y1="220" x2="50" y2="26" stroke-width="1.4" style="stroke:var(--border-2)"/>
+  <text x="290" y="246" text-anchor="middle" font-size="11.5" font-weight="700" style="fill:var(--text-2)">x</text>
+  <text x="28" y="124" font-size="11.5" font-weight="700" transform="rotate(-90 28 124)" text-anchor="middle" style="fill:var(--text-2)">y</text>
+  <path d="M60 40 Q 300 330, 520 116" fill="none" stroke-width="3.2" style="stroke:var(--text)"/>
+  <g fill="#38bdf8" opacity=".85">
+    <circle cx="66" cy="58" r="3.6"/><circle cx="96" cy="72" r="3.6"/><circle cx="126" cy="110" r="3.6"/><circle cx="156" cy="128" r="3.6"/>
+    <circle cx="186" cy="164" r="3.6"/><circle cx="216" cy="176" r="3.6"/><circle cx="246" cy="200" r="3.6"/><circle cx="276" cy="192" r="3.6"/>
+    <circle cx="306" cy="206" r="3.6"/><circle cx="336" cy="188" r="3.6"/><circle cx="366" cy="178" r="3.6"/><circle cx="396" cy="156" r="3.6"/>
+    <circle cx="426" cy="150" r="3.6"/><circle cx="456" cy="128" r="3.6"/><circle cx="486" cy="120" r="3.6"/><circle cx="516" cy="98" r="3.6"/>
+    <circle cx="81" cy="88" r="3.6"/><circle cx="141" cy="94" r="3.6"/><circle cx="201" cy="150" r="3.6"/><circle cx="261" cy="184" r="3.6"/>
+    <circle cx="321" cy="216" r="3.6"/><circle cx="381" cy="192" r="3.6"/><circle cx="441" cy="164" r="3.6"/><circle cx="501" cy="134" r="3.6"/>
+  </g>
+  <text x="300" y="44" font-size="12" font-weight="800" style="fill:var(--text)">true f(x) = x²</text>
+  <text x="300" y="60" font-size="11" fill="#38bdf8">observed Y = f(X) + ε</text>
+</svg>
+<figcaption>Black curve sirf isliye available hai kyunki humne khud data banaya. Real data mein sirf blue dots dikhte hain.</figcaption>
+</figure>
+
+<!-- ============================================ -->
+<h3 id="s2"><span class="h2-num">2</span>One estimator, different training samples</h3>
+<p>Ek <b>estimator</b> ek learning rule hai (jaise "degree-2 polynomial fit karo"). Fitted result, $\hat f(x)$, <b>badal jaata hai jab training sample badalta hai</b>. Lab mein isko same population se <b>teen independent samples</b> draw karke demonstrate kiya gaya.</p>
+
+<div class="grid g2">
+<figure style="margin:0">
+<svg viewBox="0 0 320 230" role="img" aria-label="Three degree-1 fits: similar to each other but all miss the curve">
+  <text x="160" y="18" text-anchor="middle" font-size="12.5" font-weight="800" fill="#f59e0b">Degree 1 · High bias, low variance</text>
+  <line x1="36" y1="196" x2="300" y2="196" stroke-width="1.3" style="stroke:var(--border-2)"/>
+  <line x1="36" y1="196" x2="36" y2="34" stroke-width="1.3" style="stroke:var(--border-2)"/>
+  <path d="M44 46 Q 170 292, 294 100" fill="none" stroke-width="3" style="stroke:var(--text)"/>
+  <line x1="44" y1="150" x2="294" y2="112" stroke="#3b82f6" stroke-width="1.8"/>
+  <line x1="44" y1="160" x2="294" y2="118" stroke="#8b5cf6" stroke-width="1.8"/>
+  <line x1="44" y1="142" x2="294" y2="106" stroke="#06b6d4" stroke-width="1.8"/>
+  <text x="168" y="220" text-anchor="middle" font-size="10.5" style="fill:var(--text-3)">teeno lines ek jaisi — par koi bhi curve reproduce nahi kar paati</text>
+</svg>
+</figure>
+<figure style="margin:0">
+<svg viewBox="0 0 320 230" role="img" aria-label="Three degree-5 fits: wildly different from each other">
+  <text x="160" y="18" text-anchor="middle" font-size="12.5" font-weight="800" fill="#ef4444">Degree 5 · Low bias, high variance</text>
+  <line x1="36" y1="196" x2="300" y2="196" stroke-width="1.3" style="stroke:var(--border-2)"/>
+  <line x1="36" y1="196" x2="36" y2="34" stroke-width="1.3" style="stroke:var(--border-2)"/>
+  <path d="M44 46 Q 170 292, 294 100" fill="none" stroke-width="3" style="stroke:var(--text)"/>
+  <path d="M44 56 C 90 170, 120 120, 160 186 C 200 250, 240 130, 294 92" fill="none" stroke="#3b82f6" stroke-width="1.8"/>
+  <path d="M44 38 C 96 200, 128 160, 168 170 C 214 182, 244 152, 294 118" fill="none" stroke="#8b5cf6" stroke-width="1.8"/>
+  <path d="M44 66 C 84 146, 126 200, 172 164 C 220 128, 250 176, 294 82" fill="none" stroke="#06b6d4" stroke-width="1.8"/>
+  <text x="168" y="220" text-anchor="middle" font-size="10.5" style="fill:var(--text-3)">shapes sharply badal rahe hain — noise ko react kar rahe hain</text>
+</svg>
+</figure>
+</div>
+
+<div class="grid g2">
+  <div class="box warn" style="margin:0">
+    <div class="box-title">Degree 1 — interpretation</div>
+    <p style="margin:0">Teeno lines <b>ek dusre se kaafi similar</b> hain, par koi bhi curved true function reproduce nahi kar sakti. Yeh expected <b>high-bias, low-variance</b> pattern hai. Model <b>underfits</b>.</p>
+  </div>
+  <div class="box danger" style="margin:0">
+    <div class="box-title">Degree 5 — interpretation</div>
+    <p style="margin:0">Flexible curves quadratic shape follow kar sakti hain, to unki <b>bias kam</b> ho sakti hai. Lekin unke shapes samples ke across <b>sharply badalte</b> hain kyunki wo noise par bhi react karti hain. Yeh expected <b>low-bias, high-variance</b> pattern hai. Model <b>overfits</b>.</p>
+  </div>
+</div>
+
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Model behaviour</th><th class="num">Bias</th><th class="num">Variance</th><th>Usual result</th></tr></thead>
+<tbody>
+<tr><td><b>Too simple</b></td><td class="num">High</td><td class="num">Low</td><td><span class="pill a">Underfitting</span></td></tr>
+<tr><td><b>Suitable complexity</b></td><td class="num">Moderate/low</td><td class="num">Moderate/low</td><td><span class="pill g">Better generalisation</span></td></tr>
+<tr><td><b>Too flexible</b></td><td class="num">Low</td><td class="num">High</td><td><span class="pill r">Overfitting</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<!-- ============================================ -->
+<h3 id="s3"><span class="h2-num">3</span>Bias and variance at one input value ⭐</h3>
+<p>At a fixed input $x$:</p>
+<div class="formula"><span class="flabel">Bias</span>$$\text{Bias}(x) = E\!\left[\hat f(x)\right] - f(x)$$</div>
+<p><b>Bias</b> measure karta hai ki <b>average prediction truth se kitni door</b> hai.</p>
+<div class="formula"><span class="flabel">Variance</span>$$\text{Variance}(x) = E\!\left[\left(\hat f(x) - E[\hat f(x)]\right)^2\right]$$</div>
+<p><b>Variance</b> measure karta hai ki <b>alag training samples par predictions kitni badalti</b> hain.</p>
+
+<div class="box insight">
+  <div class="box-title">★ How the lab estimates these</div>
+  <p style="margin:0">Lab har degree ke liye <b>100 models</b> train karta hai (100 alag simulated training datasets se) aur $x = 5$ par unki predictions compare karta hai. Kyunki $f(5) = 5^2 = 25$, true value <b>known</b> hai — to hum literally $E[\hat f(5)]$ aur $\operatorname{Var}(\hat f(5))$ approximate kar sakte hain.</p>
+  <p style="margin:.5rem 0 0">Real problems mein yeh possible <b>nahi</b> hai (na hum population se repeatedly sample kar sakte hain, na hume $f$ pata hai). Isliye Part B mein proxies use hote hain.</p>
+</div>
+
+<figure>
+<svg viewBox="0 0 620 260" role="img" aria-label="Bias and variance illustrated as dart board scatter">
+  <g>
+    <text x="90" y="20" text-anchor="middle" font-size="11.5" font-weight="800" fill="#10b981">Low bias, low variance</text>
+    <circle cx="90" cy="140" r="62" fill="none" style="stroke:var(--border-2)"/><circle cx="90" cy="140" r="40" fill="none" style="stroke:var(--border-2)"/>
+    <circle cx="90" cy="140" r="20" fill="rgba(16,185,129,.16)" stroke="#10b981"/><circle cx="90" cy="140" r="3" fill="#10b981"/>
+    <g fill="#38bdf8"><circle cx="86" cy="136" r="4"/><circle cx="95" cy="143" r="4"/><circle cx="90" cy="148" r="4"/><circle cx="96" cy="134" r="4"/><circle cx="83" cy="145" r="4"/></g>
+    <text x="90" y="226" text-anchor="middle" font-size="10.5" style="fill:var(--text-3)">ideal</text>
+  </g>
+  <g transform="translate(160,0)">
+    <text x="90" y="20" text-anchor="middle" font-size="11.5" font-weight="800" fill="#f59e0b">High bias, low variance</text>
+    <circle cx="90" cy="140" r="62" fill="none" style="stroke:var(--border-2)"/><circle cx="90" cy="140" r="40" fill="none" style="stroke:var(--border-2)"/>
+    <circle cx="90" cy="140" r="20" fill="rgba(16,185,129,.10)" stroke="#10b981"/><circle cx="90" cy="140" r="3" fill="#10b981"/>
+    <g fill="#38bdf8"><circle cx="128" cy="104" r="4"/><circle cx="135" cy="110" r="4"/><circle cx="130" cy="114" r="4"/><circle cx="137" cy="102" r="4"/><circle cx="125" cy="112" r="4"/></g>
+    <text x="90" y="226" text-anchor="middle" font-size="10.5" style="fill:var(--text-3)">consistent but wrong → <b>underfit</b></text>
+  </g>
+  <g transform="translate(320,0)">
+    <text x="90" y="20" text-anchor="middle" font-size="11.5" font-weight="800" fill="#ef4444">Low bias, high variance</text>
+    <circle cx="90" cy="140" r="62" fill="none" style="stroke:var(--border-2)"/><circle cx="90" cy="140" r="40" fill="none" style="stroke:var(--border-2)"/>
+    <circle cx="90" cy="140" r="20" fill="rgba(16,185,129,.10)" stroke="#10b981"/><circle cx="90" cy="140" r="3" fill="#10b981"/>
+    <g fill="#38bdf8"><circle cx="56" cy="110" r="4"/><circle cx="124" cy="126" r="4"/><circle cx="82" cy="184" r="4"/><circle cx="130" cy="168" r="4"/><circle cx="62" cy="158" r="4"/></g>
+    <text x="90" y="226" text-anchor="middle" font-size="10.5" style="fill:var(--text-3)">centred but scattered → <b>overfit</b></text>
+  </g>
+  <g transform="translate(480,0)">
+    <text x="90" y="20" text-anchor="middle" font-size="11.5" font-weight="800" fill="#a855f7">High bias, high variance</text>
+    <circle cx="90" cy="140" r="62" fill="none" style="stroke:var(--border-2)"/><circle cx="90" cy="140" r="40" fill="none" style="stroke:var(--border-2)"/>
+    <circle cx="90" cy="140" r="20" fill="rgba(16,185,129,.10)" stroke="#10b981"/><circle cx="90" cy="140" r="3" fill="#10b981"/>
+    <g fill="#38bdf8"><circle cx="132" cy="86" r="4"/><circle cx="146" cy="130" r="4"/><circle cx="108" cy="80" r="4"/><circle cx="150" cy="104" r="4"/><circle cx="118" cy="120" r="4"/></g>
+    <text x="90" y="226" text-anchor="middle" font-size="10.5" style="fill:var(--text-3)">worst case</text>
+  </g>
+</svg>
+<figcaption>Bullseye = truth $f(x)$. Har blue dot ek alag training sample par fit kiya gaya model hai.</figcaption>
+</figure>
+
+<!-- ============================================ -->
+<h3 id="s4"><span class="h2-num">4</span>MSE decomposition ⭐</h3>
+<p>Squared-error regression ke liye, expected prediction error ko aise likha ja sakta hai:</p>
+<div class="formula"><span class="flabel">The bias–variance decomposition</span>$$\boxed{\;\text{MSE} = \text{Bias}^2 + \text{Variance} + \operatorname{Var}(\varepsilon)\;}$$</div>
+<p>Last term <b>irreducible error</b> hai. <b>Zyada flexible modelling us randomness ko hata nahi sakti</b> jo data mein already maujood hai.</p>
+
+<div class="solved">
+  <header><span class="qtag">Worked check</span><h4>Two-line computation straight from the lecture</h4></header>
+  <div class="body">
+    <ol class="steps">
+      <li><span class="sh">If the average prediction is 12 and the true value is 10, what is the bias?</span>
+        $$\text{Bias} = E[\hat f(x)] - f(x) = 12 - 10 = \mathbf{2}$$</li>
+      <li><span class="sh">If bias is 2, variance is 3, and noise variance is 1, what is the expected MSE?</span>
+        $$\text{MSE} = \text{Bias}^2 + \text{Variance} + \operatorname{Var}(\varepsilon) = 2^2 + 3 + 1 = 4 + 3 + 1 = \mathbf{8}$$
+        <div class="answer">Note: bias <b>squared</b> hoti hai. $2 + 3 + 1 = 6$ likhna sabse common error hai.</div></li>
+      <li><span class="sh">If irreducible error increases while bias and variance stay fixed, what happens to MSE?</span>
+        <div class="answer">It <b>increases by exactly the same amount</b>.</div>
+        <p style="margin:.3rem 0 0">Teeno terms <b>additive</b> hain. Agar $\operatorname{Var}(\varepsilon)$ $1 \to 4$ ho jaye, to MSE $8 \to 11$ ho jaayegi. Aur yeh wo hissa hai jise <b>koi bhi model kam nahi kar sakta</b> — ise kam karne ke liye tumhe <b>better data</b> chahiye (kam measurement noise, better features), better algorithm nahi.</p></li>
+    </ol>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<h3 id="s5"><span class="h2-num">5</span>Observing the tradeoff</h3>
+<p>Lab ki simulation poore input range par results average karti hai aur har degree ke liye bias², variance, irreducible noise aur total error plot karti hai.</p>
+
+<figure>
+<svg viewBox="0 0 620 300" role="img" aria-label="Bias squared falls and variance rises with model complexity, total error is U-shaped">
+  <line x1="60" y1="250" x2="580" y2="250" stroke-width="1.5" style="stroke:var(--border-2)"/>
+  <line x1="60" y1="250" x2="60" y2="30" stroke-width="1.5" style="stroke:var(--border-2)"/>
+  <text x="320" y="282" text-anchor="middle" font-size="12" font-weight="700" style="fill:var(--text-2)">Model complexity (polynomial degree) →</text>
+  <text x="32" y="140" font-size="12" font-weight="700" transform="rotate(-90 32 140)" text-anchor="middle" style="fill:var(--text-2)">Error</text>
+  <!-- bias^2 -->
+  <path d="M72 52 C 130 150, 180 216, 260 236 C 360 246, 470 248, 570 249" fill="none" stroke="#f59e0b" stroke-width="2.8"/>
+  <!-- variance -->
+  <path d="M72 246 C 180 244, 280 228, 370 186 C 450 148, 520 84, 570 40" fill="none" stroke="#ef4444" stroke-width="2.8"/>
+  <!-- irreducible -->
+  <line x1="60" y1="222" x2="580" y2="222" stroke="#64748b" stroke-width="2" stroke-dasharray="6 4"/>
+  <!-- total -->
+  <path d="M72 44 C 140 118, 200 158, 268 160 C 350 162, 440 116, 570 34" fill="none" stroke="#06b6d4" stroke-width="3.4"/>
+  <circle cx="268" cy="160" r="6" fill="#10b981"/>
+  <line x1="268" y1="160" x2="268" y2="250" stroke="#10b981" stroke-width="1.6" stroke-dasharray="4 3"/>
+  <text x="268" y="270" text-anchor="middle" font-size="11" font-weight="800" fill="#10b981">optimal complexity</text>
+  <text x="120" y="272" text-anchor="middle" font-size="11" font-weight="700" fill="#f59e0b">underfit</text>
+  <text x="500" y="272" text-anchor="middle" font-size="11" font-weight="700" fill="#ef4444">overfit</text>
+  <g font-size="11.5" font-weight="700">
+    <rect x="344" y="36" width="224" height="80" rx="9" fill="rgba(0,0,0,.55)" style="stroke:var(--border)"/>
+    <line x1="356" y1="52" x2="376" y2="52" stroke="#f59e0b" stroke-width="3"/><text x="384" y="56" style="fill:var(--text-2)">Bias² (falls)</text>
+    <line x1="356" y1="70" x2="376" y2="70" stroke="#ef4444" stroke-width="3"/><text x="384" y="74" style="fill:var(--text-2)">Variance (rises)</text>
+    <line x1="356" y1="88" x2="376" y2="88" stroke="#64748b" stroke-width="2.5" stroke-dasharray="5 3"/><text x="384" y="92" style="fill:var(--text-2)">Irreducible noise (flat)</text>
+    <line x1="356" y1="106" x2="376" y2="106" stroke="#06b6d4" stroke-width="3.5"/><text x="384" y="110" style="fill:var(--text-2)">Total MSE (U-shaped)</text>
+  </g>
+</svg>
+<figcaption>Classic tradeoff. Total error <b>U-shaped</b> hai — minimum us complexity par jahan bias² aur variance balance karte hain.</figcaption>
+</figure>
+
+<div class="box insight">
+  <div class="box-title">★ Interpretation (from the lab)</div>
+  <p style="margin:0">Degree 1 quadratic pattern represent nahi kar sakta, to uski <b>bias high</b> hai. Degree 2 true family se match karta hai aur normally yahan <b>best balance</b> deta hai. Bohot high degrees training sample par strongly react karti hain, to <b>variance badh jaati</b> hai.</p>
+  <p style="margin:.5rem 0 0"><small>Lab mein y-axis <b>logarithmic</b> hai kyunki sabse flexible models baaki sab se kahin bade errors produce kar sakte hain.</small></p>
+</div>
+
+<!-- ============================================ -->
+<h2 id="partB" style="border-top:2px solid var(--border-2);padding-top:2rem">PART B · Real data — the true function is unknown</h2>
+
+<h3 id="s6"><span class="h2-num">6</span>From theory to diagnosis</h3>
+<div class="box danger">
+  <div class="box-title">△ The core practical problem</div>
+  <p style="margin:0">Ek real problem mein humare paas <b>ek dataset hota hai</b>, population se har possible sample nahi. Aur hume <b>true $f(x)$ pata nahi</b> hota. Isliye hum normally <b>exact mathematical bias aur variance calculate nahi kar sakte</b>.</p>
+</div>
+<p>Instead, hum model behaviour ko in tools se <b>diagnose</b> karte hain:</p>
+<ul>
+  <li>Training aur validation error</li>
+  <li>Ek train / validation / test split</li>
+  <li>Cross-validation</li>
+  <li>Learning curves</li>
+</ul>
+<p><small>Lab ke applied section mein <code>Study_Hours</code> se <code>Exam_Score</code> predict kiya jaata hai — ek one-input regression example taaki model complexity plot karna easy rahe.</small></p>
+
+<h3 id="s7"><span class="h2-num">7</span>Training, validation, and test data</h3>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Split</th><th>Purpose</th></tr></thead>
+<tbody>
+<tr><td><b>Training set</b></td><td>Model <b>parameters</b> fit karta hai</td></tr>
+<tr><td><b>Validation set</b></td><td>Model <b>degrees compare</b> karta hai aur ek choose karne mein help karta hai</td></tr>
+<tr><td><b>Test set</b></td><td>Saari choices complete hone ke baad <b>ek final estimate</b> deta hai</td></tr>
+</tbody>
+</table>
+</div>
+<p>Lab ek reproducible <b>60% / 20% / 20%</b> split banata hai. <b>Degree choose karte waqt hum test error ko dekhte hi nahi.</b></p>
+
+<!-- ============================================ -->
+<h3 id="s8"><span class="h2-num">8</span>Compare model complexity — reading the error pattern ⭐</h3>
+<p>Training MSE complexity badhne par <b>almost hamesha girta</b> hai (ya same rehta hai). <b>Validation MSE</b> batata hai ki extra flexibility unseen data par <b>help kar rahi hai ya nahi</b>.</p>
+
+<figure>
+<svg viewBox="0 0 620 280" role="img" aria-label="Training MSE always falls while validation MSE is U-shaped">
+  <line x1="60" y1="230" x2="580" y2="230" stroke-width="1.5" style="stroke:var(--border-2)"/>
+  <line x1="60" y1="230" x2="60" y2="26" stroke-width="1.5" style="stroke:var(--border-2)"/>
+  <text x="320" y="260" text-anchor="middle" font-size="12" font-weight="700" style="fill:var(--text-2)">Polynomial degree</text>
+  <text x="32" y="128" font-size="12" font-weight="700" transform="rotate(-90 32 128)" text-anchor="middle" style="fill:var(--text-2)">Mean squared error</text>
+  <path d="M84 58 C 160 130, 240 182, 340 204 C 430 220, 500 224, 560 226" fill="none" stroke="#10b981" stroke-width="3"/>
+  <path d="M84 62 C 150 118, 210 142, 272 144 C 360 148, 450 104, 560 38" fill="none" stroke="#ef4444" stroke-width="3"/>
+  <g fill="#10b981"><circle cx="84" cy="58" r="4"/><circle cx="188" cy="152" r="4"/><circle cx="272" cy="188" r="4"/><circle cx="376" cy="210" r="4"/><circle cx="480" cy="223" r="4"/></g>
+  <g fill="#ef4444"><circle cx="84" cy="62" r="4"/><circle cx="188" cy="132" r="4"/><circle cx="272" cy="144" r="4"/><circle cx="376" cy="142" r="4"/><circle cx="480" cy="86" r="4"/></g>
+  <circle cx="272" cy="144" r="8" fill="none" stroke="#06b6d4" stroke-width="2.5"/>
+  <line x1="272" y1="152" x2="272" y2="230" stroke="#06b6d4" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text x="272" y="248" text-anchor="middle" font-size="11" font-weight="800" fill="#06b6d4">choose this degree</text>
+  <g font-size="11.5" font-weight="700">
+    <rect x="356" y="36" width="212" height="46" rx="9" fill="rgba(0,0,0,.55)" style="stroke:var(--border)"/>
+    <line x1="368" y1="52" x2="388" y2="52" stroke="#10b981" stroke-width="3"/><text x="396" y="56" style="fill:var(--text-2)">Training MSE</text>
+    <line x1="368" y1="70" x2="388" y2="70" stroke="#ef4444" stroke-width="3"/><text x="396" y="74" style="fill:var(--text-2)">Validation MSE</text>
+  </g>
+  <path d="M480 90 L480 219" stroke="#a855f7" stroke-width="1.6" stroke-dasharray="3 3"/>
+  <text x="492" y="160" font-size="10.5" font-weight="700" fill="#a855f7">large gap</text>
+  <text x="492" y="174" font-size="10.5" font-weight="700" fill="#a855f7">= high variance</text>
+</svg>
+<figcaption>Training error monotonically girta hai; validation error U-shape banata hai. Minimum validation error par degree choose karo.</figcaption>
+</figure>
+
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Pattern</th><th>Training error</th><th>Validation error</th><th>Diagnosis</th></tr></thead>
+<tbody>
+<tr><td><b>High bias</b></td><td>High</td><td>High</td><td>Dono <b>high aur ek dusre ke paas</b> → <span class="pill a">underfitting</span></td></tr>
+<tr><td><b>High variance</b></td><td>Low</td><td>Much higher</td><td>Bada <b>gap</b> → <span class="pill r">overfitting</span></td></tr>
+<tr><td><b>Better balance</b></td><td>Moderate</td><td>Low</td><td>Validation error low aur train–validation gap excessive nahi → <span class="pill g">good</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="box warn">
+  <div class="box-title">△ Instructor note</div>
+  <p style="margin:0">"High" aur "low" jaise exact words <b>task ke relative</b> hain. Models ko <b>same dataset aur same metric</b> par compare karo — koi universal MSE cutoff invent mat karo.</p>
+</div>
+
+<!-- ============================================ -->
+<h3 id="s9"><span class="h2-num">9</span>Cross-validation checks stability</h3>
+<p>Ek validation result <b>ek</b> split par depend karta hai. <b>Five-fold cross-validation</b> train/validation process ko paanch folds ke across repeat karta hai.</p>
+<ul>
+  <li><b>Mean CV MSE</b> — average error measure karta hai.</li>
+  <li><b>Standard deviation of CV MSE</b> — dikhata hai ki wo error folds ke across kitna badalta hai (<b>stability</b>).</li>
+</ul>
+
+<figure>
+<svg viewBox="0 0 620 220" role="img" aria-label="Five-fold cross validation layout">
+  <text x="310" y="20" text-anchor="middle" font-size="13" font-weight="800" style="fill:var(--text)">5-Fold Cross-Validation</text>
+  <g font-size="10.5" font-weight="700" text-anchor="middle">
+    <text x="42" y="52" style="fill:var(--text-3)">Fold 1</text>
+    <text x="42" y="84" style="fill:var(--text-3)">Fold 2</text>
+    <text x="42" y="116" style="fill:var(--text-3)">Fold 3</text>
+    <text x="42" y="148" style="fill:var(--text-3)">Fold 4</text>
+    <text x="42" y="180" style="fill:var(--text-3)">Fold 5</text>
+  </g>
+  <g>
+    <rect x="80" y="38" width="96" height="20" rx="4" fill="#ef4444"/>
+    <rect x="180" y="38" width="96" height="20" rx="4" fill="rgba(16,185,129,.4)"/><rect x="280" y="38" width="96" height="20" rx="4" fill="rgba(16,185,129,.4)"/>
+    <rect x="380" y="38" width="96" height="20" rx="4" fill="rgba(16,185,129,.4)"/><rect x="480" y="38" width="96" height="20" rx="4" fill="rgba(16,185,129,.4)"/>
+
+    <rect x="80" y="70" width="96" height="20" rx="4" fill="rgba(16,185,129,.4)"/>
+    <rect x="180" y="70" width="96" height="20" rx="4" fill="#ef4444"/><rect x="280" y="70" width="96" height="20" rx="4" fill="rgba(16,185,129,.4)"/>
+    <rect x="380" y="70" width="96" height="20" rx="4" fill="rgba(16,185,129,.4)"/><rect x="480" y="70" width="96" height="20" rx="4" fill="rgba(16,185,129,.4)"/>
+
+    <rect x="80" y="102" width="96" height="20" rx="4" fill="rgba(16,185,129,.4)"/>
+    <rect x="180" y="102" width="96" height="20" rx="4" fill="rgba(16,185,129,.4)"/><rect x="280" y="102" width="96" height="20" rx="4" fill="#ef4444"/>
+    <rect x="380" y="102" width="96" height="20" rx="4" fill="rgba(16,185,129,.4)"/><rect x="480" y="102" width="96" height="20" rx="4" fill="rgba(16,185,129,.4)"/>
+
+    <rect x="80" y="134" width="96" height="20" rx="4" fill="rgba(16,185,129,.4)"/>
+    <rect x="180" y="134" width="96" height="20" rx="4" fill="rgba(16,185,129,.4)"/><rect x="280" y="134" width="96" height="20" rx="4" fill="rgba(16,185,129,.4)"/>
+    <rect x="380" y="134" width="96" height="20" rx="4" fill="#ef4444"/><rect x="480" y="134" width="96" height="20" rx="4" fill="rgba(16,185,129,.4)"/>
+
+    <rect x="80" y="166" width="96" height="20" rx="4" fill="rgba(16,185,129,.4)"/>
+    <rect x="180" y="166" width="96" height="20" rx="4" fill="rgba(16,185,129,.4)"/><rect x="280" y="166" width="96" height="20" rx="4" fill="rgba(16,185,129,.4)"/>
+    <rect x="380" y="166" width="96" height="20" rx="4" fill="rgba(16,185,129,.4)"/><rect x="480" y="166" width="96" height="20" rx="4" fill="#ef4444"/>
+  </g>
+  <g font-size="11" font-weight="700">
+    <rect x="80" y="198" width="14" height="12" rx="3" fill="#ef4444"/><text x="102" y="208" style="fill:var(--text-2)">validation fold</text>
+    <rect x="212" y="198" width="14" height="12" rx="3" fill="rgba(16,185,129,.4)"/><text x="234" y="208" style="fill:var(--text-2)">training folds</text>
+    <text x="420" y="208" style="fill:var(--text-3)">→ report mean ± std of the 5 MSEs</text>
+  </g>
+</svg>
+<figcaption>Har fold ek baar validation set banta hai. Isse ek <b>zyada stable</b> estimate milta hai, aur uska spread bhi.</figcaption>
+</figure>
+
+<!-- ============================================ -->
+<h3 id="s10"><span class="h2-num">10</span>Learning curves ⭐</h3>
+<p>Ek <b>learning curve</b> dikhata hai ki jaise-jaise <b>training data ki quantity badhti</b> hai, training aur validation error kaise badalte hain.</p>
+
+<div class="grid g2">
+<figure style="margin:0">
+<svg viewBox="0 0 330 240" role="img" aria-label="High bias learning curve: both errors high and close">
+  <text x="165" y="18" text-anchor="middle" font-size="12.5" font-weight="800" fill="#f59e0b">High-bias pattern (degree 1)</text>
+  <line x1="46" y1="200" x2="310" y2="200" stroke-width="1.3" style="stroke:var(--border-2)"/>
+  <line x1="46" y1="200" x2="46" y2="34" stroke-width="1.3" style="stroke:var(--border-2)"/>
+  <path d="M60 158 C 110 118, 170 106, 300 102" fill="none" stroke="#10b981" stroke-width="2.6"/>
+  <path d="M60 58 C 120 86, 190 98, 300 108" fill="none" stroke="#ef4444" stroke-width="2.6"/>
+  <line x1="300" y1="102" x2="300" y2="108" stroke="#a855f7" stroke-width="3"/>
+  <text x="250" y="86" font-size="10.5" font-weight="700" fill="#a855f7">tiny gap</text>
+  <text x="178" y="222" text-anchor="middle" font-size="11" style="fill:var(--text-2)">training set size →</text>
+  <text x="26" y="118" font-size="11" transform="rotate(-90 26 118)" text-anchor="middle" style="fill:var(--text-2)">MSE</text>
+  <text x="178" y="188" text-anchor="middle" font-size="10" font-style="italic" style="fill:var(--text-3)">both plateau HIGH — more data won't help</text>
+</svg>
+</figure>
+<figure style="margin:0">
+<svg viewBox="0 0 330 240" role="img" aria-label="High variance learning curve: large persistent gap">
+  <text x="165" y="18" text-anchor="middle" font-size="12.5" font-weight="800" fill="#ef4444">High-variance pattern (degree 10)</text>
+  <line x1="46" y1="200" x2="310" y2="200" stroke-width="1.3" style="stroke:var(--border-2)"/>
+  <line x1="46" y1="200" x2="46" y2="34" stroke-width="1.3" style="stroke:var(--border-2)"/>
+  <path d="M60 190 C 110 184, 180 178, 300 172" fill="none" stroke="#10b981" stroke-width="2.6"/>
+  <path d="M60 42 C 120 62, 190 84, 300 108" fill="none" stroke="#ef4444" stroke-width="2.6"/>
+  <line x1="300" y1="108" x2="300" y2="172" stroke="#a855f7" stroke-width="3"/>
+  <text x="228" y="144" font-size="10.5" font-weight="700" fill="#a855f7">large gap</text>
+  <text x="178" y="222" text-anchor="middle" font-size="11" style="fill:var(--text-2)">training set size →</text>
+  <text x="178" y="192" text-anchor="middle" font-size="10" font-style="italic" style="fill:var(--text-3)">gap is closing — MORE DATA WILL HELP</text>
+</svg>
+</figure>
+</div>
+
+<div class="grid g2">
+  <div class="box warn" style="margin:0">
+    <div class="box-title">High-bias pattern</div>
+    <p style="margin:0">Dono errors <b>high rehte hain aur ek dusre ke paas</b> hote hain. Zyada data add karne se help <b>nahi</b> milegi — model apni structural limitation se bandha hua hai. <b>Fix:</b> model complexity badhao (features add karo, higher degree, kam regularization).</p>
+  </div>
+  <div class="box danger" style="margin:0">
+    <div class="box-title">High-variance pattern</div>
+    <p style="margin:0">Training error validation error se <b>bohot kam</b> hai. Zyada representative data <b>gap kam kar sakta</b> hai. <b>Fix:</b> zyada data lao, complexity kam karo, regularization add karo, ya features kam karo.</p>
+  </div>
+</div>
+
+<div class="box insight">
+  <div class="box-title">★ Instructor discussion</div>
+  <p style="margin:0">Problem ka naam lene se <b>pehle</b> dono curves ke beech ka <b>gap describe karo</b>. Ek bada persistent gap <b>high-variance</b> diagnosis support karta hai. Do relatively high curves jo milti hain, wo <b>high-bias</b> diagnosis support karti hain. <b>Data add karna tab sabse zyada help karta hai jab variance main problem ho.</b></p>
+</div>
+
+<!-- ============================================ -->
+<h3 id="s11"><span class="h2-num">11</span>Final test evaluation</h3>
+<p>Degree ab <b>test set use kiye bina</b> select ho chuki hai. Hum us degree ko <b>training + validation rows combined</b> par refit karte hain, aur phir test set <b>ek baar</b> use karte hain. Degree 1 ko ek simple reference model ki tarah bhi report kiya jaata hai.</p>
+
+<figure>
+<svg viewBox="0 0 660 130" role="img" aria-label="Correct evaluation order">
+  <defs><marker id="ea" markerWidth="8" markerHeight="8" refX="6.5" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#8b5cf6"/></marker></defs>
+  <g font-size="11" font-weight="650">
+    <rect x="10" y="40" width="124" height="46" rx="10" fill="rgba(16,185,129,.16)" stroke="#10b981"/>
+    <text x="72" y="60" text-anchor="middle" style="fill:var(--text)">1. Fit degrees</text>
+    <text x="72" y="76" text-anchor="middle" font-size="10" style="fill:var(--text-3)">on TRAIN</text>
+    <line x1="134" y1="63" x2="156" y2="63" stroke="#8b5cf6" stroke-width="2" marker-end="url(#ea)"/>
+    <rect x="160" y="40" width="130" height="46" rx="10" fill="rgba(6,182,212,.16)" stroke="#06b6d4"/>
+    <text x="225" y="60" text-anchor="middle" style="fill:var(--text)">2. Compare / CV</text>
+    <text x="225" y="76" text-anchor="middle" font-size="10" style="fill:var(--text-3)">on VALIDATION</text>
+    <line x1="290" y1="63" x2="312" y2="63" stroke="#8b5cf6" stroke-width="2" marker-end="url(#ea)"/>
+    <rect x="316" y="40" width="150" height="46" rx="10" fill="rgba(139,92,246,.16)" stroke="#8b5cf6"/>
+    <text x="391" y="60" text-anchor="middle" style="fill:var(--text)">3. Refit chosen degree</text>
+    <text x="391" y="76" text-anchor="middle" font-size="10" style="fill:var(--text-3)">on TRAIN + VALIDATION</text>
+    <line x1="466" y1="63" x2="488" y2="63" stroke="#8b5cf6" stroke-width="2" marker-end="url(#ea)"/>
+    <rect x="492" y="40" width="156" height="46" rx="10" fill="rgba(239,68,68,.14)" stroke="#ef4444"/>
+    <text x="570" y="60" text-anchor="middle" style="fill:var(--text)">4. Evaluate ONCE</text>
+    <text x="570" y="76" text-anchor="middle" font-size="10" fill="#f87171">on TEST 🔒</text>
+  </g>
+  <text x="330" y="115" text-anchor="middle" font-size="11" font-style="italic" style="fill:var(--text-3)">Test set choice-making mein kabhi participate nahi karta.</text>
+</svg>
+</figure>
+
+<!-- ============================================ -->
+<h2 id="practice">🧮 Practice &amp; Answer Key</h2>
+
+<div class="solved">
+  <header><span class="qtag">A</span><h4>Concept check</h4></header>
+  <div class="body">
+    <div class="tbl-wrap" style="margin-top:0">
+    <table>
+    <thead><tr><th>Situation</th><th>Answer</th></tr></thead>
+    <tbody>
+    <tr><td>Model predictions are <b>consistently</b> away from the truth</td><td><span class="pill a">High bias</span></td></tr>
+    <tr><td>Model predictions <b>change greatly</b> across samples</td><td><span class="pill r">High variance</span></td></tr>
+    <tr><td>Model is <b>too simple</b> to learn the pattern</td><td><span class="pill a">Underfitting</span></td></tr>
+    <tr><td>Model <b>follows training noise</b></td><td><span class="pill r">Overfitting</span></td></tr>
+    <tr><td>Error caused by <b>random noise</b></td><td><span class="pill b">Irreducible error</span></td></tr>
+    </tbody></table></div>
+  </div>
+</div>
+
+<div class="solved">
+  <header><span class="qtag">B</span><h4>Short calculations</h4></header>
+  <div class="body">
+    <ol class="steps">
+      <li><span class="sh">If $E[\hat f(x)] = 12$ and $f(x) = 10$, the bias is:</span>
+        <div class="answer">$12 - 10 = \mathbf{2}$</div></li>
+      <li><span class="sh">If bias is 2, variance is 3, and noise variance is 1, the expected MSE is:</span>
+        <div class="answer">$2^2 + 3 + 1 = \mathbf{8}$</div></li>
+      <li><span class="sh">If irreducible error increases while bias and variance stay fixed, total expected MSE:</span>
+        <div class="answer"><b>Increases by the same amount</b> (the three terms are additive).</div></li>
+    </ol>
+  </div>
+</div>
+
+<div class="solved">
+  <header><span class="qtag">C</span><h4>Diagnosis</h4></header>
+  <div class="body">
+    <div class="tbl-wrap" style="margin-top:0">
+    <table>
+    <thead><tr><th>Observation</th><th>Diagnosis</th><th>What to try</th></tr></thead>
+    <tbody>
+    <tr><td>Training and validation errors are both high and close together</td><td><span class="pill a">High bias / underfitting</span></td><td>Increase complexity; add/engineer features; reduce regularization. <b>More data will NOT help.</b></td></tr>
+    <tr><td>Training error is low but validation error is much higher</td><td><span class="pill r">High variance / overfitting</span></td><td>Get more data; reduce complexity; add regularization; remove features (👉 <a href="l10.html">Lecture 10</a>).</td></tr>
+    <tr><td>Learning curves show a large gap that is slowly closing as data grows</td><td><span class="pill r">High variance</span></td><td><b>More data is the highest-value fix</b> here.</td></tr>
+    <tr><td>Learning curves plateau high and together, no matter how much data</td><td><span class="pill a">High bias</span></td><td>Model is structurally limited — change the model, not the data volume.</td></tr>
+    </tbody></table></div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<h2 id="mistakes">⚠ Common Mistakes</h2>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Galti</th><th>Sahi Baat</th></tr></thead>
+<tbody>
+<tr><td>$\text{MSE} = \text{Bias} + \text{Variance} + \text{Noise}$</td><td>Bias <b>squared</b> hoti hai: $\text{MSE} = \text{Bias}^2 + \text{Variance} + \operatorname{Var}(\varepsilon)$.</td></tr>
+<tr><td>"Better model se irreducible error bhi kam ho jaayega"</td><td>Irreducible error <b>data ki property</b> hai, model ki nahi. Koi algorithm use nahi hata sakta.</td></tr>
+<tr><td>"Overfitting par zyada data hamesha help karega"</td><td>Overfitting (high variance) par <b>haan</b>. Underfitting (high bias) par <b>nahi</b> — model structurally limited hai.</td></tr>
+<tr><td>"Low training error = good model"</td><td>Training error complexity ke saath hamesha girta hai. <b>Validation error</b> aur train–val <b>gap</b> dekho.</td></tr>
+<tr><td>High bias aur high variance ko mutually exclusive samajhna</td><td>Ek model <b>dono</b> mein high ho sakta hai (worst case) — misspecified <em>aur</em> unstable.</td></tr>
+<tr><td>Degree select karne ke liye test error dekhna</td><td>Test set <b>ek baar</b>, sab choices ke baad. Selection <b>validation</b> par.</td></tr>
+<tr><td>"Ek validation split enough hai"</td><td>Ek split noisy ho sakta hai. <b>Cross-validation</b> mean <b>aur</b> stability (std) deta hai.</td></tr>
+<tr><td>Bias ko "model galat hai" aur variance ko "data galat hai" samajhna</td><td>Dono <b>estimator</b> ki properties hain. Bias = systematic offset. Variance = sample-to-sample instability.</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="revision">⚡ Quick Revision</h2>
+<div class="grid g2">
+  <div class="box def" style="margin:0"><div class="box-title">Data model</div><p style="margin:0">$Y = f(X) + \varepsilon$</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Bias</div><p style="margin:0">$\text{Bias}(x) = E[\hat f(x)] - f(x)$</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Variance</div><p style="margin:0">$\text{Var}(x) = E\big[(\hat f(x) - E[\hat f(x)])^2\big]$</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Decomposition</div><p style="margin:0">$\text{MSE} = \text{Bias}^2 + \text{Variance} + \operatorname{Var}(\varepsilon)$</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Too simple</div><p style="margin:0">High bias · Low variance · <b>Underfits</b></p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Too flexible</div><p style="margin:0">Low bias · High variance · <b>Overfits</b></p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Diagnose high bias</div><p style="margin:0">Train &amp; val errors <b>both high and close</b></p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Diagnose high variance</div><p style="margin:0">Train low, val <b>much higher</b> (big gap)</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Split</div><p style="margin:0">60% train · 20% validation · 20% test</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">More data helps when…</div><p style="margin:0"><b>Variance</b> is the main problem — not bias</p></div>
+</div>
+
+<div class="box takeaway">
+  <div class="box-title">♦ Lab 9 summary</div>
+  <ul style="margin:0">
+    <li>Different samples produce different fitted models.</li>
+    <li>Simple models tend toward <b>higher bias and lower variance</b>.</li>
+    <li>Very flexible models tend toward <b>lower bias and higher variance</b>.</li>
+    <li>Expected MSE contains <b>bias squared, variance, and irreducible error</b>.</li>
+    <li>In real data, diagnose behaviour with train/validation results, <b>cross-validation</b>, and <b>learning curves</b>.</li>
+    <li>Keep the <b>test set untouched</b> until the model choice is finished.</li>
+  </ul>
+</div>
+
+<h2 id="test">✓ Test Yourself — 10 MCQs</h2>
+<div id="mcq-root"></div>
+
+</div>
+</main>
+</div>
+
+<script>
+const MCQS = [
+{ d:'med',
+  q:'If bias is 2, variance is 3 and noise variance is 1, what is the expected MSE?',
+  o:['$6$', '$8$', '$12$', '$36$'],
+  a:1,
+  e:'<b>B.</b> $\\text{MSE} = \\text{Bias}^2 + \\text{Variance} + \\operatorname{Var}(\\varepsilon) = 2^2 + 3 + 1 = 8$. <b>A</b> is the single most common error — forgetting to <b>square</b> the bias ($2+3+1=6$). <b>C</b> squares everything. <b>D</b> squares the total.' },
+
+{ d:'hard',
+  q:'Three degree-1 fits on three different samples look very similar to one another, but none reproduces the curved true function. What is the diagnosis?',
+  o:['Low bias, high variance — overfitting',
+     'High bias, low variance — underfitting',
+     'High bias, high variance',
+     'Low bias, low variance — the ideal model'],
+  a:1,
+  e:'<b>B.</b> "Similar to one another" = <b>low variance</b> (sample badalne se prediction barely badalti). "None reproduces the curve" = <b>high bias</b> (average prediction systematically truth se door). Yeh textbook <b>underfitting</b> hai. <b>A</b> exactly reverses both readings. <b>C</b> contradicts the observed similarity. <b>D</b> ignores the systematic miss.' },
+
+{ d:'hard',
+  q:'A model has low training error but much higher validation error. Which action is most likely to help?',
+  o:['Increase model complexity, since the model clearly has capacity',
+     'Get more representative training data, reduce complexity, or add regularization — this is a high-variance problem',
+     'Nothing — this is irreducible error',
+     'Report the test error to confirm'],
+  a:1,
+  e:'<b>B.</b> Bada train–validation gap <b>high variance / overfitting</b> ka signature hai. Fixes: more data, less complexity, regularization, fewer features. <b>A</b> problem ko badha dega. <b>C</b> false — irreducible error train aur val <b>dono</b> ko equally affect karta hai, gap nahi banata. <b>D</b> test set ko peek karna hai — selection ke liye kabhi nahi.' },
+
+{ d:'hard',
+  q:'Learning curves for a model show both training and validation error plateauing high and close together. Will collecting 10× more data help?',
+  o:['Yes — more data always reduces error',
+     'No — this is the high-bias pattern; the model is structurally too simple, so more data will not close a gap that is already closed',
+     'Yes, but only if the data is from a different distribution',
+     'Only if you also reduce the learning rate'],
+  a:1,
+  e:'<b>B.</b> Lab explicitly: "High-bias pattern: both errors remain high and close together." Gap already band hai, to zyada data use band karne ke liye kuch nahi hai. Model ki <b>structural capacity</b> bottleneck hai. <b>A</b> is the blanket misconception the lab is designed to break. <b>C</b> and <b>D</b> are irrelevant distractors.' },
+
+{ d:'med',
+  q:'What is the irreducible error, and can a better algorithm remove it?',
+  o:['It is the training error of the simplest model; a better algorithm removes it',
+     'It is $\\operatorname{Var}(\\varepsilon)$, the randomness already present in the data; no amount of flexible modelling can remove it',
+     'It is the gap between training and validation error',
+     'It is the bias of the best possible model'],
+  a:1,
+  e:'<b>B.</b> Lab: "More flexible modelling cannot remove randomness already present in the data." Yeh <b>data ki property</b> hai, model ki nahi — ise kam karne ke liye better measurements ya better features chahiye. <b>C</b> describes the variance symptom. <b>D</b> confuses it with bias. <b>A</b> is simply wrong.' },
+
+{ d:'hard',
+  q:'Why does the lab train 100 models per degree and compare their predictions at $x = 5$?',
+  o:['To reduce the training time per model',
+     'Because bias and variance are defined as expectations over training samples — many models are needed to approximate $E[\\hat f(5)]$ and $\\operatorname{Var}(\\hat f(5))$, and $f(5)=25$ is known',
+     'To perform 100-fold cross-validation',
+     'To average away the irreducible error'],
+  a:1,
+  e:'<b>B.</b> $\\text{Bias} = E[\\hat f(x)] - f(x)$ aur $\\text{Variance} = E[(\\hat f(x) - E[\\hat f(x)])^2]$ — dono <b>expectations over training samples</b> hain. Unhe estimate karne ke liye <b>bohot saare</b> training samples chahiye, jo sirf controlled simulation mein possible hai. <b>C</b> confuses repeated sampling with CV (different procedure, different purpose). <b>A</b> and <b>D</b> are nonsense.' },
+
+{ d:'hard',
+  q:'Why is cross-validation preferred over a single validation split for choosing model complexity?',
+  o:['It uses more training data in total',
+     'A single validation result depends on one particular split; K-fold gives both the mean error and its spread across folds, showing stability',
+     'It eliminates the need for a test set',
+     'It reduces bias to zero'],
+  a:1,
+  e:'<b>B.</b> Ek split lucky ya unlucky ho sakta hai. 5-fold CV mean CV MSE (average error) <b>aur</b> standard deviation (stability) dono deta hai. <b>C</b> is dangerous — test set abhi bhi zaroori hai, kyunki CV bhi selection mein use hui. <b>A</b> is incidental. <b>D</b> false — CV bias nahi hataata, wo sirf validation error ka better <b>estimate</b> deta hai.' },
+
+{ d:'med',
+  q:'In the bias–variance plot against model complexity, which curves behave how?',
+  o:['Bias² rises, variance falls, total error rises monotonically',
+     'Bias² falls, variance rises, irreducible noise stays flat, and total MSE is U-shaped',
+     'All three curves fall together',
+     'Variance is constant while bias² determines everything'],
+  a:1,
+  e:'<b>B.</b> Complexity badhane se model true pattern ke paas jaa sakta hai (bias² ↓) par wo sample-specific noise bhi fit karne lagta hai (variance ↑). Noise term model par depend hi nahi karta (flat). Sum <b>U-shaped</b> hota hai — minimum optimal complexity par. <b>A</b> reverses the first two. <b>C</b> and <b>D</b> deny the tradeoff entirely.' },
+
+{ d:'hard',
+  q:'After choosing the polynomial degree using validation error, what is the correct final step?',
+  o:['Report the best validation error as the final performance estimate',
+     'Refit the chosen degree on training + validation combined, then evaluate ONCE on the untouched test set',
+     'Refit on the test set to get the best possible model',
+     'Re-run cross-validation on the test set'],
+  a:1,
+  e:'<b>B.</b> Validation set selection mein use ho chuka hai, to uska error ab <b>optimistically biased</b> hai. Sahi procedure: chosen degree ko train+val par refit karo (zyada data = better fit), phir test <b>ek baar</b>. <b>A</b> reports a biased number. <b>C</b> and <b>D</b> both contaminate the test set, destroying the only unbiased estimate you have.' },
+
+{ d:'hard',
+  q:'A degree-5 model is fitted to three different samples from the same population. The curves have low average error but wildly different shapes. Which term describes the shape instability?',
+  o:['Bias', 'Variance', 'Irreducible error', 'Training loss'],
+  a:1,
+  e:'<b>B.</b> "Wildly different shapes across samples" literally $\\operatorname{Var}(\\hat f(x)) = E[(\\hat f(x) - E[\\hat f(x)])^2]$ ki definition hai. "Low average error" batata hai ki <b>bias low</b> hai. <b>A</b> average offset measure karta hai, spread nahi. <b>C</b> data ki property hai — model badalne se nahi badalta. <b>D</b> ek single fit ka number hai, samples ke across variability nahi.' },
+];
+</script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="window.dispatchEvent(new Event('katex-ready'))"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

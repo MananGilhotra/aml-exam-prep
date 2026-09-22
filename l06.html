@@ -1,0 +1,791 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lecture 6 · Stochastic &amp; Mini-Batch Gradient Descent — AML Exam Prep</title>
+<meta name="description" content="Why Batch GD waits too long, how SGD updates from a single sample, why shuffling matters, mini-batch as the practical compromise, plus full dry runs and pseudocode.">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page="l06">
+<div class="shell">
+<main class="main">
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Worksheet 06 · Lecture 6</div>
+  <h1><span class="gradtext">Stochastic &amp; Mini-Batch</span><br>Gradient Descent</h1>
+  <p class="sub">Batch GD kyun itna wait karta hai, SGD kaise ek sample se hi chal padta hai, aur Mini-Batch kaise dono ka best deta hai.</p>
+  <div class="chips">
+    <span class="chip accent">⏱ ~35 min</span><span class="chip">🔁 3 dry runs</span>
+    <span class="chip">💻 3 pseudocodes</span><span class="chip">✓ 10 MCQs</span>
+  </div>
+</header>
+
+<div class="box hinglish">
+  <div class="box-title">⚡ Ek Line Mein</div>
+  <p style="margin:0"><b>Batch GD:</b> poore dataset ka average gradient → <b>1 update per epoch</b>, accurate par slow. <b>SGD:</b> ek random sample ka gradient → <b>$m$ updates per epoch</b>, fast par noisy. <b>Mini-Batch:</b> $b$ samples ka average → <b>$\lceil m/b\rceil$ updates per epoch</b> — practical compromise jo almost har real system use karta hai.</p>
+</div>
+
+<h3>Notation used throughout</h3>
+<div class="tbl-wrap">
+<table class="compact">
+<tbody>
+<tr><td><b>$m$</b></td><td>number of training examples</td></tr>
+<tr><td><b>$d$</b></td><td>number of features (parameter dimension)</td></tr>
+<tr><td><b>$\boldsymbol\theta$</b></td><td>parameter vector, e.g. $(\theta_0, \theta_1)$ for a line</td></tr>
+<tr><td><b>$\alpha$</b></td><td>learning rate</td></tr>
+<tr><td><b>$J_i(\boldsymbol\theta)$</b></td><td>loss from a <b>single</b> training example $i$</td></tr>
+<tr><td><b>$J(\boldsymbol\theta)$</b></td><td>average training cost over the full dataset</td></tr>
+<tr><td><b>Iteration</b></td><td><b>one parameter update</b></td></tr>
+<tr><td><b>Epoch</b></td><td><b>one complete pass</b> over all $m$ training examples</td></tr>
+</tbody>
+</table>
+</div>
+<div class="formula">$$\mathcal D = \{(x_i, y_i)\}_{i=1}^{m} \qquad\qquad J(\boldsymbol\theta) = \frac{1}{m}\sum_{i=1}^{m}J_i(\boldsymbol\theta)$$</div>
+
+<!-- =========================== -->
+<h2 id="s1"><span class="h2-num">1</span>Revision and Motivation</h2>
+<div class="box hook">
+  <div class="box-title">▷ Hook</div>
+  <p style="margin:0">Batch Gradient Descent mein hum saare $m$ examples par average cost ka gradient compute karte hain aur phir $\boldsymbol\theta$ ko <b>ek baar</b> update karte hain. Rhythm yeh hai: <b>saare samples scan karo → unke gradients average karo → ek baar update karo.</b> Kya hume har ek update se pehle poore dataset ka wait karna hi padega?</p>
+</div>
+<p>Agar $m = 10{,}000{,}000$, to ek BGD epoch mein kitne parameter updates hote hain? <b>Ek.</b> Kya ek update 10 million samples har baar scan karne ke layak hai?</p>
+
+<h3>Why BGD is attractive</h3>
+<ul>
+  <li><b>Stable direction:</b> har sample contribute karta hai, to noisy gradients average out ho jaate hain.</li>
+  <li><b>Deterministic path:</b> same initialization ke liye steps exactly repeatable hote hain.</li>
+  <li><b>Smooth convergence:</b> simple convex losses par cost usually smoothly ghat-ti hai.</li>
+  <li><b>Good for small datasets:</b> exact gradients affordable hain jab data memory mein fit ho jaye.</li>
+</ul>
+
+<h3>Disadvantages as real problems</h3>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Limitation</th><th>Why it happens</th><th>When it's serious</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td><b>Waits before update</b></td><td>Average over all $m$</td><td>Full pass takes hours</td><td>Ad clicks model (100M rows)</td></tr>
+<tr><td><b>High cost/update</b></td><td>Needs grads for every sample</td><td>Large $m$ and $d$</td><td>Image data (millions of pixels)</td></tr>
+<tr><td><b>Memory/IO pressure</b></td><td>Data read repeatedly</td><td>Data too large for RAM</td><td>Recommendation system logs</td></tr>
+<tr><td><b>Slow feedback</b></td><td>Learns only after full scan</td><td>Data changes quickly</td><td>Real-time fraud detection</td></tr>
+<tr><td><b>Redundant work</b></td><td>Similar samples = similar grads</td><td>Repeated patterns</td><td>Identical ad impressions</td></tr>
+</tbody>
+</table>
+</div>
+<p>In saari problems ka <b>ek hi root cause</b> hai: <b>BGD move karne se pehle ek exact full-data gradient demand karta hai.</b> Exactness useful hai, par huge data ke liye yeh bohot mehnga pad sakta hai.</p>
+
+<div class="solved">
+  <header><span class="qtag">Practice P1</span><h4>Scenario matching</h4></header>
+  <div class="body">
+    <div class="tbl-wrap" style="margin-top:0">
+    <table>
+    <thead><tr><th>Scenario</th><th>Primary BGD Limitation</th><th>Why</th></tr></thead>
+    <tbody>
+    <tr><td>1. A recommendation model trained on 500 GB of user-item logs</td><td><b>B — Memory and I/O pressure</b></td><td>500 GB RAM mein fit nahi hota; har epoch ko disk se poora dataset re-read karna padta hai.</td></tr>
+    <tr><td>2. A fraud detection system that needs to adapt immediately to new incoming transactions</td><td><b>A — Slow feedback</b></td><td>BGD tabhi seekhta hai jab full scan poora ho; ek new fraud pattern ko reflect hone mein pura epoch lag jayega.</td></tr>
+    <tr><td>3. A dataset with 10 million identical ad impressions</td><td><b>C — Redundant work</b></td><td>Identical samples identical gradients dete hain; unhe 10 million baar compute karke average karna pure waste hai.</td></tr>
+    </tbody></table></div>
+  </div>
+</div>
+
+<!-- =========================== -->
+<h2 id="s2"><span class="h2-num">2</span>Stochastic Gradient Descent (SGD)</h2>
+<div class="box hook">
+  <div class="box-title">? Think &amp; Discuss</div>
+  <p style="margin:0">Full gradient compute karna mehnga hai. <b>Sabse chhota</b> amount of data kitna hai jo abhi bhi $\boldsymbol\theta$ ko move karne ki direction de sake? <b>Ek single sample.</b> Aur wo choice turant ek naya danger create kar deti hai — <b>noise</b>.</p>
+</div>
+
+<p>SGD waiting problem ka answer hai. Poore dataset se ek perfect direction maangne ki jagah, SGD <b>ek randomly chosen example</b> se ek quick direction maangta hai aur turant update kar deta hai.</p>
+
+<div class="box def">
+  <div class="box-title">Analogy</div>
+  <p style="margin:0">Batch GD koi bhi decision lene se pehle <b>poori class</b> ka poll leta hai. SGD <b>ek random student</b> se poochta hai, uske answer par turant act karta hai, phir agle se poochta hai. Koi bhi single answer galat ho sakta hai, par decisions full roll call ke baad ke bajaye <b>instantly</b> hote hain.</p>
+</div>
+
+<h3>Core intuition</h3>
+<p>Har training example $\boldsymbol\theta$ ko kaise move karna chahiye iske baare mein ek <b>chhoti si opinion</b> deta hai. Ek single opinion biased ho sakti hai, par agar randomly select ki jaye, to bohot saari opinions <b>full-data direction ki taraf average</b> ho jaati hain. <b>SGD loss function nahi badalta</b> — wo sirf yeh badalta hai ki hum har update se pehle gradient ko kaise <b>estimate</b> karte hain.</p>
+
+<div class="formula"><span class="flabel">The stochastic update</span>
+$$i_t \sim \text{Uniform}\{1, 2, \dots, m\}, \qquad \mathbf g_t = \nabla J_{i_t}(\boldsymbol\theta_t), \qquad \boldsymbol\theta_{t+1} = \boldsymbol\theta_t - \alpha\,\mathbf g_t$$</div>
+<ul>
+  <li>$J_{i_t}$ — iteration $t$ par selected training example ka loss</li>
+  <li>$\nabla J_{i_t}$ — us example ke liye gradient (vector of loss slopes)</li>
+  <li>$\boldsymbol\theta_t$ — current parameter vector jab gradient evaluate hota hai</li>
+  <li>$\mathbf g_t = \nabla J_{i_t}(\boldsymbol\theta_t)$ — selected example ka gradient, <b>current parameters</b> par compute kiya gaya</li>
+</ul>
+
+<div class="box insight">
+  <div class="box-title">★ Key Insight — sabse bada misconception</div>
+  <p style="margin:0">SGD <b>sirf ek sample par forever</b> train nahi kar raha! <b>Ek update</b> ek sample use karti hai, par <b>ek epoch</b> har sample use karta hai. Agar $m = 1000$, to ek SGD epoch mein <b>1000 updates</b> hote hain.<br>
+  $E$ full epochs ke baad SGD ne total <b>$E \times m$ updates</b> kiye hain — compare karo Batch GD ke mere <b>$E$ updates</b> se, utne hi $E$ epochs mein.</p>
+</div>
+
+<h3>Complete SGD workflow</h3>
+<ol>
+  <li><b>Initialize $\boldsymbol\theta$.</b> Learning rate $\alpha$ aur number of epochs choose karo.</li>
+  <li>Har epoch ke start par, training examples ko <b>shuffle</b> karo.</li>
+  <li>Samples ko shuffled order mein <b>ek-ek karke visit</b> karo.</li>
+  <li>Har sample ke liye prediction, sample loss, sample gradient compute karo, aur <b>turant $\boldsymbol\theta$ update</b> karo.</li>
+  <li>Multiple epochs ke liye repeat karo, saath-saath training (ya validation) loss trend track karte hue.</li>
+</ol>
+
+<div class="box danger">
+  <div class="box-title">△ Warning — SHUFFLING</div>
+  <p style="margin:0">Real datasets often <b>ordered</b> hote hain (date ke hisaab se, class label ke hisaab se, region ke hisaab se). Shuffling ke bina, consecutive SGD updates <b>true learning signal ki jagah ordering pattern</b> ko follow kar sakti hain. Randomization SGD ko biased updates se <b>protect</b> karta hai!</p>
+</div>
+
+<h3>Effect of learning rate &amp; noisy gradients</h3>
+<div class="grid g2">
+  <div class="box def" style="margin:0"><div class="box-title">Small $\alpha$</div><p style="margin:0">Safe but slow.</p></div>
+  <div class="box danger" style="margin:0"><div class="box-title">Large $\alpha$</div><p style="margin:0">Dangerous; ek noisy gradient ek <b>huge jump</b> cause kar sakta hai.</p></div>
+  <div class="box warn" style="margin:0"><div class="box-title">Constant $\alpha$</div><p style="margin:0">Implement karna simple, par $\boldsymbol\theta$ optimum ke paas <b>bounce karta reh sakta hai</b> — settle nahi hota.</p></div>
+  <div class="box takeaway" style="margin:0"><div class="box-title">Decreasing $\alpha$</div><p style="margin:0">Shuru mein bade steps se explore karo, baad mein chhote steps se settle karo. <em>(Learning-rate schedules Deep Learning course mein detail mein.)</em></p></div>
+</div>
+<p><b>Note:</b> ek single SGD step <b>temporarily full training loss badha sakta hai</b>, kyunki wo ek sample ko follow karta hai. Useful behavior hai <b>many random updates par downward trend</b>.</p>
+
+<h3>Misconceptions corrected ⭐</h3>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Misconception</th><th>Correction</th></tr></thead>
+<tbody>
+<tr><td>SGD ignores most of the dataset.</td><td>One <b>update</b> uses one sample, but one <b>epoch</b> uses all.</td></tr>
+<tr><td>Loss must decrease every update.</td><td>Full loss can <b>temporarily increase</b> after a noisy update.</td></tr>
+<tr><td>More updates always means faster convergence.</td><td>Each update is <b>cheaper but less accurate</b>; wall-clock time and stability matter too.</td></tr>
+<tr><td>Stochastic means random parameters.</td><td>Randomness is in <b>sample selection</b>; the update rule itself is precise.</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="solved">
+  <header><span class="qtag">Practice P2</span><h4>SGD workflow blanks</h4></header>
+  <div class="body">
+    <ol class="steps">
+      <li><span class="sh">1. One SGD update uses ______ sample(s).</span><div class="answer">1 (one)</div></li>
+      <li><span class="sh">2. If your dataset has $m$ examples, one SGD epoch contains ______ parameter updates.</span><div class="answer">$m$</div></li>
+      <li><span class="sh">3. We must ______ the dataset at the start of each epoch to prevent biased update sequences.</span><div class="answer">shuffle</div></li>
+      <li><span class="sh">4. An outlier sample can create a large gradient, leading to ______ updates.</span><div class="answer">noisy / unstable (a large jump in $\boldsymbol\theta$)</div></li>
+    </ol>
+  </div>
+</div>
+
+<!-- =========================== -->
+<h2 id="s3"><span class="h2-num">3</span>Mathematical Comparison: Batch GD vs SGD</h2>
+<p>Key idea simple hai: <b>same objective, different gradient estimator.</b></p>
+
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Aspect</th><th>Batch GD</th><th>Stochastic GD</th></tr></thead>
+<tbody>
+<tr><td><b>Gradient Used</b></td><td>Exact average over all $m$ samples</td><td>Gradient of <b>one</b> randomly selected sample</td></tr>
+<tr><td><b>Update Timing</b></td><td>After the full dataset has been processed</td><td>Immediately after one sample</td></tr>
+<tr><td><b>Updates per Epoch</b></td><td class="num">1</td><td class="num">$m$</td></tr>
+<tr><td><b>Cost per Update</b></td><td>$O(md)$</td><td>$O(d)$</td></tr>
+<tr><td><b>Cost per Epoch</b></td><td>$O(md)$</td><td>$O(md)$ overall, delivered via $m$ smaller updates</td></tr>
+<tr><td><b>Memory Pattern</b></td><td>Needs access to full pass before update</td><td>Can <b>stream</b> one sample at a time</td></tr>
+<tr><td><b>Path</b></td><td>Smooth and stable for well-behaved losses</td><td>Noisy but often fast in early progress</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="box insight">
+  <div class="box-title">★ Why SGD gradients are noisy</div>
+  <p style="margin:0">Sample $i$ ka gradient contribution "sample gradient" hai. Full gradient in saare contributions ka <b>average</b> hai. SGD randomly ek contribution select karta hai, to selected gradient ek <b>random variable</b> hai. Wo <b>unbiased</b> hai (bohot random choices par uski average direction full-gradient direction ke barabar hai), par ek selected sample us average se <b>bohot door</b> ho sakta hai. Outliers, class imbalance aur rare patterns is variance ko badha dete hain, jisse <b>zig-zag path</b> banta hai.</p>
+</div>
+
+<div class="box insight">
+  <div class="box-title">★ Why noise can sometimes HELP</div>
+  <p style="margin:0">Neural networks jaise <b>non-convex</b> models mein, optimization shallow local minima mein atak sakta hai. SGD ki randomness optimizer ko un flat regions se <b>bounce out</b> karne mein help kar sakti hai. However, bohot zyada noise convergence ko slow ya prevent bhi kar sakta hai — learning rate aur batch size carefully choose karne padte hain.</p>
+</div>
+
+<!-- =========================== -->
+<h2 id="s4"><span class="h2-num">4</span>Visual Intuition</h2>
+
+<figure>
+<svg viewBox="0 0 640 300" role="img" aria-label="Batch GD smooth path vs SGD zigzag path toward the optimum">
+  <g fill="none" stroke-width="1.4" opacity=".55">
+    <ellipse cx="320" cy="170" rx="250" ry="105" style="stroke:var(--text-3)"/>
+    <ellipse cx="320" cy="170" rx="180" ry="76"  style="stroke:var(--text-3)"/>
+    <ellipse cx="320" cy="170" rx="110" ry="47"  style="stroke:var(--text-3)"/>
+    <ellipse cx="320" cy="170" rx="48"  ry="21"  style="stroke:var(--text-3)"/>
+  </g>
+  <path d="M120 60 C 170 90, 230 130, 312 168" fill="none" stroke="#3b82f6" stroke-width="3" marker-end="url(#bg1)"/>
+  <defs><marker id="bg1" markerWidth="8" markerHeight="8" refX="6.5" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#3b82f6"/></marker>
+  <marker id="sg1" markerWidth="8" markerHeight="8" refX="6.5" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#ef4444"/></marker></defs>
+  <polyline points="540,56 496,112 522,134 468,148 486,166 424,152 410,176 366,160 348,172 328,168"
+            fill="none" stroke="#ef4444" stroke-width="2.5" marker-end="url(#sg1)"/>
+  <circle cx="320" cy="170" r="6" style="fill:var(--text)"/>
+  <text x="320" y="192" text-anchor="middle" font-size="12" font-weight="700" style="fill:var(--text)">Optimum</text>
+  <text x="120" y="42" text-anchor="middle" font-size="13" font-weight="800" fill="#3b82f6">Batch GD (Smooth)</text>
+  <text x="540" y="38" text-anchor="middle" font-size="13" font-weight="800" fill="#ef4444">Stochastic GD (Noisy)</text>
+  <text x="26" y="170" font-size="12" font-weight="700" transform="rotate(-90 26 170)" text-anchor="middle" style="fill:var(--text-2)">θ₁</text>
+  <text x="320" y="292" text-anchor="middle" font-size="12" font-weight="700" style="fill:var(--text-2)">θ₀</text>
+</svg>
+<figcaption>Dono paths <b>same optimum</b> ki taraf ja rahe hain. Har arrow $\boldsymbol\theta$ ka ek real step hai.</figcaption>
+</figure>
+
+<ul>
+  <li><b>BGD convergence path:</b> center ki taraf smooth arrows. Full gradients stable, averaged directions dete hain.</li>
+  <li><b>SGD zig-zag path:</b> arrows left-right jump karte hain par inward trend karte hain. Single samples noisy directions produce karte hain.</li>
+  <li><b>Loss vs epoch:</b> BGD ki curve smooth hai; SGD ki bumpy downward trend hai.</li>
+  <li><b>Parameter-plane view:</b> upar ka figure literally $\theta_0$-$\theta_1$ plane hai.</li>
+</ul>
+
+<figure>
+<svg viewBox="0 0 640 260" role="img" aria-label="Loss vs iteration for BGD and SGD">
+  <line x1="50" y1="210" x2="610" y2="210" stroke-width="1.5" style="stroke:var(--border-2)"/>
+  <line x1="50" y1="210" x2="50" y2="24" stroke-width="1.5" style="stroke:var(--border-2)"/>
+  <text x="30" y="110" font-size="12" font-weight="700" transform="rotate(-90 30 110)" text-anchor="middle" style="fill:var(--text-2)">Loss</text>
+  <text x="540" y="234" font-size="12" font-weight="700" style="fill:var(--text-2)">Iteration / Epoch</text>
+  <path d="M58 36 C 180 110, 340 170, 590 196" fill="none" stroke="#3b82f6" stroke-width="2.8"/>
+  <polyline points="58,36 88,96 118,60 148,118 178,84 208,136 238,104 268,150 298,120 328,162 358,132 388,172 418,146 448,180 478,156 508,188 538,166 568,194 590,180"
+            fill="none" stroke="#ef4444" stroke-width="2"/>
+  <g fill="#3b82f6"><circle cx="58" cy="36" r="4.5"/><circle cx="178" cy="110" r="4.5"/><circle cx="328" cy="162" r="4.5"/><circle cx="500" cy="188" r="4.5"/></g>
+  <text x="150" y="60" font-size="12.5" font-weight="800" fill="#3b82f6">BGD</text>
+  <text x="150" y="76" font-size="10.5" fill="#3b82f6">1 pt/epoch</text>
+  <text x="330" y="60" font-size="12.5" font-weight="800" fill="#ef4444">SGD</text>
+  <text x="330" y="76" font-size="10.5" fill="#ef4444">m pts/epoch</text>
+</svg>
+<figcaption>BGD ko per epoch sirf <b>ek</b> x-axis step chahiye. SGD ko <b>bohot</b> steps chahiye — har iteration ek — aur har step noisy hai, phir bhi dono curves same low-loss region mein settle ho jaati hain. <b>SGD ko uske trend se judge karo, kisi ek point se nahi.</b></figcaption>
+</figure>
+
+<div class="box def">
+  <div class="box-title">? Think &amp; Discuss — answers</div>
+  <ol style="margin:0">
+    <li><b>Batch GD ke arrows parameter-plane mein wildly direction kyun nahi badalte?</b><br>
+    Kyunki har arrow saare $m$ samples ka <b>average</b> hai. Individual samples ka noise average lene se cancel ho jaata hai, to consecutive gradients ek jaise hote hain aur path smooth rehta hai.</li>
+    <li><b>Kya ek "bad-looking" SGD step overall training ke liye useful ho sakta hai?</b><br>
+    <b>Haan.</b> Do wajah se: (i) us step ne ek real sample ki information incorporate ki — full loss badh sakti hai par $\boldsymbol\theta$ ek underrepresented direction mein move hua; (ii) non-convex problems mein wahi jhatka optimizer ko shallow local minimum se bahar nikaal sakta hai.</li>
+    <li><b>Do training runs ki speed compare karne ke liye sabse fair x-axis kya hai — epochs, iterations ya wall-clock time?</b><br>
+    <b>Wall-clock time.</b> Epochs BGD ko unfairly flatter karte hain (1 epoch mein 1 update dikhta hai par cost $m$ samples ki hai). Iterations SGD ko unfairly flatter karte hain (1 iteration sasti hai). Sirf wall-clock time actual computational cost capture karta hai, jo practically matter karti hai.</li>
+  </ol>
+</div>
+
+<!-- =========================== -->
+<h2 id="s5"><span class="h2-num">5</span>Dry Run — One Epoch of BGD and SGD ⭐</h2>
+<p>Ek tiny linear regression dataset par dekhte hain ki $\boldsymbol\theta$ <b>kab</b> actually badalta hai. Initial values: $\theta_0 = 0$, $\theta_1 = 0$, $\alpha = 0.1$.</p>
+
+<div class="tbl-wrap" style="max-width:280px">
+<table class="compact">
+<thead><tr><th class="num">$x_i$</th><th class="num">$y_i$</th></tr></thead>
+<tbody>
+<tr><td class="num">1</td><td class="num">2</td></tr>
+<tr><td class="num">2</td><td class="num">4</td></tr>
+<tr><td class="num">3</td><td class="num">6</td></tr>
+<tr><td class="num">4</td><td class="num">8</td></tr>
+</tbody>
+</table>
+</div>
+<p><small>(Perfect line: the true model is $y = 2x$, i.e. $\theta_0 = 0$, $\theta_1 = 2$.)</small></p>
+
+<h4>The per-sample loss and its gradients</h4>
+<div class="formula">$$J_i(\boldsymbol\theta) = \tfrac12(\hat y_i - y_i)^2, \qquad \hat y_i = \theta_0 + \theta_1 x_i$$</div>
+<p>If $e_i = \hat y_i - y_i$, the two gradient entries are:</p>
+<div class="formula">$$\frac{\partial J_i}{\partial\theta_0} = e_i, \qquad\qquad \frac{\partial J_i}{\partial\theta_1} = e_i x_i$$</div>
+<details class="acc">
+  <summary>Derivation of these two gradients (chain rule)</summary>
+  <div class="acc-body">
+    <p>$J_i = \frac12(\theta_0 + \theta_1x_i - y_i)^2$. Let $e_i = \theta_0 + \theta_1x_i - y_i$.</p>
+    $$\frac{\partial J_i}{\partial\theta_0} = \tfrac12 \cdot 2e_i \cdot \frac{\partial e_i}{\partial\theta_0} = e_i \cdot (1) = e_i$$
+    $$\frac{\partial J_i}{\partial\theta_1} = \tfrac12 \cdot 2e_i \cdot \frac{\partial e_i}{\partial\theta_1} = e_i \cdot (x_i) = e_i x_i$$
+    <p style="margin-bottom:0">Yahi wajah hai ki loss mein $\frac12$ rakha jaata hai — wo squaring se aane wale 2 ko cancel kar deta hai, formulas clean rehte hain.</p>
+  </div>
+</details>
+
+<div class="solved">
+  <header><span class="qtag">Batch GD</span><h4>One epoch — all predictions use the INITIAL $\boldsymbol\theta = [0,0]^\top$</h4></header>
+  <div class="body">
+    <p><b>Worked first row:</b> For $i=1$, $x_1 = 1$, $y_1 = 2$, and $\boldsymbol\theta = [0,0]^\top$:</p>
+    $$\hat y_1 = 0 + 0(1) = 0, \qquad e_1 = 0 - 2 = -2$$
+    $$\text{Grad}(\theta_0) = e_1 = -2, \qquad \text{Grad}(\theta_1) = e_1x_1 = (-2)(1) = -2$$
+    <div class="tbl-wrap" style="margin-top:.8rem">
+    <table class="compact">
+    <thead><tr><th class="num">$i$</th><th class="num">$x_i$</th><th class="num">$y_i$</th><th class="num">Prediction $\hat y_i$</th><th class="num">Error $(\hat y_i - y_i)$</th><th class="num">Grad $\theta_0$</th><th class="num">Grad $\theta_1$</th></tr></thead>
+    <tbody>
+    <tr><td class="num">1</td><td class="num">1</td><td class="num">2</td><td class="num">0</td><td class="num">−2</td><td class="num">−2</td><td class="num">−2</td></tr>
+    <tr><td class="num">2</td><td class="num">2</td><td class="num">4</td><td class="num">0</td><td class="num">−4</td><td class="num">−4</td><td class="num">−8</td></tr>
+    <tr><td class="num">3</td><td class="num">3</td><td class="num">6</td><td class="num">0</td><td class="num">−6</td><td class="num">−6</td><td class="num">−18</td></tr>
+    <tr><td class="num">4</td><td class="num">4</td><td class="num">8</td><td class="num">0</td><td class="num">−8</td><td class="num">−8</td><td class="num">−32</td></tr>
+    <tr style="background:rgba(59,130,246,.12)"><td colspan="5"><b>Average Gradient (Full Batch)</b></td><td class="num"><b>−5</b></td><td class="num"><b>−15</b></td></tr>
+    </tbody></table></div>
+    <p style="margin-top:.8rem"><b>Update (only ONE for the whole epoch):</b></p>
+    $$\boldsymbol\theta = \begin{bmatrix}0\\0\end{bmatrix} - 0.1\begin{bmatrix}-5\\ -15\end{bmatrix} = \begin{bmatrix}\mathbf{0.5}\\ \mathbf{1.5}\end{bmatrix}$$
+    <div class="box def" style="margin-bottom:0">
+      <div class="box-title">? Quick check — Did $\boldsymbol\theta$ change after Sample 1 was processed?</div>
+      <p style="margin:0"><b>No.</b> Poore table mein <b>Prediction column har row mein 0 hai</b> — yeh directly prove karta hai ki $\boldsymbol\theta$ table process hone ke dauraan constant raha. Gradients accumulate hote rahe, aur update tabhi hua jab saare 4 samples dekh liye gaye.</p>
+    </div>
+  </div>
+</div>
+
+<div class="solved">
+  <header><span class="qtag">Stochastic GD</span><h4>One epoch — shuffled order: Sample 2, Sample 4, Sample 1, Sample 3</h4></header>
+  <div class="body">
+    <div class="formula" style="margin-top:0"><span class="flabel">Single-sample gradient</span>$$\nabla J_i(\boldsymbol\theta) = \begin{bmatrix}\partial J_i/\partial\theta_0\\ \partial J_i/\partial\theta_1\end{bmatrix} = \begin{bmatrix}e_i\\ e_ix_i\end{bmatrix} = \begin{bmatrix}(\hat y_i - y_i)\\ (\hat y_i - y_i)x_i\end{bmatrix}$$</div>
+
+    <p><b>Worked first SGD update.</b> First shuffled sample: $x_i = 2$, $y_i = 4$, $\boldsymbol\theta = [0,0]^\top$:</p>
+    $$\hat y_i = 0 + 0(2) = 0, \qquad e_i = 0 - 4 = -4$$
+    $$\nabla J_i(\boldsymbol\theta) = \begin{bmatrix}-4\\ (-4)(2)\end{bmatrix} = \begin{bmatrix}-4\\ -8\end{bmatrix}$$
+    $$\boldsymbol\theta_{\text{new}} = \begin{bmatrix}0\\0\end{bmatrix} - 0.1\begin{bmatrix}-4\\-8\end{bmatrix} = \begin{bmatrix}\mathbf{0.4}\\ \mathbf{0.8}\end{bmatrix}$$
+    <p><b>The next sample must use these NEW values</b> — $\theta_0 = 0.4$ and $\theta_1 = 0.8$.</p>
+
+    <div class="tbl-wrap" style="margin-top:.8rem">
+    <table class="compact">
+    <thead><tr><th class="num">Step</th><th class="num">Sample</th><th class="num">$x_i$</th><th class="num">$y_i$</th><th class="num">Prediction</th><th class="num">Sample Gradient</th><th class="num">New $\boldsymbol\theta$</th></tr></thead>
+    <tbody>
+    <tr><td class="num">1</td><td class="num">2</td><td class="num">2</td><td class="num">4</td><td class="num">0.000</td><td class="num">$[-4.000,\ -8.000]$</td><td class="num">$[0.400,\ 0.800]$</td></tr>
+    <tr><td class="num">2</td><td class="num">4</td><td class="num">4</td><td class="num">8</td><td class="num">3.600</td><td class="num">$[-4.400,\ -17.600]$</td><td class="num">$[0.840,\ 2.560]$</td></tr>
+    <tr><td class="num">3</td><td class="num">1</td><td class="num">1</td><td class="num">2</td><td class="num">3.400</td><td class="num">$[+1.400,\ +1.400]$</td><td class="num">$[0.700,\ 2.420]$</td></tr>
+    <tr style="background:rgba(139,92,246,.1)"><td class="num">4</td><td class="num">3</td><td class="num">3</td><td class="num">6</td><td class="num"><b>7.960</b></td><td class="num"><b>$[+1.960,\ +5.880]$</b></td><td class="num"><b>$[0.504,\ 1.832]$</b></td></tr>
+    </tbody></table></div>
+
+    <details class="acc" style="margin-top:1rem">
+      <summary>Practice P3 — Step 4 worked out in full</summary>
+      <div class="acc-body">
+        <p>Step 4 uses $\boldsymbol\theta$ from Step 3, i.e. $[0.700,\ 2.420]^\top$, with Sample 3: $x = 3$, $y = 6$.</p>
+        $$\hat y_4 = \theta_0 + \theta_1 x = 0.700 + 2.420(3) = 0.700 + 7.260 = \mathbf{7.960}$$
+        $$e_4 = \hat y_4 - y_4 = 7.960 - 6 = \mathbf{+1.960}$$
+        $$\nabla J_4 = \begin{bmatrix}1.960\\ 1.960 \times 3\end{bmatrix} = \begin{bmatrix}1.960\\ 5.880\end{bmatrix}$$
+        $$\boldsymbol\theta_{\text{new}} = \begin{bmatrix}0.700\\ 2.420\end{bmatrix} - 0.1\begin{bmatrix}1.960\\ 5.880\end{bmatrix} = \begin{bmatrix}0.700 - 0.196\\ 2.420 - 0.588\end{bmatrix} = \begin{bmatrix}\mathbf{0.504}\\ \mathbf{1.832}\end{bmatrix}$$
+      </div>
+    </details>
+
+    <div class="box insight" style="margin-bottom:0">
+      <div class="box-title">? Think &amp; Discuss — why did the error sign flip?</div>
+      <p style="margin:0">Samples 2 aur 4 (Steps 1–2) ne <b>negative</b> errors diye ($-4.000$, $-4.400$), par Sample 1 (Step 3) ne <b>positive</b> error diya ($+1.400$) — jabki saare chaar points exactly line $y = 2x$ par hain!</p>
+      <p style="margin:.5rem 0 0"><b>Reason:</b> Steps 1–2 ke baad $\theta_1$ <b>0.8 se 2.56</b> par pahuch gaya tha — true slope 2 se kaafi <b>upar</b>. Model ab <b>over-predict</b> kar raha tha. Isliye Step 3 mein $\hat y = 3.4$ aaya jabki actual $y = 2$ tha → positive error.</p>
+      <p style="margin:.5rem 0 0"><b>Aur yahi SGD ki asli tasveer hai:</b> kyunki har update sirf ek sample ko dekhti hai, optimizer target ke aage-peeche <b>oscillate</b> karta hai. Sample 4 ka bada gradient ($-17.6$) ne $\theta_1$ ko overshoot karwa diya; agle do samples ne use wapas neeche kheencha ($2.56 \to 2.42 \to 1.83$). <b>Batch GD mein aisa nahi hota</b> — wahan ek epoch mein sirf ek averaged, conservative step hota hai.</p>
+    </div>
+  </div>
+</div>
+
+<!-- =========================== -->
+<h2 id="s6"><span class="h2-num">6</span>Pseudocode</h2>
+
+<div class="grid g2" style="align-items:start">
+<div>
+<h4>Reference · Batch Gradient Descent</h4>
+<pre class="py"><span class="tok-com"># Input: dataset D = {(x_i, y_i)}, learning rate alpha, epochs E</span>
+initialize theta
+
+for epoch = 1 to E:                <span class="tok-com"># outer epoch loop</span>
+    grad = 0
+    for i = 1 to m:                <span class="tok-com"># sample loop for ACCUMULATION</span>
+        grad = grad + gradient_J_i(theta)
+    grad = grad / m                <span class="tok-com"># full-batch average gradient</span>
+    theta = theta - alpha * grad   <span class="tok-com"># ONE UPDATE PER EPOCH</span>
+
+return theta</pre>
+</div>
+<div>
+<h4>Reference · Stochastic Gradient Descent</h4>
+<pre class="py"><span class="tok-com"># Input: dataset D = {(x_i, y_i)}, learning rate alpha, epochs E</span>
+initialize theta
+
+for epoch = 1 to E:                <span class="tok-com"># outer epoch loop</span>
+    shuffle(D)                     <span class="tok-com"># CRITICAL: prevents biased order</span>
+    for i = 1 to m:                <span class="tok-com"># sample loop</span>
+        g = gradient_J_i(theta)
+        theta = theta - alpha * g  <span class="tok-com"># ONE UPDATE PER SAMPLE</span>
+
+return theta</pre>
+</div>
+</div>
+
+<div class="solved">
+  <header><span class="qtag">Practice P4</span><h4>Rearrange the scrambled SGD pseudocode</h4></header>
+  <div class="body">
+    <p>Lines given: &nbsp;<b>A.</b> $\boldsymbol\theta := \boldsymbol\theta - \alpha\nabla J_i(\boldsymbol\theta)$ &nbsp;·&nbsp; <b>B.</b> <code>for epoch = 1 to E:</code> &nbsp;·&nbsp; <b>C.</b> $\nabla J_i(\boldsymbol\theta) = $ gradient_of_sample$(x_i, y_i, \boldsymbol\theta)$ &nbsp;·&nbsp; <b>D.</b> <code>shuffle(Dataset)</code> &nbsp;·&nbsp; <b>E.</b> <code>for i = 1 to m:</code></p>
+    <div class="answer" style="font-family:var(--mono)">B &nbsp;→&nbsp; D &nbsp;→&nbsp; E &nbsp;→&nbsp; C &nbsp;→&nbsp; A</div>
+    <pre class="py" style="margin-top:1rem">for epoch = 1 to E:          <span class="tok-com"># B</span>
+    shuffle(Dataset)         <span class="tok-com"># D</span>
+    for i = 1 to m:          <span class="tok-com"># E</span>
+        grad_J_i(theta)      <span class="tok-com"># C</span>
+        theta = theta - alpha * grad_J_i(theta)   <span class="tok-com"># A</span></pre>
+    <div class="box danger" style="margin-bottom:0">
+      <div class="box-title">★ Implementation warning</div>
+      <p style="margin:0">SGD mein, full sample loop ke through gradients <b>accumulate mat karo</b> update se pehle. Wo silently code ko wapas <b>Batch GD</b> bana deta hai.</p>
+    </div>
+    <div class="box def" style="margin-bottom:0">
+      <div class="box-title">? Spot the Difference — exactly ONE line moves</div>
+      <p style="margin:0">Line jo move karti hai wo hai <b>$\boldsymbol\theta$ update line</b>. Batch GD mein wo sample loop ke <b>bahar</b> hai (loop khatam hone ke baad, ek baar). SGD mein wo sample loop ke <b>andar</b> chali jaati hai (har sample ke baad). Aur ek extra line add hoti hai — <code>shuffle(D)</code>.</p>
+    </div>
+  </div>
+</div>
+
+<!-- =========================== -->
+<h2 id="s7"><span class="h2-num">7</span>Advantages of SGD</h2>
+<ul>
+  <li><b>Faster first update:</b> Model $m$ samples ke baad nahi, <b>ek</b> sample ke baad badal jaata hai. Learning turant shuru hoti hai.</li>
+  <li><b>Lower memory usage:</b> Ek update ke liye sirf ek sample, current $\boldsymbol\theta$, aur ek gradient chahiye.</li>
+  <li><b>Better scalability:</b> Per-update cost $m$ ke saath grow nahi karti. Jab $m$ huge ho to yeh useful hai.</li>
+  <li><b>Suitable for massive datasets:</b> Model improve karna shuru karne ke liye ek approximate direction often kaafi hai; exact full gradient ka wait karna wasteful ho sakta hai.</li>
+  <li><b>Better exploration:</b> Non-convex problems mein noisy gradients flat ya shallow regions mein atakne se bachne mein help kar sakte hain.</li>
+</ul>
+
+<h2 id="s8"><span class="h2-num">8</span>Limitations of SGD</h2>
+<ul>
+  <li><b>Oscillating convergence:</b> Alag samples $\boldsymbol\theta$ ko conflicting directions mein push kar sakte hain.</li>
+  <li><b>Noisy updates:</b> Ek outlier sample ek <b>large gradient jump</b> create kar sakta hai.</li>
+  <li><b>Sensitive learning rate:</b> $\alpha$ step size aur $\boldsymbol\theta$ par noise ka asar dono control karta hai.</li>
+  <li><b>Many updates needed:</b> Har update sasti hai par kam informative.</li>
+  <li><b>Difficult stopping:</b> Iteration-level loss rapidly fluctuate karti hai — "converged" decide karna mushkil.</li>
+  <li><b>Variance across runs:</b> Alag shuffles alag paths produce kar sakte hain.</li>
+</ul>
+
+<!-- =========================== -->
+<h2 id="s9"><span class="h2-num">9</span>Motivation for Mini-Batch Gradient Descent</h2>
+<div class="box hook">
+  <div class="box-title">▷ Hook</div>
+  <p style="margin:0">SGD ne waiting problem solve kar di par noisy movement create kar di. Agar <b>ek</b> sample bohot noisy hai, aur <b>saare</b> samples ek saath bohot expensive hain — to <b>middle ground</b> kya hai? Kya hum noise cut kar sakte hain bina har baar poora dataset scan kiye?</p>
+</div>
+<p><b>Natural answer:</b> samples ke ek <b>chhote group</b> ka average lo. Yahi Mini-Batch Gradient Descent hai.</p>
+<div class="box def">
+  <div class="box-title">Analogy</div>
+  <p style="margin:0">Poori class ya ek student se poochne ki jagah, ek <b>chhote group</b> se poocho. Group ka answer ek insaan se <b>kam noisy</b> hai, par sabse poochne se <b>bohot faster</b> hai.</p>
+</div>
+
+<!-- =========================== -->
+<h2 id="s10"><span class="h2-num">10</span>Mini-Batch Gradient Descent</h2>
+<p>Mini-batch GD shuffled dataset ko chhote groups mein todta hai jinhe <b>mini-batches</b> kehte hain. Har update ek mini-batch (size $b$) par <b>average gradient</b> use karti hai.</p>
+<p>Batch size <b>compromise dial</b> hai: $b = 1$ SGD ki tarah behave karta hai, $b = m$ Batch GD ki tarah, aur beech ki values speed ko steadier direction ke liye trade karti hain.</p>
+
+<div class="formula"><span class="flabel">Updates per epoch</span>$$\left\lceil \frac{m}{b} \right\rceil$$</div>
+
+<h4>Workflow</h4>
+<ol>
+  <li>Har epoch ke start par dataset shuffle karo.</li>
+  <li>Use size $b$ ke mini-batches mein split karo.</li>
+  <li>Pehle mini-batch par average gradient compute karo aur $\boldsymbol\theta$ <b>immediately</b> update karo.</li>
+  <li>Continue karo jab tak har sample ek baar use na ho jaaye.</li>
+  <li>Multiple epochs ke liye repeat karo.</li>
+</ol>
+
+<h4>Practical points</h4>
+<ul>
+  <li><b>Typical batch sizes:</b> 16, 32, 64, 128, 256 — common choices hain, compulsory nahi.</li>
+  <li><b>Why powers of two:</b> GPU aur hardware kernels in sizes ko sabse efficiently handle karte hain; maths khud demand nahi karti.</li>
+  <li><b>GPU utilization:</b> ek single sample GPU ke parallel cores ko <b>under-use</b> karta hai; ek mini-batch use busy rakhne ke liye kaafi parallel work deta hai.</li>
+  <li><b>Memory efficiency:</b> ek update ke liye sirf <b>current mini-batch</b> ko memory mein rakhna padta hai — poora dataset nahi.</li>
+</ul>
+
+<h4>Reference · Mini-Batch Gradient Descent</h4>
+<pre class="py"><span class="tok-com"># Input: dataset D, learning rate alpha, epochs E, batch size b</span>
+initialize theta
+
+for epoch = 1 to E:                    <span class="tok-com"># outer epoch loop</span>
+    shuffle(D)
+    split D into mini-batches B_1, B_2, ..., B_K   <span class="tok-com"># K = ceil(m / b)</span>
+    for each mini-batch B_k:           <span class="tok-com"># mini-batch loop</span>
+        grad = 0
+        for each (x_i, y_i) in B_k:    <span class="tok-com"># sample loop INSIDE batch</span>
+            grad = grad + gradient_J_i(theta)
+        grad = grad / len(B_k)
+        theta = theta - alpha * grad   <span class="tok-com"># ONE UPDATE PER MINI-BATCH</span>
+
+return theta</pre>
+
+<div class="box insight">
+  <div class="box-title">Worked example of $K$</div>
+  <p style="margin:0">If $m = 10{,}000$ and batch size $b = 10$, then $K = \dfrac{m}{b} = \dfrac{10{,}000}{10} = \mathbf{1000}$ mini-batches, i.e. <b>1000 updates per epoch</b>.</p>
+</div>
+
+<!-- =========================== -->
+<h2 id="s11"><span class="h2-num">11</span>Dry Run of Mini-Batch GD</h2>
+
+<div class="solved">
+  <header><span class="qtag">Practice P5</span><h4>Mini-Batch dry run with $b = 2$</h4></header>
+  <div class="body">
+    <p>Same 4-sample dataset, shuffled to order: Sample 2, Sample 4, Sample 1, Sample 3. Start $\boldsymbol\theta = [0,0]^\top$, $\alpha = 0.1$.</p>
+
+    <h4 style="margin-top:0">Worked Iteration 1 — Mini-Batch 1 = {Sample 2, Sample 4}</h4>
+    <p>Both predictions are 0 (since $\boldsymbol\theta = \mathbf 0$), so:</p>
+    $$\mathbf g_2 = \begin{bmatrix}0-4\\ (0-4)(2)\end{bmatrix} = \begin{bmatrix}-4\\ -8\end{bmatrix}, \qquad \mathbf g_4 = \begin{bmatrix}0-8\\ (0-8)(4)\end{bmatrix} = \begin{bmatrix}-8\\ -32\end{bmatrix}$$
+    <p><b>Average the two gradients, then update once:</b></p>
+    $$\bar{\mathbf g}_1 = \frac{\mathbf g_2 + \mathbf g_4}{2} = \frac12\begin{bmatrix}-12\\ -40\end{bmatrix} = \begin{bmatrix}-6\\ -20\end{bmatrix}$$
+    $$\boldsymbol\theta^{(1)} = \begin{bmatrix}0\\0\end{bmatrix} - 0.1\begin{bmatrix}-6\\ -20\end{bmatrix} = \begin{bmatrix}\mathbf{0.6}\\ \mathbf{2.0}\end{bmatrix}$$
+
+    <h4>Your Turn — Mini-Batch 2 = {Sample 1, Sample 3}, using $\boldsymbol\theta = [0.6,\ 2.0]^\top$</h4>
+    <ol class="steps">
+      <li><span class="sh">Sample 1 ($x=1$, $y=2$)</span>
+        $$\hat y_1 = 0.6 + 2.0(1) = 2.6, \quad e_1 = 2.6 - 2 = \mathbf{0.6}, \quad \mathbf g_1 = \begin{bmatrix}0.6\\ 0.6\end{bmatrix}$$</li>
+      <li><span class="sh">Sample 3 ($x=3$, $y=6$)</span>
+        $$\hat y_3 = 0.6 + 2.0(3) = 6.6, \quad e_3 = 6.6 - 6 = \mathbf{0.6}, \quad \mathbf g_3 = \begin{bmatrix}0.6\\ 0.6 \times 3\end{bmatrix} = \begin{bmatrix}0.6\\ 1.8\end{bmatrix}$$</li>
+      <li><span class="sh">Average gradient for Batch 2</span>
+        $$\bar{\mathbf g}_2 = \frac{1}{2}\left(\begin{bmatrix}0.6\\0.6\end{bmatrix} + \begin{bmatrix}0.6\\1.8\end{bmatrix}\right) = \frac12\begin{bmatrix}1.2\\ 2.4\end{bmatrix} = \begin{bmatrix}\mathbf{0.6}\\ \mathbf{1.2}\end{bmatrix}$$</li>
+      <li><span class="sh">Final $\boldsymbol\theta$ after Epoch 1</span>
+        $$\boldsymbol\theta = \begin{bmatrix}0.6\\ 2.0\end{bmatrix} - 0.1\begin{bmatrix}0.6\\ 1.2\end{bmatrix} = \begin{bmatrix}\mathbf{0.54}\\ \mathbf{1.88}\end{bmatrix}$$
+        <div class="answer">2 updates in this epoch ($\lceil 4/2\rceil = 2$), vs SGD's 4 and Batch GD's 1.</div></li>
+    </ol>
+    <div class="box takeaway" style="margin-bottom:0">
+      <div class="box-title">Compare all three after one epoch</div>
+      <div class="tbl-wrap" style="margin:.5rem 0 0">
+      <table class="compact">
+      <thead><tr><th>Method</th><th class="num">Updates</th><th class="num">Final $\boldsymbol\theta$</th><th>Comment</th></tr></thead>
+      <tbody>
+      <tr><td>Batch GD</td><td class="num">1</td><td class="num">$[0.500,\ 1.500]$</td><td>Conservative, smooth, farthest from $\theta_1 = 2$</td></tr>
+      <tr><td>Mini-Batch ($b{=}2$)</td><td class="num">2</td><td class="num">$[0.540,\ \mathbf{1.880}]$</td><td><b>Closest to true slope 2</b> — best of both</td></tr>
+      <tr><td>SGD</td><td class="num">4</td><td class="num">$[0.504,\ 1.832]$</td><td>Overshot to 2.56 then oscillated back down</td></tr>
+      </tbody></table></div>
+      <p style="margin:.6rem 0 0">Update ek-dusre ke aage kam noisy hai SGD se (do gradients average hote hain), par abhi bhi <b>full dataset process hone se pehle</b> ho jaati hai.</p>
+    </div>
+  </div>
+</div>
+
+<div class="solved">
+  <header><span class="qtag">Homework P6</span><h4>Mini-Batch with an uneven split ($b = 3$)</h4></header>
+  <div class="body">
+    <p>Shuffled order: Sample 2, Sample 4, Sample 1, Sample 3. Because 4 is not divisible by 3:</p>
+    $$B_1 = \{S2,\ S4,\ S1\}, \qquad B_2 = \{S3\}$$
+
+    <p><b>Update 1 (provided):</b> Start from $\boldsymbol\theta^{(0)} = [0,0]^\top$.</p>
+    $$\bar{\mathbf g}_1 = \frac13\left(\begin{bmatrix}-4\\-8\end{bmatrix} + \begin{bmatrix}-8\\-32\end{bmatrix} + \begin{bmatrix}-2\\-2\end{bmatrix}\right) = \frac13\begin{bmatrix}-14\\ -42\end{bmatrix} = \begin{bmatrix}-4.667\\ -14.000\end{bmatrix}$$
+    $$\boldsymbol\theta^{(1)} = \begin{bmatrix}0\\0\end{bmatrix} - 0.1\begin{bmatrix}-4.667\\ -14.000\end{bmatrix} = \begin{bmatrix}\mathbf{0.467}\\ \mathbf{1.400}\end{bmatrix}$$
+
+    <p><b>Update 2 (solved):</b> $B_2$ contains only Sample 3 ($x = 3$, $y = 6$).</p>
+    <ol class="steps">
+      <li><span class="sh">Prediction</span>
+        $$\hat y_3 = 0.467 + 1.400(3) = 0.467 + 4.200 = \mathbf{4.667}$$</li>
+      <li><span class="sh">Error</span>
+        $$e_3 = \hat y_3 - 6 = 4.667 - 6 = \mathbf{-1.333}$$</li>
+      <li><span class="sh">Average gradient (only one sample, so the average is itself)</span>
+        $$\bar{\mathbf g}_2 = \begin{bmatrix}-1.333\\ -1.333 \times 3\end{bmatrix} = \begin{bmatrix}\mathbf{-1.333}\\ \mathbf{-4.000}\end{bmatrix}$$</li>
+      <li><span class="sh">Update</span>
+        $$\boldsymbol\theta^{(2)} = \begin{bmatrix}0.467\\ 1.400\end{bmatrix} - 0.1\begin{bmatrix}-1.333\\ -4.000\end{bmatrix} = \begin{bmatrix}\mathbf{0.600}\\ \mathbf{1.800}\end{bmatrix}$$</li>
+      <li><span class="sh">Number of mini-batches in the epoch</span>
+        $$K = \left\lceil \frac{m}{b} \right\rceil = \left\lceil \frac{4}{3} \right\rceil = \mathbf{2}$$
+        <div class="answer">Last batch mein sirf 1 sample hai — yeh bilkul normal hai. Ceiling function isliye use hota hai: <b>koi bhi leftover sample apna chhota batch banata hai</b>, discard nahi hota.</div></li>
+    </ol>
+  </div>
+</div>
+
+<!-- =========================== -->
+<h2 id="s12"><span class="h2-num">12</span>Comprehensive Comparison ⭐</h2>
+
+<figure>
+<svg viewBox="0 0 640 300" role="img" aria-label="Three optimisation paths with different amounts of noise">
+  <g fill="none" stroke-width="1.4" opacity=".5">
+    <ellipse cx="300" cy="170" rx="230" ry="96" style="stroke:var(--text-3)"/>
+    <ellipse cx="300" cy="170" rx="160" ry="67" style="stroke:var(--text-3)"/>
+    <ellipse cx="300" cy="170" rx="92"  ry="39" style="stroke:var(--text-3)"/>
+  </g>
+  <path d="M110 66 C 160 96, 220 138, 292 168" fill="none" stroke="#3b82f6" stroke-width="3" marker-end="url(#c1)"/>
+  <polyline points="518,76 470,118 494,134 448,146 464,160 414,156 396,172 340,168 312,170"
+            fill="none" stroke="#a855f7" stroke-width="2.5" stroke-dasharray="7 4" marker-end="url(#c2)"/>
+  <polyline points="590,150 528,196 556,206 496,216 522,222 460,210 484,200 420,196 440,184 380,182 396,176 330,174 312,172"
+            fill="none" stroke="#ef4444" stroke-width="2" stroke-dasharray="3 3" marker-end="url(#c3)"/>
+  <defs>
+    <marker id="c1" markerWidth="8" markerHeight="8" refX="6.5" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#3b82f6"/></marker>
+    <marker id="c2" markerWidth="8" markerHeight="8" refX="6.5" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#a855f7"/></marker>
+    <marker id="c3" markerWidth="8" markerHeight="8" refX="6.5" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#ef4444"/></marker>
+  </defs>
+  <circle cx="300" cy="170" r="6" style="fill:var(--text)"/>
+  <text x="300" y="192" text-anchor="middle" font-size="12" font-weight="700" style="fill:var(--text)">Optimum</text>
+  <text x="108" y="48" text-anchor="middle" font-size="12.5" font-weight="800" fill="#3b82f6">Batch GD</text>
+  <text x="108" y="62" text-anchor="middle" font-size="10" fill="#3b82f6">smooth</text>
+  <text x="530" y="58" text-anchor="middle" font-size="12.5" font-weight="800" fill="#a855f7">Mini-Batch GD</text>
+  <text x="530" y="70" text-anchor="middle" font-size="10" fill="#a855f7">slight noise</text>
+  <text x="588" y="258" text-anchor="middle" font-size="12.5" font-weight="800" fill="#ef4444">SGD</text>
+  <text x="588" y="272" text-anchor="middle" font-size="10" fill="#ef4444">larger zig-zags</text>
+  <text x="300" y="294" text-anchor="middle" font-size="12" font-weight="700" style="fill:var(--text-2)">θ₀</text>
+  <text x="24" y="170" font-size="12" font-weight="700" transform="rotate(-90 24 170)" text-anchor="middle" style="fill:var(--text-2)">θ₁</text>
+</svg>
+<figcaption>Same destination, alag-alag amounts of update noise.</figcaption>
+</figure>
+
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Aspect</th><th>Batch GD</th><th>Stochastic GD</th><th>Mini-Batch GD</th></tr></thead>
+<tbody>
+<tr><td><b>Gradient Used</b></td><td>Average of all $m$</td><td>One sample gradient</td><td>Average over $b$ samples</td></tr>
+<tr><td><b>Samples/Update</b></td><td class="num">$m$</td><td class="num">1</td><td class="num">$b$</td></tr>
+<tr><td><b>Updates/Epoch</b></td><td class="num">1</td><td class="num">$m$</td><td class="num">$\lceil m/b\rceil$</td></tr>
+<tr><td><b>Speed of 1st Update</b></td><td>Slowest (waits for full pass)</td><td><b>Fastest</b> (after 1 sample)</td><td>Intermediate</td></tr>
+<tr><td><b>Memory Need</b></td><td>High if full batch is materialized</td><td><b>Lowest</b></td><td>Moderate</td></tr>
+<tr><td><b>Stability</b></td><td><b>Most stable</b></td><td>Least stable</td><td>Usually stable enough</td></tr>
+<tr><td><b>Noise</b></td><td>Very low</td><td>High (sampling noise)</td><td>Lower noise as $b$ increases</td></tr>
+<tr><td><b>Convergence</b></td><td>Smooth, but slow per update</td><td>Noisy; may oscillate near optimum</td><td>Balanced; common practical choice</td></tr>
+<tr><td><b>Scalability</b></td><td>Weak for massive data</td><td>Strong for streaming / huge data</td><td>Strong for large datasets</td></tr>
+<tr><td><b>Parallelization</b></td><td>Vectorizable but memory heavy</td><td>Poor hardware use per update</td><td><b>Excellent</b> matrix parallelism</td></tr>
+<tr><td><b>GPU Friendliness</b></td><td>May exceed memory</td><td>Underuses GPU parallelization</td><td><b>Best fit for GPUs</b></td></tr>
+<tr><td><b>Typical Use Case</b></td><td>Small datasets, teaching baseline</td><td>Online learning, streaming</td><td>Deep Learning / large-scale ML</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="box takeaway">
+  <div class="box-title">♦ Takeaway</div>
+  <p style="margin:0">Batch GD accurate hai par update karne mein slow; SGD update karne mein fast hai par noisy; <b>Mini-Batch GD practical compromise hai jo actually zyadatar real systems use karte hain.</b></p>
+</div>
+
+<div class="solved">
+  <header><span class="qtag">Practice P7</span><h4>True or False</h4></header>
+  <div class="body">
+  <div class="tbl-wrap" style="margin-top:0">
+  <table>
+  <thead><tr><th>Statement</th><th>T/F</th><th>Justification</th></tr></thead>
+  <tbody>
+  <tr><td>(a) The loss is guaranteed to decrease after every single SGD update</td><td><span class="pill r">F</span></td><td>Update ek sample ko follow karti hai, poore dataset ko nahi. Full training loss <b>temporarily badh sakti hai</b>. Sirf <b>trend</b> downward hona chahiye.</td></tr>
+  <tr><td>(b) Mini-Batch GD with batch size $b = 1$ is mathematically identical to SGD</td><td><span class="pill g">T</span></td><td>Ek sample ka average wahi sample hai. $b=1$ par mini-batch formula exactly SGD update ban jaata hai.</td></tr>
+  <tr><td>(c) If $m = 1000$ and $b = 100$, one epoch of Mini-Batch GD will perform 1000 updates</td><td><span class="pill r">F</span></td><td>$\lceil m/b\rceil = \lceil 1000/100\rceil = \mathbf{10}$ updates. 1000 <b>SGD</b> ka answer hota. Yeh sabse common confusion hai.</td></tr>
+  </tbody></table></div>
+  </div>
+</div>
+
+<!-- =========================== -->
+<h2 id="terms">📖 Key Terms</h2>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Term</th><th>Definition</th></tr></thead>
+<tbody>
+<tr><td><b>Batch Gradient Descent</b></td><td>Updates parameters using the <b>exact average gradient over the entire dataset</b>.</td></tr>
+<tr><td><b>Stochastic GD (SGD)</b></td><td>Updates parameters <b>immediately</b> using the gradient of a <b>single randomly chosen sample</b>.</td></tr>
+<tr><td><b>Mini-Batch GD</b></td><td>Updates parameters using the average gradient over a <b>small group ($b$) of samples</b>.</td></tr>
+<tr><td><b>Epoch</b></td><td>One complete pass through all $m$ training examples.</td></tr>
+<tr><td><b>Iteration</b></td><td>One parameter update step.</td></tr>
+<tr><td><b>Shuffling</b></td><td>Randomizing the order of the dataset before each epoch to prevent biased learning patterns.</td></tr>
+<tr><td><b>Sampling Noise</b></td><td>The variance introduced by estimating the full gradient from just one (or a few) samples.</td></tr>
+<tr><td><b>Learning Rate ($\alpha$)</b></td><td>The step size that scales the gradient before it is subtracted from $\boldsymbol\theta$.</td></tr>
+<tr><td><b>Batch Size ($b$)</b></td><td>The number of samples averaged together for one Mini-Batch GD update.</td></tr>
+</tbody>
+</table>
+</div>
+
+<!-- =========================== -->
+<h2 id="mistakes">⚠ Common Mistakes</h2>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Galti</th><th>Sahi Baat</th></tr></thead>
+<tbody>
+<tr><td>"SGD sirf ek sample use karta hai, baaki data waste ho jaata hai"</td><td>Ek <b>update</b> ek sample use karti hai; ek <b>epoch</b> saare $m$ use karta hai.</td></tr>
+<tr><td>$m=1000$, $b=100$ → 1000 updates per epoch</td><td>$\lceil m/b\rceil = 10$ updates.</td></tr>
+<tr><td>SGD mein gradients accumulate karke end mein update karna</td><td>Wo code ko silently <b>Batch GD</b> bana deta hai. Update <b>loop ke andar</b> hona chahiye.</td></tr>
+<tr><td>Shuffling skip kar dena</td><td>Ordered data → biased update sequences. Har epoch ke start par shuffle mandatory hai.</td></tr>
+<tr><td>"Loss har SGD step par girni chahiye"</td><td>Noisy step par full loss badh sakti hai. Trend dekho, single point nahi.</td></tr>
+<tr><td>"Zyada updates = faster convergence"</td><td>Har update sasti par kam accurate hai. Wall-clock time aur stability bhi matter karte hain.</td></tr>
+<tr><td>"Stochastic ka matlab parameters random hain"</td><td>Randomness sirf <b>sample selection</b> mein hai; update rule deterministic hai.</td></tr>
+<tr><td>Epoch aur iteration ko interchange karna</td><td>BGD: 1 epoch = 1 iteration. SGD: 1 epoch = $m$ iterations. Mini-Batch: 1 epoch = $\lceil m/b\rceil$ iterations.</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="revision">⚡ Quick Revision</h2>
+<div class="grid g2">
+  <div class="box def" style="margin:0"><div class="box-title">Updates per epoch</div><p style="margin:0">BGD: <b>1</b> · SGD: <b>$m$</b> · Mini-Batch: <b>$\lceil m/b\rceil$</b></p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Cost per update</div><p style="margin:0">BGD: $O(md)$ · SGD: $O(d)$ · Mini-Batch: $O(bd)$</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">SGD update</div><p style="margin:0">$\boldsymbol\theta_{t+1} = \boldsymbol\theta_t - \alpha\nabla J_{i_t}(\boldsymbol\theta_t)$, &nbsp;$i_t \sim$ Uniform$\{1..m\}$</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Per-sample gradient (linear reg.)</div><p style="margin:0">$\nabla J_i = [e_i,\ e_ix_i]^\top$ where $e_i = \hat y_i - y_i$</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Batch sizes</div><p style="margin:0">16, 32, 64, 128, 256 — powers of two for GPU efficiency</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Why shuffle?</div><p style="margin:0">Ordered data → biased update sequences → wrong learning signal</p></div>
+</div>
+
+<div class="box takeaway">
+  <div class="box-title">♦ By the end of this sheet you can…</div>
+  <ul style="margin:0">
+    <li>Explain karna ki Batch GD update karne mein bohot wait kyun karta hai aur SGD natural fix kyun hai.</li>
+    <li>SGD aur Mini-Batch GD ka ek epoch <b>by hand</b> perform karna.</li>
+    <li>BGD, SGD aur Mini-Batch ko mathematically aur visually compare karna.</li>
+    <li>Explain karna ki stochastic updates ke liye data shuffle karna critical kyun hai.</li>
+    <li>Small data, massive data, deep learning aur streaming data ke liye suitable method choose karna.</li>
+  </ul>
+</div>
+
+<h2 id="test">✓ Test Yourself — 10 MCQs</h2>
+<div id="mcq-root"></div>
+
+</div>
+</main>
+</div>
+
+<script>
+const MCQS = [
+{ d:'med',
+  q:'A dataset has $m = 1000$ examples and Mini-Batch GD uses $b = 100$. How many parameter updates happen in one epoch?',
+  o:['1', '10', '100', '1000'],
+  a:1,
+  e:'<b>B.</b> $\\lceil m/b\\rceil = \\lceil 1000/100\\rceil = 10$. <b>D</b> is the single most common trap — wo <b>SGD</b> ka answer hai ($m$ updates). <b>A</b> is the Batch GD answer. <b>C</b> confuses batch size with update count.' },
+
+{ d:'hard',
+  q:'In the SGD dry run, Samples 2 and 4 gave negative errors but Sample 1 then gave $+1.400$ — even though all four points lie exactly on $y = 2x$. Why?',
+  o:['The dataset contains an outlier at Sample 1',
+     'After two aggressive updates $\\theta_1$ had overshot to 2.56, above the true slope of 2, so the model was now over-predicting',
+     'SGD randomly flips the sign of gradients',
+     'The learning rate was negative for that step'],
+  a:1,
+  e:'<b>B.</b> Step 2 ke gradient ($-17.6$ on $\\theta_1$) ne $\\theta_1$ ko $0.8 \\to 2.56$ push kar diya — true slope 2 se upar. Ab $\\hat y_1 = 3.4$ vs $y_1 = 2$ ⟹ positive error. Yeh <b>SGD oscillation</b> hai, data ka defect nahi. <b>A</b> false — saare points perfectly linear hain. <b>C</b> and <b>D</b> are invented.' },
+
+{ d:'hard',
+  q:'A student writes SGD but accumulates gradients across the whole sample loop before updating $\\boldsymbol\\theta$. What has actually been implemented?',
+  o:['Correct SGD', 'Batch Gradient Descent', 'Mini-Batch GD with $b=1$', 'Nothing — the code will crash'],
+  a:1,
+  e:'<b>B.</b> Saare $m$ gradients accumulate karke <b>ek</b> update karna — wo literally Batch GD ki definition hai. Sheet explicitly warn karti hai: "do not accumulate gradients through the full sample loop before updating. That silently turns the code back into Batch GD." <b>C</b> is backwards ($b=1$ IS SGD). <b>D</b> false — code chalega, bas galat algorithm hoga.' },
+
+{ d:'med',
+  q:'Why is shuffling the dataset at the start of each epoch critical for SGD?',
+  o:['It makes the gradient computation faster',
+     'Real datasets are often ordered (by date, class, region), so without shuffling consecutive updates follow the ordering pattern instead of the true learning signal',
+     'It reduces the memory footprint',
+     'It guarantees the loss decreases monotonically'],
+  a:1,
+  e:'<b>B.</b> Agar data class-wise sorted hai, to SGD pehle sirf class A dekhega, phir sirf class B — parameters class A ki taraf drift karke phir violently swing karenge. Randomization <b>biased update sequences</b> se bachata hai. <b>A</b> and <b>C</b> are unrelated benefits (shuffling ka cost hai, saving nahi). <b>D</b> false — SGD mein loss monotonic kabhi nahi hoti.' },
+
+{ d:'hard',
+  q:'Which is the most defensible x-axis for fairly comparing the training speed of Batch GD and SGD?',
+  o:['Epochs, because both algorithms define an epoch the same way',
+     'Iterations, because both perform iterations',
+     'Wall-clock time, because epochs flatter Batch GD and iterations flatter SGD — only real time captures actual compute cost',
+     'Number of samples seen, because that is identical for both'],
+  a:2,
+  e:'<b>C.</b> Ek BGD "epoch" ek update dikhata hai par cost $m$ samples ki hai; ek SGD "iteration" sasti hai par kam informative. Dono axes ek algorithm ko artificially flatter karte hain. <b>Wall-clock time</b> hi actual computational cost reflect karta hai. <b>A</b> and <b>B</b> pick exactly the two biased axes. <b>D</b> is true per epoch but hides the per-update cost difference entirely.' },
+
+{ d:'hard',
+  q:'Mini-Batch GD with $b = 4$ and $m = 10$. What is $K$ (mini-batches per epoch), and what happens to the leftover samples?',
+  o:['$K = 2$; the last 2 samples are discarded',
+     '$K = 3$; the last batch simply contains only 2 samples',
+     '$K = 2.5$; fractional batches are allowed',
+     '$K = 10$; each sample becomes its own batch'],
+  a:1,
+  e:'<b>B.</b> $K = \\lceil 10/4 \\rceil = 3$: batches of 4, 4 and <b>2</b>. Ceiling function ka pura point yehi hai — <b>koi sample discard nahi hota</b>, leftover apna chhota batch banate hain. <b>A</b> loses data (never correct). <b>C</b> is not a valid count. <b>D</b> would be $b=1$, i.e. SGD.' },
+
+{ d:'med',
+  q:'Why are batch sizes usually chosen as powers of two (16, 32, 64, 128, 256)?',
+  o:['Because the mathematics of gradient averaging requires it',
+     'Because GPU and hardware kernels handle those sizes most efficiently — the maths itself does not require it',
+     'Because powers of two guarantee faster convergence',
+     'Because $\\lceil m/b\\rceil$ is only defined for powers of two'],
+  a:1,
+  e:'<b>B.</b> Sheet: "GPU and hardware kernels often handle these sizes most efficiently; the math itself does not require them." Yeh pura ek <b>hardware</b> optimisation hai. <b>A</b> and <b>D</b> invent a mathematical requirement that does not exist — $b = 37$ perfectly valid hai. <b>C</b> confuses hardware throughput with convergence rate.' },
+
+{ d:'hard',
+  q:'"An SGD gradient is unbiased." What exactly does this mean?',
+  o:['Every single SGD gradient equals the full-data gradient',
+     'Its average direction over many random sample choices equals the full-gradient direction, although any one sample can be far from that average',
+     'SGD never makes an update that increases the loss',
+     'The gradient has zero variance'],
+  a:1,
+  e:'<b>B.</b> Unbiased = <b>expected value</b> correct hai. Yeh har individual draw ke baare mein kuch nahi kehta — variance bada ho sakta hai, aur outliers/class imbalance use aur badha dete hain. Yahi zig-zag path banata hai. <b>A</b> confuses the expectation with each realisation. <b>C</b> is false (and is a separate misconception). <b>D</b> is the opposite of what makes SGD noisy.' },
+
+{ d:'hard',
+  q:'After one epoch on the dataset $(1,2),(2,4),(3,6),(4,8)$ with $\\alpha=0.1$ starting from $\\boldsymbol\\theta = [0,0]^\\top$, Batch GD gives $\\boldsymbol\\theta = [0.5, 1.5]$. What was the averaged gradient?',
+  o:['$[-20, -60]^\\top$', '$[-5, -15]^\\top$', '$[5, 15]^\\top$', '$[-2, -2]^\\top$'],
+  a:1,
+  e:'<b>B.</b> Sum of $\\theta_0$ grads $= -2-4-6-8 = -20$; divided by $m=4$ gives $-5$. Sum of $\\theta_1$ grads $= -2-8-18-32 = -60$; $/4 = -15$. Check: $[0,0] - 0.1[-5,-15] = [0.5, 1.5]$ ✓. <b>A</b> forgets to divide by $m$ (that is the accumulated sum). <b>C</b> has the sign wrong — then $\\boldsymbol\\theta$ would go negative. <b>D</b> is only sample 1&apos;s gradient.' },
+
+{ d:'hard',
+  q:'For which situation is Mini-Batch GD the clearly preferred method?',
+  o:['A 50-row toy dataset used to teach the algorithm',
+     'A streaming fraud system that must update on each transaction as it arrives',
+     'Training a deep network on millions of images with GPUs',
+     'A dataset where $\\mathbf X^\\top\\mathbf X$ is invertible and $m = 3$ features'],
+  a:2,
+  e:'<b>C.</b> Mini-Batch GPU parallelism ke liye <b>best fit</b> hai — ek sample cores ko under-use karta hai, poora dataset memory exceed kar deta hai. Yahi deep learning ka standard hai. <b>A</b> favours Batch GD (exact gradients affordable). <b>B</b> favours SGD (online, one-at-a-time). <b>D</b> favours the closed-form OLS solution entirely.' },
+];
+</script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="window.dispatchEvent(new Event('katex-ready'))"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

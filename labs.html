@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab Code Companion — AML Exam Prep</title>
+<meta name="description" content="Reference NumPy and scikit-learn implementations for every AML lab: OLS, gradient descent, metrics, polynomial regression, bias-variance, feature selection and PCA.">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page="labs">
+<div class="shell">
+<main class="main">
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Practical · Viva · Lab Exam</div>
+  <h1><span class="gradtext">Lab Code Companion</span></h1>
+  <p class="sub">Har lecture ka NumPy / scikit-learn implementation — <b>theory ko code se connect</b> karne ke liye. Viva mein "isko code kaise karoge?" ka answer yahan hai.</p>
+  <div class="chips">
+    <span class="chip accent">🐍 Pure NumPy first</span><span class="chip">📦 sklearn equivalents</span><span class="chip">🔬 Labs 3–11</span>
+  </div>
+</header>
+
+<div class="box warn">
+  <div class="box-title">How to read this page</div>
+  <p style="margin:0">Har section mein pehle <b>from-scratch NumPy</b> version hai (jo <em>samajhne</em> ke liye hai aur viva mein poocha jaata hai), phir <b>scikit-learn</b> equivalent (jo production mein use hota hai). Yeh course ke apne lab notebooks ke structure ko follow karta hai. Concept theory ke liye har section ke lecture link par jao.</p>
+</div>
+
+<!-- ================================================= -->
+<h2 id="setup"><span class="h2-num">0</span>Standard imports &amp; reproducibility</h2>
+<pre class="py">import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+from sklearn.model_selection import train_test_split, KFold, cross_val_score
+from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler
+from sklearn.linear_model import LinearRegression, SGDRegressor
+from sklearn.decomposition import PCA
+from sklearn.pipeline import Pipeline
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+
+np.random.seed(42)          # reproducible splits and results
+RANDOM_SEED = 42</pre>
+
+<div class="box danger">
+  <div class="box-title">△ The one rule that appears in every lab</div>
+  <pre class="py" style="margin:.6rem 0 0"><span class="tok-com"># WRONG — leakage: the scaler has seen the test rows</span>
+X_scaled = StandardScaler().fit_transform(X)
+X_train, X_test = train_test_split(X_scaled)
+
+<span class="tok-com"># RIGHT — split first, fit on train only, transform both</span>
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+scaler  = StandardScaler().fit(X_train)     <span class="tok-com"># learns mu, sigma from TRAIN only</span>
+X_train = scaler.transform(X_train)
+X_test  = scaler.transform(X_test)          <span class="tok-com"># same mu, sigma applied</span></pre>
+</div>
+
+<!-- ================================================= -->
+<h2 id="lab1"><span class="h2-num">L1</span>Preprocessing — scaling &amp; encoding</h2>
+<p><a href="l01.html#scaling">→ Lecture 1 theory</a></p>
+
+<h4>From scratch</h4>
+<pre class="py">def min_max_scale(x):
+    <span class="tok-com">"""(X - X_min) / (X_max - X_min)  ->  maps to [0, 1]"""</span>
+    x = np.asarray(x, dtype=float)
+    return (x - x.min()) / (x.max() - x.min())
+
+
+def z_score_scale(x):
+    <span class="tok-com">"""(X - mu) / sigma  ->  mean 0, std 1"""</span>
+    x = np.asarray(x, dtype=float)
+    return (x - x.mean()) / x.std()
+
+
+def max_abs_scale(x):
+    <span class="tok-com">"""X / max(|X|)  ->  maps to [-1, 1], PRESERVES zeros (good for sparse)"""</span>
+    x = np.asarray(x, dtype=float)
+    return x / np.max(np.abs(x))
+
+
+def robust_scale(x):
+    <span class="tok-com">"""(X - median) / IQR  ->  unaffected by outliers"""</span>
+    x  = np.asarray(x, dtype=float)
+    q1 = np.percentile(x, 25)
+    q3 = np.percentile(x, 75)
+    return (x - np.median(x)) / (q3 - q1)
+
+
+<span class="tok-com"># Demonstrating why Min-Max fails with an outlier</span>
+x = np.array([100, 150, 200, 250, 50000])
+print(min_max_scale(x))   <span class="tok-com"># [0. 0.001 0.002 0.003 1.] -> normals collapse</span>
+print(robust_scale(x))    <span class="tok-com"># [-0.004 -0.002 0. 0.002 1.992] -> normals stay distinct</span></pre>
+
+<h4>scikit-learn equivalent</h4>
+<pre class="py">from sklearn.preprocessing import (MinMaxScaler, StandardScaler,
+                                   MaxAbsScaler, RobustScaler,
+                                   OneHotEncoder, OrdinalEncoder, LabelEncoder)
+
+scaler = RobustScaler().fit(X_train)        <span class="tok-com"># heavy outliers you cannot drop</span>
+X_train = scaler.transform(X_train)
+
+<span class="tok-com"># Encoding: choose by (a) is it ordered?  (b) how many categories?</span>
+OrdinalEncoder(categories=[['HS','Bachelor','Master','PhD']])   <span class="tok-com"># genuine rank</span>
+OneHotEncoder(sparse_output=False, handle_unknown='ignore')     <span class="tok-com"># nominal, few</span>
+<span class="tok-com"># nominal with MANY categories -> binary/hashing (category_encoders.BinaryEncoder)</span></pre>
+
+<!-- ================================================= -->
+<h2 id="lab3"><span class="h2-num">L3</span>Simple Linear Regression (OLS)</h2>
+<p><a href="l03.html">→ Lecture 3 theory</a> &nbsp;·&nbsp; from <code>Lab_3/slr_ols_todo.py</code></p>
+
+<pre class="py">def find_mean(values):
+    return np.sum(values) / len(values)
+
+
+def find_slope_intercept(x, y, x_mean, y_mean):
+    <span class="tok-com">"""OLS closed form:  m = sum((x-xbar)(y-ybar)) / sum((x-xbar)^2),  c = ybar - m*xbar"""</span>
+    numerator   = 0
+    denominator = 0
+    for x1, y1 in zip(x, y):
+        numerator   += (x1 - x_mean) * (y1 - y_mean)
+        denominator += (x1 - x_mean) ** 2
+    m = numerator / denominator
+    b = y_mean - m * x_mean
+    return m, b
+
+
+def predict_lr(x, m, b):
+    return m * x + b
+
+
+def calculate_residuals(y, y_pred):
+    return y - y_pred
+
+
+<span class="tok-com"># --- Evaluation metrics (also used in Labs 4, 7, 8) ---</span>
+def mae(y, y_pred):
+    return np.mean(np.abs(y - y_pred))
+
+def mse(y, y_pred):
+    return np.mean((y - y_pred) ** 2)
+
+def rmse(y, y_pred):
+    return np.sqrt(mse(y, y_pred))
+
+def r_square(y, y_pred, y_mean):
+    ss_total    = np.sum((y - y_mean) ** 2)     <span class="tok-com"># TSS</span>
+    ss_residual = np.sum((y - y_pred) ** 2)     <span class="tok-com"># RSS</span>
+    return 1 - (ss_residual / ss_total)</pre>
+
+<div class="box insight">
+  <div class="box-title">Viva question you will be asked</div>
+  <p style="margin:0"><b>"Agar denominator zero ho to?"</b> → Tab saare $x_i$ identical hain, $\operatorname{Var}(X) = 0$, aur slope <b>undefined</b> hai. Production code mein guard lagao: <code>if denominator == 0: raise ValueError("x has zero variance")</code>.</p>
+</div>
+
+<!-- ================================================= -->
+<h2 id="lab4"><span class="h2-num">L4</span>Multiple Linear Regression (Matrix OLS)</h2>
+<p><a href="l04.html">→ Lecture 4 theory</a> &nbsp;·&nbsp; from <code>Lab_4/mlr_ols_student.py</code></p>
+
+<pre class="py">def fit_multiple_lr(X, y):
+    <span class="tok-com">"""beta* = (X^T X)^-1 X^T y   -- the Normal Equation, in one line"""</span>
+    ones = np.ones((len(X), 1))
+    X    = np.hstack((ones, X))               <span class="tok-com"># prepend the intercept column</span>
+    beta = np.linalg.inv(X.T @ X) @ X.T @ y
+    return beta
+
+
+def fit_multiple_lr_beta(X, y):
+    <span class="tok-com">"""Same thing, written step by step so each matrix is visible."""</span>
+    ones = np.ones((len(X), 1))
+    X    = np.hstack((ones, X))
+    XT           = X.T                        <span class="tok-com"># (m+1) x n</span>
+    XTX          = XT @ X                     <span class="tok-com"># (m+1) x (m+1)  <- SQUARE, symmetric</span>
+    XTX_inverse  = np.linalg.inv(XTX)         <span class="tok-com"># fails if det == 0 (multicollinearity)</span>
+    XTy          = XT @ y                     <span class="tok-com"># (m+1) x 1</span>
+    beta         = XTX_inverse @ XTy
+    return beta
+
+
+def predict_multiple_lr(X, beta):
+    ones = np.ones((len(X), 1))
+    X    = np.hstack((ones, X))
+    return X @ beta</pre>
+
+<div class="box danger">
+  <div class="box-title">What happens with perfect multicollinearity</div>
+  <pre class="py" style="margin:.6rem 0 .6rem">X = np.array([[1., 1., 2.],
+              [1., 2., 3.],
+              [1., 3., 4.]])        <span class="tok-com"># col3 = col1 + col2</span>
+print(np.linalg.det(X.T @ X))       <span class="tok-com"># 0.0  (up to float noise)</span>
+np.linalg.inv(X.T @ X)              <span class="tok-com"># LinAlgError: Singular matrix</span></pre>
+  <p style="margin:0"><b>Safer in practice:</b> use <code>np.linalg.pinv</code> (pseudo-inverse) or <code>np.linalg.lstsq</code>, which return <em>a</em> minimum-norm solution instead of crashing. Note that this hides the problem — the coefficients are still not uniquely identified.</p>
+</div>
+
+<h4>scikit-learn equivalent</h4>
+<pre class="py">model = LinearRegression().fit(X_train, y_train)   <span class="tok-com"># uses lstsq internally, no manual inverse</span>
+print(model.intercept_, model.coef_)               <span class="tok-com"># beta_0 and beta_1..beta_m</span>
+y_pred = model.predict(X_test)</pre>
+
+<!-- ================================================= -->
+<h2 id="lab6"><span class="h2-num">L5–L6</span>Gradient Descent (Batch, SGD, Mini-Batch)</h2>
+<p><a href="l05.html">→ Lecture 5</a> · <a href="l06.html">Lecture 6</a> &nbsp;·&nbsp; from <code>Lab_6/mlr_gradient_descent_minibatch.py</code></p>
+
+<h4>The four building blocks</h4>
+<pre class="py">def predict_mlr(X, weights):
+    <span class="tok-com">"""y_hat = H @ weights,  where H = [1 | X]"""</span>
+    ones = np.ones((len(X), 1))
+    H = np.hstack((ones, X))
+    return H @ weights
+
+
+def compute_mlr_residual(y, predictions):
+    <span class="tok-com">"""predicted MINUS actual  (note the sign convention used in the gradient)"""</span>
+    return predictions - y
+
+
+def compute_mlr_gradient(X, residual):
+    <span class="tok-com">"""grad L = (2/m) * H^T (H@theta - y)"""</span>
+    ones = np.ones((len(X), 1))
+    H = np.hstack((ones, X))
+    return 2 / len(X) * (H.T @ residual)
+
+
+def compute_mlr_loss(residual):
+    return np.mean(residual ** 2)              <span class="tok-com"># MSE</span>
+
+
+def update_mlr_parameters(weights, gradient, alpha):
+    return weights - alpha * gradient          <span class="tok-com"># MINUS: gradient points uphill</span></pre>
+
+<h4>Batch Gradient Descent — 1 update per epoch</h4>
+<pre class="py">def batch_gradient_descent(X, y, theta, alpha, epochs):
+    loss_history = []
+    for epoch in range(epochs):
+        pred     = predict_mlr(X, theta)              <span class="tok-com"># uses the FULL dataset</span>
+        residual = compute_mlr_residual(y, pred)
+        grad     = compute_mlr_gradient(X, residual)
+        theta    = update_mlr_parameters(theta, grad, alpha)   <span class="tok-com"># ONE update</span>
+        loss_history.append(compute_mlr_loss(residual))
+    return theta, loss_history</pre>
+
+<h4>Mini-Batch Gradient Descent — ceil(m/b) updates per epoch</h4>
+<pre class="py">def minibatch_gradient_descent_mlr(X, y, theta, alpha, epochs, batch_size):
+    loss_history = []
+    n = X.shape[0]
+
+    for epoch in range(epochs):
+        indices    = np.random.permutation(n)        <span class="tok-com"># SHUFFLE every epoch</span>
+        X_shuffled = X[indices]
+        y_shuffled = y[indices]
+
+        for start in range(0, n, batch_size):        <span class="tok-com"># ceil(n/b) mini-batches</span>
+            end     = start + batch_size
+            X_batch = X_shuffled[start:end]          <span class="tok-com"># last batch may be smaller</span>
+            y_batch = y_shuffled[start:end]
+
+            pred     = predict_mlr(X_batch, theta)
+            residual = compute_mlr_residual(y_batch, pred)
+            grad     = compute_mlr_gradient(X_batch, residual)
+            theta    = update_mlr_parameters(theta, grad, alpha)   <span class="tok-com"># update INSIDE the loop</span>
+
+        <span class="tok-com"># track the FULL-dataset loss once per epoch, for the curve</span>
+        residual = compute_mlr_residual(y, predict_mlr(X, theta))
+        loss_history.append(compute_mlr_loss(residual))
+
+    return theta, loss_history
+
+
+<span class="tok-com"># SGD is exactly this with batch_size = 1</span>
+theta_sgd, _ = minibatch_gradient_descent_mlr(X, y, theta0, alpha=0.01,
+                                              epochs=50, batch_size=1)</pre>
+
+<div class="box insight">
+  <div class="box-title">The single line that separates Batch GD from SGD</div>
+  <p style="margin:0">The <code>theta = update_mlr_parameters(...)</code> line. In <b>Batch GD</b> it sits <b>outside</b> the sample loop (once per epoch). In <b>SGD / Mini-Batch</b> it sits <b>inside</b>. Accumulating gradients through the whole inner loop before updating silently turns your SGD back into Batch GD.</p>
+</div>
+
+<h4>scikit-learn equivalent</h4>
+<pre class="py"><span class="tok-com"># SGDRegressor is SGD/mini-batch under the hood. Scaling is REQUIRED here.</span>
+pipe = Pipeline([
+    ('scale', StandardScaler()),
+    ('sgd',   SGDRegressor(loss='squared_error', learning_rate='constant',
+                           eta0=0.01, max_iter=1000, random_state=42)),
+])
+pipe.fit(X_train, y_train)</pre>
+
+<!-- ================================================= -->
+<h2 id="lab7"><span class="h2-num">L7</span>Evaluation metrics</h2>
+<p><a href="l07.html">→ Lecture 7 theory</a></p>
+
+<h4>Regression — from scratch</h4>
+<pre class="py">def mape(y, y_pred):
+    <span class="tok-com">"""UNDEFINED where y == 0 -- guard it explicitly"""</span>
+    y, y_pred = np.asarray(y, float), np.asarray(y_pred, float)
+    if np.any(y == 0):
+        raise ValueError("MAPE is undefined when any actual value is zero")
+    return 100 * np.mean(np.abs((y - y_pred) / y))
+
+
+def adjusted_r_square(y, y_pred, n, p):
+    <span class="tok-com">"""p = number of predictors, EXCLUDING the intercept. Requires n > p + 1."""</span>
+    rss = np.sum((y - y_pred) ** 2)
+    tss = np.sum((y - np.mean(y)) ** 2)
+    <span class="tok-com"># use rss/tss directly instead of a rounded r2 -- more accurate</span>
+    return 1 - (rss / tss) * ((n - 1) / (n - p - 1))</pre>
+
+<h4>Classification — confusion matrix by hand and with sklearn</h4>
+<pre class="py">def binary_counts(y_true, y_pred, positive_class):
+    <span class="tok-com">"""Collapse a multiclass problem to 'positive_class vs rest'."""</span>
+    tp = np.sum((y_true == positive_class) & (y_pred == positive_class))
+    fn = np.sum((y_true == positive_class) & (y_pred != positive_class))
+    fp = np.sum((y_true != positive_class) & (y_pred == positive_class))
+    tn = np.sum((y_true != positive_class) & (y_pred != positive_class))
+    return tp, fp, fn, tn
+
+
+def precision_recall_f1(tp, fp, fn):
+    precision = tp / (tp + fp) if (tp + fp) else float('nan')   <span class="tok-com"># PREDICTED positives</span>
+    recall    = tp / (tp + fn) if (tp + fn) else float('nan')   <span class="tok-com"># ACTUAL positives</span>
+    f1        = 2 * tp / (2 * tp + fp + fn)                     <span class="tok-com"># never uses TN</span>
+    return precision, recall, f1
+
+
+<span class="tok-com"># sklearn: rows = actual, columns = predicted (same convention as the worksheet)</span>
+from sklearn.metrics import confusion_matrix, classification_report
+print(confusion_matrix(y_true, y_pred, labels=['R', 'P', 'S']))
+print(classification_report(y_true, y_pred, digits=3))
+<span class="tok-com"># the report prints per-class P/R/F1 plus macro avg and weighted avg</span></pre>
+
+<div class="box warn">
+  <div class="box-title">Reading <code>classification_report</code> in the viva</div>
+  <p style="margin:0"><b>"accuracy"</b> row = micro average (in single-label multiclass they are equal). <b>"macro avg"</b> = every class equal weight. <b>"weighted avg"</b> = weighted by <code>support</code> (actual class size). If your minority class matters operationally, quote <b>macro</b>, not weighted.</p>
+</div>
+
+<!-- ================================================= -->
+<h2 id="lab8"><span class="h2-num">L8</span>Polynomial Regression</h2>
+<p><a href="l08.html">→ Lecture 8 theory</a> &nbsp;·&nbsp; from <code>Lab_8/poly_ols.py</code></p>
+
+<pre class="py">def polynomial_features(X, degree):
+    <span class="tok-com">"""Build [1, x, x^2, ..., x^degree]  ->  degree+1 columns (intercept included)."""</span>
+    return np.column_stack([X ** power for power in range(degree + 1)])
+
+
+<span class="tok-com"># Polynomial regression is JUST linear regression on transformed features:</span>
+X_poly = polynomial_features(x, degree=2)         <span class="tok-com"># shape (n, 3)</span>
+beta   = np.linalg.inv(X_poly.T @ X_poly) @ X_poly.T @ y   <span class="tok-com"># same Normal Equation!</span>
+y_pred = X_poly @ beta</pre>
+
+<h4>scikit-learn — and the degree-selection loop</h4>
+<pre class="py">from sklearn.preprocessing import PolynomialFeatures
+
+for degree in [1, 2, 3, 5, 8, 10]:
+    pipe = Pipeline([
+        ('poly',  PolynomialFeatures(degree=degree, include_bias=False)),
+        ('scale', StandardScaler()),          <span class="tok-com"># x^10 explodes without scaling</span>
+        ('lr',    LinearRegression()),
+    ])
+    pipe.fit(X_train, y_train)
+    train_mse = mean_squared_error(y_train, pipe.predict(X_train))
+    val_mse   = mean_squared_error(y_val,   pipe.predict(X_val))
+    print(f"degree={degree:2d}  train={train_mse:8.3f}  val={val_mse:8.3f}")
+
+<span class="tok-com"># train_mse falls monotonically; val_mse is U-shaped -> pick the val minimum</span></pre>
+
+<h4>Checking the five assumptions</h4>
+<pre class="py">resid = y_train - pipe.predict(X_train)
+fitted = pipe.predict(X_train)
+
+fig, ax = plt.subplots(1, 3, figsize=(15, 4))
+
+ax[0].scatter(fitted, resid, alpha=.5); ax[0].axhline(0, ls='--')
+ax[0].set_title('Linearity + Homoscedasticity')   <span class="tok-com"># U-shape? funnel?</span>
+ax[0].set_xlabel('fitted'); ax[0].set_ylabel('residual')
+
+ax[1].hist(resid, bins=30)
+ax[1].set_title('Normality of residuals')          <span class="tok-com"># bell-shaped, centred on 0?</span>
+
+ax[2].plot(resid, marker='.', lw=.8); ax[2].axhline(0, ls='--')
+ax[2].set_title('Autocorrelation')                 <span class="tok-com"># plotted against ORDER, not fitted</span>
+ax[2].set_xlabel('observation order')
+
+<span class="tok-com"># Assumption 5: multicollinearity</span>
+print(pd.DataFrame(X_train).corr().round(2))       <span class="tok-com"># input-input correlations</span>
+print('det(X^T X) =', np.linalg.det(X_train.T @ X_train))</pre>
+
+<!-- ================================================= -->
+<h2 id="lab9"><span class="h2-num">L9</span>Bias–Variance, CV &amp; learning curves</h2>
+<p><a href="l09.html">→ Lecture 9 theory</a> &nbsp;·&nbsp; from <code>Lab_9/bias_variance_tools.py</code> + notebook</p>
+
+<h4>The controlled simulation (true $f$ is known)</h4>
+<pre class="py">def true_function(x):
+    <span class="tok-com">"""The hidden pattern we are trying to learn: f(x) = x^2."""</span>
+    return np.asarray(x, dtype=float) ** 2
+
+
+def collect_repeated_predictions(degree, x_values, n_models, sample_size,
+                                 noise_sd, seed):
+    <span class="tok-com">"""Simulate many training datasets, fit one model to each, record predictions.
+    Repeating this is how we approximate E[f_hat(x)] and Var(f_hat(x))."""</span>
+    rng   = np.random.default_rng(seed)
+    preds = []
+    for _ in range(n_models):
+        x_s = rng.uniform(-15, 10, sample_size)
+        y_s = true_function(x_s) + rng.normal(0, noise_sd, sample_size)
+        coef = np.polyfit(x_s, y_s, degree)
+        preds.append(np.polyval(coef, x_values))
+    return np.array(preds)                  <span class="tok-com"># shape (n_models, len(x_values))</span>
+
+
+<span class="tok-com"># --- The decomposition: MSE = Bias^2 + Variance + Var(noise) ---</span>
+preds      = collect_repeated_predictions(degree=2, x_values=x_grid,
+                                          n_models=100, sample_size=30,
+                                          noise_sd=20, seed=42)
+mean_pred  = preds.mean(axis=0)                       <span class="tok-com"># E[f_hat(x)]</span>
+bias_sq    = np.mean((mean_pred - true_function(x_grid)) ** 2)
+variance   = np.mean(preds.var(axis=0))
+noise      = 20 ** 2                                  <span class="tok-com"># Var(epsilon), known here</span>
+print(f"Bias^2={bias_sq:.1f}  Var={variance:.1f}  Noise={noise}  MSE={bias_sq+variance+noise:.1f}")</pre>
+
+<h4>Real data: cross-validation and learning curves</h4>
+<pre class="py">from sklearn.model_selection import cross_val_score, learning_curve
+
+<span class="tok-com"># 5-fold CV: mean measures error, std measures STABILITY across folds</span>
+scores = cross_val_score(pipe, X, y, cv=KFold(5, shuffle=True, random_state=42),
+                         scoring='neg_mean_squared_error')
+print(f"CV MSE = {-scores.mean():.3f} +/- {scores.std():.3f}")
+
+<span class="tok-com"># Learning curve: does MORE DATA close the gap? (yes -> variance, no -> bias)</span>
+sizes, train_sc, val_sc = learning_curve(
+    pipe, X, y, cv=5, scoring='neg_mean_squared_error',
+    train_sizes=[.2, .4, .6, .8, 1.0], random_state=42)
+
+plt.plot(sizes, -train_sc.mean(axis=1), marker='o', label='Training MSE')
+plt.plot(sizes, -val_sc.mean(axis=1),   marker='o', label='Validation MSE')
+plt.xlabel('training set size'); plt.ylabel('MSE'); plt.legend(); plt.show()</pre>
+
+<div class="box insight">
+  <div class="box-title">Reading the two curves — the whole of Lecture 9 in two lines</div>
+  <p style="margin:0"><b>Both high and close together</b> → high bias / underfitting → more data will <b>not</b> help; increase complexity.<br>
+  <b>Training low, validation much higher</b> → high variance / overfitting → more data, less complexity, or regularization.</p>
+</div>
+
+<!-- ================================================= -->
+<h2 id="lab10"><span class="h2-num">L10</span>Feature Selection</h2>
+<p><a href="l10.html">→ Lecture 10 theory</a> &nbsp;·&nbsp; from <code>Lab_10/AML_Lab_10_Feature_Selection...ipynb</code></p>
+
+<h4>Filter methods — from scratch</h4>
+<pre class="py"><span class="tok-com"># 1. Duplicate removal</span>
+dupes = [(a, b) for i, a in enumerate(df.columns) for b in df.columns[i+1:]
+         if df[a].equals(df[b])]
+print("exact duplicate column pairs:", dupes)
+
+<span class="tok-com"># 2. Variance threshold</span>
+variances = df.var()
+print(variances[variances &lt; 0.1])          <span class="tok-com"># candidates for removal</span>
+
+<span class="tok-com"># 3. Target correlation (Pearson) -- LINEAR association only</span>
+target_corr = df.corr()['Exam_Score'].drop('Exam_Score').abs().sort_values()
+print(target_corr)
+
+<span class="tok-com"># 4. Input-input correlation (redundancy / multicollinearity)</span>
+corr = df.drop(columns='Exam_Score').corr().abs()
+upper = corr.where(np.triu(np.ones(corr.shape), k=1).astype(bool))
+print([c for c in upper.columns if any(upper[c] &gt; 0.95)])</pre>
+
+<div class="box danger">
+  <div class="box-title">The counterexample every lab asks you to reproduce</div>
+  <pre class="py" style="margin:.6rem 0 .6rem">x = np.array([-2, -1, 0, 1, 2])
+y = x ** 2                                  <span class="tok-com"># y is COMPLETELY determined by x</span>
+print(np.corrcoef(x, y)[0, 1])              <span class="tok-com"># 0.0  -- a |r| >= 0.3 filter would DROP x</span></pre>
+  <p style="margin:0">Pearson correlation measures <b>linear</b> association only. Zero correlation does not imply zero predictive value.</p>
+</div>
+
+<h4>Wrapper methods — sklearn</h4>
+<pre class="py">from sklearn.feature_selection import (VarianceThreshold, SelectKBest, f_regression,
+                                       RFE, RFECV, SequentialFeatureSelector)
+
+<span class="tok-com"># Filters</span>
+VarianceThreshold(threshold=0.1)
+SelectKBest(score_func=f_regression, k=5)
+
+<span class="tok-com"># Wrappers (backward / forward)</span>
+SequentialFeatureSelector(LinearRegression(), n_features_to_select=3,
+                          direction='backward', cv=5)
+SequentialFeatureSelector(LinearRegression(), n_features_to_select=3,
+                          direction='forward',  cv=5)
+
+<span class="tok-com"># RFECV picks the subset size automatically using cross-validation</span>
+rfecv = RFECV(LinearRegression(), step=1, cv=5, scoring='r2').fit(X_train, y_train)
+print("selected:", X_train.columns[rfecv.support_].tolist())</pre>
+
+<div class="box danger">
+  <div class="box-title">△ The leakage trap, in code</div>
+  <pre class="py" style="margin:.6rem 0 0"><span class="tok-com"># WRONG -- selection saw every row, including the CV validation folds</span>
+X_sel  = SelectKBest(f_regression, k=5).fit_transform(X, y)
+scores = cross_val_score(LinearRegression(), X_sel, y, cv=5)   <span class="tok-com"># optimistic!</span>
+
+<span class="tok-com"># RIGHT -- wrap selection in a Pipeline so it is refitted INSIDE every fold</span>
+pipe = Pipeline([('select', SelectKBest(f_regression, k=5)),
+                 ('model',  LinearRegression())])
+scores = cross_val_score(pipe, X, y, cv=5)                     <span class="tok-com"># honest</span></pre>
+</div>
+
+<!-- ================================================= -->
+<h2 id="lab11"><span class="h2-num">L11</span>PCA</h2>
+<p><a href="l11.html">→ Lecture 11 theory</a> &nbsp;·&nbsp; from <code>Lab_11/L11_Student_PCA_TODO.ipynb</code></p>
+
+<h4>From scratch — every step of the worksheet</h4>
+<pre class="py">def pca_from_scratch(X, k):
+    X = np.asarray(X, dtype=float)
+    n, p = X.shape
+
+    <span class="tok-com"># Step 1: mean centering  ->  X_c = X - 1 mu^T   (COMPULSORY)</span>
+    mu   = X.mean(axis=0)                       <span class="tok-com"># shape (p,)</span>
+    X_c  = X - mu                               <span class="tok-com"># numpy broadcasts the outer product</span>
+
+    <span class="tok-com"># Step 2: covariance matrix  ->  S = (1/(n-1)) X_c^T X_c    shape (p, p)</span>
+    S = (X_c.T @ X_c) / (n - 1)
+    <span class="tok-com"># equivalently: S = np.cov(X_c, rowvar=False)</span>
+
+    <span class="tok-com"># Step 3: eigendecomposition. eigh() is for SYMMETRIC matrices -> real eigenvalues</span>
+    eigvals, eigvecs = np.linalg.eigh(S)
+
+    <span class="tok-com"># Step 4: sort by DESCENDING eigenvalue (eigh returns ascending)</span>
+    order   = np.argsort(eigvals)[::-1]
+    eigvals = eigvals[order]
+    eigvecs = eigvecs[:, order]
+
+    <span class="tok-com"># Step 5: keep the top k, project</span>
+    W_k = eigvecs[:, :k]                        <span class="tok-com"># shape (p, k)</span>
+    Z   = X_c @ W_k                             <span class="tok-com"># shape (n, k)</span>
+
+    evr     = eigvals / eigvals.sum()           <span class="tok-com"># explained variance ratio</span>
+    cum_evr = np.cumsum(evr)
+    return Z, W_k, mu, eigvals, evr, cum_evr
+
+
+<span class="tok-com"># Applying to TEST data: reuse the stored TRAINING mu and W_k. NEVER refit.</span>
+Z_test = (X_test - mu_train) @ W_k_train</pre>
+
+<h4>Verifying against the worksheet's running example</h4>
+<pre class="py">X = np.array([[2., 1.],
+              [4., 3.],
+              [6., 5.]])
+
+Z, W, mu, lam, evr, cum = pca_from_scratch(X, k=1)
+print("mu      =", mu)        <span class="tok-com"># [4. 3.]</span>
+print("lambdas =", lam)       <span class="tok-com"># [8. 0.]</span>
+print("v1      =", W[:, 0])   <span class="tok-com"># [0.707 0.707]  = (1/sqrt 2)[1, 1]</span>
+print("EVR     =", evr)       <span class="tok-com"># [1. 0.]  -> PC1 captures 100%</span>
+print("scores  =", Z.ravel()) <span class="tok-com"># [-2.828  0.  2.828]</span></pre>
+
+<h4>Choosing $k$ with a scree plot</h4>
+<pre class="py">pca = PCA().fit(X_train_scaled)
+evr = pca.explained_variance_ratio_
+
+fig, ax = plt.subplots(1, 2, figsize=(11, 4))
+ax[0].bar(range(1, len(evr)+1), evr)
+ax[0].set_title('Scree plot'); ax[0].set_xlabel('PC'); ax[0].set_ylabel('EVR')
+
+ax[1].plot(range(1, len(evr)+1), np.cumsum(evr), marker='o')
+ax[1].axhline(0.90, ls='--', color='r', label='90% target')
+ax[1].set_title('Cumulative EVR'); ax[1].legend()
+plt.show()
+
+k_90 = int(np.argmax(np.cumsum(evr) &gt;= 0.90) + 1)
+print("smallest k reaching 90%:", k_90)   <span class="tok-com"># still only a CANDIDATE -- validate it</span></pre>
+
+<div class="box danger">
+  <div class="box-title">△ PCA inside cross-validation (not before it)</div>
+  <pre class="py" style="margin:.6rem 0 0"><span class="tok-com"># WRONG -- scaler and PCA both saw every row</span>
+X_s  = StandardScaler().fit_transform(X)
+X_p  = PCA(n_components=5).fit_transform(X_s)
+cross_val_score(LinearRegression(), X_p, y, cv=5)      <span class="tok-com"># optimistic!</span>
+
+<span class="tok-com"># RIGHT -- the whole pipeline is refitted inside every fold</span>
+pipe = Pipeline([('scale', StandardScaler()),
+                 ('pca',   PCA(n_components=5)),
+                 ('model', LinearRegression())])
+cross_val_score(pipe, X, y, cv=5)                      <span class="tok-com"># honest</span>
+
+<span class="tok-com"># And k should be TUNED, not fixed by the 90% rule alone:</span>
+from sklearn.model_selection import GridSearchCV
+gs = GridSearchCV(pipe, {'pca__n_components': [1, 2, 3, 4, 5]}, cv=5)
+gs.fit(X_train, y_train)
+print(gs.best_params_)</pre>
+</div>
+
+<!-- ================================================= -->
+<h2 id="viva">🎤 Likely viva questions (and one-line answers)</h2>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Question</th><th>Answer</th></tr></thead>
+<tbody>
+<tr><td>Why do you prepend a column of ones to $\mathbf X$?</td><td>So that the intercept $\beta_0$ appears in every row: $1 \times \beta_0 = \beta_0$.</td></tr>
+<tr><td>Why does <code>np.linalg.inv</code> crash on your data?</td><td>$\det(\mathbf X^\top\mathbf X) = 0$ — the columns are linearly dependent (multicollinearity).</td></tr>
+<tr><td>Why use <code>np.linalg.lstsq</code> instead of <code>inv</code>?</td><td>It is numerically more stable and returns a solution even for a singular system.</td></tr>
+<tr><td>Where exactly does Batch GD differ from SGD in code?</td><td>The position of the $\boldsymbol\theta$-update line: outside the sample loop vs inside it.</td></tr>
+<tr><td>Why <code>np.random.permutation</code> every epoch?</td><td>Shuffling prevents biased update sequences when the dataset is ordered.</td></tr>
+<tr><td>Why <code>eigh</code> and not <code>eig</code> for PCA?</td><td><code>eigh</code> is for symmetric matrices; $S$ is symmetric, so it returns real eigenvalues and orthogonal eigenvectors, and is faster.</td></tr>
+<tr><td>Why <code>[::-1]</code> after <code>argsort</code> in PCA?</td><td><code>eigh</code> returns eigenvalues in <b>ascending</b> order; PCA needs them <b>descending</b>.</td></tr>
+<tr><td>Why is <code>Pipeline</code> used for cross-validation?</td><td>It refits every preprocessing step <b>inside each fold</b>, which prevents data leakage.</td></tr>
+<tr><td>Why scale before <code>SGDRegressor</code> but not before <code>LinearRegression</code>?</td><td>GD's gradient scales with feature magnitude, so one large feature dominates. The closed-form OLS solution is scale-invariant.</td></tr>
+<tr><td>Why does <code>PolynomialFeatures(degree=10)</code> need scaling?</td><td>$x^{10}$ produces enormous values that cause numerical overflow and an ill-conditioned $\mathbf X^\top\mathbf X$.</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="box hinglish">
+  <div class="box-title">📌 Source</div>
+  <p style="margin:0">Yeh implementations course ke apne lab repository (<code>aml_lab</code>: Labs 3–11) ke solved notebooks aur helper modules par based hain, aur har worksheet ki theory se align kiye gaye hain. Dataset-download aur plotting boilerplate hata diya gaya hai taaki <b>sirf wo logic dikhe jo exam/viva mein poocha jaata hai</b>.</p>
+</div>
+
+</div>
+</main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="window.dispatchEvent(new Event('katex-ready'))"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

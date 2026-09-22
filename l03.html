@@ -1,0 +1,882 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lecture 3 · Simple Linear Regression (OLS) — AML Exam Prep</title>
+<meta name="description" content="Complete OLS derivation for simple linear regression: residuals, why squared error wins, the convex error surface, and closed-form formulas for slope and intercept.">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page="l03">
+<div class="shell">
+<main class="main">
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Worksheet 03 · Lecture 3</div>
+  <h1>Simple Linear Regression <span class="gradtext">using the OLS Method</span></h1>
+  <p class="sub">Scatter plots se best-fit line tak — poori Ordinary Least Squares derivation, ek bhi step skip kiye bina.</p>
+  <div class="chips">
+    <span class="chip accent">⏱ ~35 min</span><span class="chip">📐 Full derivation</span>
+    <span class="chip">🧮 5 solved numericals</span><span class="chip">✓ 10 MCQs</span>
+  </div>
+</header>
+
+<div class="box hinglish">
+  <div class="box-title">⚡ Ek Line Mein</div>
+  <p style="margin:0">Infinite lines possible hain. Hum wo line chunte hain jo <b>total squared error minimize</b> kare. Squared kyun? Kyunki signed error cancel ho jaata hai, aur absolute error $e=0$ par differentiable nahi hai. Squared error non-negative + smooth + convex hai — to calculus se <b>exact closed-form answer</b> mil jaata hai:<br>$m = \frac{\sum(x_i-\bar x)(y_i-\bar y)}{\sum(x_i-\bar x)^2}$ aur $c = \bar y - m\bar x$.</p>
+</div>
+
+<!-- ============================ -->
+<h2 id="s1"><span class="h2-num">1</span>The Storyline — from data to a prediction question</h2>
+
+<div class="box hook">
+  <div class="box-title">▷ Hook</div>
+  <p style="margin:0">Maan lo mere paas NST students ka dataset hai. Mujhe unka CGPA aur jo internship stipend unhe mila, dono pata hai. Agar ek naya student mujhe apna CGPA bataye, to kya main uska stipend predict kar sakta hoon?</p>
+</div>
+
+<div class="grid g2" style="align-items:start">
+<div class="tbl-wrap" style="margin-top:0">
+<table class="compact">
+<thead><tr><th>Student</th><th class="num">CGPA ($x$)</th><th class="num">Stipend ₹k ($y$)</th></tr></thead>
+<tbody>
+<tr><td>A</td><td class="num">8.0</td><td class="num">50</td></tr>
+<tr><td>B</td><td class="num">9.0</td><td class="num">75</td></tr>
+<tr><td>C</td><td class="num">7.0</td><td class="num">45</td></tr>
+<tr><td>D</td><td class="num">7.5</td><td class="num">40</td></tr>
+<tr><td>E</td><td class="num">6.0</td><td class="num">30</td></tr>
+</tbody>
+</table>
+</div>
+<figure style="margin-top:0">
+<svg viewBox="0 0 340 260" role="img" aria-label="Scatter plot of CGPA versus stipend">
+  <line x1="46" y1="210" x2="320" y2="210" stroke-width="1.5" style="stroke:var(--border-2)"/>
+  <line x1="46" y1="210" x2="46" y2="26" stroke-width="1.5" style="stroke:var(--border-2)"/>
+  <text x="183" y="240" text-anchor="middle" font-size="11.5" font-weight="700" style="fill:var(--text-2)">CGPA</text>
+  <text x="18" y="118" font-size="11.5" font-weight="700" transform="rotate(-90 18 118)" text-anchor="middle" style="fill:var(--text-2)">Stipend (₹k)</text>
+  <g font-size="9.5" style="fill:var(--text-3)" text-anchor="middle">
+    <text x="46"  y="226">6.0</text><text x="137" y="226">7.0</text><text x="228" y="226">8.0</text><text x="319" y="226">9.0</text>
+  </g>
+  <g font-size="9.5" style="fill:var(--text-3)" text-anchor="end">
+    <text x="40" y="214">20</text><text x="40" y="153">40</text><text x="40" y="92">60</text><text x="40" y="32">80</text>
+  </g>
+  <g fill="#6366f1">
+    <circle cx="46"  cy="180" r="5.5"/><circle cx="137" cy="134" r="5.5"/><circle cx="182" cy="149" r="5.5"/>
+    <circle cx="228" cy="119" r="5.5"/><circle cx="319" cy="43" r="5.5"/>
+  </g>
+  <g font-size="9" style="fill:var(--text-3)">
+    <text x="54"  y="174">(6, 30)</text><text x="145" y="128">(7, 45)</text><text x="190" y="143">(7.5, 40)</text>
+    <text x="236" y="113">(8, 50)</text><text x="290" y="36">(9, 75)</text>
+  </g>
+</svg>
+<figcaption>CGPA badhne par stipend badhne ka <b>linear-ish pattern</b> dikhta hai.</figcaption>
+</figure>
+</div>
+
+<p>Kyunki data linear trend dikhata hai, hum is relationship ko ek <b>straight-line model</b> se capture karne ki koshish karte hain:</p>
+<div class="formula"><span class="flabel">Straight-line model</span>$$\hat y = m(\text{CGPA}) + c$$</div>
+<ul>
+  <li>$\hat y$ (y-hat) = predicted output (predicted stipend)</li>
+  <li>$x$ = input variable (CGPA of the student)</li>
+  <li>$m$ = slope — CGPA ke saath stipend kitni steeply badalta hai</li>
+  <li>$c$ = intercept — predicted stipend jab CGPA $= 0$</li>
+</ul>
+<p>Is dataset mein hume input values (CGPA) aur corresponding output values (stipend) <b>dono</b> pata hain. Hum examples se seekh rahe hain jahan correct answers diye gaye hain. Isliye yeh <b>supervised learning</b> ka example hai.</p>
+
+<!-- ============================ -->
+<h2 id="s2"><span class="h2-num">2</span>Infinite candidate models — which line is best?</h2>
+<p>Ab yeh critical realization aata hai. Model $\hat y = m(\text{CGPA}) + c$ mein <b>2 adjustable numbers</b> hain: $m$ aur $c$. Alag students alag values choose kar sakte hain:</p>
+
+<div class="tbl-wrap">
+<table class="compact">
+<thead><tr><th>Student</th><th class="num">Chosen $m$</th><th class="num">Chosen $c$</th><th>Model</th></tr></thead>
+<tbody>
+<tr><td>Student 1</td><td class="num">10</td><td class="num">−30</td><td>$\hat y = 10x - 30$</td></tr>
+<tr><td>Student 2</td><td class="num">12</td><td class="num">−40</td><td>$\hat y = 12x - 40$</td></tr>
+<tr><td>Student 3</td><td class="num">8</td><td class="num">−10</td><td>$\hat y = 8x - 10$</td></tr>
+</tbody>
+</table>
+</div>
+
+<figure>
+<svg viewBox="0 0 440 280" role="img" aria-label="Three different candidate lines over the same scatter">
+  <line x1="50" y1="230" x2="420" y2="230" stroke-width="1.5" style="stroke:var(--border-2)"/>
+  <line x1="50" y1="230" x2="50" y2="26" stroke-width="1.5" style="stroke:var(--border-2)"/>
+  <text x="235" y="258" text-anchor="middle" font-size="11.5" font-weight="700" style="fill:var(--text-2)">CGPA</text>
+  <text x="20" y="128" font-size="11.5" font-weight="700" transform="rotate(-90 20 128)" text-anchor="middle" style="fill:var(--text-2)">Stipend (₹k)</text>
+  <line x1="50" y1="186" x2="420" y2="48"  stroke="#3b82f6" stroke-width="2.5"/>
+  <line x1="50" y1="196" x2="420" y2="34"  stroke="#f97316" stroke-width="2.5"/>
+  <line x1="50" y1="206" x2="420" y2="16"  stroke="#10b981" stroke-width="2.5"/>
+  <g fill="#6366f1">
+    <circle cx="50"  cy="200" r="6"/><circle cx="173" cy="152" r="6"/><circle cx="234" cy="168" r="6"/>
+    <circle cx="296" cy="136" r="6"/><circle cx="419" cy="53" r="6"/>
+  </g>
+  <g font-size="10.5" font-weight="700">
+    <rect x="62" y="36" width="168" height="62" rx="8" fill="rgba(0,0,0,.45)" style="stroke:var(--border)"/>
+    <circle cx="76" cy="50" r="4" fill="#6366f1"/><text x="88" y="54" style="fill:var(--text-2)">Actual data</text>
+    <line x1="70" y1="66" x2="84" y2="66" stroke="#3b82f6" stroke-width="2.5"/><text x="90" y="70" style="fill:var(--text-2)">Candidate 1</text>
+    <line x1="70" y1="82" x2="84" y2="82" stroke="#f97316" stroke-width="2.5"/><text x="90" y="86" style="fill:var(--text-2)">Candidate 2</text>
+  </g>
+</svg>
+<figcaption>Teeno lines same structure ki hain, bas $m$ aur $c$ alag hain.</figcaption>
+</figure>
+
+<ul>
+  <li><b>$m$ badalna</b> line ka <b>slope / tilt</b> badalta hai.</li>
+  <li><b>$c$ badalna</b> line ko <b>upar ya neeche shift</b> karta hai.</li>
+  <li>Sirf in do numbers ko badal kar hum <b>infinitely many</b> different straight lines bana sakte hain.</li>
+</ul>
+
+<div class="box insight">
+  <div class="box-title">★ Key Insight — the engineering problem</div>
+  <p style="margin:0">Infinitely many possible straight lines mein se, main kaunsi choose karun? Hume ek <b>objective, mathematical criterion</b> chahiye — visual guess nahi.</p>
+</div>
+
+<!-- ============================ -->
+<h2 id="s3"><span class="h2-num">3</span>What if I have two input variables?</h2>
+<p>"Which line?" solve karne se pehle, example ko briefly extend karte hain. Maan lo CGPA ke saath har student ka <b>IQ score</b> bhi hai:</p>
+<div class="tbl-wrap">
+<table class="compact">
+<thead><tr><th class="num">IQ</th><th class="num">CGPA</th><th class="num">Stipend (₹k)</th></tr></thead>
+<tbody>
+<tr><td class="num">110</td><td class="num">8.0</td><td class="num">50</td></tr>
+<tr><td class="num">120</td><td class="num">9.0</td><td class="num">75</td></tr>
+<tr><td class="num">90</td><td class="num">7.0</td><td class="num">45</td></tr>
+<tr><td class="num">100</td><td class="num">7.5</td><td class="num">40</td></tr>
+<tr><td class="num">95</td><td class="num">6.0</td><td class="num">30</td></tr>
+</tbody>
+</table>
+</div>
+<div class="formula"><span class="flabel">Two input features</span>$$\hat y = m_1(\text{IQ}) + m_2(\text{CGPA}) + c$$</div>
+<ul>
+  <li>$x_1 = $ IQ, &nbsp; $x_2 = $ CGPA</li>
+  <li>$m_1$ batata hai prediction IQ ke saath kaise badalti hai</li>
+  <li>$m_2$ batata hai prediction CGPA ke saath kaise badalti hai</li>
+  <li>$c$ intercept term hai</li>
+</ul>
+<p>Yeh ab <b>3D space mein ek plane</b> ka equation hai — line nahi. Jaise 1-input case mein infinitely many lines thi, waise hi yahan <b>infinitely many planes</b> exist karte hain.</p>
+
+<div class="solved">
+  <header><span class="qtag">Practice P2</span><h4>Model identification</h4></header>
+  <div class="body">
+    <ol class="steps">
+      <li><span class="sh">(a) In $\hat y = m_1(\text{IQ}) + m_2(\text{CGPA}) + c$, how many learnable parameters are there?</span>
+        <div class="answer">3 — namely $m_1$, $m_2$, $c$</div></li>
+      <li><span class="sh">(b) A model with two input features produces a line in 3D space. [T/F]</span>
+        <div class="answer">False — it produces a <b>plane</b>.</div></li>
+      <li><span class="sh">(c) In the one-input case the model is a ______. In the two-input case it becomes a ______.</span>
+        <div class="answer">Line &nbsp;·&nbsp; Plane</div>
+        <p style="margin:.3rem 0 0"><b>Pattern:</b> 1 feature → line (2D) · 2 features → plane (3D) · $m$ features → <b>hyperplane</b> in $(m{+}1)$-D. 👉 <a href="l04.html">Lecture 4</a></p></li>
+    </ol>
+  </div>
+</div>
+<p>Is lecture mein hum discussion ko <b>ek input variable</b> par focused rakhenge taaki mathematics simple aur intuitive rahe.</p>
+
+<!-- ============================ -->
+<h2 id="s4"><span class="h2-num">4</span>Formal notation — residuals and errors</h2>
+<p>"Stipend" aur "CGPA" har baar bolne ki jagah, hum <b>general notation</b> use karte hain:</p>
+<ul>
+  <li>$y$ = actual output value from the dataset</li>
+  <li>$x$ = input value from the dataset</li>
+  <li>Har data point aise likha jaata hai: $(x_i, y_i)$ where $i = 1, 2, \dots, n$</li>
+</ul>
+<div class="formula"><span class="flabel">Prediction at the i-th point</span>$$\hat y_i = m x_i + c$$</div>
+<p>Model line usually <b>saare data points se exactly nahi guzregi</b>. Actual value aur predicted value ke beech ke mismatch ko us point par <b>error ya residual</b> kehte hain:</p>
+<div class="formula"><span class="flabel">Residual</span>$$e_i = y_i - \hat y_i \qquad\Longrightarrow\qquad \boxed{\,e_i = y_i - (m x_i + c)\,}$$</div>
+
+<figure>
+<svg viewBox="0 0 460 280" role="img" aria-label="Residuals as vertical gaps between points and line">
+  <line x1="50" y1="240" x2="440" y2="240" stroke-width="1.5" style="stroke:var(--border-2)"/>
+  <line x1="50" y1="240" x2="50" y2="26" stroke-width="1.5" style="stroke:var(--border-2)"/>
+  <text x="245" y="266" text-anchor="middle" font-size="11.5" font-weight="700" style="fill:var(--text-2)">Input variable X</text>
+  <text x="20" y="133" font-size="11.5" font-weight="700" transform="rotate(-90 20 133)" text-anchor="middle" style="fill:var(--text-2)">Output variable Y</text>
+  <line x1="50" y1="212" x2="440" y2="40" stroke="#3b82f6" stroke-width="2.5"/>
+  <!-- points and residual gaps -->
+  <g>
+    <line x1="50" y1="212" x2="50" y2="206" stroke="#f97316" stroke-width="2" stroke-dasharray="3 2"/>
+    <circle cx="50" cy="206" r="5.5" fill="#6366f1"/>
+    <path d="M45 212 l5 0 m-2.5 -3 l0 6" stroke="#f97316" stroke-width="2"/>
+  </g>
+  <g>
+    <line x1="180" y1="155" x2="180" y2="135" stroke="#f97316" stroke-width="2" stroke-dasharray="3 2"/>
+    <circle cx="180" cy="135" r="5.5" fill="#6366f1"/>
+    <path d="M175 155 l10 0 M180 150 l0 10" stroke="#f97316" stroke-width="2"/>
+    <text x="190" y="146" font-size="10" fill="#f97316">eᵢ = yᵢ - ŷᵢ</text>
+  </g>
+  <g>
+    <line x1="245" y1="126" x2="245" y2="164" stroke="#ef4444" stroke-width="2" stroke-dasharray="3 2"/>
+    <circle cx="245" cy="164" r="5.5" fill="#6366f1"/>
+    <path d="M240 126 l10 0 M245 121 l0 10" stroke="#ef4444" stroke-width="2"/>
+    <text x="255" y="140" font-size="10" fill="#ef4444">negative eᵢ</text>
+  </g>
+  <g>
+    <line x1="310" y1="97" x2="310" y2="112" stroke="#f97316" stroke-width="2" stroke-dasharray="3 2"/>
+    <circle cx="310" cy="112" r="5.5" fill="#6366f1"/>
+    <path d="M305 97 l10 0 M310 92 l0 10" stroke="#f97316" stroke-width="2"/>
+  </g>
+  <g>
+    <line x1="440" y1="40" x2="440" y2="34" stroke="#f97316" stroke-width="2" stroke-dasharray="3 2"/>
+    <circle cx="440" cy="34" r="5.5" fill="#6366f1"/>
+  </g>
+  <g font-size="10" font-weight="700">
+    <rect x="62" y="34" width="150" height="46" rx="8" fill="rgba(0,0,0,.45)" style="stroke:var(--border)"/>
+    <circle cx="76" cy="48" r="4" fill="#6366f1"/><text x="88" y="52" style="fill:var(--text-2)">Actual value yᵢ</text>
+    <path d="M71 64 l10 0 M76 59 l0 10" stroke="#f97316" stroke-width="2"/><text x="88" y="68" style="fill:var(--text-2)">Predicted ŷᵢ</text>
+  </g>
+</svg>
+<figcaption>Errors <b>vertical gaps</b> ki tarah dikhte hain. Vertical kyun? Kyunki regression mein $x$ fixed treat hota hai aur hum sirf corresponding $y$ predict karte hain.</figcaption>
+</figure>
+
+<div class="box insight">
+  <div class="box-title">★ Key Insight</div>
+  <p style="margin:0">Agar errors chhote hain, model accha hai. Agar errors bade hain, model bura hai. To best model choose karne ke liye, hume $m$ aur $c$ ki aisi values choose karni hain jo <b>errors ko jitna ho sake chhota</b> banayein.</p>
+</div>
+
+<div class="solved">
+  <header><span class="qtag">Practice P3</span><h4>Compute a residual</h4></header>
+  <div class="body">
+    <p>Model: $\hat y = 10x - 30$ &nbsp;·&nbsp; Data point: $(x = 8,\; y = 50)$</p>
+    <ol class="steps">
+      <li><span class="sh">Step 1 — predicted value nikalo</span>
+        $$\hat y = 10 \times 8 - 30 = 80 - 30 = \mathbf{50}$$</li>
+      <li><span class="sh">Step 2 — residual nikalo</span>
+        $$e = y - \hat y = 50 - 50 = \mathbf{0}$$</li>
+      <li><span class="sh">(b) Is this residual positive or negative? What does the sign mean?</span>
+        <div class="answer">Zero — yeh point <b>exactly line par</b> baitha hai.</div>
+        <p style="margin:.4rem 0 0"><b>Sign ka matlab (general rule):</b><br>
+        $e &gt; 0$ ⟹ actual predicted se zyada hai ⟹ model ne <b>under-predict</b> kiya (point line ke upar hai).<br>
+        $e &lt; 0$ ⟹ actual predicted se kam hai ⟹ model ne <b>over-predict</b> kiya (point line ke neeche hai).</p></li>
+    </ol>
+  </div>
+</div>
+
+<!-- ============================ -->
+<h2 id="s5"><span class="h2-num">5</span>Building the loss function — three attempts ⭐</h2>
+<p>Hum jaante hain hume errors minimize karne hain. Par saare individual errors ko ek <b>single number</b> mein kaise combine karein jo overall model quality measure kare? Us single number ko <b>loss function</b> kehte hain.</p>
+
+<h3>Attempt 1: Minimize the Total Signed Error</h3>
+<div class="formula"><span class="flabel">Attempt 1</span>$$\text{Total Signed Error} = \sum_{i=1}^{n} e_i = \sum_{i=1}^{n}(y_i - \hat y_i)$$</div>
+<p>Yeh reasonable lagta hai — jis model ka total error sabse chhota, wo best. Par ek <b>fatal problem</b> hai: <b>positive aur negative errors ek dusre ko cancel kar dete hain!</b></p>
+
+<div class="solved">
+  <header><span class="qtag">Practice P4</span><h4>The Cancellation Trap</h4></header>
+  <div class="body">
+    <div class="tbl-wrap" style="margin-top:0">
+    <table class="compact">
+    <thead><tr><th>Point</th><th class="num">1</th><th class="num">2</th><th class="num">3</th><th class="num">4</th><th class="num">5</th><th class="num">6</th></tr></thead>
+    <tbody><tr><td><b>Error $e_i$</b></td><td class="num">+10</td><td class="num">+5</td><td class="num">+4</td><td class="num">−10</td><td class="num">−3</td><td class="num">−6</td></tr></tbody>
+    </table></div>
+    <ol class="steps">
+      <li><span class="sh">(a) Compute the total signed error</span>
+        $$\sum e_i = 10 + 5 + 4 + (-10) + (-3) + (-6) = 19 - 19 = \mathbf{0}$$</li>
+      <li><span class="sh">(b) A total signed error of 0 means the model is perfect. [T/F]</span>
+        <div class="answer">False</div></li>
+      <li><span class="sh">(c) Why is this total misleading?</span>
+        <p style="margin:.2rem 0 0">Kyunki yeh error ki <b>magnitude</b> measure hi nahi karta — sirf net balance measure karta hai. Yahan har single point galat hai (koi bhi residual zero nahi hai), phir bhi total 0 aata hai. Ek model jo har point ko 10 units se miss karta hai (half upar, half neeche) aur ek model jo <b>perfectly</b> fit karta hai — dono ka score same 0 aayega. Loss function jo perfect aur terrible mein farak na kar sake, <b>useless</b> hai.</p></li>
+    </ol>
+  </div>
+</div>
+
+<div class="box danger">
+  <div class="box-title">△ Warning — The Cancellation Problem</div>
+  <p style="margin:0">Errors ka plain sum ek <b>reliable loss function NAHI</b> hai. Zero total ka matlab model accha hai aisa nahi — iska sirf matlab hai ki positive aur negative errors ne ek dusre ko cancel kar diya.</p>
+</div>
+
+<h3>Attempt 2: Use Absolute Error</h3>
+<div class="formula"><span class="flabel">Attempt 2</span>$$\text{Total Absolute Error} = \sum_{i=1}^{n}|e_i| = \sum_{i=1}^{n}|y_i - mx_i - c|$$</div>
+<p>Yeh <b>cancellation problem solve kar deta hai</b> — error positive ho ya negative, $|e|$ hamesha non-negative hai. Line ke upar aur neeche ke errors ab cancel nahi ho sakte.</p>
+<p>Lekin OLS method ke liye absolute error ek <b>mathematical difficulty</b> create karta hai:</p>
+
+<figure>
+<svg viewBox="0 0 520 260" role="img" aria-label="Absolute error loss showing a sharp corner at e equals zero">
+  <line x1="40" y1="220" x2="500" y2="220" stroke-width="1.5" style="stroke:var(--border-2)"/>
+  <line x1="270" y1="220" x2="270" y2="24" stroke-width="1.5" style="stroke:var(--border-2)"/>
+  <text x="270" y="248" text-anchor="middle" font-size="11.5" font-weight="700" style="fill:var(--text-2)">Error e</text>
+  <text x="18" y="122" font-size="11.5" font-weight="700" transform="rotate(-90 18 122)" text-anchor="middle" style="fill:var(--text-2)">Loss |e|</text>
+  <polyline points="60,36 270,220 480,36" fill="none" stroke="#06b6d4" stroke-width="3"/>
+  <circle cx="270" cy="220" r="6" fill="#ef4444"/>
+  <text x="180" y="86" font-size="11" font-weight="700" fill="#ef4444">sharp corner:</text>
+  <text x="180" y="102" font-size="11" font-weight="700" fill="#ef4444">not differentiable at e = 0</text>
+  <path d="M232 106 L262 210" stroke="#ef4444" stroke-width="1.4" fill="none"/>
+  <text x="150" y="160" font-size="14" font-weight="800" fill="#8b5cf6">slope = -1</text>
+  <text x="358" y="160" font-size="14" font-weight="800" fill="#8b5cf6">slope = +1</text>
+</svg>
+<figcaption>$|e|$ ka graph $e = 0$ par sharp <b>V-shape</b> banata hai.</figcaption>
+</figure>
+
+<div class="grid g2">
+  <div class="box def" style="margin:0"><div class="box-title">Derivatives</div>
+    <p style="margin:0">For $e &lt; 0$: &nbsp; $\dfrac{d}{de}|e| = -1$<br>For $e &gt; 0$: &nbsp; $\dfrac{d}{de}|e| = +1$</p></div>
+  <div class="box danger" style="margin:0"><div class="box-title">The blocker</div>
+    <p style="margin:0">$e = 0$ par derivative <b>undefined</b> hai kyunki graph mein sharp corner hai. Iska matlab $|e|$ everywhere smoothly differentiable nahi hai — jo <b>clean OLS derivation ko block</b> kar deta hai.</p></div>
+</div>
+
+<h4>Why absolute error is robust to outliers</h4>
+<p>Absolute error errors ko <b>linearly</b> penalize karta hai. Agar error double ho, penalty bhi double hoti hai. Error of 1 ko penalty 1 milti hai. Error of 10 ko penalty 10. Bada error zyada penalize hota hai, par <b>disproportionately nahi</b>. Isiliye ek single outlier total loss ko dominate nahi kar sakta.</p>
+
+<div class="box insight">
+  <div class="box-title">★ Advanced — MAE ka loss surface kyun problematic hai</div>
+  <p style="margin:0">MAE loss curve <b>piecewise-linear</b> hoti hai: har residual $e_i = 0$ hone par ek <b>kink</b> aata hai, aur minimum ek <b>flat basin</b> (interval) ho sakta hai — ek unique point nahi. Do parameters mein yeh ek <b>faceted polygonal basin</b> banati hai, smooth bowl nahi. Isiliye MAE regression ko <b>Linear Programming</b> se solve kiya jaata hai, simple calculus se nahi. (MSE ki smooth paraboloid bowl ke bilkul ulta.)</p>
+</div>
+
+<h3>Attempt 3: Use Squared Error ✓</h3>
+<div class="formula"><span class="flabel">The OLS loss function</span>$$E(m, c) = \sum_{i=1}^{n} e_i^{\,2} = \sum_{i=1}^{n}(y_i - m x_i - c)^2$$</div>
+<p>Yeh wahi loss function hai jo <b>Ordinary Least Squares</b> mein use hoti hai. Iske teen important properties hain:</p>
+<div class="grid g3">
+  <div class="box takeaway" style="margin:0"><div class="box-title">1 · Always non-negative</div>
+    <p style="margin:0">Squaring sign hata deta hai. <b>No cancellation possible.</b></p></div>
+  <div class="box takeaway" style="margin:0"><div class="box-title">2 · Differentiable everywhere</div>
+    <p style="margin:0">$x^2$ ek smooth parabola hai. Uska derivative $2x$ <b>har point par defined</b> hai, including $x = 0$.</p></div>
+  <div class="box takeaway" style="margin:0"><div class="box-title">3 · Penalizes large errors quadratically</div>
+    <p style="margin:0">Bade error ko chhote error se <b>bohot zyada</b> penalty milti hai.</p></div>
+</div>
+
+<h4>Why squared error is sensitive to outliers</h4>
+<p>Agar error 1 se 2 ho jaye, squared penalty 1 se 4 ho jaati hai (<b>4× larger</b>). Agar error 10 hai, squared penalty 100 hai. To ek error jo $10\times$ bada hai use $100\times$ badi penalty milti hai. <b>Yehi wajah hai ki outlier points OLS best-fit line ko strongly influence karte hain.</b></p>
+
+<div class="tbl-wrap">
+<table class="compact">
+<thead><tr><th class="num">Error $e$</th><th class="num">$|e|$ (Absolute)</th><th class="num">$e^2$ (Squared)</th></tr></thead>
+<tbody>
+<tr><td class="num">1</td><td class="num">1</td><td class="num">1</td></tr>
+<tr><td class="num">2</td><td class="num">2</td><td class="num">4</td></tr>
+<tr><td class="num">10</td><td class="num">10</td><td class="num">100</td></tr>
+</tbody>
+</table>
+</div>
+
+<figure>
+<svg viewBox="0 0 520 280" role="img" aria-label="Linear versus quadratic penalty growth">
+  <line x1="50" y1="240" x2="500" y2="240" stroke-width="1.5" style="stroke:var(--border-2)"/>
+  <line x1="275" y1="240" x2="275" y2="24" stroke-width="1.5" style="stroke:var(--border-2)"/>
+  <text x="275" y="266" text-anchor="middle" font-size="11.5" font-weight="700" style="fill:var(--text-2)">Error e</text>
+  <text x="22" y="132" font-size="11.5" font-weight="700" transform="rotate(-90 22 132)" text-anchor="middle" style="fill:var(--text-2)">Loss</text>
+  <polyline points="65,205 275,240 485,205" fill="none" stroke="#3b82f6" stroke-width="3"/>
+  <path d="M65 30 Q 275 450 485 30" fill="none" stroke="#f97316" stroke-width="3"/>
+  <circle cx="310" cy="234" r="4" fill="#3b82f6"/><text x="318" y="232" font-size="10" style="fill:var(--text-3)">e=1, penalty 1</text>
+  <circle cx="380" cy="181" r="4" fill="#f97316"/><text x="388" y="179" font-size="10" style="fill:var(--text-3)">e=3, penalty 9</text>
+  <circle cx="450" cy="87" r="4" fill="#f97316"/><text x="400" y="80" font-size="10" style="fill:var(--text-3)">e=5, penalty 25</text>
+  <g font-size="11" font-weight="700">
+    <rect x="62" y="34" width="176" height="44" rx="8" fill="rgba(0,0,0,.5)" style="stroke:var(--border)"/>
+    <line x1="72" y1="48" x2="88" y2="48" stroke="#3b82f6" stroke-width="3"/><text x="94" y="52" style="fill:var(--text-2)">Absolute error |e|</text>
+    <line x1="72" y1="66" x2="88" y2="66" stroke="#f97316" stroke-width="3"/><text x="94" y="70" style="fill:var(--text-2)">Squared error e²</text>
+  </g>
+</svg>
+<figcaption>Linear vs disproportionate penalty growth — yehi MAE-vs-MSE trade-off ka pura core hai.</figcaption>
+</figure>
+
+<div class="solved">
+  <header><span class="qtag">Practice P5</span><h4>Loss Function Showdown</h4></header>
+  <div class="body">
+    <p><b>(a) Complete the table:</b></p>
+    <div class="tbl-wrap" style="margin-top:.4rem">
+    <table class="compact">
+    <thead><tr><th class="num">Error</th><th class="num">$|e|$</th><th class="num">$e^2$</th></tr></thead>
+    <tbody>
+    <tr><td class="num">3</td><td class="num"><b>3</b></td><td class="num"><b>9</b></td></tr>
+    <tr><td class="num">5</td><td class="num"><b>5</b></td><td class="num"><b>25</b></td></tr>
+    <tr><td class="num">20</td><td class="num"><b>20</b></td><td class="num"><b>400</b></td></tr>
+    </tbody></table></div>
+    <ol class="steps">
+      <li><span class="sh">(b) Signed error can give a total of 0 even when every individual error is nonzero. [T/F]</span>
+        <div class="answer">True — yahi cancellation trap hai.</div></li>
+      <li><span class="sh">(c) Absolute error $|e|$ is differentiable at $e = 0$. [T/F]</span>
+        <div class="answer">False — sharp corner par derivative undefined hai.</div></li>
+      <li><span class="sh">(d) Squared error penalizes an error of 10 exactly 10 times more than an error of 1. [T/F]</span>
+        <div class="answer">False — <b>100 times</b> more ($10^2 = 100$ vs $1^2 = 1$). Penalty quadratically grow karti hai, linearly nahi.</div></li>
+      <li><span class="sh">(e) Match each property to the loss function</span>
+        <div class="tbl-wrap" style="margin:.5rem 0 0">
+        <table class="compact">
+        <thead><tr><th>Property</th><th>Loss function</th></tr></thead>
+        <tbody>
+        <tr><td>1. Cancellation problem</td><td><b>C — Signed Error</b> $\sum e_i$</td></tr>
+        <tr><td>2. Smooth and differentiable</td><td><b>A — Squared Error</b> $e^2$</td></tr>
+        <tr><td>3. Robust to outliers</td><td><b>B — Absolute Error</b> $|e|$</td></tr>
+        </tbody></table></div></li>
+    </ol>
+  </div>
+</div>
+
+<div class="box takeaway">
+  <div class="box-title">♦ Takeaway</div>
+  <p style="margin:0">Hum squared error choose karte hain kyunki wo <b>non-negative</b> hai (no cancellation), <b>everywhere differentiable</b> hai (clean calculus), aur <b>large errors ko strongly penalize</b> karta hai. Trade-off: <b>outliers ke prati sensitivity</b>.</p>
+</div>
+
+<!-- ============================ -->
+<h2 id="s6"><span class="h2-num">6</span>Closed-form vs Iterative solutions</h2>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Approach</th><th>What It Means</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td><b>Closed-Form Solution</b></td><td>Answer ke liye ek <b>exact formula</b>. Optimal parameters directly compute karo.</td><td><b>OLS</b> for Simple Linear Regression (this lecture)</td></tr>
+<tr><td><b>Iterative Solution</b></td><td>Initial guesses se start karo. Step-by-step update karo jab tak error chhota na ho.</td><td><b>Gradient Descent</b> (👉 <a href="l05.html">Lecture 5</a>)</td></tr>
+</tbody>
+</table>
+</div>
+<div class="solved">
+  <header><span class="qtag">Practice P6</span><h4>Match the approach</h4></header>
+  <div class="body">
+    <div class="tbl-wrap" style="margin-top:0">
+    <table class="compact">
+    <thead><tr><th>Description</th><th>Approach</th></tr></thead>
+    <tbody>
+    <tr><td>1. "I have a direct formula; I plug in data and get the answer."</td><td><b>A — Closed-Form</b></td></tr>
+    <tr><td>2. "I start with random values and improve them over many rounds."</td><td><b>B — Iterative</b></td></tr>
+    <tr><td>3. "OLS for linear regression"</td><td><b>A — Closed-Form</b></td></tr>
+    </tbody></table></div>
+  </div>
+</div>
+
+<!-- ============================ -->
+<h2 id="s7"><span class="h2-num">7</span>Visualizing the error surface</h2>
+<div class="formula"><span class="flabel">Squared error function</span>$$E(m, c) = \sum_{i=1}^{n}(y_i - m x_i - c)^2$$</div>
+<p>$(m, c)$ ki har pair ke liye hum $E$ ki ek value calculate kar sakte hain. Ek 3D surface imagine karo:</p>
+<ul>
+  <li>x-axis = $m$ (slope) &nbsp;·&nbsp; y-axis = $c$ (intercept) &nbsp;·&nbsp; z-axis = $E(m,c)$ (total squared error)</li>
+</ul>
+<p>Simple linear regression ke liye yeh surface ek <b>convex, bowl-shaped surface</b> hai. Bowl ka bottom <b>global minimum</b> hai — best $(m, c)$ pair.</p>
+
+<figure>
+<svg viewBox="0 0 560 300" role="img" aria-label="Convex paraboloid bowl error surface with contours and minimum">
+  <g transform="translate(20,10)">
+    <!-- contour ellipses -->
+    <g fill="none" stroke-width="1.6">
+      <ellipse cx="250" cy="200" rx="215" ry="72" stroke="#ef4444" opacity=".65"/>
+      <ellipse cx="250" cy="200" rx="172" ry="57" stroke="#f97316" opacity=".65"/>
+      <ellipse cx="250" cy="200" rx="129" ry="43" stroke="#eab308" opacity=".65"/>
+      <ellipse cx="250" cy="200" rx="86"  ry="29" stroke="#22c55e" opacity=".65"/>
+      <ellipse cx="250" cy="200" rx="43"  ry="14" stroke="#06b6d4" opacity=".75"/>
+    </g>
+    <!-- bowl walls -->
+    <path d="M35 200 Q 60 40 128 26" fill="none" stroke="#8b5cf6" stroke-width="2.5"/>
+    <path d="M465 200 Q 440 40 372 26" fill="none" stroke="#8b5cf6" stroke-width="2.5"/>
+    <path d="M128 26 Q 250 8 372 26" fill="none" stroke="#8b5cf6" stroke-width="2.5" stroke-dasharray="5 4"/>
+    <circle cx="250" cy="200" r="7" fill="#10b981"/>
+    <text x="250" y="228" text-anchor="middle" font-size="12" font-weight="800" fill="#10b981">GLOBAL MINIMUM</text>
+    <text x="250" y="245" text-anchor="middle" font-size="10.5" style="fill:var(--text-3)">best (m, c) pair · flat in both directions</text>
+    <text x="250" y="270" text-anchor="middle" font-size="11.5" font-weight="700" style="fill:var(--text-2)">m (slope) →</text>
+    <text x="500" y="120" font-size="11.5" font-weight="700" style="fill:var(--text-2)">E(m,c)</text>
+    <text x="14" y="120" font-size="11.5" font-weight="700" transform="rotate(-90 14 120)" text-anchor="middle" style="fill:var(--text-2)">c (intercept)</text>
+  </g>
+</svg>
+<figcaption>Convex bowl — ek hi minimum, koi local minima nahi. Isiliye stationary point <b>guaranteed</b> global minimum hai.</figcaption>
+</figure>
+
+<p>Minimum par surface <b>dono directions mein flat</b> hai. Calculus mein:</p>
+<div class="formula"><span class="flabel">Stationarity conditions</span>$$\frac{\partial E}{\partial c} = 0 \qquad \text{and} \qquad \frac{\partial E}{\partial m} = 0$$</div>
+<p>Kyunki surface <b>convex</b> hai, yeh stationary point guaranteed <b>global minimum</b> hai (sirf local nahi). Ab hum formulas derive karte hain.</p>
+
+<!-- ============================ -->
+<h2 id="s8"><span class="h2-num">8</span>Deriving the Intercept $c$ (Equation 1)</h2>
+
+<div class="solved">
+  <header><span class="qtag">Derivation</span><h4>Full step-by-step derivation of $c = \bar y - m\bar x$</h4></header>
+  <div class="body">
+  <p>Hum yahan se shuru karte hain:</p>
+  $$E(m,c) = \sum_{i=1}^{n}\left(y_i - m x_i - c\right)^2$$
+  <ol class="steps">
+    <li><span class="sh">Step 1 — Partial derivative w.r.t. $c$ lo aur zero set karo</span>
+      $$\frac{\partial E}{\partial c} = 0$$</li>
+    <li><span class="sh">Step 2 — Chain rule apply karo</span>
+      $$\frac{\partial E}{\partial c} = \frac{\partial}{\partial c}\left[\sum_{i=1}^{n}(y_i - mx_i - c)^2\right] = \sum_{i=1}^{n}\frac{\partial}{\partial c}(y_i - mx_i - c)^2$$
+      <p style="margin:.5rem 0 0">Let $r_i = y_i - mx_i - c$. Then</p>
+      $$\frac{\partial}{\partial c} r_i^2 = \frac{\partial r_i^2}{\partial r_i}\cdot\frac{\partial r_i}{\partial c} = 2r_i\left(\frac{\partial r_i}{\partial c}\right)$$
+      <p style="margin:.5rem 0 0">Kyunki $y_i$ aur $mx_i$ dono $c$ ke respect mein constant hain, aur $-c$ ka derivative $-1$ hai:</p>
+      $$\frac{\partial r_i}{\partial c} = -1 \qquad\Longrightarrow\qquad \frac{\partial}{\partial c}(y_i - mx_i - c)^2 = -2(y_i - mx_i - c)$$
+      $$\therefore\quad \frac{\partial E}{\partial c} = \sum_{i=1}^{n}\left[-2(y_i - mx_i - c)\right] = 0$$</li>
+    <li><span class="sh">Step 3 — Zero ke equal set karo aur dono sides ko $-2$ se divide karo</span>
+      $$\sum_{i=1}^{n}(y_i - mx_i - c) = 0$$</li>
+    <li><span class="sh">Step 4 — Summation ko separate karo</span>
+      $$\sum_{i=1}^{n}y_i \;-\; m\sum_{i=1}^{n}x_i \;-\; \sum_{i=1}^{n}c \;=\; 0$$
+      <div class="box warn" style="margin:.7rem 0 0">
+        <div class="box-title">Why does $\sum c$ become $nc$?</div>
+        <p style="margin:0">$c$ ek <b>constant</b> hai — wo $i$ ke saath badalta nahi. Ise khud mein $n$ baar add karne se $\underbrace{c + c + \dots + c}_{n\ \text{times}} = nc$ milta hai. Yeh <b>sabse common derivation mistake</b> hai.</p>
+      </div>
+      $$\Longrightarrow\quad \sum_{i=1}^{n}y_i - m\sum_{i=1}^{n}x_i - nc = 0$$</li>
+    <li><span class="sh">Step 5 — $nc$ isolate karo aur $n$ se divide karo</span>
+      $$nc = \sum_{i=1}^{n}y_i - m\sum_{i=1}^{n}x_i$$
+      $$c = \left(\frac{1}{n}\sum_{i=1}^{n}y_i\right) - m\left(\frac{1}{n}\sum_{i=1}^{n}x_i\right)$$
+      <p style="margin:.5rem 0 0">Sample means pehchano:</p>
+      $$\bar x = \frac{1}{n}\sum_{i=1}^{n}x_i, \qquad \bar y = \frac{1}{n}\sum_{i=1}^{n}y_i$$
+      <p style="margin:.5rem 0 0">Substituting:</p>
+      $$\bar y - m\bar x - c = 0$$</li>
+    <li><span class="sh">Step 6 — Solve for $c$</span>
+      <div class="formula" style="margin:.6rem 0 0"><span class="flabel">Equation 1</span>$$\boxed{\,c = \bar y - m\bar x\,}$$</div></li>
+  </ol>
+  </div>
+</div>
+
+<div class="box insight">
+  <div class="box-title">★ Key Insight — beautiful intuition</div>
+  <p style="margin:0">Best-fit OLS line <b>hamesha</b> point $(\bar x, \bar y)$ se guzarti hai — data ka <b>center (mean)</b>! Isko check karo: $x = \bar x$ par, $\hat y = m\bar x + c = m\bar x + (\bar y - m\bar x) = \bar y$. ✓</p>
+</div>
+
+<div class="solved">
+  <header><span class="qtag">Practice P7</span><h4>Derivation fill-in</h4></header>
+  <div class="body">
+    <p><b>(a) The derivation contains one mathematical mistake. Identify it and write the correct step.</b></p>
+    <p style="font-size:.93rem">Given: $\;\sum(y_i - mx_i - c) = 0 \;\Rightarrow\; \sum y_i - m\sum x_i - \sum c = 0 \;\Rightarrow\; \sum y_i - m\sum x_i - c = 0$</p>
+    <div class="answer">Mistake: last step mein $\sum_{i=1}^{n} c$ ko $c$ likh diya. Correct: $\sum_{i=1}^{n} c = nc$.<br>Correct step: $\;\sum y_i - m\sum x_i - \mathbf{nc} = 0$</div>
+    <ol class="steps" style="margin-top:1rem">
+      <li><span class="sh">(b) The intercept depends only on the mean of the outputs. [T/F]</span>
+        <div class="answer">False — $c = \bar y - m\bar x$ mein $\bar y$, $m$ <b>aur</b> $\bar x$ teeno aate hain.</div></li>
+      <li><span class="sh">(c) The equation $\sum c = c$ is correct. [T/F]</span>
+        <div class="answer">False — $\sum_{i=1}^{n} c = nc$.</div></li>
+      <li><span class="sh">(d) What does $c = \bar y - m\bar x$ tell us about where the line passes?</span>
+        <div class="answer">Regression line <b>$(\bar x, \bar y)$ se guzarti hai</b> — data ka centroid.</div></li>
+    </ol>
+  </div>
+</div>
+
+<!-- ============================ -->
+<h2 id="s9"><span class="h2-num">9</span>Deriving the Slope $m$ (Equation 2)</h2>
+
+<div class="solved">
+  <header><span class="qtag">Derivation</span><h4>Full step-by-step derivation of $m$</h4></header>
+  <div class="body">
+  <p>Ab $c = \bar y - m\bar x$ ko wapas error function mein substitute karte hain:</p>
+  $$E(m,c) = \sum_{i=1}^{n}(y_i - mx_i - c)^2, \qquad c = \bar y - m\bar x$$
+  $$E(m) = \sum_{i=1}^{n}\left(y_i - mx_i - \bar y + m\bar x\right)^2$$
+  <ol class="steps">
+    <li><span class="sh">Step 1 — Bracket ke andar simplify karo (group karo)</span>
+      $$E(m) = \sum_{i=1}^{n}\Big(\underbrace{(y_i - \bar y)}_{a_i} - m\underbrace{(x_i - \bar x)}_{b_i}\Big)^2$$</li>
+    <li><span class="sh">Step 2 — Shorthand define karo</span>
+      <ul style="margin:.3rem 0 0">
+        <li>$a_i = y_i - \bar y$ &nbsp;— deviation of each $y$ from the mean</li>
+        <li>$b_i = x_i - \bar x$ &nbsp;— deviation of each $x$ from the mean</li>
+      </ul>
+      $$E(m) = \sum_{i=1}^{n}(a_i - m b_i)^2$$</li>
+    <li><span class="sh">Step 3 — $m$ ke respect mein differentiate karo</span>
+      $$\frac{dE}{dm} = \sum_{i=1}^{n} 2(a_i - m b_i)\cdot\frac{d}{dm}(a_i - m b_i)$$
+      <p style="margin:.4rem 0 0">Since $\dfrac{d}{dm}(a_i - m b_i) = -b_i$:</p>
+      $$\frac{dE}{dm} = \sum_{i=1}^{n} 2(a_i - m b_i)(-b_i) = -2\sum_{i=1}^{n} b_i(a_i - m b_i)$$</li>
+    <li><span class="sh">Step 4 — Minimum ke liye zero set karo</span>
+      $$-2\sum_{i=1}^{n} b_i(a_i - m b_i) = 0$$
+      <p style="margin:.4rem 0 0">Dividing by $-2$:</p>
+      $$\sum_{i=1}^{n} b_i(a_i - m b_i) = 0$$</li>
+    <li><span class="sh">Step 5 — Summation expand karo</span>
+      $$\sum_{i=1}^{n} b_i a_i - \sum_{i=1}^{n} m b_i^2 = 0$$
+      <p style="margin:.4rem 0 0">Since $m$ is constant with respect to $i$:</p>
+      $$\sum_{i=1}^{n} b_i a_i - m\sum_{i=1}^{n} b_i^2 = 0$$</li>
+    <li><span class="sh">Step 6 — Solve for $m$</span>
+      $$m\sum_{i=1}^{n} b_i^2 = \sum_{i=1}^{n} b_i a_i \qquad\Longrightarrow\qquad m = \frac{\sum_{i=1}^{n} b_i a_i}{\sum_{i=1}^{n} b_i^2}$$</li>
+    <li><span class="sh">Step 7 — Substitute back $b_i = x_i - \bar x$ and $a_i = y_i - \bar y$</span>
+      <div class="formula" style="margin:.6rem 0 0"><span class="flabel">Equation 2</span>$$\boxed{\;m = \frac{\sum_{i=1}^{n}(x_i - \bar x)(y_i - \bar y)}{\sum_{i=1}^{n}(x_i - \bar x)^2}\;}$$</div></li>
+  </ol>
+  </div>
+</div>
+
+<div class="box insight">
+  <div class="box-title">★ Key Insight — what the formula actually says</div>
+  <p style="margin:0"><b>Numerator</b> measure karta hai ki $x$ aur $y$ kitna <b>saath-saath</b> vary karte hain (<b>covariance</b>).<br>
+  <b>Denominator</b> measure karta hai ki $x$ khud kitna vary karta hai (<b>variance</b>).<br>
+  Slope batata hai ki $y$ kitna badalta hai $x$ ke saath, <b>$x$ ke spread ke liye adjusted</b>. Formally:</p>
+  <div class="formula tight" style="margin:.7rem 0 0">$$m = \frac{\frac{1}{n}\sum(x_i-\bar x)(y_i-\bar y)}{\frac1n\sum(x_i-\bar x)^2} = \frac{\operatorname{Cov}(X,Y)}{\operatorname{Var}(X)}$$</div>
+</div>
+
+<div class="box warn">
+  <div class="box-title">△ When does this break?</div>
+  <p style="margin:0">Yeh formula assume karta hai ki <b>denominator zero nahi hai</b>. Agar har student ka CGPA bilkul same hota, to $x_i = \bar x$ har $i$ ke liye, to $\sum(x_i-\bar x)^2 = 0$ — koi variation nahi, koi meaningful slope nahi, $m$ <b>undefined</b>.</p>
+</div>
+
+<div class="solved">
+  <header><span class="qtag">Practice P8</span><h4>Derivation fill-in</h4></header>
+  <div class="body">
+    <ol class="steps">
+      <li><span class="sh">(a) Why is the intercept $c$ substituted before optimizing the slope?</span>
+        <p style="margin:.2rem 0 0">Taaki two-variable minimization ek <b>single-variable</b> problem ban jaye — $c$ ko $m$ ke terms mein express karne se $E$ sirf $m$ ka function ban jaata hai, jise simple ordinary derivative se solve kar sakte hain.</p></li>
+      <li><span class="sh">(b) Compute $\dfrac{d}{dm}(a_i - m b_i)^2$</span>
+        <div class="answer">$= 2(a_i - m b_i)\cdot(-b_i) = -2b_i(a_i - m b_i)$</div></li>
+      <li><span class="sh">(c) Starting from $\sum b_i(a_i - mb_i) = 0$, derive the expression for $m$</span>
+        <div class="answer">$\sum b_i a_i = m\sum b_i^2 \;\Rightarrow\; m = \dfrac{\sum b_i a_i}{\sum b_i^2}$</div></li>
+      <li><span class="sh">(d) What does the denominator $\sum(x_i - \bar x)^2$ represent?</span>
+        <div class="answer"><b>B — Variance of $x$</b> (technically $n \times$ variance, i.e. the total sum of squares of $x$)</div></li>
+      <li><span class="sh">(e) Why would the slope be undefined if every $x_i$ has the same value?</span>
+        <p style="margin:.2rem 0 0">Kyunki tab $x_i - \bar x = 0$ har $i$ ke liye, to denominator $\sum(x_i-\bar x)^2 = 0$, aur <b>division by zero</b> undefined hai. Geometrically: saare points ek <b>vertical line</b> par hain — uska slope exist hi nahi karta.</p></li>
+    </ol>
+  </div>
+</div>
+
+<!-- ============================ -->
+<h2 id="s10"><span class="h2-num">10</span>The Final OLS Model</h2>
+<div class="formula"><span class="flabel">The two OLS formulas</span>
+$$m = \frac{\sum_{i=1}^{n}(x_i-\bar x)(y_i-\bar y)}{\sum_{i=1}^{n}(x_i-\bar x)^2} \qquad\qquad c = \bar y - m\bar x$$</div>
+<p><b>The procedure:</b></p>
+<ul>
+  <li><b>Step 1:</b> Compute $m$ using Equation 2.</li>
+  <li><b>Step 2:</b> Substitute $m$ into Equation 1 to compute $c$.</li>
+  <li><b>Step 3:</b> Write the final model: $\hat y = mx + c$</li>
+</ul>
+<p>Yeh OLS <b>best-fit line</b> hai. "Best-fit" phrase ka matlab precisely yeh hai: wo line jo <b>total squared error minimize</b> karti hai.</p>
+
+<div class="solved">
+  <header><span class="qtag">Practice P9</span><h4>Arrange the OLS steps (1–6)</h4></header>
+  <div class="body">
+    <div class="tbl-wrap" style="margin-top:0">
+    <table class="compact">
+    <thead><tr><th class="num">Order</th><th>Step</th></tr></thead>
+    <tbody>
+    <tr><td class="num"><b>1</b></td><td>Assume the model $\hat y = mx + c$</td></tr>
+    <tr><td class="num"><b>2</b></td><td>Calculate the residual $e_i$ at each data point</td></tr>
+    <tr><td class="num"><b>3</b></td><td>Square each residual</td></tr>
+    <tr><td class="num"><b>4</b></td><td>Add all squared residuals to form $E(m,c)$</td></tr>
+    <tr><td class="num"><b>5</b></td><td>Minimize $E$ using partial derivatives ($\partial E/\partial m = 0$ and $\partial E/\partial c = 0$)</td></tr>
+    <tr><td class="num"><b>6</b></td><td>Obtain the closed-form formulas for $m$ and $c$</td></tr>
+    </tbody></table></div>
+  </div>
+</div>
+
+<!-- ============================ -->
+<h2 id="s11"><span class="h2-num">11</span>Numerical Practice — OLS by hand ⭐</h2>
+
+<div class="solved">
+  <header><span class="qtag">Practice P10</span><h4>Study Hours vs Quiz Scores — complete OLS computation</h4></header>
+  <div class="body">
+    <div class="tbl-wrap" style="margin-top:0">
+    <table class="compact">
+    <thead><tr><th>Student</th><th class="num">Study Hours ($x$)</th><th class="num">Quiz Score ($y$)</th></tr></thead>
+    <tbody>
+    <tr><td>P</td><td class="num">1</td><td class="num">25</td></tr>
+    <tr><td>Q</td><td class="num">3</td><td class="num">40</td></tr>
+    <tr><td>R</td><td class="num">5</td><td class="num">55</td></tr>
+    <tr><td>S</td><td class="num">7</td><td class="num">65</td></tr>
+    <tr><td>T</td><td class="num">9</td><td class="num">80</td></tr>
+    </tbody></table></div>
+
+    <ol class="steps">
+      <li><span class="sh">Step 1 — Compute the means</span>
+        $$\bar x = \frac{1+3+5+7+9}{5} = \frac{25}{5} = \mathbf{5}$$
+        $$\bar y = \frac{25+40+55+65+80}{5} = \frac{265}{5} = \mathbf{53}$$</li>
+
+      <li><span class="sh">Step 2 — Compute deviations and products</span>
+        <p style="margin:.2rem 0 .5rem">Recall: $b_i = x_i - \bar x$ &nbsp;and&nbsp; $a_i = y_i - \bar y$</p>
+        <div class="tbl-wrap" style="margin:0">
+        <table class="compact">
+        <thead><tr>
+          <th>Student</th><th class="num">$x_i$</th><th class="num">$b_i = x_i - \bar x$</th>
+          <th class="num">$y_i$</th><th class="num">$a_i = y_i - \bar y$</th>
+          <th class="num">$b_i a_i$</th><th class="num">$b_i^2$</th></tr></thead>
+        <tbody>
+        <tr><td>P</td><td class="num">1</td><td class="num">1−5 = <b>−4</b></td><td class="num">25</td><td class="num">25−53 = <b>−28</b></td><td class="num"><b>112</b></td><td class="num"><b>16</b></td></tr>
+        <tr><td>Q</td><td class="num">3</td><td class="num">3−5 = <b>−2</b></td><td class="num">40</td><td class="num">40−53 = <b>−13</b></td><td class="num"><b>26</b></td><td class="num"><b>4</b></td></tr>
+        <tr><td>R</td><td class="num">5</td><td class="num">5−5 = <b>0</b></td><td class="num">55</td><td class="num">55−53 = <b>+2</b></td><td class="num"><b>0</b></td><td class="num"><b>0</b></td></tr>
+        <tr><td>S</td><td class="num">7</td><td class="num">7−5 = <b>+2</b></td><td class="num">65</td><td class="num">65−53 = <b>+12</b></td><td class="num"><b>24</b></td><td class="num"><b>4</b></td></tr>
+        <tr><td>T</td><td class="num">9</td><td class="num">9−5 = <b>+4</b></td><td class="num">80</td><td class="num">80−53 = <b>+27</b></td><td class="num"><b>108</b></td><td class="num"><b>16</b></td></tr>
+        <tr style="background:rgba(99,102,241,.1)"><td colspan="5"><b>TOTALS</b></td><td class="num"><b>270</b></td><td class="num"><b>40</b></td></tr>
+        </tbody></table></div></li>
+
+      <li><span class="sh">Step 3 — Sum and compute $m$</span>
+        $$\sum_{i=1}^{5}(x_i-\bar x)(y_i-\bar y) = 112 + 26 + 0 + 24 + 108 = \mathbf{270}$$
+        $$\sum_{i=1}^{5}(x_i-\bar x)^2 = 16 + 4 + 0 + 4 + 16 = \mathbf{40}$$
+        $$m = \frac{270}{40} = \mathbf{6.75}$$</li>
+
+      <li><span class="sh">Step 4 — Compute $c$</span>
+        $$c = \bar y - m\bar x = 53 - (6.75)(5) = 53 - 33.75 = \mathbf{19.25}$$</li>
+
+      <li><span class="sh">Step 5 — Final model</span>
+        <div class="formula" style="margin:.5rem 0 0">$$\hat y = 6.75\,x + 19.25$$</div>
+        <p style="margin:.6rem 0 0"><b>Interpretation:</b> har <b>extra study hour</b> ke liye quiz score average <b>6.75 marks</b> badhta hai. Zero study hours par baseline predicted score 19.25 hai.</p></li>
+
+      <li><span class="sh">Step 6 — Prediction at $x = 6$</span>
+        $$\hat y = 6.75 \times 6 + 19.25 = 40.5 + 19.25 = \mathbf{59.75}$$</li>
+    </ol>
+
+    <div class="box takeaway" style="margin-bottom:0">
+      <div class="box-title">Reflect 1 — Verify the line passes through $(\bar x, \bar y)$</div>
+      <p style="margin:0">$\hat y$ at $x = \bar x = 5$:
+      $\;\hat y = 6.75(5) + 19.25 = 33.75 + 19.25 = 53 = \bar y$ ✓<br>
+      Algebraically yeh <b>hamesha</b> hoga: $\hat y = m\bar x + c = m\bar x + (\bar y - m\bar x) = \bar y$.</p>
+    </div>
+
+    <div class="box warn" style="margin-bottom:0">
+      <div class="box-title">Reflect 2 — What if every student studied exactly 5 hours?</div>
+      <p style="margin:0">Tab $x_i = 5$ for all $i$, so $\bar x = 5$ and $x_i - \bar x = 0$ for every $i$.<br>
+      $\sum(x_i - \bar x)^2 = 0$ ⟹ $m = \frac{0}{0}$ — <b>undefined</b>.<br>
+      <b>Model ke liye iska matlab:</b> $x$ mein <b>koi variation hi nahi</b>, to $x$ se $y$ ki variation explain karna asambhav hai. Regression ke liye input ka vary karna zaroori hai.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================ -->
+<h2 id="s12"><span class="h2-num">12</span>Conceptual Wrap-Up — Why OLS?</h2>
+
+<div class="solved">
+  <header><span class="qtag">Practice P11</span><h4>True/False rapid fire</h4></header>
+  <div class="body">
+  <div class="tbl-wrap" style="margin-top:0">
+  <table>
+  <thead><tr><th>Statement</th><th>T/F</th><th>Why</th></tr></thead>
+  <tbody>
+  <tr><td>(a) The OLS line always passes through every single data point</td><td><span class="pill r">F</span></td><td>Sirf tab jab data perfectly collinear ho. Generally residuals nonzero hote hain.</td></tr>
+  <tr><td>(b) The OLS line always passes through $(\bar x, \bar y)$</td><td><span class="pill g">T</span></td><td>Seedha $c = \bar y - m\bar x$ se follow hota hai.</td></tr>
+  <tr><td>(c) Squared error is more robust to outliers than absolute error</td><td><span class="pill r">F</span></td><td><b>Ulta</b> hai — absolute error robust hai; squared error outliers ke prati sensitive hai.</td></tr>
+  <tr><td>(d) The derivative of $|x|$ exists at $x = 0$</td><td><span class="pill r">F</span></td><td>Sharp corner — left derivative $-1$, right derivative $+1$; match nahi karte.</td></tr>
+  <tr><td>(e) In $\hat y = mx + c$, $m$ and $c$ are the learnable parameters</td><td><span class="pill g">T</span></td><td>Training data se seekhe jaate hain.</td></tr>
+  <tr><td>(f) OLS gives an iterative (step-by-step) solution</td><td><span class="pill r">F</span></td><td>OLS <b>closed-form</b> hai. Gradient Descent iterative hai.</td></tr>
+  <tr><td>(g) If all $x_i$ values are identical, the slope $m$ is undefined</td><td><span class="pill g">T</span></td><td>Denominator zero ho jaata hai.</td></tr>
+  <tr><td>(h) The error surface $E(m,c)$ is convex for SLR</td><td><span class="pill g">T</span></td><td>Bowl shaped — ek hi global minimum.</td></tr>
+  </tbody></table></div>
+  </div>
+</div>
+
+<div class="solved">
+  <header><span class="qtag">Practice P12</span><h4>Outlier Impact Analysis</h4></header>
+  <div class="body">
+    <p>Dataset mein 6th student add karo: $(x = 10,\; y = 20)$. Yeh student ne 10 hours padha par sirf 20 score kiya — ek <b>clear outlier</b>.</p>
+    <ol class="steps">
+      <li><span class="sh">(a) Under absolute error, the penalty for this point is $|e| = |20 - (m\times10 + c)|$. How does this grow?</span>
+        <div class="answer"><b>Linearly</b> with the error.</div>
+        <p style="margin:.3rem 0 0">Pichle model $\hat y = 6.75x + 19.25$ se: $\hat y = 6.75(10)+19.25 = 86.75$, to $e = 20 - 86.75 = -66.75$, aur $|e| = \mathbf{66.75}$.</p></li>
+      <li><span class="sh">(b) Under squared error, the penalty is $e^2 = (20-\hat y)^2$. How does this grow?</span>
+        <div class="answer"><b>Quadratically</b> with the error.</div>
+        <p style="margin:.3rem 0 0">$e^2 = (66.75)^2 = \mathbf{4455.6}$ — baaki saare points ke combined squared error se kahin zyada.</p></li>
+      <li><span class="sh">(c) Which loss function will be more affected by this outlier? Why?</span>
+        <div class="answer"><b>Squared error (OLS)</b>.</div>
+        <p style="margin:.3rem 0 0">Kyunki $e^2$ error ke saath quadratically grow karta hai, is ek point ka contribution total loss ko <b>dominate</b> kar deta hai. Loss minimize karne ke liye optimizer ko is point ke error ko shrink karna <b>hi</b> padega, chahe baaki paanch points ka fit kharab ho jaye.</p></li>
+      <li><span class="sh">(d) Will the OLS best-fit line shift toward this outlier or away from it?</span>
+        <div class="answer"><b>Toward</b> the outlier.</div>
+        <p style="margin:.3rem 0 0">Optimizer $\sum e^2$ minimize kar raha hai. Us huge squared term ko kam karne ka sabse effective tareeka hai line ko outlier ki taraf <b>tilt/drop</b> karna. Practically: slope $m$ <b>ghategi</b> (kyunki outlier high $x$ par low $y$ hai), aur line 6 points ke beech mein ek compromise position le legi — <b>saare</b> predictions kharab karke.</p></li>
+    </ol>
+  </div>
+</div>
+
+<div class="box insight">
+  <div class="box-title">➜ Forward Handoff</div>
+  <p style="margin:0">Next lecture mein hum yahi idea ek input feature se multiple input features tak extend karenge (<b>Multiple Linear Regression</b>). OLS derivation wahi principle use karegi — minimize squared error — par simple algebra ki jagah <b>matrices aur vectors</b> ke saath. Gradient Descent (iterative optimization) bhi introduce hoga.</p>
+</div>
+
+<!-- ============================ -->
+<h2 id="mistakes">⚠ Common Mistakes</h2>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Galti</th><th>Sahi Baat</th></tr></thead>
+<tbody>
+<tr><td>$\sum_{i=1}^{n} c = c$</td><td>$\sum_{i=1}^{n} c = \mathbf{nc}$ — yeh derivation ki #1 mistake hai.</td></tr>
+<tr><td>Slope formula mein numerator aur denominator ulta karna</td><td>Numerator = $\sum(x_i-\bar x)(y_i-\bar y)$ (covariance). Denominator = $\sum(x_i-\bar x)^2$ (variance of $x$ only).</td></tr>
+<tr><td>"Squared error outliers ke liye robust hai"</td><td><b>Absolute error</b> robust hai. Squared error outliers ke prati <b>sensitive</b> hai.</td></tr>
+<tr><td>"Error 10× bada to penalty 10× badi"</td><td>Squared error mein penalty <b>100×</b> badi hoti hai.</td></tr>
+<tr><td>"OLS line har data point se guzarti hai"</td><td>Sirf perfectly collinear data mein. Generally residuals nonzero.</td></tr>
+<tr><td>Residual ko $\hat y - y$ likhna</td><td>Convention: $e_i = y_i - \hat y_i$ (<b>actual minus predicted</b>). Sign matter karta hai.</td></tr>
+<tr><td>OLS ko iterative samajhna</td><td>OLS <b>closed-form</b> hai — ek formula, ek shot mein answer.</td></tr>
+<tr><td>Denominator zero hone ka case bhool jaana</td><td>Agar saare $x_i$ same hain, $m$ undefined hai.</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="revision">⚡ Quick Revision</h2>
+<div class="grid g2">
+  <div class="box def" style="margin:0"><div class="box-title">Model</div><p style="margin:0">$\hat y_i = m x_i + c$</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Residual</div><p style="margin:0">$e_i = y_i - \hat y_i = y_i - (mx_i + c)$</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Loss</div><p style="margin:0">$E(m,c) = \sum(y_i - mx_i - c)^2$</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Slope</div><p style="margin:0">$m = \frac{\sum(x_i-\bar x)(y_i-\bar y)}{\sum(x_i-\bar x)^2} = \frac{\operatorname{Cov}(X,Y)}{\operatorname{Var}(X)}$</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Intercept</div><p style="margin:0">$c = \bar y - m\bar x$</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">3 loss attempts</div><p style="margin:0">Signed (cancels) → Absolute (non-differentiable at 0) → <b>Squared</b> ✓</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Squared error's 3 properties</div><p style="margin:0">Non-negative · Differentiable everywhere · Quadratic penalty</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Stationarity</div><p style="margin:0">$\frac{\partial E}{\partial m}=0$ and $\frac{\partial E}{\partial c}=0$; surface is <b>convex</b> ⟹ global min.</p></div>
+</div>
+
+<div class="box takeaway">
+  <div class="box-title">♦ The whole story in one line</div>
+  <p style="margin:0">Story → Scatter Plot → Line Model → Infinite Lines → Signed Error Fails → Absolute Error Has Issues → <b>Squared Error Wins</b> → OLS Derivation → Final Best-Fit Model.</p>
+</div>
+
+<h2 id="test">✓ Test Yourself — 10 MCQs</h2>
+<div id="mcq-root"></div>
+
+</div>
+</main>
+</div>
+
+<script>
+const MCQS = [
+{ d:'med',
+  q:'For $x=[1,3,5,7,9]$ and $y=[25,40,55,65,80]$, the OLS slope $m$ is:',
+  o:['$5.30$', '$6.75$', '$10.60$', '$0.148$'],
+  a:1,
+  e:'<b>B.</b> $\\bar x=5$, $\\bar y=53$. $\\sum(x_i-\\bar x)(y_i-\\bar y)=112+26+0+24+108=270$; $\\sum(x_i-\\bar x)^2=16+4+0+4+16=40$; $m=270/40=6.75$. <b>A</b> is $\\bar y / 10$, a guess. <b>C</b> divides 270 by 25.5-ish nonsense. <b>D</b> is $40/270$ — numerator and denominator swapped, the classic trap.' },
+
+{ d:'hard',
+  q:'The six residuals of a model are $+10, +5, +4, -10, -3, -6$. Their total signed error is 0. What does this tell you?',
+  o:['The model is perfect — every prediction is exact',
+     'Nothing useful — signed errors cancel, so a total of 0 does not mean the errors are small',
+     'The model is underfitting the data',
+     'The squared error must also be 0'],
+  a:1,
+  e:'<b>B.</b> Yeh cancellation trap hai: har single residual nonzero hai, phir bhi total 0. <b>A</b> exactly wahi galat conclusion hai jise sheet warn karti hai. <b>C</b> unrelated — signed sum underfitting nahi batata. <b>D</b> false: $\\sum e_i^2 = 100+25+16+100+9+36 = 286 \\ne 0$.' },
+
+{ d:'hard',
+  q:'Why is absolute error rejected for the OLS derivation despite solving the cancellation problem?',
+  o:['Because $|e|$ can be negative for negative errors',
+     'Because $|e|$ is not differentiable at $e=0$ — the sharp V-corner blocks the clean calculus derivation',
+     'Because $|e|$ is more sensitive to outliers than $e^2$',
+     'Because $|e|$ does not penalise errors at all'],
+  a:1,
+  e:'<b>B.</b> $e&lt;0$ par derivative $-1$, $e&gt;0$ par $+1$, aur $e=0$ par <b>undefined</b>. Isse $\\partial E/\\partial m = 0$ wala clean approach toot jaata hai. <b>A</b> false — $|e| \\ge 0$ hamesha. <b>C</b> exactly reversed — absolute error <b>zyada robust</b> hai. <b>D</b> false — wo linearly penalise karta hai.' },
+
+{ d:'hard',
+  q:'A student writes: $\\sum_{i=1}^{n}(y_i - mx_i - c) = 0 \\Rightarrow \\sum y_i - m\\sum x_i - c = 0$. What is wrong?',
+  o:['Nothing — this is correct',
+     '$\\sum_{i=1}^{n} c$ should be $nc$, not $c$',
+     'The sign of $m\\sum x_i$ should be positive',
+     'The derivative should have been taken with respect to $m$, not $c$'],
+  a:1,
+  e:'<b>B.</b> $c$ ek constant hai; use $n$ baar add karne se $nc$ milta hai. Yeh <b>sabse common derivation error</b> hai aur isse $c = \\bar y - m\\bar x$ nikalna impossible ho jaata hai. <b>C</b> false — sign correct hai. <b>D</b> irrelevant; intercept derivation mein $c$ ke respect mein hi differentiate karte hain.' },
+
+{ d:'med',
+  q:'For the model $\\hat y = 6.75x + 19.25$ built on $\\bar x = 5$, $\\bar y = 53$, what is $\\hat y$ at $x = \\bar x$?',
+  o:['$19.25$', '$33.75$', '$53$', 'Cannot be determined without the residuals'],
+  a:2,
+  e:'<b>C.</b> $6.75(5) + 19.25 = 33.75 + 19.25 = 53 = \\bar y$. Yeh coincidence nahi — algebraically $\\hat y(\\bar x) = m\\bar x + (\\bar y - m\\bar x) = \\bar y$ <b>hamesha</b>. <b>A</b> intercept hai ($x=0$ par). <b>B</b> sirf $m\\bar x$ hai, intercept add karna bhool gaye. <b>D</b> false — formula se directly nikalta hai.' },
+
+{ d:'hard',
+  q:'A 6th point $(x=10, y=20)$ is added to a dataset whose fitted line is $\\hat y = 6.75x + 19.25$. Which statement is correct?',
+  o:['Squared error penalises it ~66.75 and absolute error ~4456',
+     'Absolute error penalises it ~66.75 and squared error ~4456; the OLS line will shift TOWARD the outlier',
+     'Both penalties are equal because the residual is the same',
+     'The OLS line will shift AWAY from the outlier to minimise its influence'],
+  a:1,
+  e:'<b>B.</b> $\\hat y = 6.75(10)+19.25 = 86.75$, so $e = -66.75$: $|e| = 66.75$, $e^2 \\approx 4455.6$. Kyunki optimizer $\\sum e^2$ minimize karta hai, us huge term ko shrink karne ka tareeka line ko outlier ki <b>taraf</b> kheenchna hai. <b>A</b> swaps the two. <b>C</b> false — squaring hi to difference banata hai. <b>D</b> is the intuitive-but-wrong answer: minimising means chasing the big error, not avoiding it.' },
+
+{ d:'med',
+  q:'What does the denominator $\\sum(x_i - \\bar x)^2$ in the slope formula represent?',
+  o:['Covariance between $x$ and $y$', 'Variance (total spread) of $x$', 'Mean of $x$', 'Mean squared error'],
+  a:1,
+  e:'<b>B.</b> Yeh total sum of squares of $x$ hai — $n\\times$ variance. Formula overall $m = \\operatorname{Cov}(X,Y)/\\operatorname{Var}(X)$ banta hai. <b>A</b> is the <b>numerator</b> — classic swap trap. <b>C</b> galat — mean $\\bar x$ hai, yeh squared deviations hai. <b>D</b> galat — MSE mein $y$ ke residuals hote hain, $x$ ke deviations nahi.' },
+
+{ d:'hard',
+  q:'Why is the stationary point of $E(m,c)$ guaranteed to be the GLOBAL minimum for simple linear regression?',
+  o:['Because the error is always positive',
+     'Because the error surface is convex (bowl-shaped), so there are no local minima other than the global one',
+     'Because we used the chain rule correctly',
+     'Because $n$ is finite'],
+  a:1,
+  e:'<b>B.</b> Sheet: "Because the surface is convex, this stationary point is guaranteed to be the global minimum (not just a local one)." <b>A</b> is true but insufficient — positive function ke bhi multiple local minima ho sakte hain. <b>C</b> derivation ki correctness hai, surface geometry nahi. <b>D</b> irrelevant.' },
+
+{ d:'hard',
+  q:'Every student in a dataset studied exactly 5 hours. What happens to the OLS slope?',
+  o:['$m = 0$, because there is no relationship',
+     '$m$ is undefined, because $\\sum(x_i - \\bar x)^2 = 0$ makes the denominator zero',
+     '$m = \\bar y / \\bar x = 53/5$',
+     '$m$ equals the covariance, since the variance term drops out'],
+  a:1,
+  e:'<b>B.</b> $x_i = \\bar x$ for all $i$, so every deviation is 0 and the denominator vanishes — <b>division by zero</b>. Geometrically saare points ek vertical line par hain, jiska slope exist hi nahi karta. <b>A</b> is the tempting near-miss: $m=0$ ka matlab hoga horizontal line, jo ek <b>defined</b> answer hai — par yahan koi answer hi nahi. <b>C</b> aur <b>D</b> formula ko misapply karte hain.' },
+
+{ d:'med',
+  q:'Which pairing is correct?',
+  o:['Closed-form → Gradient Descent; Iterative → OLS',
+     'Closed-form → OLS; Iterative → Gradient Descent',
+     'Both OLS and Gradient Descent are closed-form',
+     'Both OLS and Gradient Descent are iterative'],
+  a:1,
+  e:'<b>B.</b> OLS ek <b>exact formula</b> deta hai — data plug karo, answer nikal aayega. Gradient Descent random guesses se start karke step-by-step improve karta hai. <b>A</b> exactly reversed. <b>C</b> aur <b>D</b> dono unhe conflate karte hain.' },
+];
+</script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="window.dispatchEvent(new Event('katex-ready'))"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

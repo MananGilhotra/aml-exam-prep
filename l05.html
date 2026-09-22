@@ -1,0 +1,653 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lecture 5 · Batch Gradient Descent — AML Exam Prep</title>
+<meta name="description" content="Why OLS is not enough, the gradient's geometric meaning, deriving the Batch Gradient Descent update rule for MSE, epochs, learning-rate tuning and a full worked epoch.">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page="l05">
+<div class="shell">
+<main class="main">
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Worksheet 05 · Lecture 5</div>
+  <h1><span class="gradtext">Batch Gradient Descent</span><br>for Multiple Linear Regression</h1>
+  <p class="sub">Jab closed-form OLS kaam na kare — iterative optimization se optimal parameters tak pahuchna.</p>
+  <div class="chips">
+    <span class="chip accent">⏱ ~32 min</span><span class="chip">📐 Gradient derivation</span>
+    <span class="chip">🧮 Full epoch by hand</span><span class="chip">✓ 10 MCQs</span>
+  </div>
+</header>
+
+<div class="box hinglish">
+  <div class="box-title">⚡ Ek Line Mein</div>
+  <p style="margin:0">OLS exact hai par $O(m^3)$ mehnga aur singular $\mathbf X^\top\mathbf X$ par fail ho jaata hai. Gradient Descent ka idea simple hai: loss ka <b>slope nikalo, aur uske ulte direction mein chhota step lo</b> — baar baar. Rule: $\boldsymbol\theta_{\text{new}} = \boldsymbol\theta_{\text{old}} - \alpha\nabla L$. MSE ke liye $\nabla L = \frac{2}{m}\mathbf X^\top(\mathbf X\boldsymbol\theta - \mathbf y)$. "Batch" isliye kyunki har update mein <b>poora dataset</b> use hota hai.</p>
+</div>
+
+<!-- =========================== -->
+<h2 id="s1"><span class="h2-num">1</span>Why OLS is not enough</h2>
+<div class="box hook">
+  <div class="box-title">▷ Hook</div>
+  <p style="margin:0">Lecture 4 mein humne kuch elegant kiya. Loss ka gradient zero set kiya aur seedha $\boldsymbol\theta$ solve kar liya. Result <b>exact</b> tha. To phir ek aur method ki zaroorat kyun?</p>
+</div>
+
+<div class="formula"><span class="flabel">The closed-form OLS solution</span>$$\boldsymbol\theta^* = (\mathbf X^\top\mathbf X)^{-1}\mathbf X^\top\mathbf y$$</div>
+<p>Yahan koi trial and error nahi, koi epoch nahi, koi learning rate nahi. Lekin <b>do major limitations</b> hain:</p>
+
+<div class="grid g2">
+  <div class="box danger" style="margin:0">
+    <div class="box-title">Limitation 1 · Computational cost</div>
+    <p style="margin:0">$\mathbf X$ ke paas $m+1$ columns hain (intercept sahit), to $\mathbf X^\top\mathbf X$ ka size $(m+1)\times(m+1)$ hai. Is matrix ko directly invert karne ki cost approximately:</p>
+    <div class="formula tight" style="margin:.6rem 0 0">$$O(m^3)$$</div>
+    <p style="margin:.6rem 0 0">Agar model ke paas 5 features hain — inversion trivial hai. Agar millions of features hain — inversion <b>computationally impossible</b> ho jaata hai.</p>
+  </div>
+  <div class="box danger" style="margin:0">
+    <div class="box-title">Limitation 2 · Invertibility &amp; numerical stability</div>
+    <p style="margin:0">Formula sirf tab kaam karta hai jab $\mathbf X^\top\mathbf X$ <b>invertible</b> ho (yaani uska determinant non-zero ho). Iske liye $\mathbf X$ ke columns ko <b>linearly independent</b> hona zaroori hai.</p>
+  </div>
+</div>
+
+<div class="box insight">
+  <div class="box-title">★ Key Insight</div>
+  <p style="margin:0">Agar do features <b>exact duplicates</b> hain, ya ek feature doosre ka <b>linear combination</b> hai, to $\mathbf X^\top\mathbf X$ <b>singular</b> ban jaata hai — inverse exist hi nahi karta.</p>
+</div>
+<p>Hume ek aisa method chahiye jo $\mathbf X^\top\mathbf X$ ko <b>explicitly invert na kare</b>. Wo method hai <b>Batch Gradient Descent</b>.</p>
+
+<div class="solved">
+  <header><span class="qtag">Practice P1</span><h4>Scenario evaluation — OLS or Gradient Descent?</h4></header>
+  <div class="body">
+    <ol class="steps">
+      <li><span class="sh">Scenario A: 10,000 rows but only 3 features (Age, Income, Credit Score)</span>
+        <div class="answer">Use <b>OLS</b>.</div>
+        <p style="margin:.3rem 0 0"><b>Why:</b> $m = 3$, to $\mathbf X^\top\mathbf X$ sirf $4\times4$ hai. Inversion cost $\approx 4^3 = 64$ operations — nothing. Rows ki sankhya ($n = 10{,}000$) inversion cost ko <b>affect hi nahi</b> karti (wo sirf $m$ par depend karti hai). Closed-form ek hi step mein exact answer de dega, bina learning rate tune kiye.</p></li>
+      <li><span class="sh">Scenario B: Computer-vision regression with 50,000 image-derived features</span>
+        <div class="answer">Use <b>Gradient Descent</b>.</div>
+        <p style="margin:.3rem 0 0"><b>Why:</b> $m^3 = (5\times10^4)^3 = 1.25\times10^{14}$ operations — days lagenge, aur $50{,}001 \times 50{,}001$ matrix store karne ke liye ~20 GB RAM chahiye. GD har iteration mein sirf $O(nm)$ cost leta hai aur kabhi inverse banata hi nahi.</p></li>
+      <li><span class="sh">Scenario C: A junior engineer includes both <code>Price_USD</code> and <code>Price_Cents</code> (where Price_Cents = 100 × Price_USD)</span>
+        <p style="margin:.2rem 0 0"><b>What specific error will OLS throw?</b></p>
+        <div class="answer">A <b>singular matrix</b> error — $\det(\mathbf X^\top\mathbf X) = 0$, so $(\mathbf X^\top\mathbf X)^{-1}$ does not exist (in NumPy: <code>LinAlgError: Singular matrix</code>).</div>
+        <p style="margin:.4rem 0 0"><b>Can Batch Gradient Descent still run on this data? <span style="color:#34d399">Yes.</span></b><br>
+        GD kabhi koi matrix invert nahi karta — wo sirf $\mathbf X^\top(\mathbf X\boldsymbol\theta - \mathbf y)$ compute karta hai, jo hamesha defined hai. Wo converge <b>kar jayega</b>, par ek nuance ke saath: kyunki infinitely many $\boldsymbol\theta$ same minimum loss dete hain, GD unme se <b>ek</b> par settle hoga (jo initialization par depend karta hai). Predictions reliable hongi; <b>individual coefficients</b> $\theta_{\text{USD}}$ aur $\theta_{\text{cents}}$ interpret karne layak nahi honge.</p></li>
+    </ol>
+  </div>
+</div>
+
+<!-- =========================== -->
+<h2 id="s2"><span class="h2-num">2</span>Introduction to Gradient Descent</h2>
+<div class="box hook">
+  <div class="box-title">▷ Hook</div>
+  <p style="margin:0">Gradient Descent ka objective hai loss function ke <b>minimum</b> tak pahuchna: wo parameter values jahan prediction error sabse chhota hai.</p>
+</div>
+
+<h3>Single-variable case</h3>
+<p>Ek function $f(x)$ ke liye, derivative $f'(x)$ hume <b>slope</b> batata hai:</p>
+<ul>
+  <li>Agar $f'(x) &gt; 0$, function badhta hai jaise $x$ badhta hai.</li>
+  <li>Agar $f'(x) &lt; 0$, function ghatta hai jaise $x$ badhta hai.</li>
+</ul>
+<p>Agar hume function ko <b>decrease</b> karna hai, to hume derivative ki <b>opposite direction</b> mein move karna hoga.</p>
+
+<figure>
+<svg viewBox="0 0 560 240" role="img" aria-label="Loss curve with gradient arrows pointing uphill on both sides">
+  <line x1="40" y1="200" x2="530" y2="200" stroke-width="1.5" style="stroke:var(--border-2)"/>
+  <line x1="285" y1="210" x2="285" y2="20" stroke-width="1.5" style="stroke:var(--border-2)"/>
+  <text x="535" y="197" font-size="12" font-weight="700" style="fill:var(--text-2)">θ</text>
+  <text x="290" y="18" font-size="12" font-weight="700" style="fill:var(--text-2)">L(θ)</text>
+  <path d="M95 32 Q 285 290 475 32" fill="none" stroke="#3b82f6" stroke-width="3"/>
+  <circle cx="160" cy="132" r="5" style="fill:var(--text)"/>
+  <circle cx="410" cy="132" r="5" style="fill:var(--text)"/>
+  <line x1="160" y1="132" x2="112" y2="70" stroke="#ef4444" stroke-width="2.5" marker-end="url(#gar)"/>
+  <line x1="410" y1="132" x2="458" y2="70" stroke="#ef4444" stroke-width="2.5" marker-end="url(#gar)"/>
+  <defs><marker id="gar" markerWidth="8" markerHeight="8" refX="6.5" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#ef4444"/></marker></defs>
+  <text x="30" y="62" font-size="11.5" font-weight="700" fill="#ef4444">Gradient (Slope &lt; 0)</text>
+  <text x="418" y="58" font-size="11.5" font-weight="700" fill="#ef4444">Gradient (Slope &gt; 0)</text>
+  <circle cx="285" cy="200" r="6" fill="#10b981"/>
+  <text x="285" y="224" text-anchor="middle" font-size="11" font-weight="800" fill="#10b981">minimum</text>
+</svg>
+<figcaption>Dono taraf gradient <b>uphill</b> point karta hai. Isliye hum uske <b>ulte</b> chalte hain.</figcaption>
+</figure>
+
+<h3>Multivariable case</h3>
+<p>Ek function $f(\theta_0, \theta_1, \dots, \theta_m)$ ke liye, <b>gradient</b> saare partial derivatives ka vector hai:</p>
+<div class="formula">$$\nabla f = \begin{bmatrix}\dfrac{\partial f}{\partial\theta_0}\\[4pt] \dfrac{\partial f}{\partial\theta_1}\\[2pt] \vdots\\[2pt] \dfrac{\partial f}{\partial\theta_m}\end{bmatrix}$$</div>
+
+<div class="solved">
+  <header><span class="qtag">Worked example</span><h4>Computing a gradient and taking one step</h4></header>
+  <div class="body">
+    <p>Let $f(x, y) = x^2 + y^2$.</p>
+    <ol class="steps">
+      <li><span class="sh">Compute the gradient</span>
+        $$\nabla f = \begin{bmatrix}\partial f/\partial x\\ \partial f/\partial y\end{bmatrix} = \begin{bmatrix}2x\\ 2y\end{bmatrix}$$</li>
+      <li><span class="sh">Evaluate at the point $(3, 4)$</span>
+        $$\nabla f\big|_{(3,4)} = \begin{bmatrix}2(3)\\ 2(4)\end{bmatrix} = \begin{bmatrix}6\\ 8\end{bmatrix}$$</li>
+      <li><span class="sh">Take one step with $\alpha = 0.1$</span>
+        $$\boldsymbol\theta_{\text{new}} = \begin{bmatrix}3\\4\end{bmatrix} - 0.1\begin{bmatrix}6\\8\end{bmatrix} = \begin{bmatrix}3 - 0.6\\ 4 - 0.8\end{bmatrix} = \begin{bmatrix}\mathbf{2.4}\\ \mathbf{3.2}\end{bmatrix}$$
+        <div class="answer">Moved closer to the minimum at $(0,0)$ ✓</div></li>
+      <li><span class="sh">Now try $\alpha = 1$ — watch what breaks</span>
+        $$\boldsymbol\theta_{\text{new}} = \begin{bmatrix}3\\4\end{bmatrix} - 1\begin{bmatrix}6\\8\end{bmatrix} = \begin{bmatrix}\mathbf{-3}\\ \mathbf{-4}\end{bmatrix}$$
+        <div class="answer" style="background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.35);color:#f87171">Overshoot! Hum minimum ko <b>cross</b> karke doosri taraf pahuch gaye, exactly same distance par. $f$ ki value badli hi nahi ($9+16 = 25$ dono jagah). Agla step hume wapas $(3,4)$ le jayega — <b>infinite oscillation</b>.</div>
+        <p style="margin:.4rem 0 0">Yeh <b>"$\alpha$ too large"</b> failure mode ka exact mathematical demonstration hai.</p></li>
+    </ol>
+  </div>
+</div>
+
+<div class="box takeaway">
+  <div class="box-title">♦ Takeaway — the key geometric fact</div>
+  <p style="margin:0">Gradient function ke <b>steepest increase</b> ki direction mein point karta hai. Isliye <b>negative gradient</b> steepest <b>decrease</b> ki direction mein point karta hai.</p>
+</div>
+<p>Ek convex bowl-shaped loss ke liye, repeatedly negative gradient follow karne se hum <b>kisi bhi starting point</b> se same global minimum par pahuchte hain — bashart ki learning rate appropriate ho.</p>
+
+<h3>The update rule</h3>
+<div class="formula"><span class="flabel">Single parameter</span>$$\theta_{\text{new}} = \theta_{\text{old}} - \alpha\left.\frac{dL}{d\theta}\right|_{\theta_{\text{old}}}$$</div>
+<p>Yahan $\alpha &gt; 0$ <b>learning rate</b> hai: ek user-chosen <b>hyperparameter</b> jo har step ka size control karta hai. Gradient Descent is rule ko <b>iteratively</b> apply karta hai — old becomes new, gradient recompute hota hai, aur process convergence tak chalta rehta hai (jab loss ya parameters negligibly badalte hain).</p>
+
+<div class="formula"><span class="flabel">Coordinate-wise, for MLR with $m$ features ($m+1$ parameters)</span>$$\theta_{j,\text{new}} = \theta_{j,\text{old}} - \alpha\left.\frac{\partial L}{\partial\theta_j}\right|_{\boldsymbol\theta_{\text{old}}} \qquad\text{for } j = 0, 1, \dots, m$$</div>
+
+<div class="box danger">
+  <div class="box-title">△ Warning — SIMULTANEOUS UPDATE</div>
+  <p style="margin:0">Saare partial derivatives <b>$\boldsymbol\theta$ ki OLD value</b> se compute hone chahiye, aur saare parameters <b>simultaneously</b> update hone chahiye. $\theta_0$ ko update karke phir <b>naye</b> $\theta_0$ se $\theta_1$ ka derivative mat nikalna.</p>
+</div>
+
+<div class="formula"><span class="flabel">Vector form</span>$$\boxed{\;\boldsymbol\theta_{\text{new}} = \boldsymbol\theta_{\text{old}} - \alpha\,\nabla L(\boldsymbol\theta_{\text{old}})\;}$$</div>
+<ul>
+  <li>$\boldsymbol\theta$ — the full parameter vector</li>
+  <li>$\nabla L$ — the vector of all partial derivatives</li>
+  <li>$\alpha$ — the learning rate</li>
+  <li>Minus sign isliye aata hai kyunki <b>gradient uphill point karta hai</b>, par hume downhill jaana hai</li>
+</ul>
+
+<h4>Parameter initialization</h4>
+<ul>
+  <li>Linear Regression aur Logistic Regression mein use hone wali <b>convex</b> loss functions ke liye, $\boldsymbol\theta_{\text{old}}$ ko <b>zero vector</b> se initialize karo.</li>
+  <li><b>Non-convex</b> Neural Network losses ke liye parameters <b>randomly</b> initialize kiye jaate hain (parallel Deep Learning course mein cover hoga).</li>
+</ul>
+
+<h4>Effect of the learning rate on convergence</h4>
+<figure>
+<svg viewBox="0 0 620 250" role="img" aria-label="Three learning rate behaviours: too small, appropriate, too large">
+  <line x1="50" y1="210" x2="590" y2="210" stroke-width="1.5" style="stroke:var(--border-2)"/>
+  <line x1="50" y1="210" x2="50" y2="20" stroke-width="1.5" style="stroke:var(--border-2)"/>
+  <text x="560" y="232" font-size="12" font-weight="700" style="fill:var(--text-2)">epoch</text>
+  <text x="26" y="110" font-size="12" font-weight="700" transform="rotate(-90 26 110)" text-anchor="middle" style="fill:var(--text-2)">loss</text>
+  <path d="M58 30 L580 172" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="3 4"/>
+  <path d="M58 30 C 120 150, 200 194, 580 202" fill="none" stroke="#10b981" stroke-width="3"/>
+  <path d="M58 30 C 90 190, 120 60, 160 178 C 200 62, 240 186, 280 70 C 320 190, 360 76, 400 184 C 440 80, 480 178, 520 86 C 552 150, 566 130, 580 160"
+        fill="none" stroke="#ef4444" stroke-width="2.5" stroke-dasharray="6 4"/>
+  <text x="492" y="164" font-size="11.5" font-weight="800" fill="#94a3b8">too small</text>
+  <text x="440" y="212" font-size="11.5" font-weight="800" fill="#10b981">appropriate</text>
+  <text x="500" y="70" font-size="11.5" font-weight="800" fill="#ef4444">too large</text>
+</svg>
+<figcaption>Teen behaviours: <b>too small</b> (slow), <b>appropriate</b> (fast then flat), <b>too large</b> (oscillates / diverges).</figcaption>
+</figure>
+
+<div class="solved">
+  <header><span class="qtag">Practice P2</span><h4>Derive the vectorized update rule</h4></header>
+  <div class="body">
+    <ol class="steps">
+      <li><span class="sh">1. Stack the old parameters into a vector $\boldsymbol\theta$</span>
+        $$\boldsymbol\theta_{\text{old}} = \begin{bmatrix}\theta_0\\ \theta_1\\ \vdots\\ \theta_m\end{bmatrix}$$</li>
+      <li><span class="sh">2. Stack all the partial derivatives into the gradient vector $\nabla L$</span>
+        $$\nabla L = \begin{bmatrix}\partial L/\partial\theta_0\\ \partial L/\partial\theta_1\\ \vdots\\ \partial L/\partial\theta_m\end{bmatrix}$$</li>
+      <li><span class="sh">3. Write the final simultaneous vector update equation</span>
+        <div class="answer">$\boldsymbol\theta_{\text{new}} = \boldsymbol\theta_{\text{old}} - \alpha\,\nabla L(\boldsymbol\theta_{\text{old}})$</div></li>
+    </ol>
+  </div>
+</div>
+
+<!-- =========================== -->
+<h2 id="s3"><span class="h2-num">3</span>Deriving the Batch GD update for MSE ⭐</h2>
+<div class="box hook">
+  <div class="box-title">▷ Hook</div>
+  <p style="margin:0">Ab loss definition, gradient, aur update rule ko Mean Squared Error ke liye mathematically consistent banate hain.</p>
+</div>
+
+<div class="formula"><span class="flabel">MSE loss (matrix form)</span>$$L(\boldsymbol\theta) = \frac{1}{m}(\mathbf X\boldsymbol\theta - \mathbf y)^\top(\mathbf X\boldsymbol\theta - \mathbf y) \qquad\text{equivalently}\qquad L(\boldsymbol\theta) = \frac{1}{m}\|\mathbf X\boldsymbol\theta - \mathbf y\|_2^2$$</div>
+<p><small>Note: yahan $m$ = number of <b>training examples</b> (is worksheet ki notation). Feature count ko $d$ se denote kiya gaya hai jahan zaroori hai.</small></p>
+
+<div class="solved">
+  <header><span class="qtag">Practice P4 · Derivation</span><h4>Compute the gradient step by step</h4></header>
+  <div class="body">
+    <ol class="steps">
+      <li><span class="sh">Step 1 — Expand the loss function</span>
+        $$L(\boldsymbol\theta) = \frac{1}{m}\left[(\boldsymbol\theta^\top\mathbf X^\top - \mathbf y^\top)(\mathbf X\boldsymbol\theta - \mathbf y)\right]$$
+        $$L(\boldsymbol\theta) = \frac{1}{m}\left[\,\mathbf y^\top\mathbf y \;-\; 2\,\mathbf y^\top\mathbf X\boldsymbol\theta \;+\; \boldsymbol\theta^\top\mathbf X^\top\mathbf X\boldsymbol\theta\,\right]$$
+        <p style="margin:.4rem 0 0"><small>(Same three-term expansion as <a href="l04.html">Lecture 4</a>, with the two middle scalars combined.)</small></p></li>
+      <li><span class="sh">Step 2 — Differentiate with respect to $\boldsymbol\theta$</span>
+        <p style="margin:.2rem 0 .4rem">Recall the three identities:</p>
+        $$\frac{\partial}{\partial\boldsymbol\theta}(\mathbf y^\top\mathbf y) = \mathbf 0, \qquad \frac{\partial}{\partial\boldsymbol\theta}(-2\,\mathbf y^\top\mathbf X\boldsymbol\theta) = -2\,\mathbf X^\top\mathbf y, \qquad \frac{\partial}{\partial\boldsymbol\theta}(\boldsymbol\theta^\top\mathbf X^\top\mathbf X\boldsymbol\theta) = 2\,\mathbf X^\top\mathbf X\boldsymbol\theta$$
+        $$\nabla L = \frac{1}{m}\left[\mathbf 0 \;-\; 2\,\mathbf X^\top\mathbf y \;+\; 2\,\mathbf X^\top\mathbf X\boldsymbol\theta\right]$$</li>
+      <li><span class="sh">Step 3 — Factor out the 2 and $\mathbf X^\top$</span>
+        <div class="formula" style="margin:.5rem 0 0"><span class="flabel">The MSE gradient</span>$$\boxed{\;\nabla L = \frac{2}{m}\,\mathbf X^\top(\mathbf X\boldsymbol\theta - \mathbf y)\;}$$</div></li>
+      <li><span class="sh">Step 4 — Plug into the update rule</span>
+        <div class="formula" style="margin:.5rem 0 0"><span class="flabel">Batch Gradient Descent update rule</span>$$\boxed{\;\boldsymbol\theta := \boldsymbol\theta - \alpha\,\frac{2}{m}\,\mathbf X^\top(\mathbf X\boldsymbol\theta - \mathbf y)\;}$$</div></li>
+    </ol>
+  </div>
+</div>
+
+<div class="box insight">
+  <div class="box-title">★ Key Insight — why is it called "Batch"?</div>
+  <p style="margin:0">Kyunki gradient <b>poori matrix $\mathbf X$</b> aur <b>poore target vector $\mathbf y$</b> ka use karta hai. <b>Har single training example har single update step mein contribute karta hai.</b></p>
+</div>
+
+<div class="box warn">
+  <div class="box-title">Instructor note — the missing factor of 2</div>
+  <p style="margin:0">Kuch books loss ko aise define karte hain:</p>
+  <div class="formula tight" style="margin:.6rem 0">$$L(\boldsymbol\theta) = \frac{1}{2m}\|\mathbf X\boldsymbol\theta - \mathbf y\|_2^2$$</div>
+  <p style="margin:0">Us convention ke saath gradient se <b>factor 2 gayab</b> ho jaata hai (kyunki $\frac{1}{2}\cdot 2 = 1$), aur update $\boldsymbol\theta := \boldsymbol\theta - \alpha\frac{1}{m}\mathbf X^\top(\mathbf X\boldsymbol\theta - \mathbf y)$ ban jaata hai. Is lecture mein hum <b>actual MSE definition</b> use kar rahe hain, isliye factor 2 rehta hai. Exam mein question ki convention dekh lena.</p>
+</div>
+
+<!-- =========================== -->
+<h2 id="s4"><span class="h2-num">4</span>Worked example — one full epoch on the NST student dataset ⭐</h2>
+
+<div class="solved">
+  <header><span class="qtag">Complete Epoch 1</span><h4>Predicting exam score from hours studied and attendance %</h4></header>
+  <div class="body">
+    <div class="tbl-wrap" style="margin-top:0">
+    <table class="compact">
+    <thead><tr><th>Student</th><th class="num">$x_1$ (Hours)</th><th class="num">$x_2$ (Attendance %)</th><th class="num">$y$ (Score)</th></tr></thead>
+    <tbody>
+    <tr><td>1</td><td class="num">2</td><td class="num">60</td><td class="num">35</td></tr>
+    <tr><td>2</td><td class="num">4</td><td class="num">80</td><td class="num">55</td></tr>
+    <tr><td>3</td><td class="num">6</td><td class="num">90</td><td class="num">70</td></tr>
+    </tbody></table></div>
+    <p style="margin-top:.8rem">$m = 3$ training examples &nbsp;·&nbsp; initial $\boldsymbol\theta = [0,\ 0,\ 0]^\top$ &nbsp;·&nbsp; learning rate $\alpha = 0.0001$</p>
+
+    <ol class="steps">
+      <li><span class="sh">Step 1 — Design matrix and target vector</span>
+        $$\mathbf X = \begin{bmatrix}1 & 2 & 60\\ 1 & 4 & 80\\ 1 & 6 & 90\end{bmatrix}, \qquad \mathbf y = \begin{bmatrix}35\\ 55\\ 70\end{bmatrix}$$</li>
+
+      <li><span class="sh">Step 2 — Compute predictions</span>
+        <p style="margin:.2rem 0 .4rem">Since $\boldsymbol\theta$ is the zero vector:</p>
+        $$\hat{\mathbf y} = \mathbf X\boldsymbol\theta = \begin{bmatrix}0\\ 0\\ 0\end{bmatrix}$$</li>
+
+      <li><span class="sh">Step 3 — Compute the residual vector $\mathbf X\boldsymbol\theta - \mathbf y$</span>
+        $$\mathbf X\boldsymbol\theta - \mathbf y = \begin{bmatrix}0\\0\\0\end{bmatrix} - \begin{bmatrix}35\\55\\70\end{bmatrix} = \begin{bmatrix}-35\\ -55\\ -70\end{bmatrix}$$</li>
+
+      <li><span class="sh">Step 4 — Compute $\mathbf X^\top(\mathbf X\boldsymbol\theta - \mathbf y)$</span>
+        $$\mathbf X^\top(\mathbf X\boldsymbol\theta - \mathbf y) = \begin{bmatrix}1&1&1\\ 2&4&6\\ 60&80&90\end{bmatrix}\begin{bmatrix}-35\\ -55\\ -70\end{bmatrix}$$
+        <div class="tbl-wrap" style="margin:.5rem 0">
+        <table class="compact">
+        <thead><tr><th>Row</th><th>Computation</th><th class="num">Result</th></tr></thead>
+        <tbody>
+        <tr><td>Row 1 (ones)</td><td>$-35 - 55 - 70$</td><td class="num"><b>−160</b></td></tr>
+        <tr><td>Row 2 ($x_1$)</td><td>$2(-35) + 4(-55) + 6(-70) = -70 - 220 - 420$</td><td class="num"><b>−710</b></td></tr>
+        <tr><td>Row 3 ($x_2$)</td><td>$60(-35) + 80(-55) + 90(-70) = -2100 - 4400 - 6300$</td><td class="num"><b>−12800</b></td></tr>
+        </tbody></table></div></li>
+
+      <li><span class="sh">Step 5 — Compute the MSE gradient</span>
+        $$\nabla L = \frac{2}{3}\begin{bmatrix}-160\\ -710\\ -12800\end{bmatrix} = \begin{bmatrix}\mathbf{-106.67}\\ \mathbf{-473.33}\\ \mathbf{-8533.33}\end{bmatrix}$$</li>
+
+      <li><span class="sh">Step 6 — Update all parameters simultaneously</span>
+        $$\boldsymbol\theta_{\text{new}} = \begin{bmatrix}0\\0\\0\end{bmatrix} - 0.0001\begin{bmatrix}-106.67\\ -473.33\\ -8533.33\end{bmatrix} = \begin{bmatrix}\mathbf{0.0107}\\ \mathbf{0.0473}\\ \mathbf{0.8533}\end{bmatrix}$$
+        <div class="answer">Ek epoch complete. Saare teen parameters <b>ek saath</b> update hue, saare <b>old</b> $\boldsymbol\theta$ se compute kiye gaye gradients se.</div></li>
+    </ol>
+  </div>
+</div>
+
+<div class="solved">
+  <header><span class="qtag">Practice P4</span><h4>Complete Epoch 2 by hand</h4></header>
+  <div class="body">
+    <p>Using $\boldsymbol\theta = [0.011,\ 0.047,\ 0.853]^\top$ from Epoch 1:</p>
+    <ol class="steps">
+      <li><span class="sh">1. Compute new predictions $\hat{\mathbf y} = \mathbf X\boldsymbol\theta$</span>
+        $$\hat y_1 = 1(0.011) + 2(0.047) + 60(0.853) = 0.011 + 0.094 + 51.180 = \mathbf{51.285}$$
+        $$\hat y_2 = 1(0.011) + 4(0.047) + 80(0.853) = 0.011 + 0.188 + 68.240 = \mathbf{68.439}$$
+        $$\hat y_3 = 1(0.011) + 6(0.047) + 90(0.853) = 0.011 + 0.282 + 76.770 = \mathbf{77.063}$$</li>
+
+      <li><span class="sh">2. Compute the residual vector $(\hat{\mathbf y} - \mathbf y)$</span>
+        $$\begin{bmatrix}51.285 - 35\\ 68.439 - 55\\ 77.063 - 70\end{bmatrix} = \begin{bmatrix}\mathbf{+16.285}\\ \mathbf{+13.439}\\ \mathbf{+7.063}\end{bmatrix}$$
+        <p style="margin:.4rem 0 0"><b>Notice the sign flip:</b> Epoch 1 mein saare residuals <b>negative</b> the ($-35, -55, -70$); ab saare <b>positive</b> hain. Model $\theta_2$ par overshoot kar gaya aur ab <b>over-predict</b> kar raha hai.</p></li>
+
+      <li><span class="sh">Bonus — complete the update</span>
+        $$\mathbf X^\top(\hat{\mathbf y} - \mathbf y) = \begin{bmatrix}16.285 + 13.439 + 7.063\\ 2(16.285)+4(13.439)+6(7.063)\\ 60(16.285)+80(13.439)+90(7.063)\end{bmatrix} = \begin{bmatrix}36.79\\ 128.70\\ 2687.89\end{bmatrix}$$
+        $$\nabla L = \frac{2}{3}\begin{bmatrix}36.79\\ 128.70\\ 2687.89\end{bmatrix} = \begin{bmatrix}24.53\\ 85.80\\ 1791.93\end{bmatrix}$$
+        $$\boldsymbol\theta_{\text{new}} = \begin{bmatrix}0.011\\ 0.047\\ 0.853\end{bmatrix} - 0.0001\begin{bmatrix}24.53\\ 85.80\\ 1791.93\end{bmatrix} = \begin{bmatrix}\mathbf{0.0085}\\ \mathbf{0.0384}\\ \mathbf{0.6738}\end{bmatrix}$$</li>
+
+      <li><span class="sh">3. Why was the update for $\theta_2$ (attendance) so much larger than $\theta_1$ (hours) in Epoch 1? What preprocessing step fixes this?</span>
+        <p style="margin:.2rem 0 0">Gradient ka $j$-th component $\sum_i x_{ij}\,e_i$ hai — yaani wo <b>feature $j$ ki magnitude se scale</b> hota hai. Attendance values $60$–$90$ hain jabki hours $2$–$6$; ratio roughly $15$–$20\times$. Isliye $\theta_2$ ka gradient ($-8533$) $\theta_1$ ke gradient ($-473$) se ~18× bada hai — <b>isliye nahi ki attendance zyada important hai</b>, sirf isliye ki uske numbers bade hain.</p>
+        <p style="margin:.4rem 0 0"><b>Iska practical nuksaan:</b> ek hi $\alpha$ dono ke liye kaam nahi karta. Jo $\alpha$ $\theta_2$ ke liye safe hai wo $\theta_1$ ke liye painfully slow hai; jo $\theta_1$ ke liye theek hai wo $\theta_2$ ko oscillate karwa deta hai — <b>bilkul wahi jo upar Epoch 2 mein dikha</b> (residuals negative se positive ho gaye).</p>
+        <div class="answer"><b>Fix: Feature Scaling</b> — Standardization ($z = \frac{x - \mu}{\sigma}$) ya Min-Max scaling apply karo dono features par, taaki dono comparable range mein aa jayein. 👉 <a href="l01.html#scaling">Lecture 1 · Feature Scaling</a></div></li>
+    </ol>
+  </div>
+</div>
+
+<div class="box insight">
+  <div class="box-title">★ Key Insight</div>
+  <p style="margin:0"><b>Feature scaling Gradient Descent apply karne se pehle essential hai.</b> Features ko comparable scales par laane se ek large-magnitude feature gradient ko dominate nahi kar paata, aur convergence usually <b>faster aur zyada stable</b> hoti hai.</p>
+</div>
+
+<!-- =========================== -->
+<h2 id="s5"><span class="h2-num">5</span>Epochs and the full training loop</h2>
+<div class="box hook">
+  <div class="box-title">▷ Hook</div>
+  <p style="margin:0">Upar humne jo kiya wo <b>ek update</b> tha. Par model train karne ka matlab hai us update ko <b>bohot baar</b> repeat karna. Process ko carefully naam dete hain.</p>
+</div>
+
+<div class="box def">
+  <div class="box-title">Epoch</div>
+  <p style="margin:0">Batch Gradient Descent mein, <b>ek epoch</b> ka matlab hai full training dataset ka <b>ek complete pass</b> aur <b>ek full-dataset gradient update</b>.</p>
+</div>
+
+<h3>Training loop — 7 steps</h3>
+<ol>
+  <li><b>Initialize parameters.</b> Is convex Linear Regression loss ke liye, $\boldsymbol\theta = \mathbf 0$ set karo. Neural Networks random initialization use karte hain.</li>
+  <li><b>Choose the number of epochs.</b></li>
+  <li><b>Compute predictions.</b> $\hat{\mathbf y} = \mathbf X\boldsymbol\theta$</li>
+  <li><b>Compute residuals.</b> $\mathbf X\boldsymbol\theta - \mathbf y$</li>
+  <li><b>Compute the gradient.</b> $\nabla L = \frac{2}{m}\mathbf X^\top(\mathbf X\boldsymbol\theta - \mathbf y)$</li>
+  <li><b>Update parameters.</b> $\boldsymbol\theta := \boldsymbol\theta - \alpha\nabla L$</li>
+  <li><b>Repeat</b> for the chosen number of epochs.</li>
+</ol>
+
+<figure>
+<svg viewBox="0 0 700 300" role="img" aria-label="Batch gradient descent training loop flow diagram">
+  <defs><marker id="fa" markerWidth="8" markerHeight="8" refX="6.5" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#8b5cf6"/></marker></defs>
+  <g font-size="11.5" font-weight="650">
+    <rect x="14"  y="20" width="160" height="42" rx="10" fill="rgba(99,102,241,.16)" stroke="#6366f1"/>
+    <text x="94" y="46" text-anchor="middle" style="fill:var(--text)">1. Initialize θ = 0</text>
+    <rect x="200" y="20" width="200" height="42" rx="10" fill="rgba(99,102,241,.16)" stroke="#6366f1"/>
+    <text x="300" y="40" text-anchor="middle" style="fill:var(--text)">2. Choose α and</text>
+    <text x="300" y="55" text-anchor="middle" style="fill:var(--text)">epoch budget</text>
+    <rect x="426" y="20" width="180" height="42" rx="10" fill="rgba(6,182,212,.16)" stroke="#06b6d4"/>
+    <text x="516" y="46" text-anchor="middle" style="fill:var(--text)">3. Predict ŷ = Xθ</text>
+
+    <line x1="174" y1="41" x2="196" y2="41" stroke="#8b5cf6" stroke-width="2" marker-end="url(#fa)"/>
+    <line x1="400" y1="41" x2="422" y2="41" stroke="#8b5cf6" stroke-width="2" marker-end="url(#fa)"/>
+    <line x1="516" y1="62" x2="516" y2="92" stroke="#8b5cf6" stroke-width="2" marker-end="url(#fa)"/>
+
+    <rect x="426" y="96" width="180" height="42" rx="10" fill="rgba(6,182,212,.16)" stroke="#06b6d4"/>
+    <text x="516" y="122" text-anchor="middle" style="fill:var(--text)">4. Residuals Xθ - y</text>
+    <rect x="228" y="96" width="160" height="42" rx="10" fill="rgba(139,92,246,.16)" stroke="#8b5cf6"/>
+    <text x="308" y="122" text-anchor="middle" style="fill:var(--text)">5. Compute ∇ L</text>
+    <rect x="14"  y="96" width="192" height="42" rx="10" fill="rgba(139,92,246,.16)" stroke="#8b5cf6"/>
+    <text x="110" y="116" text-anchor="middle" style="fill:var(--text)">6. Update</text>
+    <text x="110" y="132" text-anchor="middle" font-size="10.5" style="fill:var(--text)">θ_new = θ_old - α∇ L</text>
+
+    <line x1="422" y1="117" x2="394" y2="117" stroke="#8b5cf6" stroke-width="2" marker-end="url(#fa)"/>
+    <line x1="228" y1="117" x2="212" y2="117" stroke="#8b5cf6" stroke-width="2" marker-end="url(#fa)"/>
+
+    <polygon points="350,160 470,196 350,232 230,196" fill="rgba(245,158,11,.16)" stroke="#f59e0b"/>
+    <text x="350" y="192" text-anchor="middle" font-size="10.5" style="fill:var(--text)">Converged or</text>
+    <text x="350" y="206" text-anchor="middle" font-size="10.5" style="fill:var(--text)">epoch budget reached?</text>
+    <path d="M110 138 L110 196 L228 196" fill="none" stroke="#8b5cf6" stroke-width="2" marker-end="url(#fa)"/>
+    <path d="M470 196 L620 196 L620 41 L610 41" fill="none" stroke="#ef4444" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#fa)"/>
+    <text x="536" y="188" font-size="10.5" font-weight="800" fill="#ef4444">No: set old ← new</text>
+    <line x1="350" y1="232" x2="350" y2="256" stroke="#8b5cf6" stroke-width="2" marker-end="url(#fa)"/>
+    <text x="364" y="248" font-size="10.5" font-weight="800" fill="#10b981">Yes</text>
+    <rect x="272" y="258" width="156" height="34" rx="10" fill="rgba(16,185,129,.18)" stroke="#10b981"/>
+    <text x="350" y="280" text-anchor="middle" style="fill:var(--text)">Stop: return θ</text>
+  </g>
+</svg>
+<figcaption>Har "No" answer agla iteration start karta hai <b>pichle update se produce hue parameter vector</b> ke saath.</figcaption>
+</figure>
+
+<div class="solved">
+  <header><span class="qtag">Practice P5</span><h4>Epoch trivia</h4></header>
+  <div class="body">
+    <p>Agar NST dataset mein 3 students hain aur hum Batch Gradient Descent se 100 epochs train karte hain, to model kitni baar <b>full dataset</b> use karke gradient compute karta hai?</p>
+    <div class="answer">100 times.</div>
+    <p style="margin:.4rem 0 0"><b>Reasoning:</b> BGD mein, ek epoch = ek complete pass = <b>exactly ek</b> full-dataset gradient computation aur <b>exactly ek</b> parameter update. 100 epochs ⟹ 100 gradient computations ⟹ 100 parameter updates. (Contrast karo SGD se, jahan 100 epochs $\times$ 3 samples = <b>300 updates</b> hote. 👉 <a href="l06.html">Lecture 6</a>)</p>
+  </div>
+</div>
+
+<div class="box takeaway">
+  <div class="box-title">♦ Takeaway</div>
+  <p style="margin:0">Gradient Descent ek <b>general optimization algorithm</b> hai, sirf Linear Regression tak limited nahi. Wo kisi bhi differentiable loss function ko optimize kar sakta hai, bas parameters ko negative-gradient direction mein repeatedly move karke.</p>
+</div>
+
+<!-- =========================== -->
+<h2 id="s6"><span class="h2-num">6</span>Learning rate, hyperparameter tuning, and trade-offs</h2>
+<p>Learning rate $\alpha$ ek <b>hyperparameter</b> hai. Ise <b>hum</b> training se pehle choose karte hain — gradient descent isse seekhta nahi. Yeh control karta hai ki har step kitna bada hai.</p>
+
+<div class="grid g3">
+  <div class="box warn" style="margin:0"><div class="box-title">Case 1 · $\alpha$ too small</div>
+    <p style="margin:0">Loss ghatti hai, par <b>bohot dheere</b>. Model sahi direction mein ja raha hai, par har step tiny hai.</p></div>
+  <div class="box danger" style="margin:0"><div class="box-title">Case 2 · $\alpha$ too large</div>
+    <p style="margin:0">Loss <b>oscillate ya diverge</b> kar sakti hai. Direction locally downhill ho sakti hai, par step itna bada hai ki algorithm minimum ko <b>overshoot</b> kar deta hai.</p></div>
+  <div class="box takeaway" style="margin:0"><div class="box-title">Case 3 · $\alpha$ well chosen</div>
+    <p style="margin:0">Loss pehle <b>tezi se girti</b> hai aur phir minimum ke paas gradually flatten ho jaati hai.</p></div>
+</div>
+
+<h3>Hyperparameter tuning — how to actually pick $\alpha$</h3>
+<p>Best $\alpha$ dhoondhne ke liye hum candidate values pick karte hain (e.g. $0.1, 0.01, 0.001$), model ko har value ke saath <b>separately</b> train karte hain, aur ek held-out <b>validation set</b> par loss track karte hain. (Test set final evaluation ke liye rakha jaata hai, repeatedly settings select karne ke liye nahi.)</p>
+
+<div class="box def">
+  <div class="box-title">What is validation loss?</div>
+  <p style="margin:0">Validation loss un examples par average prediction error hai jo $\boldsymbol\theta$ ko update karne ke liye <b>use nahi</b> hue. $m_{\text{val}}$ examples wale validation set ke liye:</p>
+  <div class="formula tight" style="margin:.6rem 0 0">$$L_{\text{val}} = \frac{1}{m_{\text{val}}}\sum_{i=1}^{m_{\text{val}}}(y_i - \hat y_i)^2$$</div>
+</div>
+
+<h4>Step-by-step tuning process</h4>
+<ol>
+  <li>Available development data ko training aur validation sets mein split karo; test set untouched rakho.</li>
+  <li>Candidate learning rates ko <b>logarithmic scale</b> par choose karo, jaise $0.1, 0.01, 0.001$.</li>
+  <li>Har candidate run ko <b>same zero vector</b> se start karo aur <b>same epoch budget</b> ke liye train karo.</li>
+  <li>Har epoch ke baad training loss aur validation loss dono record karo.</li>
+  <li>Un candidates ko reject karo jo diverge ya severely oscillate karte hain.</li>
+  <li>Har remaining candidate ka best validation loss compare karo.</li>
+  <li>Sabse <b>kam validation loss</b> wala learning rate select karo — kyunki usne unseen validation data par sabse chhoti error produce ki — phir final chosen setup ko <b>ek baar</b> test set par evaluate karo.</li>
+</ol>
+
+<div class="solved">
+  <header><span class="qtag">Guided Dry Run</span><h4>Calculate and compare validation loss</h4></header>
+  <div class="body">
+    <ol class="steps">
+      <li><span class="sh">Three validation residuals are $2, -1, 3$. Calculate $L_{\text{val}}$.</span>
+        $$L_{\text{val}} = \frac{2^2 + (-1)^2 + 3^2}{3} = \frac{4 + 1 + 9}{3} = \frac{14}{3} = \mathbf{4.667}$$</li>
+      <li><span class="sh">Three separate training runs give these results — select $\alpha$</span>
+        <div class="tbl-wrap" style="margin:.5rem 0">
+        <table class="compact">
+        <thead><tr><th class="num">$\alpha$</th><th class="num">0.1</th><th class="num">0.01</th><th class="num">0.001</th></tr></thead>
+        <tbody><tr><td><b>Validation loss</b></td><td class="num">18.4</td><td class="num" style="background:rgba(16,185,129,.16);font-weight:800">6.2</td><td class="num">9.7</td></tr></tbody>
+        </table></div>
+        <div class="answer">Select $\alpha = \mathbf{0.01}$ — because it achieved the <b>lowest validation loss (6.2)</b>.</div>
+        <p style="margin:.5rem 0 0"><b>Aur baaki do kyun haare — yeh bhi samjho:</b><br>
+        $\alpha = 0.1$ ka loss (18.4) sabse <b>zyada</b> hai → step size itna bada hai ki optimizer minimum ke around <b>oscillate</b> kar raha hai, settle nahi ho pa raha.<br>
+        $\alpha = 0.001$ ka loss (9.7) beech mein hai → direction sahi hai par steps itne chhote hain ki epoch budget khatam hone tak wo <b>abhi bhi pahuch nahi paaya</b> — undertrained hai, unstable nahi.<br>
+        Yeh U-shape ($18.4 \to 6.2 \to 9.7$) <b>classic learning-rate tuning signature</b> hai.</p></li>
+    </ol>
+    <figure style="margin-bottom:0">
+    <svg viewBox="0 0 420 220" role="img" aria-label="Bar chart of validation loss for three learning rates">
+      <line x1="60" y1="180" x2="400" y2="180" stroke-width="1.5" style="stroke:var(--border-2)"/>
+      <line x1="60" y1="180" x2="60" y2="24" stroke-width="1.5" style="stroke:var(--border-2)"/>
+      <text x="36" y="100" font-size="11.5" font-weight="700" transform="rotate(-90 36 100)" text-anchor="middle" style="fill:var(--text-2)">Lᵥₐₗ</text>
+      <text x="395" y="200" font-size="12" font-weight="700" style="fill:var(--text-2)">α</text>
+      <rect x="96"  y="46"  width="62" height="134" fill="#94a3b8" opacity=".75"/>
+      <rect x="196" y="135" width="62" height="45"  fill="#10b981"/>
+      <rect x="296" y="109" width="62" height="71"  fill="#94a3b8" opacity=".75"/>
+      <text x="127" y="38"  text-anchor="middle" font-size="12" font-weight="800" style="fill:var(--text)">18.4</text>
+      <text x="227" y="127" text-anchor="middle" font-size="12" font-weight="800" fill="#10b981">6.2</text>
+      <text x="327" y="101" text-anchor="middle" font-size="12" font-weight="800" style="fill:var(--text)">9.7</text>
+      <text x="127" y="198" text-anchor="middle" font-size="11.5" style="fill:var(--text-2)">0.1</text>
+      <text x="227" y="198" text-anchor="middle" font-size="11.5" font-weight="800" fill="#10b981">0.01</text>
+      <text x="327" y="198" text-anchor="middle" font-size="11.5" style="fill:var(--text-2)">0.001</text>
+    </svg>
+    <figcaption>Sabse chhota validation-loss bar selected learning rate identify karta hai.</figcaption>
+    </figure>
+  </div>
+</div>
+
+<h3>Advantages of Batch Gradient Descent</h3>
+<ul>
+  <li>Har gradient computation ke liye <b>full dataset</b> use karta hai, to update direction <b>stable</b> hoti hai.</li>
+  <li>Linear regression ke MSE jaise convex loss ke liye, appropriate learning rate par <b>global minimum</b> tak converge kar sakta hai.</li>
+  <li>$(\mathbf X^\top\mathbf X)^{-1}$ explicitly compute karne se <b>bachta</b> hai.</li>
+  <li>Tab bhi chal sakta hai jab inverse-based closed-form formula fail ho jaaye kyunki $\mathbf X^\top\mathbf X$ singular hai.</li>
+</ul>
+
+<h3>Disadvantages of Batch Gradient Descent</h3>
+<ul>
+  <li>Har epoch mein <b>poore dataset par ek full pass</b> chahiye. (100,000 rows? Har ek update ke liye saari 100,000 rows.)</li>
+  <li>Jab dataset bohot bada hai to <b>slow</b> ho sakta hai.</li>
+  <li>Full batch gradient efficiently compute karne ke liye <b>poora dataset usually available hona chahiye</b>.</li>
+  <li>Poor learning-rate choices training ko extremely slow ya unstable bana sakte hain.</li>
+</ul>
+
+<div class="box insight">
+  <div class="box-title">➜ Forward Handoff</div>
+  <p style="margin:0">Yeh "full pass before every update" wali bottleneck seedha <b>Stochastic GD</b> aur <b>Mini-Batch GD</b> ki taraf le jaati hai. 👉 <a href="l06.html">Lecture 6</a></p>
+</div>
+
+<div class="solved">
+  <header><span class="qtag">Practice P6</span><h4>True or False with justification</h4></header>
+  <div class="body">
+  <div class="tbl-wrap" style="margin-top:0">
+  <table>
+  <thead><tr><th>Statement</th><th>T/F</th><th>Justification</th></tr></thead>
+  <tbody>
+  <tr><td>(a) If the gradient points downhill, the loss is guaranteed to decrease after the update, regardless of the learning rate</td><td><span class="pill r">F</span></td><td>Direction sahi hai par <b>step size</b> bhi matter karta hai. Bada $\alpha$ minimum ko overshoot kar sakta hai aur loss <b>badh</b> sakti hai. Upar ka $f(x,y)=x^2+y^2$ example: $\alpha=1$ par $(3,4) \to (-3,-4)$, loss bilkul same reh gayi; usse bada $\alpha$ loss badha dega.</td></tr>
+  <tr><td>(b) We use the test set to choose the best learning rate $\alpha$</td><td><span class="pill r">F</span></td><td>Hyperparameters <b>validation set</b> par tune hote hain. Test set locked rehta hai aur ek baar, aakhir mein use hota hai — warna final estimate biased ho jaata hai.</td></tr>
+  <tr><td>(c) Batch Gradient Descent explicitly computes the inverse of $\mathbf X^\top\mathbf X$</td><td><span class="pill r">F</span></td><td>Bilkul ulta — <b>inverse se bachna</b> hi GD ka pura point hai. Wo sirf $\mathbf X^\top(\mathbf X\boldsymbol\theta - \mathbf y)$ compute karta hai.</td></tr>
+  <tr><td>(d) Because Batch GD uses all training examples in every update, it is well-suited for a dataset with 50 million rows</td><td><span class="pill r">F</span></td><td>Yeh exactly ulta reasoning hai. Har <b>single</b> parameter update ke liye saari 50 million rows process karni padengi — ek epoch mein hours lag sakte hain. Isi problem ke liye SGD/Mini-Batch exist karte hain.</td></tr>
+  </tbody></table></div>
+  </div>
+</div>
+
+<!-- =========================== -->
+<h2 id="mistakes">⚠ Common Mistakes</h2>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Galti</th><th>Sahi Baat</th></tr></thead>
+<tbody>
+<tr><td>Sequential update — $\theta_0$ update karke naye $\theta_0$ se $\theta_1$ ka gradient nikalna</td><td><b>Simultaneous update</b> mandatory hai. Saare gradients <b>old</b> $\boldsymbol\theta$ par evaluate karo, phir sab ek saath update karo.</td></tr>
+<tr><td>Update mein minus sign bhool jaana</td><td>$\boldsymbol\theta := \boldsymbol\theta \,\mathbf{-}\, \alpha\nabla L$. Gradient uphill point karta hai — hume downhill jaana hai.</td></tr>
+<tr><td>Gradient mein $\frac{2}{m}$ factor drop karna</td><td>Actual MSE definition ke saath factor 2 <b>rehta</b> hai. Sirf $\frac{1}{2m}$ convention mein gayab hota hai.</td></tr>
+<tr><td>Feature scaling ke bina GD chalana</td><td>Bade-magnitude features gradient ko dominate karte hain. Ek hi $\alpha$ sabke liye kaam nahi karega.</td></tr>
+<tr><td>Test set par $\alpha$ tune karna</td><td>Validation set par tune karo. Test set = ek baar, aakhir mein.</td></tr>
+<tr><td>"BGD bade datasets ke liye accha hai kyunki wo saara data use karta hai"</td><td>Ulta — wahi to bottleneck hai. Bade data ke liye SGD/Mini-Batch use karo.</td></tr>
+<tr><td>Epoch aur iteration ko same samajhna</td><td>BGD mein 1 epoch = 1 iteration = 1 update. SGD mein 1 epoch = $m$ iterations.</td></tr>
+<tr><td>"GD singular $\mathbf X^\top\mathbf X$ par fail ho jaayega"</td><td>Nahi — GD kabhi invert karta hi nahi, to wo chal jaata hai. Sirf coefficients unique nahi rehte.</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="revision">⚡ Quick Revision</h2>
+<div class="grid g2">
+  <div class="box def" style="margin:0"><div class="box-title">Update rule</div><p style="margin:0">$\boldsymbol\theta_{\text{new}} = \boldsymbol\theta_{\text{old}} - \alpha\nabla L(\boldsymbol\theta_{\text{old}})$</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">MSE gradient</div><p style="margin:0">$\nabla L = \frac{2}{m}\mathbf X^\top(\mathbf X\boldsymbol\theta - \mathbf y)$</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">BGD update</div><p style="margin:0">$\boldsymbol\theta := \boldsymbol\theta - \alpha\frac{2}{m}\mathbf X^\top(\mathbf X\boldsymbol\theta - \mathbf y)$</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Why "Batch"?</div><p style="margin:0">Har update mein <b>poora</b> $\mathbf X$ aur $\mathbf y$ use hota hai.</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Epoch (BGD)</div><p style="margin:0">1 epoch = 1 full pass = <b>1 update</b></p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Init</div><p style="margin:0">Convex loss → $\boldsymbol\theta = \mathbf 0$. Non-convex (NN) → random.</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">$\alpha$ too small / large</div><p style="margin:0">Slow convergence / oscillation &amp; divergence</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">OLS limits</div><p style="margin:0">$O(m^3)$ cost · needs $\det(\mathbf X^\top\mathbf X) \ne 0$</p></div>
+</div>
+
+<div class="box takeaway">
+  <div class="box-title">♦ By the end of this sheet you can…</div>
+  <ul style="margin:0">
+    <li>Explain karna ki OLS large features ke liye computationally expensive kyun hai aur collinear data par fail kyun hota hai.</li>
+    <li>Gradient define karna aur uska geometric meaning batana (direction of steepest increase).</li>
+    <li>MSE loss function use karke Batch Gradient Descent update rule ki complete mathematical derivation karna.</li>
+    <li>Vectorized matrix operations se Batch Gradient Descent ka ek full epoch <b>by hand</b> execute karna.</li>
+    <li>Learning rate $\alpha$ ka role aur uske bohot high/low hone ke effects explain karna.</li>
+    <li>Batch Gradient Descent ka full training loop sequence karna.</li>
+  </ul>
+</div>
+
+<h2 id="test">✓ Test Yourself — 10 MCQs</h2>
+<div id="mcq-root"></div>
+
+</div>
+</main>
+</div>
+
+<script>
+const MCQS = [
+{ d:'med',
+  q:'What is the gradient of the MSE loss $L(\\boldsymbol\\theta) = \\frac{1}{m}\\|\\mathbf X\\boldsymbol\\theta - \\mathbf y\\|_2^2$?',
+  o:['$\\nabla L = \\frac{1}{m}\\mathbf X^\\top(\\mathbf X\\boldsymbol\\theta - \\mathbf y)$',
+     '$\\nabla L = \\frac{2}{m}\\mathbf X^\\top(\\mathbf X\\boldsymbol\\theta - \\mathbf y)$',
+     '$\\nabla L = \\frac{2}{m}(\\mathbf X\\boldsymbol\\theta - \\mathbf y)$',
+     '$\\nabla L = \\frac{2}{m}\\mathbf X^\\top\\mathbf X\\boldsymbol\\theta$'],
+  a:1,
+  e:'<b>B.</b> Expand: $L = \\frac1m[\\mathbf y^\\top\\mathbf y - 2\\mathbf y^\\top\\mathbf X\\boldsymbol\\theta + \\boldsymbol\\theta^\\top\\mathbf X^\\top\\mathbf X\\boldsymbol\\theta]$; differentiate: $\\frac1m[0 - 2\\mathbf X^\\top\\mathbf y + 2\\mathbf X^\\top\\mathbf X\\boldsymbol\\theta] = \\frac{2}{m}\\mathbf X^\\top(\\mathbf X\\boldsymbol\\theta - \\mathbf y)$. <b>A</b> is the $\\frac{1}{2m}$-convention answer — correct only for <b>that</b> loss definition. <b>C</b> forgets $\\mathbf X^\\top$, so the dimensions do not even match $\\boldsymbol\\theta$. <b>D</b> drops the $-\\mathbf X^\\top\\mathbf y$ term.' },
+
+{ d:'hard',
+  q:'For $f(x,y) = x^2+y^2$ at the point $(3,4)$ with $\\alpha = 1$, what happens after one gradient-descent step?',
+  o:['The point moves to $(2.4, 3.2)$, closer to the minimum',
+     'The point moves to $(-3,-4)$ — it overshoots to the mirror-image point with identical loss, and will oscillate forever',
+     'The point moves to $(0,0)$, the exact minimum',
+     'The gradient is zero so nothing changes'],
+  a:1,
+  e:'<b>B.</b> $\\nabla f|_{(3,4)} = [6,8]^\\top$, so $[3,4] - 1\\cdot[6,8] = [-3,-4]$. Loss $9+16=25$ dono par same hai — koi progress nahi, aur agla step wapas $(3,4)$ le jayega. Yeh <b>"$\\alpha$ too large"</b> ka exact demonstration hai. <b>A</b> is the $\\alpha = 0.1$ answer. <b>C</b> would need $\\alpha = 0.5$. <b>D</b> false — gradient clearly nonzero hai.' },
+
+{ d:'hard',
+  q:'A junior engineer includes both <code>Price_USD</code> and <code>Price_Cents</code> (= 100 × Price_USD). What is the correct analysis?',
+  o:['OLS works fine; the duplicate column is simply ignored',
+     'OLS fails with a singular-matrix error because $\\det(\\mathbf X^\\top\\mathbf X)=0$; Batch GD still runs because it never inverts anything',
+     'Both OLS and Batch GD fail, since the data itself is invalid',
+     'OLS works but Batch GD diverges'],
+  a:1,
+  e:'<b>B.</b> Exact linear dependence ⟹ singular $\\mathbf X^\\top\\mathbf X$ ⟹ no inverse ⟹ OLS formula undefined. GD sirf $\\mathbf X^\\top(\\mathbf X\\boldsymbol\\theta - \\mathbf y)$ compute karta hai — hamesha defined. Caveat: GD converges, par individual coefficients unique nahi hote. <b>A</b> false — OLS automatically drop nahi karta. <b>C</b> and <b>D</b> invert the actual behaviour.' },
+
+{ d:'med',
+  q:'In the NST worked example ($\\boldsymbol\\theta = \\mathbf 0$, $\\mathbf X\\boldsymbol\\theta - \\mathbf y = [-35,-55,-70]^\\top$), what is the third component of $\\mathbf X^\\top(\\mathbf X\\boldsymbol\\theta - \\mathbf y)$ where $x_2 = [60,80,90]$?',
+  o:['$-160$', '$-710$', '$-12800$', '$-8533.33$'],
+  a:2,
+  e:'<b>C.</b> $60(-35)+80(-55)+90(-70) = -2100-4400-6300 = -12800$. <b>A</b> is row 1 (the ones column). <b>B</b> is row 2 ($x_1$). <b>D</b> is the value <b>after</b> multiplying by $\\frac{2}{3}$ — that is the gradient component, not this product. Read the question carefully: it asks for $\\mathbf X^\\top(\\cdot)$, not $\\nabla L$.' },
+
+{ d:'hard',
+  q:'In Epoch 1 the update for $\\theta_2$ (attendance, values 60–90) was ~18× larger than for $\\theta_1$ (hours, values 2–6). What is the correct diagnosis and fix?',
+  o:['Attendance is genuinely 18× more important; no fix needed',
+     'The gradient component scales with the feature magnitude, so the large-valued feature dominates; the fix is feature scaling before running GD',
+     'The learning rate is too small; increase it',
+     'The dataset has too few rows; collect more data'],
+  a:1,
+  e:'<b>B.</b> Gradient ka $j$-th component $\\sum_i x_{ij}e_i$ hai — feature ki raw magnitude se seedha scale hota hai. Attendance ke numbers ~18× bade hain, isliye uska gradient bhi. <b>A</b> is the dangerous misreading: bada gradient <b>importance</b> nahi, sirf <b>units</b> reflect karta hai. <b>C</b> would make the oscillation worse. <b>D</b> irrelevant — yeh scale ka issue hai, sample size ka nahi.' },
+
+{ d:'med',
+  q:'Three training runs give validation losses: $\\alpha=0.1 \\to 18.4$, $\\alpha=0.01 \\to 6.2$, $\\alpha=0.001 \\to 9.7$. Which do you select and why is $\\alpha=0.1$ the worst?',
+  o:['$\\alpha=0.1$, because the largest step converges fastest',
+     '$\\alpha=0.01$, lowest validation loss; $\\alpha=0.1$ overshoots and oscillates around the minimum',
+     '$\\alpha=0.001$, because smaller is always safer',
+     '$\\alpha=0.01$, but only because it is the middle value'],
+  a:1,
+  e:'<b>B.</b> Selection criterion hamesha <b>lowest validation loss</b> hai. U-shape ($18.4 \\to 6.2 \\to 9.7$) classic hai: $0.1$ bada hai (oscillation), $0.001$ chhota hai (undertrained within the epoch budget). <b>A</b> confuses step size with convergence speed. <b>C</b> ignores the evidence. <b>D</b> gets the right answer for a meaningless reason — "middle value" koi criterion nahi hai.' },
+
+{ d:'hard',
+  q:'"Because Batch GD uses all training examples in every update, it is well-suited for a dataset with 50 million rows." Evaluate.',
+  o:['True — more data per update means better gradients, which is exactly what large datasets need',
+     'False — every single parameter update requires a full pass over all 50 million rows, which is precisely the bottleneck that SGD and Mini-Batch GD exist to solve',
+     'True — Batch GD is the only method that scales to 50 million rows',
+     'False — Batch GD cannot handle more than 1 million rows at all'],
+  a:1,
+  e:'<b>B.</b> Full-batch gradient <b>accurate</b> hai, par har update ke liye poora dataset scan karna padta hai. 50M rows par ek epoch mein hours lag sakte hain — sirf <b>ek</b> parameter update ke liye. <b>A</b> is the seductive half-truth: gradient quality better hoti hai, par wall-clock cost prohibitive hai. <b>C</b> exactly reversed. <b>D</b> overstates — wo <b>chalta</b> hai, bas impractically slow hai.' },
+
+{ d:'hard',
+  q:'Why must all parameters be updated SIMULTANEOUSLY in gradient descent?',
+  o:['To make the code run faster using vectorisation',
+     'Because all partial derivatives must be evaluated at the same old $\\boldsymbol\\theta$; using a freshly-updated $\\theta_0$ to compute $\\partial L/\\partial\\theta_1$ computes the gradient of a different point than intended',
+     'Because the gradient vector must have unit length',
+     'It is only a convention; sequential updates give identical results'],
+  a:1,
+  e:'<b>B.</b> $\\nabla L(\\boldsymbol\\theta_{\\text{old}})$ ek <b>specific point</b> par evaluate hota hai. Agar tum $\\theta_0$ update karke phir naye $\\theta_0$ se $\\theta_1$ ka partial nikalo, to tum ek <b>mixed, undefined point</b> ka gradient compute kar rahe ho. <b>A</b> is a side benefit, not the reason. <b>C</b> invented. <b>D</b> is exactly what the worksheet warns against.' },
+
+{ d:'med',
+  q:'With 3 training examples and 100 epochs of Batch Gradient Descent, how many parameter updates occur?',
+  o:['3', '100', '300', '103'],
+  a:1,
+  e:'<b>B.</b> BGD mein 1 epoch = 1 full-dataset gradient = <b>1 update</b>. 100 epochs ⟹ 100 updates. <b>C</b> is the SGD answer ($100 \\times 3 = 300$) — the single most common confusion between the two algorithms. <b>A</b> counts samples, not epochs. <b>D</b> is nonsense.' },
+
+{ d:'hard',
+  q:'Which statement about parameter initialisation is correct?',
+  o:['Always initialise randomly, for every model type',
+     'For convex losses (Linear/Logistic Regression) initialise $\\boldsymbol\\theta = \\mathbf 0$; for non-convex Neural Network losses initialise randomly',
+     'Always initialise to $\\mathbf 0$, including Neural Networks',
+     'Initialisation does not affect anything, since GD always converges to the same point'],
+  a:1,
+  e:'<b>B.</b> Convex loss ka ek hi global minimum hai — koi bhi start point wahi pahuchta hai, to $\\mathbf 0$ simple aur safe hai. NN ki non-convex loss mein all-zero init <b>symmetry</b> create karta hai (saare neurons identical gradients paate hain aur kabhi differentiate nahi karte), isliye random init zaroori hai. <b>C</b> is the classic NN bug. <b>D</b> is true only for convex losses, not in general.' },
+];
+</script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="window.dispatchEvent(new Event('katex-ready'))"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

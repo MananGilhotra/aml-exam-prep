@@ -1,0 +1,1057 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lecture 10 · Feature Selection — AML Exam Prep</title>
+<meta name="description" content="Relevant vs redundant vs irrelevant features, duplicate removal, variance threshold, Pearson correlation and its nonlinear blind spot, wrapper search, and the leakage trap.">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page="l10">
+<div class="shell">
+<main class="main">
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Worksheet 10 · Lecture 10</div>
+  <h1><span class="gradtext">Feature Selection</span></h1>
+  <p class="sub">Duplicate Removal · Variance &amp; Correlation Filters · Wrapper Search · Validation Discipline</p>
+  <div class="chips">
+    <span class="chip accent">⏱ ~36 min</span><span class="chip">🧩 4 Parts · 16 Sections</span>
+    <span class="chip">🔍 Forward + backward traced</span><span class="chip">✓ 10 MCQs</span>
+  </div>
+</header>
+
+<div class="box hinglish">
+  <div class="box-title">⚡ Ek Line Mein</div>
+  <p style="margin:0">Zyada columns ka matlab zyada information nahi. <b>Filter methods</b> sasti statistical checks se features ko model train karne se <b>pehle</b> screen karte hain (duplicates, variance, correlation) — par interactions miss kar dete hain. <b>Wrapper methods</b> actual model ko alag-alag <b>subsets</b> par train karke dekhte hain — accurate par mehnga aur greedy. Aur sabse important rule: <b>selection cross-validation ke ANDAR hona chahiye</b>, warna leakage.</p>
+</div>
+
+<!-- =========================================== -->
+<h2 id="part1" style="border-top:2px solid var(--border-2);padding-top:2rem">PART I · Why Feature Selection?</h2>
+
+<h3 id="s1"><span class="h2-num">1</span>More columns do not always mean more information</h3>
+<div class="box hook">
+  <div class="box-title">▷ Hook</div>
+  <p style="margin:0">Lecture 8 mein humne deliberately $x^2$ jaise features banaye taaki model ek curved pattern represent kar sake. Lecture 9 mein humne dekha ki extra flexibility bias kam kar sakti hai par variance badha bhi sakti hai. Ab hum complementary question poochte hain:</p>
+  <p style="margin:.6rem 0 0;font-weight:700">Jab ek dataset mein pehle se hi bohot saare columns hain, to <b>kaunse columns rehne ke laayak hain</b>?</p>
+</div>
+
+<p>Internship-stipend problem par wapas. Target ek student ka stipend hai, aur available candidate inputs yeh hain:</p>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Feature</th><th>Why it may appear useful</th><th>Question to ask</th></tr></thead>
+<tbody>
+<tr><td><b>CGPA</b></td><td>Academic performance may influence shortlisting.</td><td>Does it add stable predictive signal?</td></tr>
+<tr><td><b>IQ score</b></td><td>May relate to problem-solving ability.</td><td>Does it help <b>after other features are present</b>?</td></tr>
+<tr><td><b>Number of projects</b></td><td>May reflect practical experience.</td><td>Is its contribution linear or interaction-based?</td></tr>
+<tr><td><b>Attendance</b></td><td>Could reflect discipline.</td><td>Is the relationship real or accidental in this sample?</td></tr>
+<tr><td><b>CGPA_copy</b></td><td>Exactly repeats CGPA.</td><td>Does it contribute <b>any new information</b>?</td></tr>
+<tr><td><b>Student_ID</b></td><td>Has large numerical variation.</td><td>Is it a genuine predictor or <b>only an identifier</b>?</td></tr>
+<tr><td><b>Random_number</b></td><td>Changes from student to student.</td><td>Does <b>variation alone</b> make it relevant?</td></tr>
+</tbody>
+</table>
+</div>
+
+<figure>
+<svg viewBox="0 0 620 230" role="img" aria-label="Seven candidate columns feeding one predictive model">
+  <defs><marker id="fs1" markerWidth="8" markerHeight="8" refX="6.5" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#8b5cf6"/></marker></defs>
+  <g font-size="11.5" font-weight="650">
+    <rect x="70" y="12"  width="140" height="24" rx="6" fill="rgba(16,185,129,.14)" stroke="#10b981"/><text x="140" y="29" text-anchor="middle" style="fill:var(--text)">CGPA</text>
+    <rect x="70" y="42"  width="140" height="24" rx="6" fill="rgba(16,185,129,.14)" stroke="#10b981"/><text x="140" y="59" text-anchor="middle" style="fill:var(--text)">IQ</text>
+    <rect x="70" y="72"  width="140" height="24" rx="6" fill="rgba(16,185,129,.14)" stroke="#10b981"/><text x="140" y="89" text-anchor="middle" style="fill:var(--text)">Projects</text>
+    <rect x="70" y="102" width="140" height="24" rx="6" fill="rgba(16,185,129,.14)" stroke="#10b981"/><text x="140" y="119" text-anchor="middle" style="fill:var(--text)">Attendance</text>
+    <rect x="70" y="132" width="140" height="24" rx="6" fill="rgba(245,158,11,.14)" stroke="#f59e0b"/><text x="140" y="149" text-anchor="middle" style="fill:var(--text)">CGPA_copy</text>
+    <rect x="70" y="162" width="140" height="24" rx="6" fill="rgba(239,68,68,.14)" stroke="#ef4444"/><text x="140" y="179" text-anchor="middle" style="fill:var(--text)">Student_ID</text>
+    <rect x="70" y="192" width="140" height="24" rx="6" fill="rgba(239,68,68,.14)" stroke="#ef4444"/><text x="140" y="209" text-anchor="middle" style="fill:var(--text)">Random_number</text>
+  </g>
+  <g stroke="#8b5cf6" stroke-width="1.3" opacity=".55">
+    <line x1="210" y1="24"  x2="316" y2="106"/><line x1="210" y1="54"  x2="316" y2="108"/>
+    <line x1="210" y1="84"  x2="316" y2="110"/><line x1="210" y1="114" x2="316" y2="112"/>
+    <line x1="210" y1="144" x2="316" y2="114"/><line x1="210" y1="174" x2="316" y2="116"/>
+    <line x1="210" y1="204" x2="316" y2="118"/>
+  </g>
+  <rect x="320" y="88" width="120" height="48" rx="10" fill="rgba(139,92,246,.2)" stroke="#8b5cf6"/>
+  <text x="380" y="108" text-anchor="middle" font-size="12" font-weight="700" style="fill:var(--text)">Predictive</text>
+  <text x="380" y="124" text-anchor="middle" font-size="12" font-weight="700" style="fill:var(--text)">model</text>
+  <line x1="440" y1="112" x2="486" y2="112" stroke="#8b5cf6" stroke-width="2" marker-end="url(#fs1)"/>
+  <rect x="490" y="96" width="110" height="32" rx="8" fill="rgba(6,182,212,.18)" stroke="#06b6d4"/>
+  <text x="545" y="117" text-anchor="middle" font-size="12" font-weight="700" style="fill:var(--text)">Stipend</text>
+  <text x="380" y="158" text-anchor="middle" font-size="10.5" font-style="italic" style="fill:var(--text-3)">The model receives columns,</text>
+  <text x="380" y="172" text-anchor="middle" font-size="10.5" font-style="italic" style="fill:var(--text-3)">but only some carry stable signal.</text>
+</svg>
+<figcaption><b>Classroom question:</b> Kya model necessarily better ho jaayega agar hum saare saat columns rakh lein? <b>Nahi.</b> CGPA_copy koi nayi information nahi deta; Student_ID aur Random_number pure noise hain jinpar model spurious patterns fit kar sakta hai.</figcaption>
+</figure>
+
+<!-- =========================================== -->
+<h3 id="s2"><span class="h2-num">2</span>Feature Selection: the problem</h3>
+<div class="box def">
+  <div class="box-title">Definitions</div>
+  <p style="margin:0">A <b>feature</b> is an input variable or column used by a model to predict a target. <b>Feature selection</b> is the process of choosing a <b>smaller subset of relevant features</b> while preserving, or ideally improving, performance on <b>unseen data</b>.</p>
+</div>
+
+<div class="box insight">
+  <div class="box-title">★ Key Insight</div>
+  <p style="margin:0">"Most important" ek <b>absolute label nahi</b> hai. Yeh depend karta hai: <b>target</b>, <b>model</b>, <b>evaluation metric</b>, <b>sample</b>, aur <b>wo baaki features jo pehle se present hain</b>.</p>
+</div>
+
+<h4>2.1 Three kinds of feature behaviour ⭐</h4>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Type</th><th>Meaning</th><th>Running example</th></tr></thead>
+<tbody>
+<tr><td><b>Relevant</b></td><td>Carries <b>stable information</b> that helps predict the target.</td><td>Number of projects may help predict stipend.</td></tr>
+<tr><td><b>Redundant</b></td><td>Repeats information <b>already carried</b> by another feature.</td><td>CGPA_copy repeats CGPA.</td></tr>
+<tr><td><b>Irrelevant</b></td><td>Varies but does <b>not carry a stable relationship</b> with the target.</td><td>Random_number may vary and still be useless.</td></tr>
+</tbody>
+</table>
+</div>
+<div class="box takeaway">
+  <div class="box-title">♦ Takeaway</div>
+  <p style="margin:0">Feature selection <b>redundant</b> aur <b>irrelevant</b> inputs hataane ki koshish karta hai — bina genuinely useful signal discard kiye.</p>
+</div>
+
+<h4>2.2 Feature selection is NOT feature transformation</h4>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th></th><th>Feature transformation</th><th>Feature selection</th></tr></thead>
+<tbody>
+<tr><td><b>Core action</b></td><td>Ek <b>naya representation</b> banao, jaise $x$ se $x^2$.</td><td>Sirf kuch <b>existing candidate columns</b> retain karo.</td></tr>
+<tr><td><b>Effect on candidate space</b></td><td><b>Expands</b> ya badalta hai representation.</td><td><b>Reduces</b> the representation.</td></tr>
+<tr><td><b>Can both appear in one pipeline?</b></td><td colspan="2"><b>Yes.</b> Pehle meaningful candidates banao, phir unme se select karo.</td></tr>
+</tbody>
+</table>
+</div>
+
+<!-- =========================================== -->
+<h3 id="s3"><span class="h2-num">3</span>Why feature selection can improve learning</h3>
+<h4>3.1 Generalization and the bias–variance connection</h4>
+<p>Zyada features model ki flexibility badhate hain. Jahan useful features <b>bias kam</b> karte hain, wahan <b>irrelevant features</b> model ko random noise fit karne par majboor karte hain — jisse <b>variance badhta</b> hai aur validation performance <b>bigadti</b> hai.</p>
+<div class="box warn">
+  <div class="box-title">Classroom question</div>
+  <p style="margin:0">Das features add karne ke baad training error ghat gaya, par validation error <b>badh gaya</b>. Kya naye features ne model ko stable pattern seekhne mein help ki?<br>
+  <b>Nahi.</b> Training error hamesha girta hai jab features add hote hain (👉 <a href="l04.html#hw11">Lecture 4</a>). Validation error ka <b>badhna</b> classic <b>high-variance / overfitting</b> signature hai — naye features ne signal nahi, <b>noise</b> add kiya. 👉 <a href="l09.html">Lecture 9</a></p>
+</div>
+
+<h4>3.2 Computation, memory, and interpretability</h4>
+<ul>
+  <li><b>Efficiency:</b> Smaller matrices, faster training/prediction, lower memory use.</li>
+  <li><b>Explainability:</b> Kam features wala model explain karna easier hai.</li>
+  <li><b>Stability:</b> Redundant inputs hataane se <b>multicollinearity kam</b> hoti hai, jisse linear coefficients zyada stable bante hain (👉 <a href="l08.html#s9">Lecture 8</a>).</li>
+  <li>Multicollinearity pure prediction ke liye coefficient interpretation se <b>kam damaging</b> ho sakti hai, par wo phir bhi redundancy aur instability represent karti hai.</li>
+</ul>
+
+<!-- =========================================== -->
+<h3 id="s4"><span class="h2-num">4</span>The two feature-selection families</h3>
+<div class="grid g2">
+  <div class="box def" style="margin:0"><div class="box-title">Filter methods</div>
+    <p style="margin:0">Simple <b>statistical checks</b> (jaise correlation) use karke features ko <b>kisi bhi model ke train hone se pehle</b> screen karte hain.</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Wrapper methods</div>
+    <p style="margin:0"><b>Actual predictive model</b> ko alag-alag feature <b>subsets</b> par train karke dekhte hain ki kaunsa subset best perform karta hai.</p></div>
+</div>
+<div class="box insight">
+  <div class="box-title">★ A third family (worth knowing)</div>
+  <p style="margin:0"><b>Embedded methods</b> — selection <b>training ke dauraan automatically</b> hoti hai. Sabse common example <b>L1 (Lasso) Regularization</b> hai, jo useless features ke coefficients ko exactly zero par push kar deta hai. Tree-based models ke <b>Feature Importance Scores</b> bhi embedded hain. (👉 <a href="l02.html#p6">Lecture 2, Phase 6</a>)</p>
+</div>
+
+<div class="solved">
+  <header><span class="qtag">Practice P1</span><h4>Feature triage and foundations</h4></header>
+  <div class="body">
+    <p><b>(a) For each feature, decide: Remove (R), Flag for investigation (F), or Keep for model-based evaluation (K).</b></p>
+    <div class="tbl-wrap" style="margin:.4rem 0">
+    <table>
+    <thead><tr><th>Feature</th><th>Observed property</th><th>Decision</th><th>Reason</th></tr></thead>
+    <tbody>
+    <tr><td><b>CGPA_copy</b></td><td>Exactly equals CGPA in every row</td><td><span class="pill r">R</span></td><td>Exact duplicate — koi nayi information nahi. Linear model ke liye yeh <b>perfect multicollinearity</b> bhi create karta hai.</td></tr>
+    <tr><td><b>Student_ID</b></td><td>Every value is unique; variance is high</td><td><span class="pill r">R</span></td><td>Pure identifier. High variance <b>relevance imply nahi karta</b>. Ise rakhna model ko row-level noise memorise karne deta hai.</td></tr>
+    <tr><td><b>Scholarship_flag</b></td><td>Only 3% of students have value 1</td><td><span class="pill a">F / K</span></td><td>Low variance, par ek <b>rare event strongly predictive</b> ho sakta hai. Blindly drop mat karo — validate karo.</td></tr>
+    <tr><td><b>Random_number</b></td><td>High variance and near-zero target correlation</td><td><span class="pill r">R</span></td><td>Varies par target ke saath koi stable relationship nahi — <b>irrelevant</b> ki textbook definition.</td></tr>
+    <tr><td><b>Project_depth²</b></td><td>Highly correlated with project depth</td><td><span class="pill a">F</span></td><td>Yeh ek <b>intentionally engineered</b> term hai jo curvature capture karta hai. High correlation se automatically remove mat karo.</td></tr>
+    </tbody></table></div>
+
+    <p style="margin-top:1.2rem"><b>(b) Choose all correct options.</b></p>
+    <div class="tbl-wrap" style="margin:.4rem 0">
+    <table class="compact">
+    <thead><tr><th>Statement</th><th>T/F</th><th>Why</th></tr></thead>
+    <tbody>
+    <tr><td>(i) A feature's usefulness can change when the target or model changes</td><td><span class="pill g">T</span></td><td>Relevance <b>conditional</b> hai — Section 15 ka core point.</td></tr>
+    <tr><td>(ii) A high-variance column must be predictive</td><td><span class="pill r">F</span></td><td>Student_ID counterexample hai: huge variance, zero relevance.</td></tr>
+    <tr><td>(iii) Feature transformation and feature selection can both appear in one pipeline</td><td><span class="pill g">T</span></td><td>Pehle candidates banao ($x^2$), phir unme se select karo.</td></tr>
+    <tr><td>(iv) The smallest possible subset is always the best subset</td><td><span class="pill r">F</span></td><td>Chhota tabhi better hai jab performance <b>maintained ya improved</b> ho. Useful signal discard karna bad hai.</td></tr>
+    <tr><td>(v) If two subsets have nearly equal cross-validated performance, the smaller subset is usually preferred</td><td><span class="pill g">T</span></td><td>Simpler, sasta, zyada stable, easier to explain — <b>ties par</b> simplicity jeetti hai.</td></tr>
+    </tbody></table></div>
+  </div>
+</div>
+
+<!-- =========================================== -->
+<h2 id="part2" style="border-top:2px solid var(--border-2);padding-top:2rem">PART II · Filter Methods — screen features before the final model</h2>
+
+<h3 id="s5"><span class="h2-num">5</span>Filter intuition and Duplicate Removal</h3>
+<div class="box hook">
+  <div class="box-title">▷ Hook</div>
+  <p style="margin:0">Ek filter method ek <b>admission gate</b> ki tarah act karta hai. Wo ek feature ko ek simple structural ya statistical rule se evaluate karta hai aur decide karta hai ki wo modeling stage mein enter karne ka haqdaar hai ya nahi. <b>Final predictive model is screening step ke dauraan repeatedly train nahi hota.</b></p>
+</div>
+<p>Kuch filters target use nahi karte; doosre ek feature ko target se compare karte hain.</p>
+<p>Agar do columns <b>har row mein exactly same value</b> contain karte hain, to wo same information provide karte hain:</p>
+<div class="formula tight">$$f_a = f_b \qquad \text{for every observation}$$</div>
+<p>Dono rakhne se evidence ka <b>doosra independent source nahi</b> banta. Stipend example mein, CGPA aur CGPA_copy exact duplicates hain. Ek linear model ke liye, dono retain karna <b>perfect multicollinearity</b> bhi create karta hai, to unke individual contributions <b>uniquely separate nahi</b> kiye ja sakte.</p>
+
+<div class="box def">
+  <div class="box-title">Which copy should be kept?</div>
+  <ul style="margin:0">
+    <li>Wo column rakho jiska naam <b>clearer aur zyada meaningful</b> hai.</li>
+    <li>Wo column prefer karo jisme <b>kam missing ya corrupted values</b> hain.</li>
+    <li>Wo feature prefer karo jise <b>prediction time par collect karna easier aur cheaper</b> hai.</li>
+    <li>Check karo ki apparent duplicate koi <b>data-leakage column</b> to nahi hai jo target known hone ke <b>baad</b> banaya gaya ho.</li>
+  </ul>
+</div>
+<div class="box takeaway">
+  <div class="box-title">♦ Takeaway</div>
+  <p style="margin:0">Duplicate removal <b>safe</b> hai kyunki wo <b>repeated information</b> hataata hai, unique information nahi.</p>
+</div>
+
+<!-- =========================================== -->
+<h3 id="s6"><span class="h2-num">6</span>Variance Threshold</h3>
+<div class="box hook">
+  <div class="box-title">▷ Hook</div>
+  <p style="margin:0">Ek feature jo observations ke across barely badalta hai, wo ek observation ko doosre se <b>distinguish nahi kar sakta</b>. Simplest case ek <b>constant column</b> hai: agar har student ki same value hai, to wo feature explain hi nahi kar sakta ki stipends alag kyun hain.</p>
+</div>
+<div class="formula"><span class="flabel">Variance of feature $f_j$</span>$$\operatorname{Var}(f_j) = \frac{1}{n}\sum_{i=1}^{n}(x_{ij} - \bar x_j)^2$$</div>
+<p>Choose a threshold $\tau$. Remove the feature when:</p>
+<div class="formula tight">$$\operatorname{Var}(f_j) &lt; \tau$$</div>
+<p>The threshold is a <b>modeling choice / hyperparameter</b>, not a universal constant. (A common starting value is $\tau = 0.1$, but it must be validated.)</p>
+
+<div class="solved">
+  <header><span class="qtag">Worked</span><h4>What a variance filter sees</h4></header>
+  <div class="body">
+    <div class="tbl-wrap" style="margin-top:0">
+    <table>
+    <thead><tr><th>Feature values</th><th class="num">Variance</th><th>What the filter sees</th><th>What must be remembered</th></tr></thead>
+    <tbody>
+    <tr><td><b>Constant:</b> $[5,5,5,5,5]$</td><td class="num">0</td><td>No variation; <b>remove</b>.</td><td>A constant feature <b>cannot separate</b> observations.</td></tr>
+    <tr><td><b>Rare binary:</b> $[0,0,0,0,1]$</td><td class="num">0.16</td><td>Low variation; may be removed for a high $\tau$.</td><td>A <b>rare event can still be strongly predictive</b>.</td></tr>
+    <tr><td><b>Identifier-like:</b> $[101,102,103,104,105]$</td><td class="num">2</td><td>Moderate variation; may be kept.</td><td>An identifier can vary greatly and still be <b>irrelevant</b>.</td></tr>
+    </tbody></table></div>
+    <details class="acc">
+      <summary>Verify these three variances yourself</summary>
+      <div class="acc-body">
+        <p><b>$[5,5,5,5,5]$:</b> $\bar x = 5$; all deviations are 0; $\operatorname{Var} = 0$.</p>
+        <p><b>$[0,0,0,0,1]$:</b> $\bar x = 0.2$; deviations $-0.2$ (×4) and $+0.8$; squares $0.04$ (×4) and $0.64$; sum $= 0.16+0.64 = 0.80$; $\operatorname{Var} = 0.80/5 = \mathbf{0.16}$.</p>
+        <p style="margin-bottom:0"><b>$[101,\dots,105]$:</b> $\bar x = 103$; deviations $-2,-1,0,1,2$; squares $4,1,0,1,4$; sum $= 10$; $\operatorname{Var} = 10/5 = \mathbf{2}$.</p>
+      </div>
+    </details>
+  </div>
+</div>
+
+<div class="box danger">
+  <div class="box-title">Limitations of a variance threshold ⭐</div>
+  <ul style="margin:0">
+    <li>A <b>high-variance</b> feature may have <b>no relationship</b> with the target.</li>
+    <li>A <b>low-variance</b> feature may be <b>highly predictive</b>, especially for a rare but important condition.</li>
+    <li>The method <b>ignores combinations and interactions</b> among features.</li>
+    <li>The threshold depends on <b>units, scaling choices, and context</b>.</li>
+  </ul>
+</div>
+
+<!-- =========================================== -->
+<h3 id="s7"><span class="h2-num">7</span>Pearson Correlation Between Each Feature and the Target</h3>
+<div class="box hook">
+  <div class="box-title">▷ Hook</div>
+  <p style="margin:0">Variance batati hai ki ek feature <b>badalta hai ya nahi</b>. Wo yeh nahi batati ki feature <b>target ke saath-saath badalta hai ya nahi</b>. Numerical feature aur numerical target ke liye, <b>Pearson correlation</b> ek <b>linear</b> relationship ki strength aur direction measure karta hai.</p>
+</div>
+
+<div class="formula"><span class="flabel">Pearson correlation</span>$$r_{jY} = \frac{\sum_i (x_{ij} - \bar x_j)(y_i - \bar y)}{\sqrt{\sum_i (x_{ij} - \bar x_j)^2\ \sum_i (y_i - \bar y)^2}}$$</div>
+<ul>
+  <li>$r$ close to $+1$: strong <b>positive</b> linear relationship.</li>
+  <li>$r$ close to $-1$: strong <b>negative</b> linear relationship.</li>
+  <li>$r$ close to $0$: weak <b>linear</b> relationship — <b>not necessarily no relationship</b>.</li>
+</ul>
+
+<figure>
+<svg viewBox="0 0 660 190" role="img" aria-label="Strong positive, strong negative and weak correlation scatter plots">
+  <g>
+    <line x1="40" y1="150" x2="190" y2="150" stroke-width="1.4" style="stroke:var(--border-2)"/>
+    <line x1="40" y1="150" x2="40" y2="34" stroke-width="1.4" style="stroke:var(--border-2)"/>
+    <g fill="#10b981"><circle cx="58" cy="136" r="4"/><circle cx="76" cy="124" r="4"/><circle cx="94" cy="110" r="4"/><circle cx="112" cy="94" r="4"/><circle cx="130" cy="80" r="4"/><circle cx="150" cy="64" r="4"/><circle cx="170" cy="50" r="4"/></g>
+    <text x="115" y="172" text-anchor="middle" font-size="11.5" font-weight="700" style="fill:var(--text)">Strong Positive</text>
+    <text x="115" y="186" text-anchor="middle" font-size="10.5" style="fill:var(--text-3)">(r ≈ +1)</text>
+  </g>
+  <g transform="translate(220,0)">
+    <line x1="40" y1="150" x2="190" y2="150" stroke-width="1.4" style="stroke:var(--border-2)"/>
+    <line x1="40" y1="150" x2="40" y2="34" stroke-width="1.4" style="stroke:var(--border-2)"/>
+    <g fill="#ef4444"><circle cx="58" cy="48" r="4"/><circle cx="76" cy="62" r="4"/><circle cx="94" cy="78" r="4"/><circle cx="112" cy="92" r="4"/><circle cx="130" cy="110" r="4"/><circle cx="150" cy="124" r="4"/><circle cx="170" cy="138" r="4"/></g>
+    <text x="115" y="172" text-anchor="middle" font-size="11.5" font-weight="700" style="fill:var(--text)">Strong Negative</text>
+    <text x="115" y="186" text-anchor="middle" font-size="10.5" style="fill:var(--text-3)">(r ≈ -1)</text>
+  </g>
+  <g transform="translate(440,0)">
+    <line x1="40" y1="150" x2="190" y2="150" stroke-width="1.4" style="stroke:var(--border-2)"/>
+    <line x1="40" y1="150" x2="40" y2="34" stroke-width="1.4" style="stroke:var(--border-2)"/>
+    <g fill="#8b5cf6"><circle cx="60" cy="92" r="4"/><circle cx="80" cy="50" r="4"/><circle cx="98" cy="126" r="4"/><circle cx="118" cy="68" r="4"/><circle cx="138" cy="114" r="4"/><circle cx="158" cy="58" r="4"/><circle cx="176" cy="100" r="4"/></g>
+    <text x="115" y="172" text-anchor="middle" font-size="11.5" font-weight="700" style="fill:var(--text)">Weak/No Linear</text>
+    <text x="115" y="186" text-anchor="middle" font-size="10.5" style="fill:var(--text-3)">(r ≈ 0)</text>
+  </g>
+</svg>
+</figure>
+
+<p>An illustrative rule is:</p>
+<div class="formula tight">$$\text{Remove } f_j \text{ when } |r_{jY}| &lt; 0.30$$</div>
+<p>The value <b>0.30 is only an illustration</b>; the threshold must be validated through model performance.</p>
+
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Feature</th><th class="num">Illustrative $r$ with stipend</th><th>Decision under $|r| \ge 0.30$</th><th>Caution</th></tr></thead>
+<tbody>
+<tr><td>CGPA</td><td class="num">0.68</td><td><span class="pill g">Keep</span></td><td>Strong linear association in this sample.</td></tr>
+<tr><td>IQ score</td><td class="num">0.18</td><td><span class="pill r">Remove</span></td><td>Could still help <b>jointly</b> or <b>nonlinearly</b>.</td></tr>
+<tr><td>Number of projects</td><td class="num">0.57</td><td><span class="pill g">Keep</span></td><td>Useful linear association.</td></tr>
+<tr><td>Attendance</td><td class="num">0.09</td><td><span class="pill r">Remove</span></td><td>Threshold decision must be <b>validated</b>.</td></tr>
+<tr><td>Student_ID</td><td class="num">−0.02</td><td><span class="pill r">Remove</span></td><td>Large variance did <b>not</b> imply relevance.</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="solved">
+  <header><span class="qtag">7.1 · The nonlinear counterexample</span><h4>A feature with $r = 0$ that perfectly determines $y$</h4></header>
+  <div class="body">
+    <p>Let $y = x^2$ for symmetric values of $x$:</p>
+    <div class="tbl-wrap" style="margin:.5rem 0;max-width:420px">
+    <table class="compact">
+    <thead><tr><th class="num">$x$</th><th class="num">−2</th><th class="num">−1</th><th class="num">0</th><th class="num">1</th><th class="num">2</th></tr></thead>
+    <tbody><tr><td class="num">$y = x^2$</td><td class="num">4</td><td class="num">1</td><td class="num">0</td><td class="num">1</td><td class="num">4</td></tr></tbody>
+    </table></div>
+    <ol class="steps">
+      <li><span class="sh">Calculate $\bar x$ and $\bar y$</span>
+        $$\bar x = \frac{-2-1+0+1+2}{5} = \mathbf{0}, \qquad \bar y = \frac{4+1+0+1+4}{5} = \frac{10}{5} = \mathbf{2}$$</li>
+      <li><span class="sh">Compute the numerator $\sum(x_i - \bar x)(y_i - \bar y)$</span>
+        $$\sum(x_i - 0)(y_i - 2) = (-2)(+2) + (-1)(-1) + (0)(-2) + (1)(-1) + (2)(2)$$
+        $$= -4 + 1 + 0 - 1 + 4 = \mathbf{0}$$</li>
+      <li><span class="sh">Therefore</span>
+        $$r_{XY} = \frac{0}{\sqrt{(\cdot)(\cdot)}} = \mathbf{0}$$
+        <div class="answer">A $|r| \ge 0.30$ filter would <b>REMOVE $x$</b> — even though $y$ is <b>completely determined</b> by $x$.</div></li>
+    </ol>
+    <div class="box insight" style="margin-bottom:0">
+      <div class="box-title">★ Key Insight</div>
+      <p style="margin:0">Ek feature ki Pearson correlation <b>zero ho sakti hai aur phir bhi wo ek nonlinear relationship ke through perfectly predictive</b> ho sakta hai. Pearson correlation <b>sirf linear association</b> measure karta hai.</p>
+    </div>
+  </div>
+</div>
+
+<div class="box danger">
+  <div class="box-title">Limitations of target correlation ⭐</div>
+  <ul style="margin:0">
+    <li>It can <b>miss nonlinear relationships</b> (the $y = x^2$ case above).</li>
+    <li>It evaluates <b>one feature at a time</b> and can miss useful <b>interactions</b>.</li>
+    <li>It is <b>sensitive to outliers</b>.</li>
+    <li>Its threshold is <b>context-dependent</b>.</li>
+    <li>Correlation does <b>not establish causation</b> or future stability.</li>
+  </ul>
+</div>
+
+<!-- =========================================== -->
+<h3 id="s8"><span class="h2-num">8</span>Correlation Among Input Features</h3>
+<p>Pichla calculation har feature ko <b>$y$ se</b> compare karta tha. Correlation input features ko <b>ek dusre se</b> bhi compare kar sakti hai taaki <b>redundancy detect</b> ho aur multicollinearity kam ho.</p>
+<p>Maan lo $f_1$ aur $f_2$ ki correlation $0.95$ hai. Wo bohot similar linear information carry karte hain. Practical rule: <b>ek representative feature rakho</b>, par choice deliberate honi chahiye.</p>
+<div class="box def">
+  <div class="box-title">How to choose which correlated feature to keep</div>
+  <ul style="margin:0">
+    <li>Prefer the feature with the <b>stronger validated relationship</b> with the target.</li>
+    <li>Prefer the feature with <b>less missingness and measurement noise</b>.</li>
+    <li>Prefer the feature that is <b>easier to interpret and collect</b>.</li>
+    <li><b>Use domain knowledge</b> before removing intentionally engineered terms.</li>
+  </ul>
+</div>
+<div class="box danger">
+  <div class="box-title">△ WARNING — DO NOT APPLY PAIRWISE RULES BLINDLY</div>
+  <p style="margin:0">Features $x$ aur $x^2$ correlated ho sakte hain, par <b>dono ki zaroorat ho sakti hai</b> curvature represent karne ke liye. Ek high input correlation automatically <b>prove nahi karti</b> ki ek engineered feature remove kar dena chahiye. Final decision ko <b>validation performance</b> se check karo.</p>
+</div>
+
+<h4>8.1 Filter-method summary</h4>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Strengths</th><th>Limitations</th></tr></thead>
+<tbody>
+<tr><td>Simple, fast, and scalable.</td><td>Usually ignores <b>interactions</b> among multiple features.</td></tr>
+<tr><td>Can remove obvious problems before expensive modeling.</td><td>A statistical score may <b>not match the needs</b> of the final model.</td></tr>
+<tr><td>Often model-independent and easy to explain.</td><td>Threshold choice can be <b>arbitrary or unstable</b>.</td></tr>
+<tr><td>Useful as the first stage of a larger pipeline.</td><td>Univariate linear measures can <b>miss nonlinear signal</b>.</td></tr>
+</tbody>
+</table>
+</div>
+<div class="box takeaway">
+  <div class="box-title">♦ Takeaway</div>
+  <p style="margin:0">Filter methods efficient hain, par wo directly yeh poochte hi nahi ki <b>chosen model features ke kisi particular combination</b> ke saath better perform karta hai ya nahi.</p>
+</div>
+
+<div class="solved">
+  <header><span class="qtag">Practice P2</span><h4>Filter-method detective</h4></header>
+  <div class="body">
+    <p><b>(a) Match the filter to the issue.</b></p>
+    <div class="tbl-wrap" style="margin:.4rem 0">
+    <table class="compact">
+    <thead><tr><th class="num">#</th><th>Observed issue</th><th>Most direct screen</th></tr></thead>
+    <tbody>
+    <tr><td class="num">1</td><td>Two columns are equal in every row</td><td><b>C — Duplicate removal</b></td></tr>
+    <tr><td class="num">2</td><td>A column is constant</td><td><b>D — Variance threshold</b></td></tr>
+    <tr><td class="num">3</td><td>A numeric feature has weak linear association with numeric $y$</td><td><b>A — Target correlation</b></td></tr>
+    <tr><td class="num">4</td><td>Two predictors have correlation 0.97</td><td><b>B — Input–input correlation</b></td></tr>
+    </tbody></table></div>
+
+    <ol class="steps" style="margin-top:1.2rem">
+      <li><span class="sh">(b) Find the mistake: "Student_ID has very high variance, so a variance filter proves that it is useful for predicting stipend."</span>
+        <div class="answer">False — high variance does <b>not</b> imply relevance.</div>
+        <p style="margin:.3rem 0 0">Variance filter ek <b>necessary-but-not-sufficient</b> screen hai: wo columns ko <b>reject</b> karta hai jo vary nahi karte, par wo kisi column ko <b>useful prove nahi kar sakta</b>. Student_ID ka target ke saath $r = -0.02$ hai. Ek feature ko <b>vary karna aur target ke saath co-vary karna</b>, dono zaroori hai.</p></li>
+      <li><span class="sh">(c) Scholarship_flag equals 1 for only 3% of students. Should it be removed solely because its variance is low?</span>
+        <div class="answer">No.</div>
+        <p style="margin:.3rem 0 0">Kyunki <b>"A low-variance feature may be highly predictive, especially for a rare but important condition."</b> Agar wo 3% students ko consistently much higher stipends milti hain, to yeh feature un cases ke liye sabse strong signal hai. <b>Sahi tareeka:</b> use validation mein test karo — variance par blanket rule mat lagao.</p></li>
+      <li><span class="sh">(d) Project_depth and Project_depth² are highly correlated. A student immediately removes the squared term. Is this justified?</span>
+        <div class="answer">No, not without validating.</div>
+        <p style="margin:.3rem 0 0">$x$ aur $x^2$ <b>hamesha</b> correlated hote hain (especially agar $x$ ki values mostly positive hain) — yeh ek <b>mathematical artefact</b> hai, redundancy ka evidence nahi. Squared term specifically <b>curvature</b> capture karne ke liye add kiya gaya tha (👉 <a href="l08.html">Lecture 8</a>). Use remove karne se wo curvature ki poori ability chali jaati hai. Decision <b>validation performance</b> se leni chahiye, correlation number se nahi.</p></li>
+    </ol>
+  </div>
+</div>
+
+<!-- =========================================== -->
+<h2 id="part3" style="border-top:2px solid var(--border-2);padding-top:2rem">PART III · Wrapper Methods — let model performance judge the subset</h2>
+
+<h3 id="s9"><span class="h2-num">9</span>The wrapper idea and the wrapper loop</h3>
+<div class="box hook">
+  <div class="box-title">▷ Hook</div>
+  <p style="margin:0">Ek feature <b>akele weak lag sakta hai</b> aur doosre ke saath pair hone par <b>useful ban sakta hai</b>. Conversely, do individually useful features <b>saath use hone par redundant</b> ho sakte hain. Wrapper methods <b>whole subsets</b> ko us predictive model ke saath evaluate karte hain jo hum actually use karne wale hain.</p>
+</div>
+<ul>
+  <li>Filters features ko <b>ek-ek karke</b> evaluate karte hain, ignore karte hue ki wo saath kaise kaam karte hain.</li>
+  <li>Filters features ke beech <b>useful interactions</b> miss kar sakte hain.</li>
+  <li>Ek simple statistical score tumhare complex model ke seekhne ke tareeke se <b>align nahi</b> kar sakta.</li>
+</ul>
+<div class="box insight">
+  <div class="box-title">★ Key Insight</div>
+  <p style="margin:0">Ek wrapper method model training aur validation ko feature-selection process ke <b>"around" wrap</b> kar deta hai.</p>
+</div>
+
+<h4>9.1 The wrapper loop</h4>
+<ol>
+  <li>Generate a candidate subset of features.</li>
+  <li>Train the chosen model on that subset.</li>
+  <li>Evaluate the subset using validation data or cross-validation.</li>
+  <li>Generate the next candidate subset according to the search strategy.</li>
+  <li>Stop when the search is complete or a stopping rule is met.</li>
+</ol>
+
+<figure>
+<svg viewBox="0 0 660 160" role="img" aria-label="Wrapper loop diagram">
+  <defs><marker id="wl" markerWidth="8" markerHeight="8" refX="6.5" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#8b5cf6"/></marker></defs>
+  <g font-size="11.5" font-weight="650">
+    <rect x="14" y="30" width="124" height="46" rx="10" fill="rgba(99,102,241,.16)" stroke="#6366f1"/>
+    <text x="76" y="50" text-anchor="middle" style="fill:var(--text)">Candidate</text><text x="76" y="66" text-anchor="middle" style="fill:var(--text)">subset</text>
+    <line x1="138" y1="53" x2="166" y2="53" stroke="#8b5cf6" stroke-width="2" marker-end="url(#wl)"/>
+    <rect x="170" y="30" width="124" height="46" rx="10" fill="rgba(139,92,246,.16)" stroke="#8b5cf6"/>
+    <text x="232" y="50" text-anchor="middle" style="fill:var(--text)">Train chosen</text><text x="232" y="66" text-anchor="middle" style="fill:var(--text)">model</text>
+    <line x1="294" y1="53" x2="322" y2="53" stroke="#8b5cf6" stroke-width="2" marker-end="url(#wl)"/>
+    <rect x="326" y="30" width="134" height="46" rx="10" fill="rgba(6,182,212,.16)" stroke="#06b6d4"/>
+    <text x="393" y="50" text-anchor="middle" style="fill:var(--text)">Cross-validated</text><text x="393" y="66" text-anchor="middle" style="fill:var(--text)">score</text>
+    <line x1="460" y1="53" x2="488" y2="53" stroke="#8b5cf6" stroke-width="2" marker-end="url(#wl)"/>
+    <rect x="492" y="30" width="150" height="46" rx="10" fill="rgba(245,158,11,.16)" stroke="#f59e0b"/>
+    <text x="567" y="50" text-anchor="middle" style="fill:var(--text)">Stop or generate</text><text x="567" y="66" text-anchor="middle" style="fill:var(--text)">next subset</text>
+  </g>
+  <path d="M567 78 Q 320 140, 76 80" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#wl)"/>
+  <text x="330" y="140" text-anchor="middle" font-size="11" font-style="italic" style="fill:var(--text-3)">continue search</text>
+</svg>
+</figure>
+
+<div class="box danger">
+  <div class="box-title">△ WARNING — USE CROSS-VALIDATED SCORES</div>
+  <p style="margin:0">Jab features add kiye jaate hain, <b>training data par</b> model ki performance <b>almost hamesha better</b> lagegi, chahe naye features useless hon. Ek subset ko truly evaluate karne ke liye tumhe ek <b>cross-validated score</b> use karna <b>hi</b> padega. Cross-validation model ko us data par test karta hai jo usne training ke dauraan nahi dekha, jisse bohot zyada honest estimate milta hai.</p>
+</div>
+
+<!-- =========================================== -->
+<h3 id="s10"><span class="h2-num">10</span>Exhaustive Feature Selection</h3>
+<p>Exhaustive search <b>har nonempty subset</b> evaluate karta hai aur best validation score wala subset choose karta hai. $p$ features mein se har ek ke <b>do states</b> hain: included ya excluded. Therefore:</p>
+<div class="formula"><span class="flabel">Number of nonempty subsets</span>$$2^p - 1$$</div>
+<div class="tbl-wrap" style="max-width:460px">
+<table class="compact">
+<thead><tr><th class="num">Candidate features $p$</th><th class="num">Nonempty subsets $2^p - 1$</th></tr></thead>
+<tbody>
+<tr><td class="num">4</td><td class="num">15</td></tr>
+<tr><td class="num">20</td><td class="num">1,048,575</td></tr>
+<tr><td class="num">30</td><td class="num">1,073,741,823</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="grid g2">
+  <div class="box takeaway" style="margin:0"><div class="box-title">Advantage</div>
+    <p style="margin:0">Agar har subset correctly evaluate ho, to <b>search space ka best subset mil sakta hai</b>.</p></div>
+  <div class="box danger" style="margin:0"><div class="box-title">Disadvantages</div>
+    <ul style="margin:0">
+      <li>Computational cost grows <b>exponentially</b>.</li>
+      <li>Itne saare subsets test karna <b>validation procedure ko overfit</b> kar sakta hai aur ek chance winner select kar sakta hai.</li>
+      <li>Result chosen model aur evaluation metric par <b>depend</b> karta hai.</li>
+    </ul></div>
+</div>
+
+<!-- =========================================== -->
+<h3 id="s11"><span class="h2-num">11</span>Backward Elimination — fully traced ⭐</h3>
+<div class="box hook">
+  <div class="box-title">▷ Hook</div>
+  <p style="margin:0">Backward elimination <b>saare features</b> se start karta hai. Har stage par, har remaining feature ko <b>ek-ek karke remove</b> karo, resulting subsets evaluate karo, aur <b>best candidate</b> ko agle stage ke liye rakho.</p>
+</div>
+<p><small>Treat every score below as a <b>cross-validated $R^2$</b>.</small></p>
+
+<div class="solved">
+  <header><span class="qtag">Traced</span><h4>Backward elimination, stage by stage</h4></header>
+  <div class="body">
+    <h4 style="margin-top:0">11.1 Start with all four features</h4>
+    <div class="tbl-wrap" style="max-width:420px;margin-top:.4rem">
+    <table class="compact"><thead><tr><th>Current subset</th><th class="num">CV $R^2$</th></tr></thead>
+    <tbody><tr><td>$\{f_1, f_2, f_3, f_4\}$</td><td class="num">0.89</td></tr></tbody></table></div>
+
+    <h4>11.2 Remove one feature from the four-feature set</h4>
+    <div class="tbl-wrap" style="max-width:460px;margin-top:.4rem">
+    <table class="compact"><thead><tr><th>Candidate subset</th><th class="num">CV $R^2$</th></tr></thead>
+    <tbody>
+    <tr><td>$\{f_2, f_3, f_4\}$</td><td class="num">0.81</td></tr>
+    <tr><td>$\{f_1, f_3, f_4\}$</td><td class="num">0.71</td></tr>
+    <tr style="background:rgba(16,185,129,.14)"><td>$\{f_1, f_2, f_4\}$</td><td class="num"><b>0.91</b></td></tr>
+    <tr><td>$\{f_1, f_2, f_3\}$</td><td class="num">0.65</td></tr>
+    </tbody></table></div>
+    <div class="answer">Continue with $\{f_1, f_2, f_4\}$; the removed feature is $\mathbf{f_3}$.</div>
+    <p style="margin:.4rem 0 0">Notice that validation performance <b>improved</b> from 0.89 to 0.91 — $f_3$ was actively <b>hurting</b> the model.</p>
+
+    <h4>11.3 Repeat on $\{f_1, f_2, f_4\}$</h4>
+    <div class="tbl-wrap" style="max-width:460px;margin-top:.4rem">
+    <table class="compact"><thead><tr><th>Candidate subset</th><th class="num">CV $R^2$</th></tr></thead>
+    <tbody>
+    <tr><td>$\{f_2, f_4\}$</td><td class="num">0.79</td></tr>
+    <tr><td>$\{f_1, f_4\}$</td><td class="num">0.81</td></tr>
+    <tr style="background:rgba(16,185,129,.14)"><td>$\{f_1, f_2\}$</td><td class="num"><b>0.83</b></td></tr>
+    </tbody></table></div>
+    <div class="answer">Continue with $\{f_1, f_2\}$; remove $\mathbf{f_4}$.</div>
+
+    <h4>11.4 Compare the remaining single-feature models</h4>
+    <div class="tbl-wrap" style="max-width:460px;margin-top:.4rem">
+    <table class="compact"><thead><tr><th>Candidate subset</th><th class="num">CV $R^2$</th></tr></thead>
+    <tbody>
+    <tr style="background:rgba(16,185,129,.14)"><td>$\{f_2\}$</td><td class="num"><b>0.63</b></td></tr>
+    <tr><td>$\{f_1\}$</td><td class="num">0.53</td></tr>
+    </tbody></table></div>
+    <p style="margin:.4rem 0 0">The path therefore keeps $\{f_2\}$ at the one-feature stage.</p>
+
+    <h4>11.5 Choose the best subset encountered along the path ⭐</h4>
+    <div class="tbl-wrap" style="max-width:480px;margin-top:.4rem">
+    <table class="compact"><thead><tr><th>Best subset at that size</th><th class="num">CV $R^2$</th></tr></thead>
+    <tbody>
+    <tr><td>$\{f_1, f_2, f_3, f_4\}$</td><td class="num">0.89</td></tr>
+    <tr style="background:rgba(16,185,129,.2)"><td>$\{f_1, f_2, f_4\}$</td><td class="num"><b>0.91</b> ← best</td></tr>
+    <tr><td>$\{f_1, f_2\}$</td><td class="num">0.83</td></tr>
+    <tr><td>$\{f_2\}$</td><td class="num">0.63</td></tr>
+    </tbody></table></div>
+    <div class="answer">The selected subset is $\{f_1, f_2, f_4\}$ because it achieved the <b>highest cross-validated $R^2$</b>. It is <b>not</b> selected merely because it is the final or the smallest subset.</div>
+
+    <h4>11.6 Computational advantage and greedy limitation</h4>
+    <p>For $p = 4$, backward elimination fits:</p>
+    $$1 + 4 + 3 + 2 = \mathbf{10}\ \text{candidate models}$$
+    <p>instead of all <b>15</b> nonempty subsets. In general:</p>
+    $$1 + p + (p-1) + \cdots + 2 = \frac{p(p+1)}{2}$$
+    <p>This grows <b>quadratically</b> rather than exponentially, although every score may still require several cross-validation fits.</p>
+    <div class="box danger" style="margin-bottom:0">
+      <div class="box-title">△ WARNING — GREEDY SEARCH</div>
+      <p style="margin:0">Backward elimination har stage par ek <b>locally best</b> decision leta hai. Ek baar feature remove ho gaya, to use <b>kabhi reconsider nahi</b> kiya jaata. Isliye yeh method ek <b>globally best combination miss kar sakta hai</b> jisme koi pehle discard kiya gaya feature ho.</p>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================== -->
+<h3 id="s12"><span class="h2-num">12</span>Sequential Forward Selection — fully traced ⭐</h3>
+<div class="box hook">
+  <div class="box-title">▷ Hook</div>
+  <p style="margin:0">Forward selection <b>koi input feature nahi</b> se start hoti hai. Regression ke liye, baseline model mean target $\bar y$ predict karta hai. Method wo feature add karta hai jo <b>largest validation improvement</b> deta hai, us choice ko fix karta hai, aur repeat karta hai.</p>
+</div>
+
+<div class="solved">
+  <header><span class="qtag">Traced</span><h4>Forward selection, stage by stage</h4></header>
+  <div class="body">
+    <h4 style="margin-top:0">12.1 Baseline model</h4>
+    <div class="formula tight" style="margin:.4rem 0">$$\text{No input feature} \implies \hat y = \bar y$$</div>
+
+    <h4>12.2 Add one feature</h4>
+    <div class="tbl-wrap" style="max-width:460px;margin-top:.4rem">
+    <table class="compact"><thead><tr><th>Candidate subset</th><th class="num">CV $R^2$</th></tr></thead>
+    <tbody>
+    <tr style="background:rgba(16,185,129,.14)"><td>$\{f_1\}$</td><td class="num"><b>0.63</b></td></tr>
+    <tr><td>$\{f_2\}$</td><td class="num">0.51</td></tr>
+    <tr><td>$\{f_3\}$</td><td class="num">0.43</td></tr>
+    <tr><td>$\{f_4\}$</td><td class="num">0.49</td></tr>
+    </tbody></table></div>
+    <div class="answer">Select $f_1$.</div>
+
+    <h4>12.3 Add one feature to $\{f_1\}$</h4>
+    <div class="tbl-wrap" style="max-width:460px;margin-top:.4rem">
+    <table class="compact"><thead><tr><th>Candidate subset</th><th class="num">CV $R^2$</th></tr></thead>
+    <tbody>
+    <tr><td>$\{f_1, f_2\}$</td><td class="num">0.63</td></tr>
+    <tr><td>$\{f_1, f_3\}$</td><td class="num">0.71</td></tr>
+    <tr style="background:rgba(16,185,129,.14)"><td>$\{f_1, f_4\}$</td><td class="num"><b>0.80</b></td></tr>
+    </tbody></table></div>
+    <div class="answer">Select $\{f_1, f_4\}$.</div>
+
+    <h4>12.4 Add one feature to $\{f_1, f_4\}$</h4>
+    <div class="tbl-wrap" style="max-width:460px;margin-top:.4rem">
+    <table class="compact"><thead><tr><th>Candidate subset</th><th class="num">CV $R^2$</th></tr></thead>
+    <tbody>
+    <tr><td>$\{f_1, f_4, f_2\}$</td><td class="num">0.81</td></tr>
+    <tr style="background:rgba(16,185,129,.2)"><td>$\{f_1, f_4, f_3\}$</td><td class="num"><b>0.85</b> ← best overall</td></tr>
+    </tbody></table></div>
+    <div class="answer">Select $\{f_1, f_4, f_3\}$.</div>
+
+    <h4>12.5 Try the final feature</h4>
+    <div class="tbl-wrap" style="max-width:460px;margin-top:.4rem">
+    <table class="compact"><thead><tr><th>Candidate subset</th><th class="num">CV $R^2$</th></tr></thead>
+    <tbody><tr><td>$\{f_1, f_4, f_3, f_2\}$</td><td class="num">0.83</td></tr></tbody></table></div>
+    <p style="margin:.4rem 0 0">The all-feature model scores <b>0.83</b>, below the best three-feature score <b>0.85</b>. The best subset encountered is therefore $\{f_1, f_4, f_3\}$.</p>
+
+    <div class="box takeaway" style="margin-bottom:0">
+      <div class="box-title">♦ Takeaway</div>
+      <p style="margin:0">Forward selection <b>automatically features add karte hi nahi rehti</b> jab tak sab use na ho jaayein. <b>Stop karo</b> jab ek additional feature meaningful validation improvement na de, ya poore forward path ka <b>best subset choose karo</b>.</p>
+    </div>
+
+    <div class="box insight" style="margin-bottom:0">
+      <div class="box-title">Note — backward and forward disagreed!</div>
+      <p style="margin:0">Backward elimination ne $\{f_1, f_2, f_4\}$ pick kiya (0.91). Forward selection ne $\{f_1, f_4, f_3\}$ pick kiya (0.85). <b>Dono greedy hain</b> aur alag paths explore karte hain — isliye wo legitimately <b>different subsets</b> select kar sakte hain. Yeh bug nahi hai; yeh greedy search ki expected property hai.</p>
+    </div>
+  </div>
+</div>
+
+<h4>12.6 When forward or backward selection is more natural ⭐</h4>
+<div class="grid g2">
+  <div class="box def" style="margin:0"><div class="box-title">Use FORWARD when…</div>
+    <p style="margin:0">$p$ is <b>large</b> and the desired final subset is <b>small</b>; for example, keep about <b>10 of 100</b> features.</p>
+    <p style="margin:.4rem 0 0"><small>Reason: you never have to fit a 100-feature model at all.</small></p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Use BACKWARD when…</div>
+    <p style="margin:0">The model <b>can fit all $p$ features</b> and the desired final subset retains <b>most of them</b>; for example, keep about <b>90 of 100</b>.</p>
+    <p style="margin:.4rem 0 0"><small>Reason: you reach the answer in only ~10 removal stages.</small></p></div>
+</div>
+<p>Both are <b>greedy and model-specific</b>, so they can select different subsets (as we just saw).</p>
+
+<h4>12.7 Wrapper-method summary</h4>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Strengths</th><th>Limitations</th></tr></thead>
+<tbody>
+<tr><td>Directly optimizes performance for the chosen model and metric.</td><td>Computationally expensive, especially with cross-validation.</td></tr>
+<tr><td>Can capture useful <b>combinations and interactions</b> that filters miss.</td><td>Can <b>overfit the feature-search procedure</b>.</td></tr>
+<tr><td>Produces a subset tailored to the final modeling goal.</td><td>Selected features may <b>not transfer</b> to a different model.</td></tr>
+<tr><td>Sequential methods are much cheaper than exhaustive search.</td><td>Greedy methods can <b>miss the globally best subset</b>.</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="solved">
+  <header><span class="qtag">Practice P3</span><h4>Wrapper search and reasoning</h4></header>
+  <div class="body">
+    <p><b>(a)</b> The current backward-elimination subset is $\{f_1, f_2, f_4\}$. Removing one feature gives: $\{f_2,f_4\} = 0.79$, $\{f_1,f_4\} = 0.81$, $\{f_1,f_2\} = 0.83$.</p>
+    <ol class="steps">
+      <li><span class="sh">(i) Which subset continues?</span><div class="answer">$\{f_1, f_2\}$ — highest CV $R^2$ (0.83)</div></li>
+      <li><span class="sh">(ii) Which feature is removed?</span><div class="answer">$f_4$</div></li>
+      <li><span class="sh">(iii) Why can the procedure still miss the globally best subset?</span>
+        <p style="margin:.2rem 0 0">Kyunki yeh <b>greedy</b> hai. Har stage par sirf <b>locally best</b> single removal choose hoti hai, aur ek baar feature remove ho gaya to wo <b>kabhi reconsider nahi</b> hota. Ho sakta hai $\{f_3, f_4\}$ ek saath brilliant perform karte, par $f_3$ pehle stage mein hi drop ho gaya tha — to wo combination kabhi test hi nahi hua.</p></li>
+    </ol>
+
+    <ol class="steps" style="margin-top:1rem">
+      <li><span class="sh">(b) For $p = 6$, compare the number of candidate models</span>
+        $$\text{Exhaustive: } 2^6 - 1 = \mathbf{63}$$
+        $$\text{Backward path: } \frac{6(6+1)}{2} = \frac{42}{2} = \mathbf{21}$$
+        <div class="answer">Exhaustive grows <b>exponentially</b> ($2^p$); the sequential backward path grows <b>quadratically</b> ($p^2/2$).</div>
+        <p style="margin:.3rem 0 0">At $p=6$ the gap is 3×. At $p = 30$ it is $10^9$ vs $465$ — a factor of over <b>two million</b>.</p></li>
+
+      <li><span class="sh">(c) Arrange the wrapper loop in the correct order</span>
+        <div class="answer" style="font-family:var(--mono)">E → C → A → B → D</div>
+        <div class="tbl-wrap" style="margin:.5rem 0 0">
+        <table class="compact">
+        <tbody>
+        <tr><td><b>E</b></td><td>Generate an initial candidate subset</td></tr>
+        <tr><td><b>C</b></td><td>Train the chosen model on the candidate subset</td></tr>
+        <tr><td><b>A</b></td><td>Evaluate with validation data or cross-validation</td></tr>
+        <tr><td><b>B</b></td><td>Generate the next candidate subset</td></tr>
+        <tr><td><b>D</b></td><td>Stop when the search or stopping rule is complete</td></tr>
+        </tbody></table></div></li>
+
+      <li><span class="sh">(d) Assertion–Reason</span>
+        <p style="margin:.2rem 0 .4rem"><b>A:</b> If exhaustive search evaluates every nonempty subset correctly, it can find the best subset in that search space.<br>
+        <b>R:</b> Exhaustive search evaluates all $2^p - 1$ nonempty subsets.</p>
+        <div class="answer">(i) Both A and R are true, and R is the correct explanation of A ✓</div></li>
+
+      <li><span class="sh">(e) Match the search direction to the goal</span>
+        <div class="tbl-wrap" style="margin:.4rem 0 0">
+        <table class="compact">
+        <thead><tr><th>Goal</th><th>More natural method</th></tr></thead>
+        <tbody>
+        <tr><td>From 100 features, keep about 10</td><td><b>Forward selection</b></td></tr>
+        <tr><td>From 100 features, retain about 90</td><td><b>Backward elimination</b></td></tr>
+        </tbody></table></div></li>
+    </ol>
+  </div>
+</div>
+
+<!-- =========================================== -->
+<h2 id="part4" style="border-top:2px solid var(--border-2);padding-top:2rem">PART IV · Choosing a method and validating the decision</h2>
+
+<h3 id="s13"><span class="h2-num">13</span>Filter and Wrapper Methods Compared Directly</h3>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Criterion</th><th>Filter</th><th>Wrapper</th></tr></thead>
+<tbody>
+<tr><td>Uses final-model performance directly?</td><td>Usually no</td><td><b>Yes</b></td></tr>
+<tr><td>Captures feature interactions?</td><td>Usually no</td><td><b>Yes</b>, if the chosen model can represent them</td></tr>
+<tr><td>Model-specific?</td><td>Usually no</td><td><b>Yes</b></td></tr>
+<tr><td>Computational cost</td><td><b>Low</b></td><td>High</td></tr>
+<tr><td>Best role</td><td>Fast screening and preprocessing</td><td>Careful subset search for a chosen model</td></tr>
+</tbody>
+</table>
+</div>
+
+<h4>13.1 Practical method-choice rules ⭐</h4>
+<ul>
+  <li><b>Start with filters</b> when $p$ is very large or when obvious duplicates and near-constant columns exist.</li>
+  <li><b>Use a wrapper</b> when the feature count is manageable, model-specific performance matters, and computational budget is available.</li>
+  <li><b>Combine methods</b> when useful: apply simple filters first, then run a wrapper on the reduced set.</li>
+  <li><b>Always compare</b> the selected-feature pipeline with an <b>all-feature baseline</b> using the same validation procedure.</li>
+</ul>
+
+<figure>
+<svg viewBox="0 0 660 120" role="img" aria-label="Pipeline: many features, fast filters, wrapper search, validated compact pipeline">
+  <defs><marker id="pp" markerWidth="8" markerHeight="8" refX="6.5" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#8b5cf6"/></marker></defs>
+  <g font-size="11.5" font-weight="650">
+    <rect x="12" y="26" width="140" height="44" rx="10" fill="rgba(99,102,241,.16)" stroke="#6366f1"/>
+    <text x="82" y="44" text-anchor="middle" style="fill:var(--text)">Many candidate</text><text x="82" y="60" text-anchor="middle" style="fill:var(--text)">features</text>
+    <line x1="152" y1="48" x2="182" y2="48" stroke="#8b5cf6" stroke-width="2" marker-end="url(#pp)"/>
+    <rect x="186" y="26" width="120" height="44" rx="10" fill="rgba(16,185,129,.16)" stroke="#10b981"/>
+    <text x="246" y="53" text-anchor="middle" style="fill:var(--text)">Fast filters</text>
+    <line x1="306" y1="48" x2="336" y2="48" stroke="#8b5cf6" stroke-width="2" marker-end="url(#pp)"/>
+    <rect x="340" y="26" width="136" height="44" rx="10" fill="rgba(139,92,246,.16)" stroke="#8b5cf6"/>
+    <text x="408" y="53" text-anchor="middle" style="fill:var(--text)">Wrapper search</text>
+    <line x1="476" y1="48" x2="506" y2="48" stroke="#8b5cf6" stroke-width="2" marker-end="url(#pp)"/>
+    <rect x="510" y="26" width="138" height="44" rx="10" fill="rgba(6,182,212,.16)" stroke="#06b6d4"/>
+    <text x="579" y="44" text-anchor="middle" style="fill:var(--text)">Validated compact</text><text x="579" y="60" text-anchor="middle" style="fill:var(--text)">pipeline</text>
+  </g>
+  <text x="246" y="92" text-anchor="middle" font-size="10.5" font-style="italic" style="fill:var(--text-3)">remove obvious problems</text>
+  <text x="408" y="92" text-anchor="middle" font-size="10.5" font-style="italic" style="fill:var(--text-3)">judge subsets with the model</text>
+</svg>
+</figure>
+
+<!-- =========================================== -->
+<h3 id="s14"><span class="h2-num">14</span>Validation Discipline: Avoid the Leakage Trap ⭐</h3>
+<div class="box hook">
+  <div class="box-title">▷ Hook</div>
+  <p style="margin:0">Feature selection <b>tumhare model ko sikhaane ka hissa</b> hai. Yeh ek harmless step <b>NAHI</b> hai jo tum data properly split karne se pehle kar sakte ho.</p>
+</div>
+
+<div class="box danger">
+  <div class="box-title">△ WARNING — THE LEAKAGE TRAP</div>
+  <p style="margin:0"><b>Wrong:</b> Poore dataset use karke apne features select karna, aur <b>phir</b> data ko training aur validation sets mein split karna. Agar tum aisa karte ho, to tumhara model feature selection step ke dauraan validation data par <b>"peek" kar chuka</b> hai. Ise <b>data leakage</b> kehte hain, aur isse tumhari performance <b>falsely optimistic</b> dikhegi.</p>
+  <p style="margin:.6rem 0 0"><b>Right:</b> <b>Har cross-validation fold ke andar</b>, feature selection <b>sirf us fold ke training portion</b> se perform karo. Phir untouched validation portion par evaluate karo.</p>
+</div>
+
+<figure>
+<svg viewBox="0 0 660 140" role="img" aria-label="Selection belongs inside the training pipeline">
+  <defs><marker id="lk" markerWidth="8" markerHeight="8" refX="6.5" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#8b5cf6"/></marker></defs>
+  <g font-size="11.5" font-weight="650">
+    <rect x="12" y="34" width="92" height="40" rx="10" fill="rgba(99,102,241,.16)" stroke="#6366f1"/>
+    <text x="58" y="59" text-anchor="middle" style="fill:var(--text)">Raw data</text>
+    <line x1="104" y1="54" x2="130" y2="54" stroke="#8b5cf6" stroke-width="2" marker-end="url(#lk)"/>
+    <rect x="134" y="34" width="80" height="40" rx="10" fill="rgba(99,102,241,.16)" stroke="#6366f1"/>
+    <text x="174" y="59" text-anchor="middle" style="fill:var(--text)">Split</text>
+    <line x1="214" y1="54" x2="240" y2="54" stroke="#8b5cf6" stroke-width="2" marker-end="url(#lk)"/>
+    <rect x="244" y="22" width="190" height="64" rx="10" fill="rgba(245,158,11,.12)" stroke="#f59e0b" stroke-dasharray="6 4"/>
+    <text x="339" y="44" text-anchor="middle" style="fill:var(--text)">Select features &amp; fit</text>
+    <text x="339" y="68" text-anchor="middle" font-size="10" font-style="italic" fill="#fbbf24">learned only from training fold</text>
+    <line x1="434" y1="54" x2="460" y2="54" stroke="#8b5cf6" stroke-width="2" marker-end="url(#lk)"/>
+    <rect x="464" y="34" width="86" height="40" rx="10" fill="rgba(6,182,212,.16)" stroke="#06b6d4"/>
+    <text x="507" y="59" text-anchor="middle" style="fill:var(--text)">Validate</text>
+    <line x1="550" y1="54" x2="576" y2="54" stroke="#8b5cf6" stroke-width="2" marker-end="url(#lk)"/>
+    <rect x="580" y="34" width="70" height="40" rx="10" fill="rgba(239,68,68,.14)" stroke="#ef4444"/>
+    <text x="615" y="52" text-anchor="middle" font-size="11" style="fill:var(--text)">Final test</text>
+    <text x="615" y="66" text-anchor="middle" font-size="11" style="fill:var(--text)">once 🔒</text>
+  </g>
+  <text x="330" y="118" text-anchor="middle" font-size="11" font-style="italic" style="fill:var(--text-3)">Selection belongs INSIDE the training pipeline, never before the split.</text>
+</svg>
+</figure>
+
+<p>The <b>final test set</b> should <b>never</b> be used to choose which features to keep. It is used <b>exactly once</b>, at the very end, to estimate how well your final pipeline will perform in the real world.</p>
+
+<!-- =========================================== -->
+<h3 id="s15"><span class="h2-num">15</span>The Selected Subset Is Not Universal</h3>
+<p>Ek selected feature set ek <b>particular experimental design</b> se supported hota hai; wo ek <b>permanent truth nahi</b> hai.</p>
+<ul>
+  <li>Change the <b>target</b>, and relevant features can change.</li>
+  <li>Change the <b>model</b>, and the useful subset can change.</li>
+  <li>Change the <b>evaluation metric</b>, and the preferred subset can change.</li>
+  <li>Change the <b>sample</b>, and unstable selection procedures may choose different features.</li>
+</ul>
+<p>Therefore, <b>report the selected features together with the dataset, target, model, metric, and validation design that supported them.</b></p>
+
+<!-- =========================================== -->
+<h3 id="s16"><span class="h2-num">16</span>End-to-End Feature-Selection Workflow ⭐</h3>
+<figure>
+<svg viewBox="0 0 660 160" role="img" aria-label="Eight-step end to end feature selection workflow">
+  <defs><marker id="ws" markerWidth="8" markerHeight="8" refX="6.5" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#8b5cf6"/></marker></defs>
+  <g font-size="11" font-weight="650">
+    <rect x="12" y="16" width="130" height="42" rx="10" fill="rgba(99,102,241,.16)" stroke="#6366f1"/><text x="77" y="34" text-anchor="middle" style="fill:var(--text)">1. Goal &amp;</text><text x="77" y="49" text-anchor="middle" style="fill:var(--text)">Metrics</text>
+    <line x1="142" y1="37" x2="166" y2="37" stroke="#8b5cf6" stroke-width="2" marker-end="url(#ws)"/>
+    <rect x="170" y="16" width="130" height="42" rx="10" fill="rgba(99,102,241,.16)" stroke="#6366f1"/><text x="235" y="34" text-anchor="middle" style="fill:var(--text)">2. Split</text><text x="235" y="49" text-anchor="middle" style="fill:var(--text)">Data</text>
+    <line x1="300" y1="37" x2="324" y2="37" stroke="#8b5cf6" stroke-width="2" marker-end="url(#ws)"/>
+    <rect x="328" y="16" width="130" height="42" rx="10" fill="rgba(16,185,129,.16)" stroke="#10b981"/><text x="393" y="34" text-anchor="middle" style="fill:var(--text)">3. Remove</text><text x="393" y="49" text-anchor="middle" style="fill:var(--text)">Duplicates</text>
+    <line x1="458" y1="37" x2="482" y2="37" stroke="#8b5cf6" stroke-width="2" marker-end="url(#ws)"/>
+    <rect x="486" y="16" width="130" height="42" rx="10" fill="rgba(16,185,129,.16)" stroke="#10b981"/><text x="551" y="34" text-anchor="middle" style="fill:var(--text)">4. Apply</text><text x="551" y="49" text-anchor="middle" style="fill:var(--text)">Filters</text>
+
+    <path d="M616 58 Q 640 76, 616 92" fill="none" stroke="#8b5cf6" stroke-width="2" marker-end="url(#ws)"/>
+    <rect x="486" y="94" width="130" height="42" rx="10" fill="rgba(139,92,246,.16)" stroke="#8b5cf6"/><text x="551" y="112" text-anchor="middle" style="fill:var(--text)">5. Wrapper</text><text x="551" y="127" text-anchor="middle" style="fill:var(--text)">Search</text>
+    <line x1="486" y1="115" x2="462" y2="115" stroke="#8b5cf6" stroke-width="2" marker-end="url(#ws)"/>
+    <rect x="328" y="94" width="130" height="42" rx="10" fill="rgba(139,92,246,.16)" stroke="#8b5cf6"/><text x="393" y="112" text-anchor="middle" style="fill:var(--text)">6. Cross-Validate</text><text x="393" y="127" text-anchor="middle" style="fill:var(--text)">Decisions</text>
+    <line x1="328" y1="115" x2="304" y2="115" stroke="#8b5cf6" stroke-width="2" marker-end="url(#ws)"/>
+    <rect x="170" y="94" width="130" height="42" rx="10" fill="rgba(6,182,212,.16)" stroke="#06b6d4"/><text x="235" y="112" text-anchor="middle" style="fill:var(--text)">7. Compare</text><text x="235" y="127" text-anchor="middle" style="fill:var(--text)">to Baseline</text>
+    <line x1="170" y1="115" x2="146" y2="115" stroke="#8b5cf6" stroke-width="2" marker-end="url(#ws)"/>
+    <rect x="12" y="94" width="130" height="42" rx="10" fill="rgba(239,68,68,.14)" stroke="#ef4444"/><text x="77" y="112" text-anchor="middle" style="fill:var(--text)">8. Final</text><text x="77" y="127" text-anchor="middle" style="fill:var(--text)">Test Eval 🔒</text>
+  </g>
+</svg>
+</figure>
+
+<div class="tbl-wrap">
+<table class="compact">
+<tbody>
+<tr><td><b>Step 1</b></td><td>Define the target, evaluation metric, and final modeling goal.</td></tr>
+<tr><td><b>Step 2</b></td><td>Create the train–validation–test structure <b>before</b> learning selection rules.</td></tr>
+<tr><td><b>Step 3</b></td><td>Remove exact duplicates and structurally unusable columns.</td></tr>
+<tr><td><b>Step 4</b></td><td>Use simple filters for obvious low-information or redundant inputs, while checking their limitations.</td></tr>
+<tr><td><b>Step 5</b></td><td>Use a wrapper when model-specific subset evaluation is needed and computationally feasible.</td></tr>
+<tr><td><b>Step 6</b></td><td>Choose thresholds, feature counts, and stopping rules <b>inside</b> cross-validation.</td></tr>
+<tr><td><b>Step 7</b></td><td>Compare with the all-feature baseline; prefer the simpler model <b>only when generalization is maintained or improved</b>.</td></tr>
+<tr><td><b>Step 8</b></td><td>Evaluate <b>once</b> on the untouched test set and report the final feature set with the method used to obtain it.</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="box takeaway">
+  <div class="box-title">♦ Takeaway</div>
+  <p style="margin:0">Feature selection tabhi successful hai jab smaller representation <b>useful signal preserve</b> kare aur complete predictive pipeline ki <b>reliability, efficiency ya interpretability improve</b> kare.</p>
+</div>
+
+<h4>16.1 Closing synthesis</h4>
+<ol>
+  <li>More features can add signal, but they can also add <b>redundancy, noise, computation, and variance</b>.</li>
+  <li><b>Filter methods</b> screen quickly using structural or statistical rules, but usually miss interactions.</li>
+  <li><b>Wrapper methods</b> judge candidate subsets using the chosen model, but repeated fitting is expensive and greedy searches can miss the global optimum.</li>
+  <li>Selection must occur <b>inside validation</b>; the test set remains untouched until every decision is fixed.</li>
+</ol>
+
+<div class="solved">
+  <header><span class="qtag">Practice P4</span><h4>Comprehensive Challenge</h4></header>
+  <div class="body">
+    <ol class="steps">
+      <li><span class="sh">(a) Diagnose the pipeline. A student: (1) computes correlations using the entire dataset; (2) keeps the top five features; (3) runs five-fold cross-validation using those five columns; (4) reports the mean validation score. Is the reported score trustworthy?</span>
+        <div class="answer">No.</div>
+        <p style="margin:.3rem 0 0"><b>The problem:</b> Step 1 mein correlations <b>poore dataset</b> se compute hui — including har wo row jo baad mein CV validation folds mein jaayegi. Isliye feature-selection decision <b>already un rows ko dekh chuki hai</b>. CV ka "unseen data" ab genuinely unseen nahi hai. Yeh <b>data leakage</b> hai aur reported score <b>optimistically biased</b> hai.</p>
+        <p style="margin:.4rem 0 0"><b>Corrected procedure:</b> selection ko CV loop ke <b>andar</b> move karo. Har fold ke liye: (i) us fold ka training portion lo; (ii) <b>sirf us portion</b> se correlations compute karo; (iii) top five features select karo; (iv) us training portion par model fit karo; (v) untouched validation portion par evaluate karo. Phir paanch fold scores average karo. Alag folds <b>alag features</b> select kar sakte hain — yeh bilkul theek hai, aur yeh khud procedure ki stability ka ek useful signal hai.</p></li>
+
+      <li><span class="sh">(b) Choose the most appropriate starting strategy</span>
+        <div class="tbl-wrap" style="margin:.4rem 0 0">
+        <table class="compact">
+        <thead><tr><th>Situation</th><th>Starting strategy</th></tr></thead>
+        <tbody>
+        <tr><td>Thousands of columns contain exact duplicates and near-constant fields</td><td><b>Filters</b> (duplicate removal + variance threshold) — cheap and removes obvious problems at scale</td></tr>
+        <tr><td>A manageable feature set may contain model-specific interactions, and sufficient computation is available</td><td><b>Wrapper</b> — only a wrapper can detect interactions with the chosen model</td></tr>
+        <tr><td>Obvious problems can be removed cheaply, after which a smaller model-aware search is feasible</td><td><b>Combine</b>: filters first, then a wrapper on the reduced set</td></tr>
+        </tbody></table></div></li>
+
+      <li><span class="sh">(c) True or False, with justification</span>
+        <div class="tbl-wrap" style="margin:.4rem 0 0">
+        <table class="compact">
+        <thead><tr><th>Statement</th><th>T/F</th><th>Justification</th></tr></thead>
+        <tbody>
+        <tr><td>The smallest possible feature set is always best</td><td><span class="pill r">F</span></td><td>Chhota tabhi better hai jab generalization maintained ho. Genuinely useful signal discard karna performance kharab karta hai.</td></tr>
+        <tr><td>A low-variance feature is always useless</td><td><span class="pill r">F</span></td><td>Ek rare-but-important condition (Scholarship_flag) strongly predictive ho sakti hai.</td></tr>
+        <tr><td>Wrapper methods usually cost more because they repeatedly fit and evaluate models</td><td><span class="pill g">T</span></td><td>Har candidate subset ke liye full training + cross-validation chahiye.</td></tr>
+        <tr><td>Two different models can legitimately select different features from the same dataset</td><td><span class="pill g">T</span></td><td>Relevance model-conditional hai. Linear model ko interaction term chahiye; tree use khud construct kar leta hai.</td></tr>
+        <tr><td>The test set may be used to choose the correlation threshold</td><td><span class="pill r">F</span></td><td>Test set <b>kabhi</b> kisi bhi decision mein participate nahi karta. Ek baar, aakhir mein.</td></tr>
+        </tbody></table></div></li>
+
+      <li><span class="sh">(d) Arrange the following stages into a trustworthy sequence</span>
+        <div class="answer" style="font-family:var(--mono)">C → B → D → E → A</div>
+        <div class="tbl-wrap" style="margin:.5rem 0 0">
+        <table class="compact">
+        <tbody>
+        <tr><td><b>C</b></td><td>Define the target, metric, and modeling goal</td></tr>
+        <tr><td><b>B</b></td><td>Split the data before learning selection rules</td></tr>
+        <tr><td><b>D</b></td><td>Fit preprocessing, selection, and the model inside cross-validation</td></tr>
+        <tr><td><b>E</b></td><td>Compare with the all-feature baseline and fix all choices</td></tr>
+        <tr><td><b>A</b></td><td>Evaluate once on the untouched test set</td></tr>
+        </tbody></table></div></li>
+
+      <li><span class="sh">(e) Two subsets have nearly the same cross-validated performance. One uses 18 features and the other uses 7. Which would you normally prefer, and what could justify the larger subset?</span>
+        <div class="answer">Normally prefer the <b>7-feature subset</b>.</div>
+        <p style="margin:.3rem 0 0"><b>Why:</b> Equal performance par, simpler model <b>jeetta</b> hai — faster training and inference, lower memory, less multicollinearity, easier to explain, fewer columns to collect and monitor in production, aur lower variance.</p>
+        <p style="margin:.4rem 0 0"><b>What could justify the 18-feature set:</b> (i) agar wo extra features <b>distribution shift</b> ke against robustness dete hain (7-feature model ek narrow signal par over-reliant ho sakta hai); (ii) agar folds ke across uska performance <b>zyada stable</b> hai (kam std deviation), jo suggest karta hai ki 7-feature ka result ek lucky split tha; (iii) agar kuch extra features <b>regulatory ya monitoring</b> reasons se retain karne hote hain.</p></li>
+
+      <li><span class="sh">(f) Why can the selected features change when the target, model, metric, or sample changes?</span>
+        <p style="margin:.2rem 0 0">Kyunki "relevance" koi feature ki <b>intrinsic property nahi</b> hai — wo ek <b>relationship</b> hai.</p>
+        <ul style="margin:.4rem 0 0">
+          <li><b>Target badla:</b> feature ka jis cheez se relate karna tha, wo hi badal gayi.</li>
+          <li><b>Model badla:</b> linear model ko explicit interaction terms chahiye; ek tree unhe khud construct kar leta hai, to alag columns mangega.</li>
+          <li><b>Metric badla:</b> RMSE ke liye optimal subset recall ke liye optimal subset se alag ho sakta hai.</li>
+          <li><b>Sample badla:</b> greedy search paths chhote data changes par sensitive hote hain — ek stage par 0.81 vs 0.83 flip hone se poora baaki path badal jaata hai.</li>
+        </ul></li>
+    </ol>
+  </div>
+</div>
+
+<!-- =========================================== -->
+<h2 id="mistakes">⚠ Common Mistakes</h2>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Galti</th><th>Sahi Baat</th></tr></thead>
+<tbody>
+<tr><td>Poore dataset par features select karke phir split karna</td><td><b>Data leakage.</b> Selection CV ke <b>andar</b>, sirf training fold se.</td></tr>
+<tr><td>"High variance = useful feature"</td><td>Student_ID ki variance huge hai par $r = -0.02$. Variance necessary hai, sufficient nahi.</td></tr>
+<tr><td>"$r = 0$ means no relationship"</td><td>$y = x^2$ par $r = 0$ hota hai jabki $y$ $x$ se <b>completely determined</b> hai. Pearson sirf <b>linear</b> measure karta hai.</td></tr>
+<tr><td>"Smallest subset is always best"</td><td>Sirf tab jab performance maintained ho. Ties par simplicity jeetti hai — losses par nahi.</td></tr>
+<tr><td>Training scores par subsets compare karna</td><td>Features add karne par training score hamesha better lagta hai. <b>Cross-validated</b> scores use karo.</td></tr>
+<tr><td>$x$ aur $x^2$ correlated dekh ke squared term drop karna</td><td>Wo mathematically correlated <b>honge hi</b>. Curvature ki ability chali jaayegi. Validate karo.</td></tr>
+<tr><td>Forward aur backward ka same answer expect karna</td><td>Dono <b>greedy</b> hain aur alag paths explore karte hain — different subsets normal hai.</td></tr>
+<tr><td>Correlation threshold test set se tune karna</td><td>Test set <b>kabhi</b> kisi decision mein nahi. Ek baar, aakhir mein.</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="revision">⚡ Quick Revision</h2>
+<div class="grid g2">
+  <div class="box def" style="margin:0"><div class="box-title">3 feature types</div><p style="margin:0">Relevant · Redundant · Irrelevant</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">3 families</div><p style="margin:0">Filter (before) · Wrapper (during search) · Embedded (during training, L1)</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Variance</div><p style="margin:0">$\operatorname{Var}(f_j) = \frac1n\sum(x_{ij}-\bar x_j)^2$; remove if $&lt; \tau$</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Pearson</div><p style="margin:0">$r_{jY} = \frac{\sum(x_{ij}-\bar x_j)(y_i-\bar y)}{\sqrt{\sum(x_{ij}-\bar x_j)^2\sum(y_i-\bar y)^2}}$</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Exhaustive cost</div><p style="margin:0">$2^p - 1$ &nbsp;(exponential)</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Sequential cost</div><p style="margin:0">$\frac{p(p+1)}{2}$ &nbsp;(quadratic)</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Forward vs Backward</div><p style="margin:0">Forward: keep few of many. Backward: keep most of many.</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Golden rule</div><p style="margin:0">Selection <b>inside</b> CV. Test set touched <b>once</b>.</p></div>
+</div>
+
+<div class="box takeaway">
+  <div class="box-title">♦ By the end of this sheet you can…</div>
+  <ul style="margin:0">
+    <li>Feature selection ko existing inputs ka subset choose karna explain karna.</li>
+    <li>Relevant, redundant aur irrelevant features distinguish karna.</li>
+    <li>Unnecessary features ko variance, sparse high-dimensional coverage, computation aur interpretability se connect karna.</li>
+    <li>Feature selection ko feature transformation se distinguish karna.</li>
+    <li>Duplicate removal, variance threshold, target correlation aur input-correlation screens apply karna — unke cautions ke saath.</li>
+    <li>Explain karna ki zero Pearson correlation zero predictive value imply kyun nahi karta.</li>
+    <li>Exhaustive subsets ki sankhya calculate karna aur backward/forward sequential searches trace karna.</li>
+    <li>Filter aur wrapper methods ko cost, interaction-awareness aur model dependence se compare karna.</li>
+    <li>Selection ko cross-validation ke andar correctly place karna aur final test set protect karna.</li>
+    <li>Ek selected subset ko target, model, metric, sample aur validation design par <b>conditional</b> report karna.</li>
+  </ul>
+</div>
+
+<h2 id="test">✓ Test Yourself — 10 MCQs</h2>
+<div id="mcq-root"></div>
+
+</div>
+</main>
+</div>
+
+<script>
+const MCQS = [
+{ d:'hard',
+  q:'For $x = [-2,-1,0,1,2]$ and $y = x^2$, what is the Pearson correlation $r_{XY}$, and what does a $|r| \\ge 0.30$ filter do?',
+  o:['$r = 1$; the filter keeps $x$',
+     '$r = 0$; the filter REMOVES $x$, even though $y$ is completely determined by $x$',
+     '$r = 0.5$; the filter keeps $x$',
+     '$r$ is undefined because $\\bar x = 0$'],
+  a:1,
+  e:'<b>B.</b> $\\bar x = 0$, $\\bar y = 2$; numerator $= (-2)(2)+(-1)(-1)+0+(1)(-1)+(2)(2) = -4+1+0-1+4 = 0$, so $r = 0$. The filter removes a <b>perfectly predictive</b> feature. Yeh Pearson ki central limitation hai — wo sirf <b>linear</b> association measure karta hai. <b>D</b> is a tempting trap: $\\bar x = 0$ denominator ko zero nahi karta (deviations still nonzero hain).' },
+
+{ d:'med',
+  q:'Backward elimination produced: $\\{f_1,f_2,f_3,f_4\\} = 0.89$, $\\{f_1,f_2,f_4\\} = 0.91$, $\\{f_1,f_2\\} = 0.83$, $\\{f_2\\} = 0.63$. Which subset is selected and why?',
+  o:['$\\{f_2\\}$, because it is the smallest',
+     '$\\{f_1,f_2,f_4\\}$, because it achieved the highest cross-validated $R^2$',
+     '$\\{f_1,f_2,f_3,f_4\\}$, because more features are better',
+     '$\\{f_1,f_2\\}$, because it is the last subset before a large drop'],
+  a:1,
+  e:'<b>B.</b> Selection criterion <b>best CV score</b> hai — 0.91. <b>A</b> is the "smallest is best" misconception the worksheet explicitly rejects. <b>C</b> ignores that removing $f_3$ actually <b>improved</b> the score. <b>D</b> invents a rule that does not exist.' },
+
+{ d:'hard',
+  q:'A student computes correlations on the ENTIRE dataset, keeps the top 5 features, then runs 5-fold CV on those columns. Is the reported score trustworthy?',
+  o:['Yes — cross-validation protects against any bias',
+     'No — the selection step already saw the rows that later become validation folds, so the score is optimistically biased; selection must move INSIDE the CV loop',
+     'Yes, provided the correlation threshold was reasonable',
+     'No, but only because 5 folds is too few'],
+  a:1,
+  e:'<b>B.</b> Leakage <b>selection step</b> mein hui, model-fitting step mein nahi. CV uske baad "honest" lagta hai, par columns already validation rows se chosen the. Fix: har fold ke <b>training portion se hi</b> correlations compute karo. <b>A</b> is the dangerous belief that CV is a universal safety net. <b>C</b> and <b>D</b> miss the actual mechanism.' },
+
+{ d:'hard',
+  q:'For $p = 6$ features, how many models does exhaustive search evaluate versus a backward sequential path?',
+  o:['63 and 21', '64 and 36', '36 and 21', '63 and 15'],
+  a:0,
+  e:'<b>A.</b> Exhaustive $= 2^6 - 1 = 63$ nonempty subsets. Backward path $= \\frac{p(p+1)}{2} = \\frac{6 \\times 7}{2} = 21$. <b>B</b> forgets to subtract the empty set and uses $p^2$. <b>C</b> uses $p^2$ for exhaustive. <b>D</b> uses the $p=4$ answer (15) for the path.' },
+
+{ d:'hard',
+  q:'Student_ID has very high variance. What does the variance filter actually tell you?',
+  o:['That it is a useful predictor, since variance means information',
+     'Nothing about usefulness — a variance filter can reject features that do not vary, but it cannot prove that a varying feature is relevant; Student_ID has $r = -0.02$ with the target',
+     'That it should be scaled before use',
+     'That it is redundant with another column'],
+  a:1,
+  e:'<b>B.</b> Variance ek <b>necessary-but-not-sufficient</b> condition hai. Ek feature ko vary karna <b>aur</b> target ke saath co-vary karna, dono chahiye. Student_ID sirf pehla satisfy karta hai. <b>A</b> is the exact mistake P2(b) asks you to find. <b>C</b> and <b>D</b> describe different issues.' },
+
+{ d:'med',
+  q:'Scholarship_flag equals 1 for only 3% of students. Should it be removed solely because its variance is low?',
+  o:['Yes — low variance always means low information',
+     'No — a low-variance feature may be highly predictive, especially for a rare but important condition; validate before dropping',
+     'Yes, but only if $p$ is large',
+     'No, because low-variance features never affect a model'],
+  a:1,
+  e:'<b>B.</b> Sheet explicitly: "A low-variance feature may be highly predictive, especially for a rare but important condition." Agar wo 3% consistently different outcomes rakhte hain, to yeh unke liye sabse strong signal hai. <b>A</b> and <b>C</b> apply a blanket rule. <b>D</b> is the opposite overstatement — rare features <b>can</b> matter a lot.' },
+
+{ d:'hard',
+  q:'Forward selection chose $\\{f_1,f_4,f_3\\}$ (0.85) while backward elimination chose $\\{f_1,f_2,f_4\\}$ (0.91) on the same data. What does this indicate?',
+  o:['One of the two implementations has a bug',
+     'Both are greedy and explore different paths, so legitimately selecting different subsets is expected behaviour, not an error',
+     'Forward selection is always inferior to backward elimination',
+     'The dataset must have multicollinearity'],
+  a:1,
+  e:'<b>B.</b> Dono methods har stage par <b>locally best</b> decision lete hain aur removed/skipped features ko kabhi reconsider nahi karte. Alag starting points ⟹ alag paths ⟹ alag endpoints. Sheet: "Both are greedy and model-specific, so they can select different subsets." <b>A</b> and <b>C</b> misread expected behaviour as failure. <b>D</b> is unrelated.' },
+
+{ d:'hard',
+  q:'When is FORWARD selection more natural than backward elimination?',
+  o:['When you want to keep about 90 of 100 features',
+     'When $p$ is large and the desired final subset is small — e.g. keep about 10 of 100 — because you never need to fit the full 100-feature model',
+     'Always, because it is faster',
+     'When the model cannot handle missing values'],
+  a:1,
+  e:'<b>B.</b> Forward chhote subsets tak <b>kam steps</b> mein pahuchta hai aur kabhi full-$p$ model fit nahi karta (jo $p \\gg n$ par impossible bhi ho sakta hai). <b>A</b> is exactly the <b>backward</b> case. <b>C</b> is false — 90 of 100 rakhne par backward kahin faster hai. <b>D</b> is unrelated.' },
+
+{ d:'hard',
+  q:'Project_depth and Project_depth² are highly correlated. A student immediately removes the squared term. Is this justified?',
+  o:['Yes — high correlation always means redundancy',
+     'No — $x$ and $x^2$ are correlated as a mathematical artefact; the squared term was engineered specifically to capture curvature, so the decision must be validated',
+     'Yes, because polynomial features always overfit',
+     'No, because correlation cannot be computed for squared terms'],
+  a:1,
+  e:'<b>B.</b> Sheet ki explicit warning: "$x$ and $x^2$ can be correlated, but both may be needed to represent curvature." Squared term hataane se model ki bend karne ki poori ability chali jaati hai (👉 Lecture 8). Decision <b>validation performance</b> se leni chahiye. <b>A</b> is the blind pairwise rule being warned against. <b>C</b> overgeneralises. <b>D</b> is false.' },
+
+{ d:'med',
+  q:'Two subsets have nearly identical cross-validated performance: one uses 18 features, one uses 7. Which is normally preferred?',
+  o:['The 18-feature subset, because more information is safer',
+     'The 7-feature subset — simpler, cheaper, more stable and easier to explain; the larger set is justified only by specific reasons such as robustness to distribution shift or better fold-to-fold stability',
+     'Neither — you must always use all available features',
+     'Whichever has the higher training score'],
+  a:1,
+  e:'<b>B.</b> Performance <b>ties</b> par simplicity jeetti hai: faster, less multicollinearity, fewer columns to collect and monitor, lower variance. Yeh "smallest is always best" se alag hai — yahan performance <b>equal</b> hai. <b>A</b> and <b>C</b> ignore the cost of complexity. <b>D</b> uses exactly the score that adding features always inflates.' },
+];
+</script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="window.dispatchEvent(new Event('katex-ready'))"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

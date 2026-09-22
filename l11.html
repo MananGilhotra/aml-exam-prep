@@ -1,0 +1,1140 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lecture 11 · Dimensionality Reduction and PCA — AML Exam Prep</title>
+<meta name="description" content="Feature extraction vs selection, mean centering, projections, covariance matrix, eigenvalues and eigenvectors, scree plots, choosing k, and when PCA fails.">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page="l11">
+<div class="shell">
+<main class="main">
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Worksheet 11 · Lecture 11</div>
+  <h1>Dimensionality Reduction<br>and <span class="gradtext">PCA</span></h1>
+  <p class="sub">Feature Extraction · Covariance · Eigenvectors · Principal Components</p>
+  <div class="chips">
+    <span class="chip accent">⏱ ~38 min</span><span class="chip">🧩 5 Parts</span>
+    <span class="chip">🧮 Full PCA by hand</span><span class="chip">✓ 10 MCQs</span>
+  </div>
+</header>
+
+<div class="box hinglish">
+  <div class="box-title">⚡ Ek Line Mein</div>
+  <p style="margin:0">Feature selection poochta hai "kaunse <b>original axes</b> rehne chahiye?". PCA poochta hai "kya hum <b>naye rotated axes</b> bana sakte hain jo saari information kam directions mein pack kar dein?". Procedure: <b>center</b> karo → <b>covariance matrix $S$</b> banao → uske <b>eigenvalues aur eigenvectors</b> nikalo → eigenvalues ko descending sort karo → <b>top $k$</b> rakho → data ko un par <b>project</b> karo. Eigenvalue $\lambda_j$ = us direction par captured variance.</p>
+</div>
+
+<!-- ================================================ -->
+<h2 id="part1" style="border-top:2px solid var(--border-2);padding-top:2rem">PART I · Why Dimensionality Reduction?</h2>
+<p>Jab ek dataset mein bohot saare features hote hain, sab equally useful nahi hote. Kuch important signal carry karte hain jabki doosre <b>noise aur computational cost</b> add karte hain. Hum wo kaise rakhein jo matter karta hai?</p>
+
+<h3 id="s0">Many pixels, little additional signal</h3>
+<div class="box hook">
+  <div class="box-title">▷ Hook</div>
+  <p style="margin:0">Lecture 10 mein humne dekha ki zyada features variance badha sakte hain aur generalization ko harm kar sakte hain. Feature selection ne answer diya: <em>"Kaunse original columns rehne chahiye?"</em> Par agar information <b>kai columns mein bikhri</b> hui ho aur koi ek column use akele capture na karta ho?</p>
+</div>
+<p>Maan lo hum ek AI model bana rahe hain jo image mein present object ka shape identify karta hai. Image ka size $m \times m$ pixels hai. Yeh question consider karo:</p>
+<ul>
+  <li>Kya hume model ko complete $m \times m$ image feed karni chahiye?</li>
+  <li>Ya ek tightly cropped $n \times n$ image use karni chahiye?</li>
+  <li>Ya ek perfectly cropped $f \times f$ image jo <b>sirf object</b> contain karta ho?</li>
+</ul>
+
+<figure>
+<svg viewBox="0 0 660 250" role="img" aria-label="Image crop regions and performance versus cost tradeoff">
+  <g>
+    <text x="150" y="20" text-anchor="middle" font-size="12.5" font-weight="800" style="fill:var(--text)">Image Representation</text>
+    <rect x="52" y="34" width="196" height="150" fill="rgba(148,163,184,.14)" style="stroke:var(--border-2)"/>
+    <g stroke="rgba(148,163,184,.25)" stroke-width="1">
+      <line x1="52" y1="64" x2="248" y2="64"/><line x1="52" y1="94" x2="248" y2="94"/>
+      <line x1="52" y1="124" x2="248" y2="124"/><line x1="52" y1="154" x2="248" y2="154"/>
+      <line x1="82" y1="34" x2="82" y2="184"/><line x1="112" y1="34" x2="112" y2="184"/>
+      <line x1="142" y1="34" x2="142" y2="184"/><line x1="172" y1="34" x2="172" y2="184"/><line x1="202" y1="34" x2="202" y2="184"/>
+    </g>
+    <rect x="94" y="62" width="112" height="94" fill="none" stroke-width="1.6" stroke-dasharray="4 3" style="stroke:var(--text-2)"/>
+    <text x="150" y="150" text-anchor="middle" font-size="9.5" style="fill:var(--text-3)">n × n (Tight Crop)</text>
+    <rect x="118" y="80" width="64" height="52" fill="none" stroke-width="1.6" stroke-dasharray="3 2" style="stroke:var(--text)"/>
+    <text x="150" y="74" text-anchor="middle" font-size="9.5" style="fill:var(--text-3)">f × f (Object)</text>
+    <polygon points="150,92 168,106 161,124 139,124 132,106" fill="rgba(148,163,184,.55)"/>
+    <text x="150" y="112" text-anchor="middle" font-size="8" font-weight="700" style="fill:var(--text)">OBJECT</text>
+    <text x="150" y="204" text-anchor="middle" font-size="10" style="fill:var(--text-3)">m × m (Full Image with Background)</text>
+  </g>
+  <g transform="translate(320,0)">
+    <text x="170" y="20" text-anchor="middle" font-size="12.5" font-weight="800" style="fill:var(--text)">Performance vs. Cost Tradeoff</text>
+    <line x1="42" y1="190" x2="320" y2="190" stroke-width="1.4" style="stroke:var(--border-2)"/>
+    <line x1="42" y1="190" x2="42" y2="34" stroke-width="1.4" style="stroke:var(--border-2)"/>
+    <rect x="180" y="34" width="140" height="156" fill="rgba(239,68,68,.07)"/>
+    <path d="M50 182 C 80 92, 110 56, 150 52 C 220 48, 280 48, 316 48" fill="none" stroke-width="2.6" style="stroke:var(--text)"/>
+    <path d="M50 188 C 120 184, 190 160, 250 112 C 288 78, 306 54, 316 40" fill="none" stroke-width="2.4" stroke-dasharray="6 4" style="stroke:var(--text-2)"/>
+    <line x1="150" y1="52" x2="150" y2="190" stroke-width="1.2" stroke-dasharray="3 3" style="stroke:var(--text-3)"/>
+    <text x="118" y="76" font-size="10" font-weight="700" style="fill:var(--text)">Plateaus</text>
+    <text x="122" y="88" font-size="10" font-weight="700" style="fill:var(--text)">at f²</text>
+    <text x="150" y="204" text-anchor="middle" font-size="10" style="fill:var(--text-3)">f²</text>
+    <text x="220" y="204" text-anchor="middle" font-size="10" style="fill:var(--text-3)">n²</text>
+    <text x="300" y="204" text-anchor="middle" font-size="10" style="fill:var(--text-3)">m²</text>
+    <text x="250" y="150" text-anchor="middle" font-size="9.5" font-style="italic" fill="#f87171">Diminishing</text>
+    <text x="250" y="162" text-anchor="middle" font-size="9.5" font-style="italic" fill="#f87171">Returns Zone</text>
+    <text x="326" y="186" font-size="11" font-weight="700" style="fill:var(--text-2)">Pixels (p)</text>
+    <g font-size="10" font-weight="700">
+      <line x1="200" y1="44" x2="220" y2="44" stroke-width="2.6" style="stroke:var(--text)"/><text x="226" y="48" style="fill:var(--text-2)">Model Accuracy</text>
+      <line x1="200" y1="60" x2="220" y2="60" stroke-width="2.4" stroke-dasharray="5 3" style="stroke:var(--text-2)"/><text x="226" y="64" style="fill:var(--text-2)">Cost O(p²)</text>
+    </g>
+  </g>
+</svg>
+<figcaption>Model performance <b>saturate</b> ho jaati hai jab object capture ho jaata hai ($f^2$), jabki computational cost <b>explode</b> karta rehta hai jaise uninformative background pixels ($m^2$) include hote hain.</figcaption>
+</figure>
+
+<div class="box warn">
+  <div class="box-title">Classroom question</div>
+  <p style="margin:0">Agar full $m \times m$ image lagbhag utni hi accuracy deti hai jitni $f \times f$ crop, par kahin zyada computation chahiye — to wo <b>additional pixels contribute kya</b> kar rahe hain?<br>
+  <b>Answer:</b> Lagbhag kuch nahi. Wo <b>redundancy aur noise</b> add karte hain (background jo object ke saath nahi badalta), aur cost badhate hain. <b>Yehi</b> dimensionality reduction ki motivation hai — wo dimensions dhoondo jo actually information carry karte hain.</p>
+</div>
+
+<!-- ================================================ -->
+<h3 id="s1"><span class="h2-num">1</span>From selecting features to extracting directions</h3>
+<h4>1.1 Why dimensionality can become a learning problem</h4>
+<p>Jab ek dataset mein bohot features (columns) hote hain, har observation ko ek <b>high-dimensional space mein ek point</b> ki tarah socha ja sakta hai. Zyada features ka matlab model ke liye zyada information — par saare features equally useful nahi hote. Kuch important patterns (<b>signal</b>) carry karte hain, jabki doosre unnecessary complexity ya random <b>noise</b> add karte hain.</p>
+<div class="box takeaway">
+  <div class="box-title">♦ Takeaway</div>
+  <p style="margin:0">High dimensionality <b>automatically bad nahi</b> hai; difficulty tab aati hai jab <b>representation size stable information se tezi se badhta hai</b>.</p>
+</div>
+
+<h4>1.2 Feature selection vs feature extraction ⭐</h4>
+<figure>
+<svg viewBox="0 0 660 260" role="img" aria-label="Feature selection discards an axis while PCA constructs new rotated axes">
+  <g>
+    <text x="164" y="22" text-anchor="middle" font-size="12.5" font-weight="800" style="fill:var(--text)">Feature Selection</text>
+    <line x1="80" y1="170" x2="230" y2="170" stroke-width="1.8" style="stroke:var(--text)"/>
+    <text x="238" y="174" font-size="11" font-weight="700" style="fill:var(--text-2)">x₁</text>
+    <line x1="80" y1="170" x2="80" y2="52" stroke-width="1.8" style="stroke:var(--text)"/>
+    <text x="72" y="44" font-size="11" font-weight="700" style="fill:var(--text-2)">x₂</text>
+    <line x1="80" y1="170" x2="30" y2="216" stroke-width="1.8" style="stroke:var(--text-3)"/>
+    <text x="20" y="230" font-size="11" font-weight="700" style="fill:var(--text-3)">x₃</text>
+    <line x1="42" y1="192" x2="62" y2="212" stroke="#ef4444" stroke-width="2.6"/>
+    <line x1="62" y1="192" x2="42" y2="212" stroke="#ef4444" stroke-width="2.6"/>
+    <g style="fill:var(--text)"><circle cx="104" cy="152" r="4"/><circle cx="124" cy="140" r="4"/><circle cx="142" cy="124" r="4"/><circle cx="160" cy="112" r="4"/><circle cx="178" cy="98" r="4"/></g>
+    <g fill="#94a3b8"><circle cx="112" cy="132" r="4"/><circle cx="134" cy="152" r="4"/><circle cx="168" cy="122" r="4"/></g>
+    <text x="164" y="240" text-anchor="middle" font-size="10" style="fill:var(--text-3)">Discards axis x₃ completely.</text>
+    <text x="164" y="252" text-anchor="middle" font-size="10" style="fill:var(--text-3)">Keeps only original axes {x₁, x₂}.</text>
+  </g>
+  <g transform="translate(340,0)">
+    <text x="164" y="22" text-anchor="middle" font-size="12.5" font-weight="800" style="fill:var(--text)">Feature Extraction (PCA)</text>
+    <line x1="80" y1="170" x2="230" y2="170" stroke-width="1.3" style="stroke:var(--text-3)"/>
+    <text x="238" y="174" font-size="11" style="fill:var(--text-3)">x₁</text>
+    <line x1="80" y1="170" x2="80" y2="52" stroke-width="1.3" style="stroke:var(--text-3)"/>
+    <text x="72" y="44" font-size="11" style="fill:var(--text-3)">x₂</text>
+    <line x1="80" y1="170" x2="30" y2="216" stroke-width="1.3" style="stroke:var(--text-3)"/>
+    <text x="20" y="230" font-size="11" style="fill:var(--text-3)">x₃</text>
+    <line x1="88" y1="164" x2="212" y2="72" stroke-width="2.6" style="stroke:var(--text)"/>
+    <text x="220" y="70" font-size="11" font-weight="800" style="fill:var(--text)">PC₁</text>
+    <line x1="150" y1="140" x2="112" y2="86" stroke-width="2.2" style="stroke:var(--text)"/>
+    <text x="104" y="78" font-size="11" font-weight="800" style="fill:var(--text)">PC₂</text>
+    <g style="fill:var(--text)"><circle cx="106" cy="152" r="4"/><circle cx="128" cy="136" r="4"/><circle cx="150" cy="120" r="4"/><circle cx="172" cy="104" r="4"/><circle cx="194" cy="88" r="4"/></g>
+    <text x="164" y="240" text-anchor="middle" font-size="10" style="fill:var(--text-3)">Constructs new rotated orthogonal axes</text>
+    <text x="164" y="252" text-anchor="middle" font-size="10" style="fill:var(--text-3)">PC₁ = w₁x₁ + w₂x₂ + w₃x₃</text>
+  </g>
+</svg>
+<figcaption>Fig 1: Feature selection <b>entire original features (axes) discard</b> kar deta hai, potentially signal kho kar. PCA <b>naye rotated orthogonal axes construct</b> karta hai jo maximum variance ki true directions ke saath align hote hain.</figcaption>
+</figure>
+
+<h4>1.3 What is PCA?</h4>
+<p><b>What is PCA?</b> Socho tumhare paas bohot features wala dataset hai, par zyadatar useful information <b>sirf kuch directions mein concentrated</b> hai. PCA ek technique hai jo data mein yeh important directions dhoondti hai.</p>
+<p><b>What problem does it solve?</b> Jab bohot features hote hain, models <b>slow</b> ho sakte hain aur real patterns ki jagah <b>noise seekh</b> sakte hain. PCA features ki sankhya reduce karta hai <b>jitni ho sake utni useful information rakhte hue</b>.</p>
+<p><b>What is it actually doing to the data?</b> PCA data ke <b>coordinate axes ko rotate</b> karta hai taaki naye axes un directions ke along point karein jahan data sabse zyada vary karta hai. Phir wo sirf top few directions (jinhe <b>principal components</b> kehte hain) rakhta hai aur baaki discard kar deta hai. Ise aise socho: <b>data ko dekhne ka best angle dhoondna taaki tumhe sabse zyada spread dikhe</b>.</p>
+
+<div class="box insight">
+  <div class="box-title">★ Key Insight — the exam definition</div>
+  <p style="margin:0"><b>Principal Component Analysis (PCA)</b> ek <b>unsupervised linear feature-extraction method</b> hai jo <b>orthogonal axes (principal components)</b> ka ek naya set dhoondta hai jinke along data ka <b>variance maximized</b> hota hai.</p>
+</div>
+
+<!-- ================================================ -->
+<h2 id="part2" style="border-top:2px solid var(--border-2);padding-top:2rem">PART II · Building Blocks for PCA</h2>
+
+<h3 id="s2"><span class="h2-num">2</span>Notation and mean centering</h3>
+<h4>2.1 Data matrix and notation ⭐</h4>
+<p>$X$ ki har <b>row</b> ek observation hai. Har <b>column</b> ek measured feature hai. PCA wo <b>coordinate system badalta hai</b> jo same observations describe karne ke liye use hota hai.</p>
+
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Symbol</th><th>Dimensions</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td>$n$</td><td>—</td><td>Number of observations</td></tr>
+<tr><td>$p$</td><td>—</td><td>Number of original features</td></tr>
+<tr><td>$k$</td><td>—</td><td>Number of retained principal components ($k \le p$)</td></tr>
+<tr><td>$X$</td><td>$n \times p$</td><td>Original data matrix; row $i$ is observation $\mathbf x_i^\top$</td></tr>
+<tr><td>$\boldsymbol\mu$</td><td>$p \times 1$</td><td>Vector of training-feature means</td></tr>
+<tr><td>$X_c$</td><td>$n \times p$</td><td>Centered data matrix</td></tr>
+<tr><td>$S$</td><td>$p \times p$</td><td>Sample covariance matrix of the centered features</td></tr>
+<tr><td>$\mathbf v_j$</td><td>$p \times 1$</td><td>Unit eigenvector / direction of principal component $j$</td></tr>
+<tr><td>$\lambda_j$</td><td>—</td><td>Eigenvalue associated with $\mathbf v_j$; <b>variance captured</b></td></tr>
+<tr><td>$W_k$</td><td>$p \times k$</td><td>Matrix whose columns are the first $k$ eigenvectors</td></tr>
+<tr><td>$Z$</td><td>$n \times k$</td><td>Transformed data: the principal-component <b>scores</b></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="box danger">
+  <div class="box-title">△ WARNING</div>
+  <p style="margin:0"><b>Split first.</b> Means, standard deviations aur PCA directions <b>sirf training set par fit</b> karo. Wahi fitted transformation validation aur test data par apply karo.</p>
+</div>
+
+<h4>2.2 Step 1: Mean centering and standardization ⭐</h4>
+<div class="formula"><span class="flabel">Mean centering</span>$$X_c = X - \mathbf 1\,\boldsymbol\mu^\top$$</div>
+<div class="box def">
+  <div class="box-title">Understanding every term and its dimensions</div>
+  <ul style="margin:0">
+    <li>$X$ is the <b>data matrix</b> of size $n \times p$ ($n$ observations, $p$ features).</li>
+    <li>$\boldsymbol\mu$ is the <b>column mean vector</b> of size $p \times 1$, where $\mu_j = \frac{1}{n}\sum_{i=1}^{n}x_{ij}$ is the mean of feature $j$.</li>
+    <li>$\boldsymbol\mu^\top$ is the <b>transpose</b> of $\boldsymbol\mu$, giving a $1 \times p$ <b>row vector</b>.</li>
+    <li>$\mathbf 1$ is a <b>column vector of ones</b> of size $n \times 1$.</li>
+    <li>The product $\mathbf 1\boldsymbol\mu^\top$ is an <b>outer product</b>: $(n\times1)(1\times p) = n \times p$. It <b>replicates the mean row $n$ times</b>, producing a matrix the same size as $X$.</li>
+  </ul>
+</div>
+
+<div class="solved">
+  <header><span class="qtag">Running dataset</span><h4>Mean centering — 3 houses, 2 features</h4></header>
+  <div class="body">
+    <div class="tbl-wrap" style="margin-top:0;max-width:520px">
+    <table class="compact">
+    <thead><tr><th>House</th><th class="num">Bedroom-area index $f_1$</th><th class="num">Washroom-area index $f_2$</th></tr></thead>
+    <tbody>
+    <tr><td>A</td><td class="num">2</td><td class="num">1</td></tr>
+    <tr><td>B</td><td class="num">4</td><td class="num">3</td></tr>
+    <tr><td>C</td><td class="num">6</td><td class="num">5</td></tr>
+    </tbody></table></div>
+
+    <ol class="steps">
+      <li><span class="sh">Compute the feature means</span>
+        $$\mu_1 = \frac{2+4+6}{3} = 4, \qquad \mu_2 = \frac{1+3+5}{3} = 3$$
+        $$\boldsymbol\mu = \begin{bmatrix}4\\3\end{bmatrix}, \qquad \boldsymbol\mu^\top = \begin{bmatrix}4 & 3\end{bmatrix}$$</li>
+      <li><span class="sh">Form the outer product $\mathbf 1\boldsymbol\mu^\top$</span>
+        $$\underbrace{\begin{bmatrix}1\\1\\1\end{bmatrix}}_{3\times1}\underbrace{\begin{bmatrix}4 & 3\end{bmatrix}}_{1\times2} = \underbrace{\begin{bmatrix}4 & 3\\ 4 & 3\\ 4 & 3\end{bmatrix}}_{3\times2}$$</li>
+      <li><span class="sh">Subtract from $X$</span>
+        $$X_c = X - \mathbf 1\boldsymbol\mu^\top = \begin{bmatrix}2 & 1\\ 4 & 3\\ 6 & 5\end{bmatrix} - \begin{bmatrix}4 & 3\\ 4 & 3\\ 4 & 3\end{bmatrix} = \begin{bmatrix}-2 & -2\\ 0 & 0\\ 2 & 2\end{bmatrix}$$
+        <div class="answer">After centering, <b>every feature column has a mean of zero</b>. ✓ ($(-2+0+2)/3 = 0$)</div></li>
+    </ol>
+  </div>
+</div>
+
+<div class="box danger">
+  <div class="box-title">△ WARNING — MEAN CENTERING IS COMPULSORY</div>
+  <p style="margin:0">PCA <b>maximum variance ki directions</b> dhoondta hai. Agar data centered nahi hai, to <b>mean offset variance calculation ko distort</b> kar deta hai — pehla component data ke spread ki jagah <b>origin se mean tak ki direction</b> par point karne lagta hai. Isliye mean centering PCA se pehle <b>hamesha</b> perform karna chahiye, chahe dataset koi bhi ho.</p>
+</div>
+
+<h4>When is standardization also needed?</h4>
+<p>Mean centering ke baad, hum additionally har feature ko uske <b>standard deviation se divide</b> kar sakte hain:</p>
+<div class="formula">$$z_{ij} = \frac{x_{ij} - \mu_j}{s_j}, \qquad\text{where}\qquad s_j = \sqrt{\frac{1}{n-1}\sum_{i=1}^{n}(x_{ij}-\mu_j)^2}$$</div>
+<ul>
+  <li>$i$ = <b>observation index</b> (which row), ranging from 1 to $n$.</li>
+  <li>$j$ = <b>feature index</b> (which column), ranging from 1 to $p$.</li>
+  <li>$x_{ij}$ = the <b>original value</b> of feature $j$ for observation $i$.</li>
+  <li>$\mu_j$ = the <b>mean</b> of feature $j$ across all $n$ observations.</li>
+  <li>$s_j$ = the <b>sample standard deviation</b> of feature $j$.</li>
+</ul>
+
+<div class="solved">
+  <header><span class="qtag">Continuing</span><h4>Standardizing the running example</h4></header>
+  <div class="body">
+    $$s_1 = \sqrt{\frac{(-2)^2+0^2+2^2}{2}} = \sqrt{\frac{8}{2}} = \sqrt{4} = 2, \qquad s_2 = \sqrt{\frac{(-2)^2+0^2+2^2}{2}} = 2$$
+    $$z_{11} = \frac{2-4}{2} = -1, \quad z_{12} = \frac{1-3}{2} = -1, \quad z_{21} = \frac{4-4}{2} = 0, \quad z_{22} = \frac{3-3}{2} = 0$$
+    $$z_{31} = \frac{6-4}{2} = 1, \quad z_{32} = \frac{5-3}{2} = 1 \qquad\Longrightarrow\qquad X_{\text{std}} = \begin{bmatrix}-1 & -1\\ 0 & 0\\ 1 & 1\end{bmatrix}$$
+    <div class="grid g2" style="margin-top:1rem">
+      <div class="box def" style="margin:0"><div class="box-title">Use centering only</div>
+        <p style="margin:0">Jab features <b>comparable units share</b> karte hain aur unki original variances <b>meaningful information</b> carry karti hain.</p></div>
+      <div class="box def" style="margin:0"><div class="box-title">Use standardization</div>
+        <p style="margin:0">Jab features ke <b>different units ya scales</b> hain (e.g. rupees vs years), taaki koi ek feature purely apne <b>scale ki wajah se variance dominate na</b> kare.</p></div>
+    </div>
+  </div>
+</div>
+
+<div class="box insight">
+  <div class="box-title">★ Key Insight — Summary</div>
+  <p style="margin:0">Mean centering <b>hamesha required</b> hai for PCA. Standardization ek <b>conditional choice</b> hai — use tab apply karo jab features ke different units hon ya jab tum nahi chahte ki koi feature apne original scale se dominate kare. Humare running example mein dono features same units share karte hain, to <b>centering alone suffices</b>.</p>
+</div>
+
+<!-- ================================================ -->
+<h4 id="s23">2.3 When one direction captures most of the variance</h4>
+<figure>
+<svg viewBox="0 0 560 220" role="img" aria-label="Axis aligned variance: dropping x2 preserves most information">
+  <rect x="14" y="12" width="500" height="26" rx="6" fill="rgba(16,185,129,.12)" stroke="#10b981"/>
+  <text x="264" y="30" text-anchor="middle" font-size="11" font-weight="700" style="fill:var(--text)">Axis-aligned variance: dropping x₂ preserves &gt; 98% of total variance. Simple Feature Selection is sufficient!</text>
+  <line x1="60" y1="175" x2="480" y2="175" stroke-width="1.4" style="stroke:var(--border-2)"/>
+  <line x1="60" y1="175" x2="60" y2="52" stroke-width="1.4" style="stroke:var(--border-2)"/>
+  <g style="fill:var(--text)">
+    <circle cx="96" cy="112" r="4"/><circle cx="130" cy="104" r="4"/><circle cx="164" cy="118" r="4"/><circle cx="198" cy="102" r="4"/>
+    <circle cx="232" cy="110" r="4"/><circle cx="266" cy="100" r="4"/><circle cx="300" cy="116" r="4"/><circle cx="334" cy="106" r="4"/>
+    <circle cx="368" cy="98" r="4"/><circle cx="402" cy="112" r="4"/><circle cx="436" cy="104" r="4"/><circle cx="468" cy="110" r="4"/>
+  </g>
+  <line x1="496" y1="96" x2="496" y2="120" stroke="#ef4444" stroke-width="2"/>
+  <path d="M492 100 l4 -5 l4 5 M492 116 l4 5 l4 -5" fill="none" stroke="#ef4444" stroke-width="2"/>
+  <text x="504" y="104" font-size="10" font-weight="700" fill="#ef4444">Tiny Variance</text>
+  <text x="504" y="116" font-size="10" fill="#ef4444">Var(x₂) ≈ 0.05</text>
+  <text x="180" y="150" font-size="11" font-weight="700" style="fill:var(--text)">Large Variance along x₁ (Var(x₁) ≈ 4.5)</text>
+  <text x="400" y="194" font-size="11.5" font-weight="700" style="fill:var(--text-2)">Number of Rooms (x₁)</text>
+</svg>
+<figcaption>Fig 2: Jab data ka variance ek <b>original feature axis</b> ke saath align hota hai, us feature ko select karna hi lagbhag saari information preserve kar deta hai — PCA ki zaroorat hi nahi.</figcaption>
+</figure>
+<p>Par tab kya hota hai jab data <b>kisi bhi original axis ke saath neatly align na</b> ho?</p>
+
+<h4 id="s24">2.4 Rotating the axes when data lies diagonally ⭐</h4>
+<figure>
+<svg viewBox="0 0 660 260" role="img" aria-label="Original axes discard variance while PCA rotates to align with the diagonal spread">
+  <g>
+    <text x="164" y="20" text-anchor="middle" font-size="12" font-weight="800" style="fill:var(--text)">Original Axes (x₁, x₂)</text>
+    <text x="164" y="34" text-anchor="middle" font-size="9.5" style="fill:var(--text-3)">Projections onto original axes discard variance</text>
+    <line x1="30" y1="150" x2="300" y2="150" stroke-width="1.4" style="stroke:var(--border-2)"/>
+    <text x="306" y="154" font-size="10.5" style="fill:var(--text-3)">x₁</text>
+    <line x1="165" y1="240" x2="165" y2="46" stroke-width="1.4" style="stroke:var(--border-2)"/>
+    <text x="172" y="54" font-size="10.5" style="fill:var(--text-3)">x₂</text>
+    <g fill="#94a3b8" opacity=".75">
+      <circle cx="96" cy="206" r="4"/><circle cx="112" cy="196" r="4"/><circle cx="128" cy="184" r="4"/><circle cx="144" cy="168" r="4"/>
+      <circle cx="160" cy="156" r="4"/><circle cx="180" cy="140" r="4"/><circle cx="196" cy="126" r="4"/><circle cx="212" cy="114" r="4"/>
+      <circle cx="228" cy="100" r="4"/><circle cx="244" cy="86" r="4"/>
+    </g>
+    <g style="fill:var(--text)"><circle cx="96" cy="150" r="4"/><circle cx="112" cy="150" r="4"/><circle cx="128" cy="150" r="4"/><circle cx="144" cy="150" r="4"/><circle cx="160" cy="150" r="4"/><circle cx="180" cy="150" r="4"/><circle cx="196" cy="150" r="4"/><circle cx="212" cy="150" r="4"/><circle cx="228" cy="150" r="4"/><circle cx="244" cy="150" r="4"/></g>
+    <g stroke="rgba(148,163,184,.5)" stroke-width="1" stroke-dasharray="2 2">
+      <line x1="96" y1="206" x2="96" y2="150"/><line x1="144" y1="168" x2="144" y2="150"/><line x1="196" y1="126" x2="196" y2="150"/><line x1="244" y1="86" x2="244" y2="150"/>
+    </g>
+    <text x="112" y="230" font-size="9.5" style="fill:var(--text-3)">Bedroom Area</text>
+    <text x="196" y="72" font-size="9.5" style="fill:var(--text-3)">Washroom Area</text>
+    <text x="150" y="250" text-anchor="middle" font-size="9.5" font-weight="700" fill="#ef4444">Compressed spread along x₁</text>
+  </g>
+  <g transform="translate(340,0)">
+    <text x="164" y="20" text-anchor="middle" font-size="12" font-weight="800" style="fill:var(--text)">PCA Rotated Axes (PC₁, PC₂)</text>
+    <text x="164" y="34" text-anchor="middle" font-size="9.5" style="fill:var(--text-3)">PC₁ captures 96% of total variance</text>
+    <line x1="30" y1="150" x2="300" y2="150" stroke-width="1.1" style="stroke:var(--border-2)" opacity=".5"/>
+    <line x1="165" y1="240" x2="165" y2="46" stroke-width="1.1" style="stroke:var(--border-2)" opacity=".5"/>
+    <ellipse cx="165" cy="146" rx="105" ry="26" transform="rotate(-38 165 146)" fill="none" stroke="rgba(148,163,184,.5)" stroke-dasharray="4 3"/>
+    <line x1="78" y1="216" x2="256" y2="78" stroke-width="2.8" style="stroke:var(--text)"/>
+    <path d="M250 82 l10 -8 l-2 12 z" style="fill:var(--text)"/>
+    <text x="252" y="70" font-size="11" font-weight="800" style="fill:var(--text)">PC₁ (Overall Size)</text>
+    <line x1="120" y1="94" x2="212" y2="200" stroke-width="2.2" style="stroke:var(--text-2)"/>
+    <path d="M124 100 l-6 -12 l12 4 z" style="fill:var(--text-2)"/>
+    <text x="96" y="90" font-size="11" font-weight="800" style="fill:var(--text-2)">PC₂</text>
+    <g style="fill:var(--text)">
+      <circle cx="96" cy="202" r="4"/><circle cx="112" cy="190" r="4"/><circle cx="128" cy="177" r="4"/><circle cx="144" cy="165" r="4"/>
+      <circle cx="160" cy="152" r="4"/><circle cx="178" cy="138" r="4"/><circle cx="194" cy="126" r="4"/><circle cx="210" cy="113" r="4"/>
+      <circle cx="226" cy="101" r="4"/><circle cx="242" cy="88" r="4"/>
+    </g>
+  </g>
+</svg>
+<figcaption>Fig 3: <b>Left:</b> jab features correlated hain, kisi bhi original axis par project karne se valuable variance discard ho jaati hai. <b>Right:</b> PCA axes ko rotate karke $\text{PC}_1$ ko <b>seedha diagonal spread</b> ke saath align kar deta hai — ek hi component se lagbhag saari information capture.</figcaption>
+</figure>
+
+<div class="box insight">
+  <div class="box-title">Important &amp; Geometric interpretation</div>
+  <p style="margin:0">The number of principal components is <b>always less than or equal to</b> the number of original features.</p>
+  <ul style="margin:.5rem 0 0">
+    <li><b>$\text{PC}_1$</b> ek <b>"overall house size"</b> direction represent kar sakta hai, kyunki bedroom aur washroom area saath-saath badhte hain.</li>
+    <li><b>$\text{PC}_2$</b> perpendicular hai aur us chhote <b>contrast</b> ko represent kar sakta hai ki space do rooms ke beech kaise allocate hui hai.</li>
+  </ul>
+</div>
+
+<!-- ================================================ -->
+<h4 id="s25">2.5 Problem formulation: projection and variance ⭐</h4>
+<p>Let $\mathbf u$ be any direction in the original $p$-dimensional space. Use ek axis ki tarah use karne ke liye, pehle use ek <b>unit vector</b> banao taaki $\|\mathbf u\| = 1$. The scalar coordinate of centered observation $\mathbf x_i$ along $\mathbf u$ is:</p>
+<div class="formula">$$z_i = \mathbf u^\top\mathbf x_i$$</div>
+
+<figure>
+<svg viewBox="0 0 560 250" role="img" aria-label="Orthogonal decomposition of a point into its projection and residual">
+  <rect x="80" y="10" width="420" height="40" rx="8" fill="rgba(99,102,241,.10)" style="stroke:var(--border-2)"/>
+  <text x="290" y="27" text-anchor="middle" font-size="11" font-weight="800" style="fill:var(--text)">Pythagorean Orthogonal Decomposition: ‖xᵢ‖² = zᵢ² + ‖eᵢ‖²</text>
+  <text x="290" y="43" text-anchor="middle" font-size="10.5" style="fill:var(--text-2)">Since total norm ‖xᵢ‖² is fixed: maxVar(z) ⟺ minΣᵢ‖eᵢ‖²</text>
+  <line x1="60" y1="210" x2="520" y2="210" stroke-width="1.4" style="stroke:var(--border-2)"/>
+  <text x="526" y="214" font-size="11" style="fill:var(--text-3)">x₁</text>
+  <line x1="60" y1="210" x2="60" y2="58" stroke-width="1.4" style="stroke:var(--border-2)"/>
+  <text x="52" y="56" font-size="11" style="fill:var(--text-3)">x₂</text>
+  <line x1="60" y1="210" x2="470" y2="96" stroke-width="2.6" style="stroke:var(--text)"/>
+  <path d="M464 100 l12 -6 l-4 13 z" style="fill:var(--text)"/>
+  <text x="440" y="86" font-size="11.5" font-weight="800" style="fill:var(--text)">Unit Direction u</text>
+  <line x1="60" y1="210" x2="168" y2="72" stroke-width="1.8" style="stroke:var(--text-2)"/>
+  <circle cx="168" cy="72" r="5.5" style="fill:var(--text)"/>
+  <text x="176" y="66" font-size="11" font-weight="700" style="fill:var(--text)">xᵢ = [xᵢ₁, xᵢ₂]ᵀ</text>
+  <line x1="168" y1="72" x2="258" y2="154" stroke-width="1.8" stroke-dasharray="4 3" style="stroke:var(--text-2)"/>
+  <circle cx="258" cy="154" r="5.5" style="fill:var(--text)"/>
+  <text x="268" y="158" font-size="11" font-weight="700" style="fill:var(--text)">Projected Point zᵢu</text>
+  <text x="150" y="122" font-size="10.5" font-weight="700" style="fill:var(--text-2)">eᵢ = xᵢ - zᵢu</text>
+  <text x="186" y="142" font-size="10.5" font-weight="700" style="fill:var(--text-2)">zᵢ</text>
+  <text x="66" y="230" font-size="10" style="fill:var(--text-3)">O(0,0)</text>
+  <text x="180" y="198" font-size="9.5" style="fill:var(--text-3)">‖u‖ = 1</text>
+</svg>
+<figcaption>Fig 4: Dot product $z_i = \mathbf u^\top\mathbf x_i$ observation $\mathbf x_i$ ko unit direction $\mathbf u$ ke along ek <b>1D scalar coordinate</b> assign karta hai. $z_i$ ki variance maximize karna mathematically <b>reconstruction error $\|\mathbf e_i\|^2$ minimize karne ke barabar</b> hai.</figcaption>
+</figure>
+
+<div class="solved">
+  <header><span class="qtag">Derivation</span><h4>Why the variance formula simplifies for centered data</h4></header>
+  <div class="body">
+    <p>Centered dataset has $n$ observations $\mathbf X_1, \mathbf X_2, \dots, \mathbf X_n$. Projecting each onto $\mathbf u$ gives $n$ projection lengths $\mathbf u^\top\mathbf X_1, \dots, \mathbf u^\top\mathbf X_n$.</p>
+    $$\text{Variance along } \mathbf u = \frac{1}{n-1}\sum_{i=1}^{n}\left(\mathbf u^\top\mathbf X_i - \overline{\mathbf u^\top\mathbf X}\right)^2$$
+    <ol class="steps">
+      <li><span class="sh">Simplification — projection is a LINEAR operation, so the mean factors out</span>
+        $$\overline{\mathbf u^\top\mathbf X} = \frac{1}{n}\sum_{i=1}^{n}\mathbf u^\top\mathbf X_i = \mathbf u^\top\!\left(\frac{1}{n}\sum_{i=1}^{n}\mathbf X_i\right) = \mathbf u^\top\bar{\mathbf X}$$</li>
+      <li><span class="sh">But we already CENTERED the data, so $\bar{\mathbf X} = \mathbf 0$</span>
+        $$\overline{\mathbf u^\top\mathbf X} = \mathbf u^\top\mathbf 0 = 0$$
+        <div class="answer" style="background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.35);color:#fbbf24">Yehi wajah hai ki <b>centering compulsory</b> hai — yeh formula ke mean term ko exactly zero bana deta hai.</div></li>
+      <li><span class="sh">The variance formula therefore simplifies to</span>
+        <div class="formula" style="margin:.5rem 0 0">$$\text{Variance along } \mathbf u = \frac{1}{n-1}\sum_{i=1}^{n}\left(\mathbf u^\top\mathbf X_i\right)^2$$</div></li>
+    </ol>
+    <p style="margin-top:1rem">Infinitely many possible unit vectors $\mathbf u$ mein se, humara objective wo dhoondna hai jo is variance ko <b>maximize</b> kare. <b>Yahi core problem hai jo PCA solve karta hai.</b></p>
+    <p style="margin:.5rem 0 0">Is optimization problem ko mathematically solve karna (Lagrange multipliers ke saath) is course ke scope se bahar hai. However, the solution turns out to be remarkably elegant: <b>optimal directions covariance matrix ke eigenvectors hain</b>, aur corresponding <b>eigenvalues</b> batate hain ki har direction kitni variance capture karta hai.</p>
+    <div class="box def" style="margin-bottom:0">
+      <div class="box-title">Student exercise — prove $z_i = \mathbf u^\top\mathbf x_i$</div>
+      <p style="margin:0">Definition of projection onto a unit vector: the projection length of $\mathbf v_1$ on $\mathbf u$ is $|\mathbf v_1|\cos\theta$. From the dot-product identity $\cos\theta = \dfrac{\mathbf v_1 \cdot \mathbf u}{|\mathbf v_1||\mathbf u|}$:</p>
+      $$|\mathbf v_1|\cos\theta = |\mathbf v_1| \cdot \frac{\mathbf v_1\cdot\mathbf u}{|\mathbf v_1||\mathbf u|} = \frac{\mathbf v_1\cdot\mathbf u}{|\mathbf u|} = \mathbf v_1\cdot\mathbf u = \mathbf u^\top\mathbf v_1 \quad (\text{since } |\mathbf u| = 1)$$
+    </div>
+  </div>
+</div>
+
+<!-- ================================================ -->
+<h4 id="s26">2.6 Refresher: covariance matrix, eigenvalues, and eigenvectors</h4>
+<div class="formula"><span class="flabel">Covariance — how two centered features move together</span>$$\operatorname{Cov}(x,y) = \frac{1}{n-1}\sum_{i=1}^{n}(x_i - \bar x)(y_i - \bar y)$$</div>
+<ul>
+  <li><b>Positive covariance:</b> above-average $x$ values tend to appear with above-average $y$ values ⇒ both features rise together.</li>
+  <li><b>Negative covariance:</b> above-average $x$ values tend to appear with below-average $y$ values ⇒ one rises while the other falls.</li>
+  <li><b>Near-zero covariance:</b> little <b>linear</b> co-movement. A nonlinear relationship may still exist.</li>
+</ul>
+
+<div class="solved">
+  <header><span class="qtag">Running example</span><h4>Covariance between $f_1$ and $f_2$</h4></header>
+  <div class="body">
+    <p>Using the centered data $X_c = \begin{bmatrix}-2 & -2\\ 0 & 0\\ 2 & 2\end{bmatrix}$ with $n = 3$:</p>
+    $$\operatorname{Cov}(f_1, f_2) = \frac{(-2)(-2) + (0)(0) + (2)(2)}{3-1} = \frac{4 + 0 + 4}{2} = \frac{8}{2} = \mathbf{4}$$
+  </div>
+</div>
+
+<h4>The Covariance Matrix</h4>
+<p>The covariance matrix $S$ is a $p \times p$ matrix that summarizes how <b>every pair</b> of features varies together.</p>
+<div class="tbl-wrap" style="max-width:560px">
+<table class="compact">
+<thead><tr><th></th><th class="num">$f_1$</th><th class="num">$f_2$</th><th class="num">$f_3$</th></tr></thead>
+<tbody>
+<tr><td><b>$f_1$</b></td><td class="num" style="background:rgba(99,102,241,.16)">$\operatorname{Var}(f_1)$</td><td class="num">$\operatorname{Cov}(f_1,f_2)$</td><td class="num">$\operatorname{Cov}(f_1,f_3)$</td></tr>
+<tr><td><b>$f_2$</b></td><td class="num">$\operatorname{Cov}(f_2,f_1)$</td><td class="num" style="background:rgba(99,102,241,.16)">$\operatorname{Var}(f_2)$</td><td class="num">$\operatorname{Cov}(f_2,f_3)$</td></tr>
+<tr><td><b>$f_3$</b></td><td class="num">$\operatorname{Cov}(f_3,f_1)$</td><td class="num">$\operatorname{Cov}(f_3,f_2)$</td><td class="num" style="background:rgba(99,102,241,.16)">$\operatorname{Var}(f_3)$</td></tr>
+</tbody>
+</table>
+</div>
+<ul>
+  <li><b>Diagonal entries $S_{jj}$:</b> the <b>variance</b> of each feature.</li>
+  <li><b>Off-diagonal entries $S_{jk}$:</b> the <b>covariance</b> between features $j$ and $k$.</li>
+  <li><b>Symmetry:</b> $S_{jk} = S_{kj}$, so the matrix <b>mirrors across the diagonal</b>.</li>
+</ul>
+
+<h4>Eigenvalues and Eigenvectors</h4>
+<p>For a square matrix $A$, an <b>eigenvector</b> $\mathbf v$ is a non-zero vector whose <b>direction is preserved</b> under the transformation — it only gets <b>scaled</b> by a factor $\lambda$ (the <b>eigenvalue</b>):</p>
+<div class="formula">$$A\mathbf v = \lambda\mathbf v$$</div>
+
+<figure>
+<svg viewBox="0 0 600 220" role="img" aria-label="A general vector rotates and stretches, an eigenvector only stretches">
+  <g>
+    <text x="150" y="196" text-anchor="middle" font-size="12" font-weight="800" style="fill:var(--text)">General Vector w</text>
+    <text x="150" y="210" text-anchor="middle" font-size="9.5" style="fill:var(--text-3)">Direction is <tspan font-weight="700">changed</tspan> (rotated by θ) and stretched.</text>
+    <line x1="40" y1="170" x2="270" y2="170" stroke-width="1.3" style="stroke:var(--border-2)"/>
+    <line x1="60" y1="180" x2="60" y2="24" stroke-width="1.3" style="stroke:var(--border-2)"/>
+    <line x1="60" y1="170" x2="210" y2="136" stroke-width="2.4" style="stroke:var(--text-2)"/>
+    <path d="M204 140 l10 -5 l-3 11 z" style="fill:var(--text-2)"/>
+    <text x="218" y="138" font-size="11" font-weight="700" style="fill:var(--text-2)">w</text>
+    <line x1="60" y1="170" x2="184" y2="48" stroke-width="2.6" style="stroke:var(--text)"/>
+    <path d="M178 54 l10 -10 l0 14 z" style="fill:var(--text)"/>
+    <text x="180" y="40" font-size="11" font-weight="700" style="fill:var(--text)">Aw</text>
+    <path d="M96 166 A 38 38 0 0 0 92 140" fill="none" stroke-width="1.3" style="stroke:var(--text-3)"/>
+    <text x="104" y="152" font-size="10" style="fill:var(--text-3)">θ ≠ 0°</text>
+  </g>
+  <g transform="translate(300,0)">
+    <text x="150" y="196" text-anchor="middle" font-size="12" font-weight="800" style="fill:var(--text)">Eigenvector v</text>
+    <text x="150" y="210" text-anchor="middle" font-size="9.5" style="fill:var(--text-3)">Direction is <tspan font-weight="700">invariant</tspan> (no rotation); only stretched by λ.</text>
+    <line x1="40" y1="170" x2="270" y2="170" stroke-width="1.3" style="stroke:var(--border-2)"/>
+    <line x1="60" y1="180" x2="60" y2="24" stroke-width="1.3" style="stroke:var(--border-2)"/>
+    <line x1="60" y1="170" x2="250" y2="46" stroke-width="2.6" style="stroke:var(--text)"/>
+    <path d="M244 52 l11 -8 l-2 13 z" style="fill:var(--text)"/>
+    <text x="216" y="40" font-size="11" font-weight="700" style="fill:var(--text)">Av = λv</text>
+    <line x1="60" y1="170" x2="150" y2="111" stroke-width="3" style="stroke:var(--text-2)"/>
+    <text x="126" y="126" font-size="11" font-weight="700" style="fill:var(--text-2)">v</text>
+    <text x="180" y="98" font-size="10" style="fill:var(--text-3)">Scaled by λ</text>
+  </g>
+</svg>
+<figcaption>Fig 5: Ek general vector jo matrix transformation ke under rotate ho jaata hai, uske ulta ek <b>eigenvector apni original line par hi rehta</b> hai aur bas apni eigenvalue $\lambda$ se scale hota hai.</figcaption>
+</figure>
+
+<div class="box insight">
+  <div class="box-title">★ Connection to PCA</div>
+  <p style="margin:0">PCA mein, matrix $A$ <b>covariance matrix $S$</b> hai. $S$ ke <b>eigenvectors</b> hume <b>principal directions</b> dete hain, aur <b>eigenvalues</b> batate hain ki har direction ke along kitni <b>variance captured</b> hui.</p>
+</div>
+
+<!-- ================================================ -->
+<h2 id="part3" style="border-top:2px solid var(--border-2);padding-top:2rem">PART III · Understanding Covariance</h2>
+<h3 id="s3"><span class="h2-num">3</span>Covariance signs and their geometry</h3>
+<figure>
+<svg viewBox="0 0 680 220" role="img" aria-label="Four covariance patterns: positive negative zero random and zero nonlinear">
+  <g>
+    <line x1="14" y1="110" x2="150" y2="110" stroke-width="1.2" style="stroke:var(--border-2)"/>
+    <line x1="82" y1="176" x2="82" y2="34" stroke-width="1.2" style="stroke:var(--border-2)"/>
+    <g style="fill:var(--text)"><circle cx="28" cy="158" r="3.4"/><circle cx="42" cy="146" r="3.4"/><circle cx="54" cy="138" r="3.4"/><circle cx="66" cy="126" r="3.4"/><circle cx="80" cy="114" r="3.4"/><circle cx="94" cy="102" r="3.4"/><circle cx="106" cy="88" r="3.4"/><circle cx="120" cy="76" r="3.4"/><circle cx="134" cy="62" r="3.4"/><circle cx="48" cy="152" r="3.4"/><circle cx="100" cy="96" r="3.4"/></g>
+    <text x="30" y="60" font-size="8.5" style="fill:var(--text-3)">(+)(+) &gt; 0</text>
+    <text x="96" y="168" font-size="8.5" style="fill:var(--text-3)">(-)(-) &gt; 0</text>
+    <text x="82" y="196" text-anchor="middle" font-size="11" font-weight="800" style="fill:var(--text)">Positive</text>
+    <text x="82" y="210" text-anchor="middle" font-size="9.5" style="fill:var(--text-3)">(Cov &gt; 0)</text>
+  </g>
+  <g transform="translate(168,0)">
+    <line x1="14" y1="110" x2="150" y2="110" stroke-width="1.2" style="stroke:var(--border-2)"/>
+    <line x1="82" y1="176" x2="82" y2="34" stroke-width="1.2" style="stroke:var(--border-2)"/>
+    <g style="fill:var(--text)"><circle cx="28" cy="60" r="3.4"/><circle cx="42" cy="72" r="3.4"/><circle cx="54" cy="82" r="3.4"/><circle cx="66" cy="94" r="3.4"/><circle cx="80" cy="106" r="3.4"/><circle cx="94" cy="120" r="3.4"/><circle cx="106" cy="132" r="3.4"/><circle cx="120" cy="144" r="3.4"/><circle cx="134" cy="156" r="3.4"/><circle cx="48" cy="66" r="3.4"/><circle cx="100" cy="126" r="3.4"/></g>
+    <text x="96" y="60" font-size="8.5" style="fill:var(--text-3)">(+)(-) &lt; 0</text>
+    <text x="82" y="196" text-anchor="middle" font-size="11" font-weight="800" style="fill:var(--text)">Negative</text>
+    <text x="82" y="210" text-anchor="middle" font-size="9.5" style="fill:var(--text-3)">(Cov &lt; 0)</text>
+  </g>
+  <g transform="translate(336,0)">
+    <line x1="14" y1="110" x2="150" y2="110" stroke-width="1.2" style="stroke:var(--border-2)"/>
+    <line x1="82" y1="176" x2="82" y2="34" stroke-width="1.2" style="stroke:var(--border-2)"/>
+    <g style="fill:var(--text)"><circle cx="30" cy="92" r="3.4"/><circle cx="46" cy="140" r="3.4"/><circle cx="58" cy="64" r="3.4"/><circle cx="72" cy="128" r="3.4"/><circle cx="86" cy="76" r="3.4"/><circle cx="100" cy="148" r="3.4"/><circle cx="114" cy="86" r="3.4"/><circle cx="128" cy="120" r="3.4"/><circle cx="140" cy="70" r="3.4"/><circle cx="64" cy="104" r="3.4"/><circle cx="106" cy="112" r="3.4"/></g>
+    <text x="82" y="196" text-anchor="middle" font-size="11" font-weight="800" style="fill:var(--text)">Zero (No Pattern)</text>
+    <text x="82" y="210" text-anchor="middle" font-size="9.5" style="fill:var(--text-3)">(Random scatter)</text>
+  </g>
+  <g transform="translate(504,0)">
+    <line x1="14" y1="110" x2="160" y2="110" stroke-width="1.2" style="stroke:var(--border-2)"/>
+    <line x1="88" y1="176" x2="88" y2="34" stroke-width="1.2" style="stroke:var(--border-2)"/>
+    <path d="M26 50 Q 88 178, 150 50" fill="none" stroke-width="1.4" stroke-dasharray="3 3" style="stroke:var(--text-3)"/>
+    <g style="fill:var(--text)"><circle cx="28" cy="54" r="3.4"/><circle cx="44" cy="88" r="3.4"/><circle cx="58" cy="116" r="3.4"/><circle cx="72" cy="136" r="3.4"/><circle cx="88" cy="142" r="3.4"/><circle cx="104" cy="136" r="3.4"/><circle cx="118" cy="116" r="3.4"/><circle cx="132" cy="88" r="3.4"/><circle cx="148" cy="54" r="3.4"/></g>
+    <text x="88" y="196" text-anchor="middle" font-size="11" font-weight="800" style="fill:var(--text)">Zero (Nonlinear)</text>
+    <text x="88" y="210" text-anchor="middle" font-size="9.5" style="fill:var(--text-3)">(y = x² pattern)</text>
+  </g>
+</svg>
+<figcaption>Fig 6: <b>Panels 1–2:</b> positive aur negative linear covariance. <b>Panel 3:</b> random scatter with zero covariance and no relationship. <b>Panel 4:</b> ek symmetric parabola ka bhi $\operatorname{Cov}(x,y) = 0$ hota hai, <b>despite a perfect deterministic nonlinear relationship</b> — <b>zero covariance independence imply nahi karti</b>.</figcaption>
+</figure>
+<p>Covariance <b>units par depend</b> karti hai aur $-1$ aur $+1$ ke beech bounded <b>nahi</b> hai. <b>Correlation</b> covariance ko dono standard deviations se divide kar deta hai.</p>
+<div class="box warn">
+  <div class="box-title">Classroom question — Does zero covariance prove two variables are independent?</div>
+  <p style="margin:0"><b>No.</b> Panel 4 <b>counterexample</b> hai: $y = x^2$ ka symmetric scatter, jahan $y$ $x$ se <b>completely determined</b> hai, phir bhi $\operatorname{Cov}(x,y) = 0$. Zero covariance sirf <b>zero LINEAR co-movement</b> imply karti hai. Independence ek kahin <b>stronger condition</b> hai. (Yeh <a href="l10.html#s7">Lecture 10</a> ke Pearson-correlation counterexample ka exactly same point hai.)</p>
+</div>
+
+<!-- ================================================ -->
+<h2 id="part4" style="border-top:2px solid var(--border-2);padding-top:2rem">PART IV · Finding the Principal Components</h2>
+
+<h3 id="s4"><span class="h2-num">4</span>Eigen-decomposition of the covariance matrix</h3>
+<h4>4.1 The defining equations</h4>
+<div class="formula">$$S\mathbf v = \lambda\mathbf v \qquad\text{or equivalently}\qquad |S - \lambda I| = 0$$</div>
+<p>where $S$ is the covariance matrix, $\lambda$ is an eigenvalue, $\mathbf v$ is the corresponding eigenvector, and $I$ is the identity matrix.</p>
+
+<h4>4.2 Ordering the principal components ⭐</h4>
+<p>Suppose for a dataset with 3 features we obtain eigenvalues $\lambda_1, \lambda_2, \lambda_3$ with eigenvectors $\mathbf v_1, \mathbf v_2, \mathbf v_3$. We sort the eigenvalues in <b>descending order</b>. For example, if $\lambda_1 &gt; \lambda_3 &gt; \lambda_2$, then:</p>
+<div class="tbl-wrap" style="max-width:540px">
+<table class="compact">
+<thead><tr><th>Principal Component</th><th class="num">Direction</th><th class="num">Variance Captured</th></tr></thead>
+<tbody>
+<tr><td>$\text{PC}_1$</td><td class="num">$\mathbf v_1$</td><td class="num">$\lambda_1$ (largest)</td></tr>
+<tr><td>$\text{PC}_2$</td><td class="num">$\mathbf v_3$</td><td class="num">$\lambda_3$ (second largest)</td></tr>
+<tr><td>$\text{PC}_3$</td><td class="num">$\mathbf v_2$</td><td class="num">$\lambda_2$ (smallest)</td></tr>
+</tbody>
+</table>
+</div>
+<p>The eigenvector with the <b>largest eigenvalue becomes $\text{PC}_1$</b> because it captures the most variance. <b>Note:</b> ordering <b>eigenvalue ki size</b> se decide hoti hai, subscript ke number se nahi.</p>
+<div class="box insight">
+  <div class="box-title">★ Principal components are perpendicular</div>
+  <p style="margin:0">Principal components <b>hamesha ek doosre ke perpendicular (orthogonal)</b> honge. Yeh isliye kyunki $S$ ek <b>symmetric matrix</b> hai, aur ek symmetric matrix ke distinct eigenvalues wale eigenvectors hamesha orthogonal hote hain. Consequence: <b>PC scores uncorrelated</b> hote hain.</p>
+</div>
+
+<h4>4.3 Selecting and projecting</h4>
+<div class="formula">$$z_i = \mathbf u^\top\mathbf X_i$$</div>
+<p>where $\mathbf u$ is the unit eigenvector (principal direction) and $\mathbf X_i$ is the centered observation. Yeh projection <b>har observation</b> ke liye aur <b>har retained principal component</b> ke liye perform hoti hai.</p>
+<div class="box insight">
+  <div class="box-title">★ Key Insight</div>
+  <p style="margin:0">Covariance matrix ka har eigenvalue <b>exactly</b> batata hai ki uske corresponding principal direction ke along kitni variance captured hui. <b>Larger eigenvalue = more information retained.</b></p>
+</div>
+
+<!-- ================================================ -->
+<h3 id="s44"><span class="h2-num">4.4</span>A small numerical example — full PCA by hand ⭐</h3>
+
+<div class="solved">
+  <header><span class="qtag">Complete worked PCA</span><h4>Three houses, two comparable measurements</h4></header>
+  <div class="body">
+    <div class="tbl-wrap" style="margin-top:0;max-width:520px">
+    <table class="compact">
+    <thead><tr><th>House</th><th class="num">Bedroom-area index $f_1$</th><th class="num">Washroom-area index $f_2$</th></tr></thead>
+    <tbody>
+    <tr><td>A</td><td class="num">2</td><td class="num">1</td></tr>
+    <tr><td>B</td><td class="num">4</td><td class="num">3</td></tr>
+    <tr><td>C</td><td class="num">6</td><td class="num">5</td></tr>
+    </tbody></table></div>
+
+    <ol class="steps">
+      <li><span class="sh">Step 1 — Center the columns</span>
+        <p style="margin:.2rem 0 .4rem">The mean vector is $\boldsymbol\mu = [4, 3]^\top$:</p>
+        $$X_c = \begin{bmatrix}-2 & -2\\ 0 & 0\\ 2 & 2\end{bmatrix}$$</li>
+
+      <li><span class="sh">Step 2 — Compute the sample covariance matrix</span>
+        <p style="margin:.2rem 0 .4rem"><b>Why does $S = \frac{1}{n-1}X_c^\top X_c$ give the covariance matrix?</b> Recall that</p>
+        $$S_{jk} = \frac{1}{n-1}\sum_{i=1}^{n}(x_{ij}-\mu_j)(x_{ik}-\mu_k)$$
+        <p style="margin:.4rem 0">Since $X_c$ is $n \times p$, its transpose $X_c^\top$ is $p \times n$, and the product $X_c^\top X_c$ is $p \times p$. The $(j,k)$ entry of this product is:</p>
+        $$\left(X_c^\top X_c\right)_{jk} = \sum_{i=1}^{n}(X_c)_{ij}(X_c)_{ik} = \sum_{i=1}^{n}(x_{ij}-\mu_j)(x_{ik}-\mu_k)$$
+        <p style="margin:.4rem 0">This is <b>exactly the numerator of $S_{jk}$</b>. Dividing by $(n-1)$ gives $S_{jk}$. So one matrix operation produces the entire covariance matrix.</p>
+        <p style="margin:.6rem 0 .3rem"><b>Applying to our running example ($n = 3$, so $n-1 = 2$):</b></p>
+        $$S = \frac12 X_c^\top X_c = \frac12\begin{bmatrix}-2 & 0 & 2\\ -2 & 0 & 2\end{bmatrix}\begin{bmatrix}-2 & -2\\ 0 & 0\\ 2 & 2\end{bmatrix} = \frac12\begin{bmatrix}8 & 8\\ 8 & 8\end{bmatrix} = \begin{bmatrix}4 & 4\\ 4 & 4\end{bmatrix}$$
+        <div class="answer">Check the diagonal: $\operatorname{Var}(f_1) = 4$ and $\operatorname{Var}(f_2) = 4$. Off-diagonal: $\operatorname{Cov}(f_1,f_2) = 4$ ✓ (matches our earlier hand computation).</div></li>
+
+      <li><span class="sh">Step 3 — Find eigenvalues and eigenvectors: solve $|S - \lambda I| = 0$</span>
+        $$\left|\begin{matrix}4-\lambda & 4\\ 4 & 4-\lambda\end{matrix}\right| = (4-\lambda)^2 - 16 = \lambda^2 - 8\lambda = \lambda(\lambda - 8) = 0$$
+        $$\Longrightarrow \lambda = \mathbf 8 \ \text{ or } \ \lambda = \mathbf 0$$
+        <p style="margin:.5rem 0 .3rem"><b>Verify each eigenvector:</b></p>
+        $$S\mathbf v_1 = \begin{bmatrix}4&4\\4&4\end{bmatrix}\frac{1}{\sqrt2}\begin{bmatrix}1\\1\end{bmatrix} = \frac{1}{\sqrt2}\begin{bmatrix}8\\8\end{bmatrix} = 8\cdot\frac{1}{\sqrt2}\begin{bmatrix}1\\1\end{bmatrix} = 8\mathbf v_1 \quad\Rightarrow\quad \lambda_1 = 8\ \checkmark$$
+        $$S\mathbf v_2 = \begin{bmatrix}4&4\\4&4\end{bmatrix}\frac{1}{\sqrt2}\begin{bmatrix}1\\-1\end{bmatrix} = \frac{1}{\sqrt2}\begin{bmatrix}4-4\\4-4\end{bmatrix} = \begin{bmatrix}0\\0\end{bmatrix} = 0\cdot\mathbf v_2 \quad\Rightarrow\quad \lambda_2 = 0\ \checkmark$$
+        <div class="tbl-wrap" style="margin:.7rem 0 0">
+        <table class="compact">
+        <thead><tr><th>Component</th><th class="num">Unit eigenvector</th><th class="num">Eigenvalue</th><th>Meaning</th></tr></thead>
+        <tbody>
+        <tr><td>$\text{PC}_1$</td><td class="num">$\mathbf v_1 = \frac{1}{\sqrt2}\begin{bmatrix}1\\1\end{bmatrix}$</td><td class="num"><b>$\lambda_1 = 8$</b></td><td>Both features increase together</td></tr>
+        <tr><td>$\text{PC}_2$</td><td class="num">$\mathbf v_2 = \frac{1}{\sqrt2}\begin{bmatrix}1\\-1\end{bmatrix}$</td><td class="num"><b>$\lambda_2 = 0$</b></td><td>No remaining contrast variation</td></tr>
+        </tbody></table></div></li>
+
+      <li><span class="sh">Step 4 — Project onto $\text{PC}_1$</span>
+        $$\mathbf z_1 = X_c\mathbf v_1 = \begin{bmatrix}-2 & -2\\ 0 & 0\\ 2 & 2\end{bmatrix}\frac{1}{\sqrt2}\begin{bmatrix}1\\1\end{bmatrix} = \frac{1}{\sqrt2}\begin{bmatrix}-4\\ 0\\ 4\end{bmatrix} = \begin{bmatrix}-2\sqrt2\\ 0\\ 2\sqrt2\end{bmatrix} \approx \begin{bmatrix}-2.828\\ 0\\ 2.828\end{bmatrix}$$</li>
+
+      <li><span class="sh">Step 5 — Interpret</span>
+        $$\text{PC}_1 \text{ captures } \frac{8}{8+0} = 1 = \mathbf{100\%} \text{ of the total variance}$$
+        <div class="answer">The two features can be represented by <b>one component with NO reconstruction loss</b>, because all points lie exactly on a <b>line</b>.</div>
+        <p style="margin:.5rem 0 0"><b>Classroom question — what real-world phrase could describe $\text{PC}_1$?</b><br>
+        <b>"Overall house size."</b> Bedroom area aur washroom area perfectly saath-saath badhte hain, to $\text{PC}_1$ house ka <b>total scale</b> measure karta hai. $\text{PC}_2$ (eigenvalue 0) us contrast ko measure karta ki space do rooms ke beech kaise allocate hui — par is dataset mein wo contrast <b>kabhi vary hi nahi karta</b>, isliye uski variance zero hai.</p></li>
+    </ol>
+  </div>
+</div>
+
+<div class="solved">
+  <header><span class="qtag">Practice P1</span><h4>Foundations and geometry</h4></header>
+  <div class="body">
+    <p><b>(a) Selection or Extraction?</b></p>
+    <div class="tbl-wrap" style="margin:.4rem 0">
+    <table>
+    <thead><tr><th>Scenario</th><th>Decision</th><th>Reason</th></tr></thead>
+    <tbody>
+    <tr><td>CGPA_copy exactly duplicates CGPA</td><td><span class="pill b">Feature selection</span></td><td>Ek exact duplicate hai — bas use drop kar do. PCA jaise complex tool ki zaroorat hi nahi.</td></tr>
+    <tr><td>Bedroom area and washroom area are strongly correlated and both reflect overall house size</td><td><span class="pill g">PCA / extraction</span></td><td>Information <b>dono</b> columns mein spread hai. PCA unhe ek "overall size" component mein combine kar deta hai bina kisi ko discard kiye.</td></tr>
+    <tr><td>A rare binary medical flag has low variance but is strongly associated with the target</td><td><span class="pill b">Feature selection</span></td><td><b>PCA use discard kar dega</b> — wo variance maximize karta hai aur target dekhta hi nahi. Ise selection se explicitly keep karo.</td></tr>
+    <tr><td>A 500-dim image embedding must be plotted for human inspection</td><td><span class="pill g">PCA</span></td><td>Visualization ke liye 2–3 dimensions chahiye. Selection 500 mein se 2 original columns pick karega (mostly useless); PCA best 2D <b>view</b> construct karta hai.</td></tr>
+    </tbody></table></div>
+
+    <p style="margin-top:1.2rem"><b>(b) Read covariance from geometry — state the expected sign.</b></p>
+    <div class="tbl-wrap" style="margin:.4rem 0 0">
+    <table>
+    <thead><tr><th>Description</th><th>Expected sign</th><th>Explanation</th></tr></thead>
+    <tbody>
+    <tr><td>Study hours ↑ ⇒ practice-test score ↑</td><td><span class="pill g">Positive</span></td><td>Above-average $x$ above-average $y$ ke saath aata hai, to har product term positive hai.</td></tr>
+    <tr><td>Product price ↑ ⇒ units sold ↓</td><td><span class="pill r">Negative</span></td><td>Above-average $x$ below-average $y$ ke saath aata hai: $(+)(-) &lt; 0$.</td></tr>
+    <tr><td>Points form a symmetric U-shape around $x = 0$</td><td><span class="pill a">Zero</span></td><td>Left half ke negative products right half ke positive products ko <b>exactly cancel</b> kar dete hain. Par ek <b>perfect nonlinear relationship</b> phir bhi exist karta hai.</td></tr>
+    </tbody></table></div>
+  </div>
+</div>
+
+<div class="solved">
+  <header><span class="qtag">Practice P2</span><h4>Mathematical concepts</h4></header>
+  <div class="body">
+    <p><b>(a) Compute one projection.</b> Let $\mathbf x = [3, 1]^\top$ and $\mathbf u = \frac{1}{\sqrt2}[1,1]^\top$.</p>
+    <ol class="steps">
+      <li><span class="sh">(i) Verify $\mathbf u$ is a unit vector</span>
+        $$\|\mathbf u\| = \sqrt{\left(\tfrac{1}{\sqrt2}\right)^2 + \left(\tfrac{1}{\sqrt2}\right)^2} = \sqrt{\tfrac12 + \tfrac12} = \sqrt{1} = \mathbf 1\ \checkmark$$</li>
+      <li><span class="sh">(ii) Compute the score $z = \mathbf u^\top\mathbf x$</span>
+        $$z = \tfrac{1}{\sqrt2}(3) + \tfrac{1}{\sqrt2}(1) = \tfrac{4}{\sqrt2} = 2\sqrt2 \approx \mathbf{2.828}$$</li>
+      <li><span class="sh">(iii) Compute the projected point $z\mathbf u$</span>
+        $$z\mathbf u = 2\sqrt2 \cdot \tfrac{1}{\sqrt2}\begin{bmatrix}1\\1\end{bmatrix} = 2\begin{bmatrix}1\\1\end{bmatrix} = \begin{bmatrix}\mathbf 2\\ \mathbf 2\end{bmatrix}$$</li>
+      <li><span class="sh">(iv) Why does the projected point not have to equal $\mathbf x$?</span>
+        <p style="margin:.2rem 0 0">Kyunki $\mathbf x = [3,1]^\top$ us <b>line par lie hi nahi karta</b> jo $\mathbf u$ span karti hai (wo $y = x$ line hai). Projection us line par <b>closest point</b> hai. Leftover:</p>
+        $$\mathbf e = \mathbf x - z\mathbf u = \begin{bmatrix}3\\1\end{bmatrix} - \begin{bmatrix}2\\2\end{bmatrix} = \begin{bmatrix}1\\-1\end{bmatrix}$$
+        <p style="margin:.3rem 0 0">Yeh residual $\mathbf u$ ke <b>perpendicular</b> hai (check: $[1,-1] \cdot [1,1] = 0$ ✓) aur projection ke dauraan <b>discard</b> ho jaata hai. Yahi wo information hai jo <b>kho jaati</b> hai — $\|\mathbf e\|^2 = 2$.</p></li>
+    </ol>
+
+    <p style="margin-top:1.4rem"><b>(b) Complete a miniature PCA.</b> The centered observations are $\mathbf x_1 = [-1,-1]^\top$, $\mathbf x_2 = [0,0]^\top$, $\mathbf x_3 = [1,1]^\top$.</p>
+    <ol class="steps">
+      <li><span class="sh">(i) Form $X_c$ and compute $S = \frac{1}{n-1}X_c^\top X_c$</span>
+        $$X_c = \begin{bmatrix}-1 & -1\\ 0 & 0\\ 1 & 1\end{bmatrix}, \qquad X_c^\top X_c = \begin{bmatrix}2 & 2\\ 2 & 2\end{bmatrix}$$
+        $$S = \frac{1}{3-1}\begin{bmatrix}2&2\\2&2\end{bmatrix} = \begin{bmatrix}\mathbf 1 & \mathbf 1\\ \mathbf 1 & \mathbf 1\end{bmatrix}$$</li>
+      <li><span class="sh">(ii) Show $\mathbf v_1 = \frac{1}{\sqrt2}[1,1]^\top$ has eigenvalue…</span>
+        $$S\mathbf v_1 = \tfrac{1}{\sqrt2}\begin{bmatrix}1+1\\1+1\end{bmatrix} = \tfrac{1}{\sqrt2}\begin{bmatrix}2\\2\end{bmatrix} = 2\mathbf v_1 \quad\Rightarrow\quad \lambda_1 = \mathbf 2$$</li>
+      <li><span class="sh">(iii) Show $\mathbf v_2 = \frac{1}{\sqrt2}[1,-1]^\top$ has eigenvalue…</span>
+        $$S\mathbf v_2 = \tfrac{1}{\sqrt2}\begin{bmatrix}1-1\\1-1\end{bmatrix} = \begin{bmatrix}0\\0\end{bmatrix} \quad\Rightarrow\quad \lambda_2 = \mathbf 0$$</li>
+      <li><span class="sh">(iv) Explained variance ratio of $\text{PC}_1$? Lossless?</span>
+        $$\text{EVR}(\text{PC}_1) = \frac{\lambda_1}{\lambda_1+\lambda_2} = \frac{2}{2+0} = 1 = \mathbf{100\%}$$
+        <div class="answer">Lossless? <b>Yes</b> — saare points exactly line $y = x$ par lie karte hain, to $\text{PC}_2$ ke along koi variation hai hi nahi.</div></li>
+    </ol>
+  </div>
+</div>
+
+<!-- ================================================ -->
+<h2 id="part5" style="border-top:2px solid var(--border-2);padding-top:2rem">PART V · The Complete PCA Procedure</h2>
+
+<h3 id="s5"><span class="h2-num">5</span>Workflow and practical decisions</h3>
+<h4>5.1 Step-by-step PCA workflow ⭐</h4>
+<figure>
+<svg viewBox="0 0 680 190" role="img" aria-label="Five stage PCA pipeline with test-set application note">
+  <defs><marker id="pc" markerWidth="8" markerHeight="8" refX="6.5" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#8b5cf6"/></marker></defs>
+  <g font-size="10.5" font-weight="650">
+    <rect x="10" y="20" width="118" height="54" rx="10" fill="rgba(99,102,241,.16)" stroke="#6366f1"/>
+    <text x="69" y="38" text-anchor="middle" font-weight="800" style="fill:var(--text)">1. Split Data</text>
+    <text x="69" y="53" text-anchor="middle" font-size="9.5" style="fill:var(--text-3)">Train (nₜᵣ × p)</text>
+    <text x="69" y="66" text-anchor="middle" font-size="9.5" style="fill:var(--text-3)">Test is locked</text>
+    <line x1="128" y1="47" x2="146" y2="47" stroke="#8b5cf6" stroke-width="2" marker-end="url(#pc)"/>
+    <rect x="150" y="20" width="126" height="54" rx="10" fill="rgba(16,185,129,.16)" stroke="#10b981"/>
+    <text x="213" y="38" text-anchor="middle" font-weight="800" style="fill:var(--text)">2. Center / Scale</text>
+    <text x="213" y="53" text-anchor="middle" font-size="9.5" style="fill:var(--text-3)">X_c = X - 1μᵀ</text>
+    <text x="213" y="66" text-anchor="middle" font-size="9.5" style="fill:var(--text-3)">Store μₜᵣ, sₜᵣ</text>
+    <line x1="276" y1="47" x2="294" y2="47" stroke="#8b5cf6" stroke-width="2" marker-end="url(#pc)"/>
+    <rect x="298" y="20" width="118" height="54" rx="10" fill="rgba(6,182,212,.16)" stroke="#06b6d4"/>
+    <text x="357" y="38" text-anchor="middle" font-weight="800" style="fill:var(--text)">3. Covariance S</text>
+    <text x="357" y="53" text-anchor="middle" font-size="9.5" style="fill:var(--text-3)">S = 1/(n-1)X_cᵀ X_c</text>
+    <text x="357" y="66" text-anchor="middle" font-size="9.5" style="fill:var(--text-3)">Dim: p × p</text>
+    <line x1="416" y1="47" x2="434" y2="47" stroke="#8b5cf6" stroke-width="2" marker-end="url(#pc)"/>
+    <rect x="438" y="20" width="118" height="54" rx="10" fill="rgba(139,92,246,.16)" stroke="#8b5cf6"/>
+    <text x="497" y="38" text-anchor="middle" font-weight="800" style="fill:var(--text)">4. Eigendecomp.</text>
+    <text x="497" y="53" text-anchor="middle" font-size="9.5" style="fill:var(--text-3)">Svⱼ = λⱼvⱼ</text>
+    <text x="497" y="66" text-anchor="middle" font-size="9.5" style="fill:var(--text-3)">Sort λ₁ ≥ ⋯ ≥ λₚ</text>
+    <line x1="556" y1="47" x2="574" y2="47" stroke="#8b5cf6" stroke-width="2" marker-end="url(#pc)"/>
+    <rect x="578" y="20" width="96" height="54" rx="10" fill="rgba(245,158,11,.16)" stroke="#f59e0b"/>
+    <text x="626" y="38" text-anchor="middle" font-weight="800" style="fill:var(--text)">5. Project Wₖ</text>
+    <text x="626" y="53" text-anchor="middle" font-size="9.5" style="fill:var(--text-3)">Z = X_cWₖ</text>
+    <text x="626" y="66" text-anchor="middle" font-size="9.5" style="fill:var(--text-3)">Output: n × k</text>
+  </g>
+  <rect x="30" y="88" width="620" height="56" rx="10" fill="rgba(239,68,68,.08)" stroke="#ef4444" stroke-dasharray="5 4"/>
+  <text x="340" y="106" text-anchor="middle" font-size="11" font-weight="800" fill="#f87171">Test Set Application</text>
+  <text x="340" y="122" text-anchor="middle" font-size="10.5" style="fill:var(--text-2)">Apply exact fitted training statistics: Zₜₑₛₜ = (Xₜₑₛₜ - 1ₜₑₛₜμₜᵣᵀ)Wₖ</text>
+  <text x="340" y="137" text-anchor="middle" font-size="10" font-style="italic" fill="#f87171">NEVER refit PCA or recompute μ on test data!</text>
+  <text x="340" y="168" text-anchor="middle" font-size="9.5" font-style="italic" style="fill:var(--text-3)">(1ₜₑₛₜ is a column vector of ones of size nₜₑₛₜ × 1)</text>
+</svg>
+<figcaption>Fig 7: Complete end-to-end PCA machine-learning pipeline. Saari statistics $(\boldsymbol\mu, \mathbf s)$ aur projection directions $(W_k)$ <b>exclusively training set par</b> learn hoti hain aur test/production data par <b>unchanged</b> apply hoti hain.</figcaption>
+</figure>
+
+<ol>
+  <li>Create the data split <b>before learning any preprocessing</b>. The test set remains untouched.</li>
+  <li>Fit centering (and, when appropriate, standardization) on the <b>training features</b>. Store $\boldsymbol\mu$ and $\mathbf s$.</li>
+  <li>Construct the covariance matrix $S$ from the centered training data.</li>
+  <li>Find eigenvalues and unit eigenvectors of $S$.</li>
+  <li>Sort eigenpairs by <b>descending eigenvalue</b>.</li>
+  <li>Choose $k$ using explained variance, visualization needs, and downstream validation.</li>
+  <li>Form $W_k = [\mathbf v_1 \cdots \mathbf v_k]$. Its dimensions are <b>$p \times k$</b>.</li>
+  <li>Transform: $Z_{\text{train}} = X_{c,\text{train}}W_k$ and $Z_{\text{test}} = (X_{\text{test}} - \mathbf 1_{\text{test}}\boldsymbol\mu_{\text{tr}}^\top)W_k$, using <b>stored training quantities</b>.</li>
+</ol>
+
+<!-- ================================================ -->
+<h4 id="s52">5.2 How do we determine the optimum number of principal components? ⭐</h4>
+<p>Recall that each eigenvalue $\lambda_j$ represents the <b>amount of variance</b> captured by the corresponding principal component.</p>
+<div class="formula"><span class="flabel">Total variance</span>$$\text{total variance} = \sum_{j=1}^{p}\lambda_j = \operatorname{trace}(S)$$</div>
+<div class="formula"><span class="flabel">Explained Variance Ratio (EVR)</span>
+$$\text{EVR of PC}_j = \frac{\lambda_j}{\sum_{\ell=1}^{p}\lambda_\ell}, \qquad\qquad \text{cumulative EVR through } k = \frac{\sum_{j=1}^{k}\lambda_j}{\sum_{\ell=1}^{p}\lambda_\ell}$$</div>
+
+<figure>
+<svg viewBox="0 0 660 260" role="img" aria-label="Scree plot and cumulative explained variance">
+  <g>
+    <text x="164" y="18" text-anchor="middle" font-size="12" font-weight="800" style="fill:var(--text)">Individual Variance (Scree Plot)</text>
+    <line x1="52" y1="200" x2="300" y2="200" stroke-width="1.4" style="stroke:var(--border-2)"/>
+    <line x1="52" y1="200" x2="52" y2="36" stroke-width="1.4" style="stroke:var(--border-2)"/>
+    <text x="30" y="118" font-size="10" font-weight="700" transform="rotate(-90 30 118)" text-anchor="middle" style="fill:var(--text-2)">Individual EVR (%)</text>
+    <g fill="rgba(148,163,184,.55)" style="stroke:var(--border-2)">
+      <rect x="64"  y="68"  width="30" height="132"/>
+      <rect x="102" y="123" width="30" height="77"/>
+      <rect x="140" y="164" width="30" height="36"/>
+      <rect x="178" y="181" width="30" height="19"/>
+      <rect x="216" y="192" width="30" height="8"/>
+      <rect x="254" y="197" width="30" height="3"/>
+    </g>
+    <g font-size="10" font-weight="800" text-anchor="middle" style="fill:var(--text)">
+      <text x="79" y="60">48%</text><text x="117" y="115">28%</text><text x="155" y="156">13%</text>
+      <text x="193" y="173">7%</text><text x="231" y="184">3%</text><text x="269" y="189">1%</text>
+    </g>
+    <g font-size="9" text-anchor="middle" style="fill:var(--text-3)">
+      <text x="79" y="214">PC₁</text><text x="117" y="214">PC₂</text><text x="155" y="214">PC₃</text>
+      <text x="193" y="214">PC₄</text><text x="231" y="214">PC₅</text><text x="269" y="214">PC₆</text>
+    </g>
+    <path d="M186 118 L160 152" stroke-width="1.4" style="stroke:var(--text-2)"/>
+    <rect x="176" y="86" width="120" height="34" rx="6" fill="rgba(0,0,0,.4)" style="stroke:var(--border)"/>
+    <text x="236" y="100" text-anchor="middle" font-size="9" font-weight="700" style="fill:var(--text)">Elbow Point (k = 2 or 3)</text>
+    <text x="236" y="112" text-anchor="middle" font-size="8.5" style="fill:var(--text-3)">Plateau beyond PC₃</text>
+    <text x="164" y="236" text-anchor="middle" font-size="10.5" style="fill:var(--text-2)">Principal Component (j)</text>
+  </g>
+  <g transform="translate(336,0)">
+    <text x="164" y="18" text-anchor="middle" font-size="12" font-weight="800" style="fill:var(--text)">Cumulative Explained Variance</text>
+    <line x1="56" y1="200" x2="308" y2="200" stroke-width="1.4" style="stroke:var(--border-2)"/>
+    <line x1="56" y1="200" x2="56" y2="36" stroke-width="1.4" style="stroke:var(--border-2)"/>
+    <text x="34" y="118" font-size="10" font-weight="700" transform="rotate(-90 34 118)" text-anchor="middle" style="fill:var(--text-2)">Cumulative EVR (%)</text>
+    <line x1="56" y1="76" x2="308" y2="76" stroke="#ef4444" stroke-width="1.4" stroke-dasharray="5 4"/>
+    <text x="100" y="70" font-size="9" font-weight="700" fill="#f87171">90% Target</text>
+    <polyline points="72,118 110,86 148,64 186,52 224,45 262,42" fill="none" stroke-width="2.4" style="stroke:var(--text)"/>
+    <g style="fill:var(--text)"><circle cx="72" cy="118" r="4"/><circle cx="110" cy="86" r="4"/><circle cx="148" cy="64" r="4"/><circle cx="186" cy="52" r="4"/><circle cx="224" cy="45" r="4"/><circle cx="262" cy="42" r="4"/></g>
+    <g font-size="9.5" font-weight="800" text-anchor="middle" style="fill:var(--text)">
+      <text x="72" y="136">48%</text><text x="110" y="78">76%</text><text x="148" y="82">89%</text>
+      <text x="186" y="44">96%</text><text x="224" y="37">99%</text><text x="268" y="34">100%</text>
+    </g>
+    <g font-size="9" text-anchor="middle" style="fill:var(--text-3)">
+      <text x="72" y="214">PC₁</text><text x="110" y="214">PC₂</text><text x="148" y="214">PC₃</text>
+      <text x="186" y="214">PC₄</text><text x="224" y="214">PC₅</text><text x="262" y="214">PC₆</text>
+    </g>
+    <text x="180" y="236" text-anchor="middle" font-size="10.5" style="fill:var(--text-2)">Principal Component (j)</text>
+  </g>
+</svg>
+<figcaption>Fig 8: Ek scree plot individual eigenvalues (bars) aur cumulative explained variance (line) display karta hai. <b>"Elbow"</b> wo point indicate karta hai jiske baad additional components <b>diminishing returns</b> dete hain.</figcaption>
+</figure>
+
+<h4>Rules for choosing $k$</h4>
+<ul>
+  <li><b>Cumulative threshold:</b> Choose the <b>smallest $k$ reaching 90% or 95%</b>, then validate.</li>
+  <li><b>Elbow / scree rule:</b> Look for the point after which eigenvalues <b>flatten</b>.</li>
+  <li><b>Visualization:</b> Choose $k = 2$ or $3$ for human inspection.</li>
+  <li><b>Downstream prediction:</b> Treat $k$ as a <b>hyperparameter inside cross-validation</b>.</li>
+</ul>
+<div class="box warn">
+  <div class="box-title">Classroom question</div>
+  <p style="margin:0">Agar first two components total variance ka 76% capture karte hain, to kya $k = 2$ <b>automatically</b> correct choice hai?<br>
+  <b>Nahi.</b> Teen wajah se: (i) 76% aksar common 90%/95% thresholds se <b>neeche</b> hai — is scree plot mein 90% tak pahuchne ke liye $k = 4$ (96%) chahiye; (ii) EVR ek <b>unsupervised</b> criterion hai — wo target ke baare mein kuch nahi jaanta, to discarded 24% mein wo hi direction ho sakti hai jo $y$ ki sabse zyada predictive hai; (iii) ek predictive pipeline ke liye $k$ ko <b>cross-validation ke andar hyperparameter</b> ki tarah treat karke downstream performance par validate karna chahiye.</p>
+</div>
+
+<!-- ================================================ -->
+<h4 id="s53">5.3 When PCA does not perform well ⭐</h4>
+<figure>
+<svg viewBox="0 0 680 250" role="img" aria-label="Three PCA failure cases">
+  <g>
+    <text x="110" y="18" text-anchor="middle" font-size="11.5" font-weight="800" style="fill:var(--text)">Case 1: Circular Data</text>
+    <line x1="24" y1="118" x2="196" y2="118" stroke-width="1.4" style="stroke:var(--text)"/>
+    <text x="202" y="122" font-size="10" style="fill:var(--text-3)">x₁</text>
+    <line x1="110" y1="196" x2="110" y2="34" stroke-width="1.4" style="stroke:var(--text)"/>
+    <text x="104" y="30" font-size="10" style="fill:var(--text-3)">x₂</text>
+    <circle cx="110" cy="115" r="56" fill="none" stroke-width="1.3" stroke-dasharray="4 3" style="stroke:var(--text-3)"/>
+    <g style="fill:var(--text)">
+      <circle cx="110" cy="59" r="4"/><circle cx="150" cy="75" r="4"/><circle cx="166" cy="115" r="4"/><circle cx="150" cy="155" r="4"/>
+      <circle cx="110" cy="171" r="4"/><circle cx="70" cy="155" r="4"/><circle cx="54" cy="115" r="4"/><circle cx="70" cy="75" r="4"/>
+      <circle cx="132" cy="64" r="4"/><circle cx="162" cy="94" r="4"/><circle cx="162" cy="136" r="4"/><circle cx="132" cy="166" r="4"/>
+      <circle cx="88" cy="166" r="4"/><circle cx="58" cy="136" r="4"/><circle cx="58" cy="94" r="4"/><circle cx="88" cy="64" r="4"/><circle cx="110" cy="115" r="4"/>
+    </g>
+    <text x="110" y="216" text-anchor="middle" font-size="9.5" style="fill:var(--text-3)">λ₁ ≈ λ₂ (Equal Variance)</text>
+    <text x="110" y="230" text-anchor="middle" font-size="9.5" style="fill:var(--text-3)">No dominant direction exists.</text>
+  </g>
+  <g transform="translate(226,0)">
+    <text x="110" y="18" text-anchor="middle" font-size="11.5" font-weight="800" style="fill:var(--text)">Case 2: Symmetric Classes</text>
+    <line x1="24" y1="118" x2="196" y2="118" stroke-width="1.4" style="stroke:var(--text)"/>
+    <path d="M30 114 l-8 4 l8 4 M190 114 l8 4 l-8 4" fill="none" stroke-width="1.6" style="stroke:var(--text)"/>
+    <text x="110" y="134" text-anchor="middle" font-size="10" font-weight="800" style="fill:var(--text)">PC₁</text>
+    <text x="202" y="122" font-size="10" style="fill:var(--text-3)">x₁</text>
+    <line x1="110" y1="196" x2="110" y2="34" stroke-width="1.4" style="stroke:var(--text)"/>
+    <text x="104" y="30" font-size="10" style="fill:var(--text-3)">x₂</text>
+    <g style="fill:var(--text)"><circle cx="50" cy="56" r="4"/><circle cx="78" cy="48" r="4"/><circle cx="108" cy="52" r="4"/><circle cx="138" cy="46" r="4"/><circle cx="168" cy="56" r="4"/></g>
+    <text x="42" y="40" font-size="10" font-weight="800" style="fill:var(--text)">Class A</text>
+    <g fill="#94a3b8"><circle cx="50" cy="178" r="4"/><circle cx="78" cy="186" r="4"/><circle cx="108" cy="180" r="4"/><circle cx="138" cy="188" r="4"/><circle cx="168" cy="178" r="4"/></g>
+    <text x="42" y="168" font-size="10" font-weight="800" fill="#94a3b8">Class B</text>
+    <text x="110" y="216" text-anchor="middle" font-size="9.5" style="fill:var(--text-3)">Projecting onto PC₁ merges</text>
+    <text x="110" y="230" text-anchor="middle" font-size="9.5" style="fill:var(--text-3)">Class A and Class B completely!</text>
+  </g>
+  <g transform="translate(452,0)">
+    <text x="110" y="18" text-anchor="middle" font-size="11.5" font-weight="800" style="fill:var(--text)">Case 3: Nonlinear Data</text>
+    <line x1="24" y1="118" x2="196" y2="118" stroke-width="1.4" style="stroke:var(--text)"/>
+    <text x="202" y="122" font-size="10" style="fill:var(--text-3)">x₁</text>
+    <line x1="110" y1="196" x2="110" y2="34" stroke-width="1.4" style="stroke:var(--text)"/>
+    <text x="104" y="30" font-size="10" style="fill:var(--text-3)">x₂</text>
+    <path d="M52 50 Q 110 190, 168 50" fill="none" stroke-width="1.3" stroke-dasharray="4 3" style="stroke:var(--text-3)"/>
+    <g style="fill:var(--text)"><circle cx="54" cy="54" r="4"/><circle cx="72" cy="96" r="4"/><circle cx="90" cy="128" r="4"/><circle cx="110" cy="142" r="4"/><circle cx="130" cy="128" r="4"/><circle cx="148" cy="96" r="4"/><circle cx="166" cy="54" r="4"/></g>
+    <line x1="66" y1="76" x2="154" y2="76" stroke-width="1.8" style="stroke:var(--text)"/>
+    <path d="M72 72 l-8 4 l8 4 M148 72 l8 4 l-8 4" fill="none" stroke-width="1.6" style="stroke:var(--text)"/>
+    <text x="110" y="68" text-anchor="middle" font-size="10" font-weight="800" style="fill:var(--text)">Linear PC₁</text>
+    <text x="110" y="216" text-anchor="middle" font-size="9.5" style="fill:var(--text-3)">y = x² curved structure is lost;</text>
+    <text x="110" y="230" text-anchor="middle" font-size="9.5" style="fill:var(--text-3)">Linear PCA cannot unroll manifolds.</text>
+  </g>
+</svg>
+<figcaption>Fig 9: <b>Left:</b> isotropic spread arbitrary components deta hai. <b>Middle:</b> unsupervised variance maximization <b>class separability destroy</b> kar sakti hai. <b>Right:</b> linear projections curved nonlinear manifolds capture nahi kar sakte.</figcaption>
+</figure>
+
+<h4>5.4 What PCA changes — and what it can fail to preserve ⭐</h4>
+<div class="grid g2">
+  <div class="box takeaway" style="margin:0"><div class="box-title">PCA can help with</div>
+    <ul style="margin:0">
+      <li>Visualization and compression</li>
+      <li>Faster downstream learning</li>
+      <li>Removal of <b>linear</b> redundancy</li>
+      <li>Noise reduction when low-variance directions are mostly noise</li>
+    </ul></div>
+  <div class="box danger" style="margin:0"><div class="box-title">PCA does NOT guarantee</div>
+    <ul style="margin:0">
+      <li>Better prediction</li>
+      <li>Causal meaning or class separation</li>
+      <li>Preservation of a <b>low-variance feature that is highly predictive of $y$</b></li>
+    </ul></div>
+</div>
+<div class="box danger">
+  <div class="box-title">△ WARNING</div>
+  <p style="margin:0">Cross-validation se <b>pehle</b> scaling ya PCA fit karke phir downstream model ko cross-validate <b>mat</b> karo. PCA ko <b>har fold ke andar, sirf training portion par</b> fit karo.</p>
+</div>
+
+<h4>5.5 Comparison with feature selection ⭐</h4>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Criterion</th><th>Feature Selection</th><th>Feature Extraction (PCA)</th></tr></thead>
+<tbody>
+<tr><td>What is reduced?</td><td>Number of <b>original columns</b> retained</td><td>Number of <b>new component coordinates</b></td></tr>
+<tr><td>Are original meanings preserved?</td><td><b>Yes</b></td><td>Usually <b>not directly</b></td></tr>
+<tr><td>Treatment of correlation</td><td>Often keeps one representative, removes another</td><td><b>Combines</b> shared variation into one direction</td></tr>
+<tr><td>Uses the target $y$?</td><td>Depends on the method</td><td><b>No</b> — standard PCA is <b>unsupervised</b></td></tr>
+<tr><td>Primary mathematical idea</td><td>Keep or discard columns</td><td><b>Rotate</b> the coordinate system, then project</td></tr>
+</tbody>
+</table>
+</div>
+<div class="box takeaway">
+  <div class="box-title">♦ Takeaway</div>
+  <p style="margin:0">Feature selection poochta hai ki <b>kaunse original axes rehne ke laayak</b> hain. PCA poochta hai ki kya feature space ki apparent complexity ko <b>rotated axes ke ek chhote set</b> se summarize kiya ja sakta hai jo relevant structure abhi bhi capture kare.</p>
+</div>
+
+<!-- ================================================ -->
+<h2 id="practice">🧮 Practice — Diagnosis and Application</h2>
+
+<div class="solved">
+  <header><span class="qtag">Practice P3</span><h4>(a) Choose $k$ from eigenvalues $[6, 2, 1, 0.5]$</h4></header>
+  <div class="body">
+    <ol class="steps">
+      <li><span class="sh">(i) Compute total variance</span>
+        $$\sum\lambda_j = 6 + 2 + 1 + 0.5 = \mathbf{9.5}$$</li>
+      <li><span class="sh">(ii) Complete the table</span>
+        <div class="tbl-wrap" style="margin:.5rem 0;max-width:520px">
+        <table class="compact">
+        <thead><tr><th class="num">$k$</th><th class="num">$\sum_{j=1}^{k}\lambda_j$</th><th class="num">Cumulative ratio</th><th class="num">$\ge 90\%$?</th></tr></thead>
+        <tbody>
+        <tr><td class="num">1</td><td class="num">6.0</td><td class="num">$6/9.5 = 0.632$</td><td class="num"><span class="pill r">No</span></td></tr>
+        <tr><td class="num">2</td><td class="num">8.0</td><td class="num">$8/9.5 = 0.842$</td><td class="num"><span class="pill r">No</span></td></tr>
+        <tr style="background:rgba(16,185,129,.14)"><td class="num">3</td><td class="num">9.0</td><td class="num">$9/9.5 = \mathbf{0.947}$</td><td class="num"><span class="pill g">Yes</span></td></tr>
+        <tr><td class="num">4</td><td class="num">9.5</td><td class="num">$9.5/9.5 = 1.000$</td><td class="num"><span class="pill g">Yes</span></td></tr>
+        </tbody></table></div></li>
+      <li><span class="sh">(iii) Smallest $k$ that retains at least 90%</span>
+        <div class="answer">$k = \mathbf 3$ &nbsp;(94.7%)</div></li>
+      <li><span class="sh">(iv) Why is that $k$ still only a CANDIDATE for a predictive pipeline?</span>
+        <p style="margin:.2rem 0 0">Kyunki 90%-variance rule ek <b>purely unsupervised</b> criterion hai — wo <b>target $y$ ko dekhta hi nahi</b>. Discarded 5.3% variance mein wo direction ho sakti hai jo $y$ ki sabse zyada predictive hai (yaad karo: PCA ek low-variance but highly predictive feature ko happily discard kar deta hai).</p>
+        <p style="margin:.4rem 0 0">Isliye $k = 3$ ko ek <b>hyperparameter</b> ki tarah treat karna chahiye aur <b>cross-validation ke andar</b> downstream model performance par validate karna chahiye — $k = 1, 2, 3, 4$ sab try karke dekho kaunsa best validation score deta hai.</p></li>
+    </ol>
+  </div>
+</div>
+
+<div class="solved">
+  <header><span class="qtag">Practice P3</span><h4>(b) Diagnose the pipeline</h4></header>
+  <div class="body">
+    <p>A student <b>standardizes the full dataset</b>, <b>fits PCA once using all observations</b>, keeps the first five components, and then reports five-fold cross-validation accuracy.</p>
+    <ol class="steps">
+      <li><span class="sh">(i) Is the reported score trustworthy?</span>
+        <div class="answer">No.</div></li>
+      <li><span class="sh">(ii) Which steps have seen the validation folds?</span>
+        <p style="margin:.2rem 0 0"><b>Both preprocessing steps:</b></p>
+        <ul style="margin:.4rem 0 0">
+          <li><b>Standardization</b> — $\boldsymbol\mu$ aur $\mathbf s$ <b>saari rows</b> se compute hue, including wo jo baad mein validation folds banengi.</li>
+          <li><b>PCA fitting</b> — covariance matrix $S$ aur uske eigenvectors bhi <b>saari rows</b> se compute hue. Projection directions $W_k$ literally validation data ki structure se shaped hain.</li>
+        </ul>
+        <p style="margin:.4rem 0 0">Sirf <b>model fitting</b> step ne validation folds nahi dekhi — par tab tak nuksaan ho chuka hai. Reported CV accuracy <b>optimistically biased</b> hai.</p></li>
+      <li><span class="sh">(iii) Describe the correct fold-by-fold procedure</span>
+        <div class="tbl-wrap" style="margin:.5rem 0 0">
+        <table class="compact">
+        <thead><tr><th class="num">Step</th><th>For each of the 5 folds</th></tr></thead>
+        <tbody>
+        <tr><td class="num">1</td><td>Split into training portion and validation portion.</td></tr>
+        <tr><td class="num">2</td><td>Fit the <b>scaler</b> ($\boldsymbol\mu_{tr}$, $\mathbf s_{tr}$) on the <b>training portion only</b>.</td></tr>
+        <tr><td class="num">3</td><td><b>Transform</b> both portions using those stored training statistics.</td></tr>
+        <tr><td class="num">4</td><td>Fit <b>PCA</b> (covariance, eigendecomposition) on the <b>transformed training portion only</b>.</td></tr>
+        <tr><td class="num">5</td><td><b>Project</b> both portions using the training-fitted $W_k$.</td></tr>
+        <tr><td class="num">6</td><td>Fit the <b>model</b> on the projected training portion.</td></tr>
+        <tr><td class="num">7</td><td><b>Evaluate</b> on the projected validation portion.</td></tr>
+        </tbody></table></div>
+        <p style="margin:.5rem 0 0">Then <b>average the five validation scores</b>. Different folds will produce <b>slightly different principal directions</b> — that is expected, and the spread across folds is itself useful information about stability.</p></li>
+    </ol>
+  </div>
+</div>
+
+<div class="solved">
+  <header><span class="qtag">Practice P4</span><h4>(a) Key Terms · (b) True or False · (c) Synthesis</h4></header>
+  <div class="body">
+    <p><b>(a) Key Terms</b></p>
+    <div class="tbl-wrap" style="margin:.4rem 0">
+    <table>
+    <thead><tr><th>Term</th><th>Definition</th></tr></thead>
+    <tbody>
+    <tr><td><b>Centering</b></td><td>Har feature ki mean subtract karna taaki har column ka mean zero ho jaaye: $X_c = X - \mathbf 1\boldsymbol\mu^\top$. PCA ke liye <b>compulsory</b>.</td></tr>
+    <tr><td><b>Covariance matrix</b></td><td>Ek $p\times p$ symmetric matrix $S = \frac{1}{n-1}X_c^\top X_c$; diagonal mein feature variances aur off-diagonal mein pairwise covariances.</td></tr>
+    <tr><td><b>Eigenvector</b></td><td>Ek non-zero vector $\mathbf v$ jiski direction transformation ke under <b>preserved</b> rehti hai: $S\mathbf v = \lambda\mathbf v$. PCA mein yeh ek principal direction hai.</td></tr>
+    <tr><td><b>Eigenvalue</b></td><td>Scalar $\lambda$ jo batata hai ki uske eigenvector ki direction ke along matrix kitna stretch karta hai. PCA mein yeh us direction par <b>captured variance</b> hai.</td></tr>
+    <tr><td><b>Principal component</b></td><td>Covariance matrix ka ek eigenvector, eigenvalue ke descending order mein ranked. PC$_1$ maximum variance capture karta hai.</td></tr>
+    <tr><td><b>Explained variance</b></td><td>Total variance ka wo fraction jo ek component capture karta hai: $\lambda_j / \sum_\ell \lambda_\ell$.</td></tr>
+    <tr><td><b>Scree plot</b></td><td>Component index ke against eigenvalues (ya EVR) ka plot, jo <b>elbow</b> identify karne mein help karta hai jiske baad additional components diminishing returns dete hain.</td></tr>
+    </tbody></table></div>
+
+    <p style="margin-top:1.4rem"><b>(b) True or False</b></p>
+    <div class="tbl-wrap" style="margin:.4rem 0">
+    <table>
+    <thead><tr><th>Statement</th><th>T/F</th><th>Justification</th></tr></thead>
+    <tbody>
+    <tr><td>PCA uses the target variable $y$ to find directions</td><td><span class="pill r">F</span></td><td>PCA <b>unsupervised</b> hai — wo sirf $X$ ki covariance structure use karta hai. $y$ formula mein kahin nahi aata.</td></tr>
+    <tr><td>Principal components are always uncorrelated</td><td><span class="pill g">T</span></td><td>$S$ symmetric hai, to uske eigenvectors <b>orthogonal</b> hain; isliye PC scores ki covariance zero hoti hai.</td></tr>
+    <tr><td>Standardization is always necessary before PCA</td><td><span class="pill r">F</span></td><td><b>Centering</b> hamesha zaroori hai; <b>standardization conditional</b> hai — tab jab features ke different units/scales hon.</td></tr>
+    <tr><td>The eigenvalue of a PC equals the variance of the scores along that direction</td><td><span class="pill g">T</span></td><td>Yeh eigen-decomposition ka exact interpretation hai — isiliye EVR $= \lambda_j/\sum\lambda$.</td></tr>
+    <tr><td>PCA can unfold a curved manifold</td><td><span class="pill r">F</span></td><td>PCA ek <b>linear</b> method hai (Fig 9, Case 3). Curved structures ke liye kernel PCA ya manifold methods chahiye.</td></tr>
+    </tbody></table></div>
+
+    <p style="margin-top:1.4rem"><b>(c) Synthesis questions</b></p>
+    <ol class="steps">
+      <li><span class="sh">(i) Why is centering essential before computing the covariance matrix?</span>
+        <p style="margin:.2rem 0 0">Kyunki variance-along-$\mathbf u$ formula mein mean term $\overline{\mathbf u^\top\mathbf X} = \mathbf u^\top\bar{\mathbf X}$ appear karta hai. Centering isse <b>exactly zero</b> bana deta hai, jisse formula $\frac{1}{n-1}\sum(\mathbf u^\top\mathbf X_i)^2$ ban jaata hai. Centering ke bina, PC$_1$ origin se data-cloud ke mean tak ki direction ko pick karne lagta hai — spread ki direction ko nahi.</p></li>
+      <li><span class="sh">(ii) What does an eigenvalue mean geometrically in PCA?</span>
+        <p style="margin:.2rem 0 0">Wo us principal direction ke along projected data ki <b>variance (spread)</b> hai. Bada eigenvalue = data us direction mein zyada faila hua hai = wo direction zyada information carry karti hai. Ek zero eigenvalue ka matlab us direction mein <b>bilkul koi variation nahi</b> — use bina kisi loss ke discard kiya ja sakta hai.</p></li>
+      <li><span class="sh">(iii) Why are principal-component scores uncorrelated?</span>
+        <p style="margin:.2rem 0 0">Kyunki $S$ ek <b>real symmetric</b> matrix hai, aur spectral theorem guarantee karta hai ki uske eigenvectors <b>mutually orthogonal</b> chune ja sakte hain. Jab centered data orthogonal directions par project hota hai, resulting score vectors ki <b>covariance zero</b> hoti hai.</p></li>
+      <li><span class="sh">(iv) When can standardization change the first principal component dramatically?</span>
+        <p style="margin:.2rem 0 0">Jab features ke <b>wildly different scales</b> hon. Maan lo income rupees mein hai (variance $\sim 10^{10}$) aur age years mein (variance $\sim 100$). Bina standardization ke, covariance matrix par income poori tarah haavi ho jaayega aur PC$_1$ essentially "income" ban jaayega. Standardization ke baad dono features ki variance 1 ho jaati hai, to PC$_1$ <b>genuine shared structure</b> reflect karta hai — sirf units ka accident nahi.</p></li>
+      <li><span class="sh">(v) Why can PCA improve a model on one dataset and harm it on another?</span>
+        <p style="margin:.2rem 0 0">Kyunki PCA <b>variance</b> par optimize karta hai, <b>predictive value</b> par nahi. Agar high-variance directions hi wo directions hain jo $y$ carry karti hain (common case), to PCA noise hata ke help karta hai. Par agar signal ek <b>low-variance</b> direction mein baitha hai (Fig 9 ka Case 2, ya rare medical flag), to PCA use <b>discard</b> kar dega aur performance <b>kharab</b> kar dega.</p></li>
+      <li><span class="sh">(vi) How does PCA connect back to the bias–variance tradeoff and feature selection?</span>
+        <p style="margin:.2rem 0 0">Teeno ek hi tension address karte hain. <b>Bias–variance</b> (<a href="l09.html">L9</a>): zyada flexibility variance badhati hai. <b>Feature selection</b> (<a href="l10.html">L10</a>): columns hatao taaki variance kam ho. <b>PCA</b> (L11): dimensions hatao taaki variance kam ho — par <b>rotating</b> karke, na ki original columns discard karke, to shared signal preserve rehta hai. Teeno "hamesha better generalization" nahi dete; teeno ko <b>validation</b> chahiye.</p></li>
+      <li><span class="sh">(vii) Give an example of a dataset where PCA would fail to capture the true structure.</span>
+        <p style="margin:.2rem 0 0">Do concentric circles (ya Fig 9 ka $y = x^2$ parabola). Do classes hain — inner ring aur outer ring — par unka <b>mean same</b> hai aur variance <b>har direction mein equal</b> hai. Koi bhi linear projection dono classes ko <b>merge</b> kar degi. Sahi structure <b>radius</b> hai, jo koi bhi linear combination of $x_1, x_2$ nahi hai. Yahan <b>kernel PCA</b> ya ek nonlinear manifold method chahiye.</p></li>
+    </ol>
+  </div>
+</div>
+
+<!-- ================================================ -->
+<h2 id="mistakes">⚠ Common Mistakes</h2>
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>Galti</th><th>Sahi Baat</th></tr></thead>
+<tbody>
+<tr><td>Centering skip kar dena</td><td>Bina centering ke PC$_1$ <b>mean ki direction</b> pick karta hai, spread ki nahi. Centering <b>compulsory</b> hai.</td></tr>
+<tr><td>"Standardization bhi hamesha zaroori hai"</td><td>Nahi — <b>conditional</b> hai. Same units par centering alone kaafi hai.</td></tr>
+<tr><td>"PCA supervised hai kyunki wo best features dhoondta hai"</td><td>PCA <b>unsupervised</b> hai — $y$ formula mein kahin aata hi nahi.</td></tr>
+<tr><td>PCs ko subscript number se order karna</td><td>Ordering <b>eigenvalue size</b> se hoti hai. Agar $\lambda_3 &gt; \lambda_2$, to $\mathbf v_3$ PC$_2$ banta hai.</td></tr>
+<tr><td>Poore dataset par PCA fit karke phir CV karna</td><td><b>Leakage.</b> PCA <b>har fold ke andar</b>, sirf training portion par fit karo.</td></tr>
+<tr><td>"90% variance = best $k$"</td><td>EVR <b>unsupervised</b> criterion hai. $k$ ko CV ke andar hyperparameter ki tarah validate karo.</td></tr>
+<tr><td>"PCA hamesha model improve karta hai"</td><td>Agar signal ek low-variance direction mein hai, PCA use <b>discard</b> kar dega.</td></tr>
+<tr><td>"Zero covariance = independent"</td><td>$y = x^2$ counterexample hai. Zero covariance sirf zero <b>linear</b> co-movement hai.</td></tr>
+<tr><td>Test set par PCA refit karna</td><td>Stored training $\boldsymbol\mu$, $\mathbf s$ aur $W_k$ use karo. <b>Kabhi</b> test par refit mat karo.</td></tr>
+<tr><td>$W_k$ ke dimensions $k \times p$ likhna</td><td>$W_k$ is $p \times k$ (columns are the $k$ eigenvectors, each of length $p$).</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="revision">⚡ Quick Revision</h2>
+<div class="grid g2">
+  <div class="box def" style="margin:0"><div class="box-title">Centering</div><p style="margin:0">$X_c = X - \mathbf 1\boldsymbol\mu^\top$ &nbsp;(always)</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Covariance matrix</div><p style="margin:0">$S = \frac{1}{n-1}X_c^\top X_c$ &nbsp;($p\times p$, symmetric)</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Eigen equation</div><p style="margin:0">$S\mathbf v = \lambda\mathbf v$ &nbsp;·&nbsp; $|S - \lambda I| = 0$</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Projection</div><p style="margin:0">$z_i = \mathbf u^\top\mathbf x_i$ &nbsp;·&nbsp; $Z = X_cW_k$ &nbsp;($n\times k$)</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">EVR</div><p style="margin:0">$\lambda_j / \sum_\ell\lambda_\ell$ &nbsp;·&nbsp; total variance $= \operatorname{trace}(S)$</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">$W_k$ dimensions</div><p style="margin:0">$p \times k$</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Test transform</div><p style="margin:0">$Z_{\text{test}} = (X_{\text{test}} - \mathbf 1_{\text{test}}\boldsymbol\mu_{\text{tr}}^\top)W_k$</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">3 failure cases</div><p style="margin:0">Circular ($\lambda_1\approx\lambda_2$) · Symmetric classes · Nonlinear manifolds</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Max–min equivalence</div><p style="margin:0">Max variance of $z$ $\iff$ min reconstruction error $\sum\|\mathbf e_i\|^2$</p></div>
+  <div class="box def" style="margin:0"><div class="box-title">Selection vs Extraction</div><p style="margin:0">Keep/discard columns vs <b>rotate then project</b></p></div>
+</div>
+
+<div class="box takeaway">
+  <div class="box-title">♦ By the end of this sheet you can…</div>
+  <ul style="margin:0">
+    <li>Feature selection ko feature extraction se distinguish karna aur batana ki PCA kab appropriate hai.</li>
+    <li>Centering formula likhna aur explain karna ki standardization kab chahiye.</li>
+    <li>Explain karna ki covariance matrix kya record karta hai aur uske diagonal/off-diagonal entries identify karna.</li>
+    <li>Explain karna ki covariance matrix ke eigenvalues aur eigenvectors principal components kaise dete hain.</li>
+    <li>State karna ki principal directions covariance matrix ke eigenvectors kyun hain aur har eigenvalue captured variance kyun represent karta hai.</li>
+    <li>Data ko ek unit direction par project karna aur score ko geometrically interpret karna.</li>
+    <li>Ek miniature PCA calculation <b>by hand</b> complete karna.</li>
+    <li>Explained variance ratios aur ek scree plot se $k$ choose karna.</li>
+    <li>Un situations ko identify karna jahan PCA accha perform nahi karta.</li>
+    <li>Explain karna ki PCA cross-validation folds ke andar kyun hona chahiye.</li>
+    <li>PCA ko feature selection se purpose, supervision aur validation discipline par compare karna.</li>
+  </ul>
+</div>
+
+<h2 id="test">✓ Test Yourself — 10 MCQs</h2>
+<div id="mcq-root"></div>
+
+</div>
+</main>
+</div>
+
+<script>
+const MCQS = [
+{ d:'med',
+  q:'For the centered data $X_c = \\begin{bmatrix}-2&-2\\\\0&0\\\\2&2\\end{bmatrix}$ with $n=3$, what is the covariance matrix $S$?',
+  o:['$\\begin{bmatrix}8&8\\\\8&8\\end{bmatrix}$', '$\\begin{bmatrix}4&4\\\\4&4\\end{bmatrix}$', '$\\begin{bmatrix}4&0\\\\0&4\\end{bmatrix}$', '$\\begin{bmatrix}1&1\\\\1&1\\end{bmatrix}$'],
+  a:1,
+  e:'<b>B.</b> $X_c^\\top X_c = \\begin{bmatrix}8&8\\\\8&8\\end{bmatrix}$, and $S = \\frac{1}{n-1}X_c^\\top X_c = \\frac12\\begin{bmatrix}8&8\\\\8&8\\end{bmatrix} = \\begin{bmatrix}4&4\\\\4&4\\end{bmatrix}$. <b>A</b> forgets to divide by $n-1$. <b>C</b> sets the covariance to zero, which would mean the features are uncorrelated — they are perfectly correlated here. <b>D</b> divides by $n-1$ twice.' },
+
+{ d:'hard',
+  q:'Why is mean centering COMPULSORY before PCA?',
+  o:['To make the numbers smaller and easier to compute',
+     'Because the variance-along-$\\mathbf u$ formula contains $\\overline{\\mathbf u^\\top\\mathbf X} = \\mathbf u^\\top\\bar{\\mathbf X}$; centering makes this exactly zero, otherwise PC₁ points toward the mean rather than along the spread',
+     'Because eigenvalues must be positive',
+     'Because standardization requires it'],
+  a:1,
+  e:'<b>B.</b> Bina centering ke, variance calculation mean offset se distort ho jaati hai aur first component <b>origin se data cloud tak</b> ki direction pick karta hai — spread ki direction nahi. <b>A</b> is a side effect, not the reason. <b>C</b> false — a covariance matrix already has non-negative eigenvalues. <b>D</b> reverses the dependency.' },
+
+{ d:'hard',
+  q:'A rare binary medical flag has low variance but is strongly associated with the target. What will PCA do with it?',
+  o:['PCA will emphasise it, since rare events carry the most information',
+     'PCA will likely DISCARD its direction, because PCA maximises variance and never looks at the target — this is a known failure mode',
+     'PCA will keep it because the eigenvalue will be large',
+     'PCA cannot process binary features at all'],
+  a:1,
+  e:'<b>B.</b> Sheet explicitly lists among things PCA does <b>not</b> guarantee: "Preservation of a low-variance feature that is highly predictive of $y$." PCA <b>unsupervised</b> hai. <b>A</b> and <b>C</b> assume PCA knows about relevance — it does not. <b>D</b> is false.' },
+
+{ d:'med',
+  q:'Eigenvalues of a covariance matrix are $[6, 2, 1, 0.5]$. What is the smallest $k$ retaining at least 90% of the variance?',
+  o:['$k=1$', '$k=2$', '$k=3$', '$k=4$'],
+  a:2,
+  e:'<b>C.</b> Total $= 9.5$. Cumulative: $6/9.5 = 63.2\\%$, $8/9.5 = 84.2\\%$, $9/9.5 = \\mathbf{94.7\\%}$ ✓, $9.5/9.5 = 100\\%$. So $k=3$ is the smallest that reaches 90%. <b>B</b> at 84.2% falls short. <b>D</b> works but is not the <b>smallest</b>. <b>A</b> is far below.' },
+
+{ d:'hard',
+  q:'A student standardises the full dataset, fits PCA once on all observations, keeps 5 components, then reports 5-fold CV accuracy. Which steps saw the validation folds?',
+  o:['Only the model fitting step',
+     'Both standardisation (means/stds from all rows) and PCA fitting (covariance and eigenvectors from all rows) — so the reported score is optimistically biased',
+     'None — cross-validation protects the pipeline',
+     'Only PCA, since standardisation is harmless'],
+  a:1,
+  e:'<b>B.</b> Dono preprocessing steps saari rows se learn hue. $W_k$ literally validation data ki covariance structure se shaped hai. Sirf model fitting fold-local raha — par leakage pehle hi ho chuka. <b>A</b> is exactly backwards. <b>C</b> is the dangerous belief that CV is a universal safety net. <b>D</b> understates — standardisation leaks $\\mu$ and $s$ too.' },
+
+{ d:'hard',
+  q:'Why are principal-component scores always uncorrelated?',
+  o:['Because PCA normalises each score to zero mean and unit variance',
+     'Because $S$ is a real symmetric matrix, so its eigenvectors can be chosen mutually orthogonal, and projecting centred data onto orthogonal directions gives zero covariance between scores',
+     'Because the target variable forces them apart',
+     'They are not always uncorrelated'],
+  a:1,
+  e:'<b>B.</b> Spectral theorem: ek real symmetric matrix ke orthogonal eigenvectors hote hain. Orthogonal directions par centered data project karne se scores ki covariance zero ho jaati hai. <b>A</b> confuses centring with decorrelation (scores are centred but <b>not</b> unit-variance — their variances are the $\\lambda_j$). <b>C</b> false — PCA never uses $y$. <b>D</b> contradicts the standard result.' },
+
+{ d:'hard',
+  q:'Let $\\mathbf x = [3,1]^\\top$ and $\\mathbf u = \\frac{1}{\\sqrt2}[1,1]^\\top$. What is the projected point $z\\mathbf u$, and why does it not equal $\\mathbf x$?',
+  o:['$[3,1]^\\top$; it does equal $\\mathbf x$',
+     '$[2,2]^\\top$; because $\\mathbf x$ is not on the line spanned by $\\mathbf u$, so the perpendicular residual $[1,-1]^\\top$ is discarded',
+     '$[2\\sqrt2, 2\\sqrt2]^\\top$; because the scale is lost',
+     '$[4,4]^\\top$; because the dot product doubles each coordinate'],
+  a:1,
+  e:'<b>B.</b> $z = \\frac{3+1}{\\sqrt2} = 2\\sqrt2$, and $z\\mathbf u = 2\\sqrt2 \\cdot \\frac{1}{\\sqrt2}[1,1]^\\top = [2,2]^\\top$. Residual $\\mathbf e = [3,1]-[2,2] = [1,-1]$, which is perpendicular to $\\mathbf u$ (dot product 0) and is exactly the information lost. <b>C</b> forgets to multiply by $\\mathbf u$ (that is just $z$ repeated). <b>A</b> and <b>D</b> are arithmetically wrong.' },
+
+{ d:'hard',
+  q:'Two classes lie symmetrically above and below the $x_1$ axis, and PC₁ runs along $x_1$. What happens when you project onto PC₁?',
+  o:['The classes become perfectly separated',
+     'The two classes are completely MERGED, because PCA maximises variance without ever looking at class labels',
+     'PCA will automatically rotate to PC₂ to preserve the classes',
+     'The eigenvalues become negative'],
+  a:1,
+  e:'<b>B.</b> Yeh Fig 9 ka Case 2 hai. Spread $x_1$ ke along sabse zyada hai, to PC₁ wahi pick karta hai — par class information $x_2$ mein baithi hai. Unsupervised variance maximisation ne <b>class separability destroy</b> kar di. <b>A</b> is exactly the opposite. <b>C</b> — PCA has no mechanism to prefer a class-separating direction. <b>D</b> is impossible for a covariance matrix.' },
+
+{ d:'med',
+  q:'Which pairing is correct for the matrix $W_k$?',
+  o:['$W_k$ is $k \\times p$; $Z = W_kX_c$', '$W_k$ is $p \\times k$; $Z = X_cW_k$ with $Z$ of size $n \\times k$',
+     '$W_k$ is $n \\times k$; $Z = X_c^\\top W_k$', '$W_k$ is $p \\times p$; $Z = X_cW_k$'],
+  a:1,
+  e:'<b>B.</b> $W_k$ ke columns pehle $k$ eigenvectors hain, har ek length $p$ ka ⟹ $p \\times k$. Then $Z = X_cW_k$ is $(n\\times p)(p\\times k) = n\\times k$ ✓. <b>A</b> transposes $W_k$ so the multiplication does not conform. <b>C</b> confuses observations with features. <b>D</b> keeps all $p$ components, i.e. no reduction.' },
+
+{ d:'hard',
+  q:'Maximising the variance of the projections $z_i = \\mathbf u^\\top\\mathbf x_i$ is mathematically equivalent to:',
+  o:['Maximising the reconstruction error $\\sum\\|\\mathbf e_i\\|^2$',
+     'Minimising the reconstruction error $\\sum\\|\\mathbf e_i\\|^2$, because $\\|\\mathbf x_i\\|^2 = z_i^2 + \\|\\mathbf e_i\\|^2$ and the total norm is fixed',
+     'Minimising the number of components $k$',
+     'Maximising the correlation with the target $y$'],
+  a:1,
+  e:'<b>B.</b> Pythagorean orthogonal decomposition: $\\|\\mathbf x_i\\|^2 = z_i^2 + \\|\\mathbf e_i\\|^2$. Since $\\|\\mathbf x_i\\|^2$ $\\mathbf u$ par depend hi nahi karta, $\\sum z_i^2$ maximise karna aur $\\sum\\|\\mathbf e_i\\|^2$ minimise karna <b>same optimisation</b> hai. <b>A</b> reverses it. <b>C</b> is a separate decision. <b>D</b> would make PCA supervised, which it is not.' },
+];
+</script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="window.dispatchEvent(new Event('katex-ready'))"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
