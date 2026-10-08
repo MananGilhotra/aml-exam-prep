@@ -28,7 +28,7 @@
 
 <div class="box hinglish">
   <div class="box-title">⚡ Ek Line Mein</div>
-  <p style="margin:0">Data ko <b>pehle</b> split karo (test set pavitra hai), <b>phir</b> features banao. Ek simple baseline set karo. Model select karo → hyperparameters tune karo → train karo (forward pass → loss → gradient descent → convergence). Untouched test set par evaluate karo. Deploy karo. Phir <b>hamesha monitor</b> karo, kyunki model drift real hai.</p>
+  <p style="margin:0">Split the data <b>first</b> (the test set is sacred), <b>then</b> build features. Set a simple baseline. Select a model → tune the hyperparameters → train (forward pass → loss → gradient descent → convergence). Evaluate on the untouched test set. Deploy. And then <b>monitor forever</b>, kyunki model drift is real.</p>
 </div>
 
 <h3>Today's roadmap</h3>
@@ -50,7 +50,7 @@
 
 <!-- ================================= -->
 <h2 id="params">Parameters vs Hyperparameters ⭐</h2>
-<p><b>Parameters</b> wo internal gears hain jo training ke dauraan <b>automatically</b> adjust hote hain. <b>Hyperparameters</b> wo external dials hain jo tum training se <b>pehle</b> set karte ho. Algorithm inhe apne aap adjust <b>nahi</b> kar sakta.</p>
+<p><b>Parameters</b> are the internal gears that adjust <b>automatically</b> during training. <b>Hyperparameters</b> are the external dials that <i>you</i> set <b>before</b> training. The algorithm <b>cannot</b> adjust these on its own.</p>
 
 <div class="tbl-wrap">
 <table>
@@ -65,10 +65,10 @@
 <h4>Common production hyperparameters</h4>
 <ul>
   <li><b>Decision Trees:</b> <code>max_depth</code> — maximum splits allowed. Too low = too simple; too high = data memorize kar lega.</li>
-  <li><b>Random Forests:</b> <code>n_estimators</code> — ensemble mein kitne trees banane hain.</li>
-  <li><b>Gradient Descent:</b> <code>learning_rate</code> — minimum error ki taraf step size. Too large = overshoot; too small = kabhi converge nahi.</li>
+  <li><b>Random Forests:</b> <code>n_estimators</code> — how many trees to build in the ensemble.</li>
+  <li><b>Gradient Descent:</b> <code>learning_rate</code> — the step size toward minimum error. Too large = overshoot; too small = never converges.</li>
 </ul>
-<p><b>Hyperparameter Tuning</b> ek iterative process hai: alag-alag configurations ke saath multiple training cycles chalao, score ko <b>Validation Data</b> ke against check karo, aur optimal combination dhoondo.</p>
+<p><b>Hyperparameter tuning</b> is an iterative process: run multiple training cycles with different configurations, check the score against the <b>validation data</b>, and find the optimal combination.</p>
 
 <div class="solved">
   <header><span class="qtag">Practice P1</span><h4>Classify: Parameter [P] or Hyperparameter [H]?</h4></header>
@@ -77,11 +77,11 @@
     <table class="compact">
       <thead><tr><th>Item</th><th>Answer</th><th>Why</th></tr></thead>
       <tbody>
-      <tr><td>(a) Weight $w_1$ in a regression equation</td><td><span class="pill g">P</span></td><td>Training ke dauraan gradient descent se seekha jaata hai.</td></tr>
-      <tr><td>(b) <code>max_depth</code> of a Decision Tree</td><td><span class="pill a">H</span></td><td>Tum fit() call karne se pehle set karte ho.</td></tr>
-      <tr><td>(c) Intercept $w_0$ in $y = w_0 + w_1x_1$</td><td><span class="pill g">P</span></td><td>Bias term bhi ek learned parameter hai.</td></tr>
-      <tr><td>(d) <code>learning_rate</code> for Gradient Descent</td><td><span class="pill a">H</span></td><td>Algorithm isse khud optimize nahi kar sakta.</td></tr>
-      <tr><td>(e) <code>n_estimators</code> in a Random Forest</td><td><span class="pill a">H</span></td><td>Architecture choice — training se pehle fix.</td></tr>
+      <tr><td>(a) Weight $w_1$ in a regression equation</td><td><span class="pill g">P</span></td><td>Learned by gradient descent during training.</td></tr>
+      <tr><td>(b) <code>max_depth</code> of a Decision Tree</td><td><span class="pill a">H</span></td><td>You set it before calling fit().</td></tr>
+      <tr><td>(c) Intercept $w_0$ in $y = w_0 + w_1x_1$</td><td><span class="pill g">P</span></td><td>The bias term is a learned parameter too.</td></tr>
+      <tr><td>(d) <code>learning_rate</code> for Gradient Descent</td><td><span class="pill a">H</span></td><td>The algorithm cannot optimise this for itself.</td></tr>
+      <tr><td>(e) <code>n_estimators</code> in a Random Forest</td><td><span class="pill a">H</span></td><td>An architecture choice — fixed before training.</td></tr>
       <tr><td>(f) Bias term learned during backpropagation</td><td><span class="pill g">P</span></td><td>"Learned during" = parameter, by definition.</td></tr>
       </tbody>
     </table>
@@ -94,10 +94,10 @@
 
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">Agar ek student pichle saal ke exam ke answers ratt le aur 100% le aaye — kya isse prove hota hai ki usne subject samjha? Agar tumhara ML model us data par 100% score kare jo usne <b>pehle dekh liya hai</b>, kya wo actually future predict karna jaanta hai?</p>
+  <p style="margin:0">If a student memorises last year's exam answers and scores 100%, does that prove they understood the subject? If your ML model scores 100% on data it has <b>already seen</b>, does it actually know how to predict the future?</p>
 </div>
 
-<p>Parameters ko <b>training data</b> chahiye, hyperparameters ko <b>validation data</b> chahiye, aur final grade ke liye <b>untouched test data</b> chahiye. Teen blocks:</p>
+<p>Parameters need <b>training data</b>, hyperparameters need <b>validation data</b>, and the final grade needs <b>untouched test data</b>. Three blocks:</p>
 
 <figure>
 <svg viewBox="0 0 700 150" role="img" aria-label="Train validation test split 70 15 15">
@@ -115,17 +115,17 @@
   <text x="642" y="100" text-anchor="middle" font-size="11.5" font-style="italic" style="fill:var(--text-2)">final grade</text>
   <text x="642" y="118" text-anchor="middle" font-size="11" font-weight="800" fill="#ef4444">🔒 LOCKED</text>
 </svg>
-<figcaption>Test set ko sirf <b>ek baar</b>, sabse aakhir mein chhuo.</figcaption>
+<figcaption>Touch the test set <b>only once</b>, right at the very end.</figcaption>
 </figure>
 
 <div class="box danger">
   <div class="box-title">△ Senior Engineer's Warning — DATA LEAKAGE</div>
-  <p style="margin:0">Data splitting <b>Feature Engineering se PEHLE</b> honi chahiye. Agar tum poore dataset par scale ya impute karte ho, to validation aur test sets ki information training mein <b>leak</b> ho jaati hai. Isse artificially high scores milte hain par truly unseen production data par <b>catastrophic failure</b> hota hai.</p>
+  <p style="margin:0">Data splitting must happen <b>BEFORE</b> feature engineering. If you scale or impute on the whole dataset, information from the validation and test sets <b>leaks</b> into training. That gives you artificially high scores but <b>catastrophic failure</b> on genuinely unseen production data.</p>
 </div>
 
 <div class="box insight">
   <div class="box-title">★ Key Insight</div>
-  <p style="margin:0">Agar tumne development ke dauraan test data par <b>peek</b> kiya (prematurely dekha), to tumne exam ke answers leak kar diye — aur tumhare final performance metrics <b>hamesha ke liye compromised</b> ho gaye.</p>
+  <p style="margin:0">If you <b>peeked</b> at the test data during development, you leaked the exam answers — and your final performance metrics are <b>permanently compromised</b>.</p>
 </div>
 
 <figure>
@@ -157,7 +157,7 @@
   <text x="465" y="173" text-anchor="middle" font-size="11.5" font-weight="800" fill="#fbbf24">STEP 3 · APPLY (transform only)</text>
   <text x="465" y="192" text-anchor="middle" font-size="12" style="fill:var(--text-2)">same train-μ, train-σ applied to Val &amp; Test</text>
 </svg>
-<figcaption>Split → fit on train → transform val/test. Kabhi bhi val/test par <code>fit()</code> mat karo.</figcaption>
+<figcaption>Split → fit on train → transform val/test. Never call <code>fit()</code> on val or test.</figcaption>
 </figure>
 
 <div class="solved">
@@ -167,7 +167,7 @@
       <li><span class="sh">(a) The ______ set is locked away until the very end to give an unbiased final grade.</span>
         <div class="answer">Test</div></li>
       <li><span class="sh">(b) You should calculate the mean of the ENTIRE dataset before splitting to replace missing values. [T/F]</span>
-        <div class="answer">False — yeh classic data leakage hai. Mean sirf training set se compute karo.</div></li>
+        <div class="answer">False — this is classic data leakage. Compute the mean from the training set only.</div></li>
       <li><span class="sh">(c) Which set is used to tune Hyperparameters?</span>
         <div class="answer">Validation</div></li>
       <li><span class="sh">(d) Peeking at the test set during development invalidates your evaluation. [T/F]</span>
@@ -178,13 +178,13 @@
 
 <div class="box warn">
   <div class="box-title">△ Reflect 1 — Is this leakage?</div>
-  <p style="margin:0">Ek data scientist SAARI 100,000 rows se mean salary compute karta hai, <b>phir</b> split karta hai, aur us mean se training set ke missing values impute karta hai. Leakage hai?<br>
-  <b>Haan, definitely.</b> Us mean mein <b>test set ki rows ki information</b> baithi hai. Yaani test set ne training process ko influence kiya. Ab test score artificially optimistic hai kyunki model ko indirectly test distribution ke baare mein pata chal gaya. <b>Sahi tareeka:</b> pehle split, phir sirf training rows se mean nikaalo, aur wahi mean train + val + test teeno par apply karo.</p>
+  <p style="margin:0">A data scientist computes the mean salary from ALL 100,000 rows, <b>then</b> splits, and uses that mean to impute missing values in the training set. Is this leakage?<br>
+  <b>Yes, definitely.</b> That mean carries <b>information from the test-set rows</b> — meaning the test set influenced the training process. The test score is now artificially optimistic, because the model indirectly learned something about the test distribution. <b>The right way:</b> split first, compute the mean from training rows only, and apply that same mean to train, val and test.</p>
 </div>
 
 <div class="box takeaway">
   <div class="box-title">♦ Takeaway</div>
-  <p style="margin:0"><b>Split FIRST, engineer SECOND.</b> Test Set pavitra hai — use sirf ek baar, bilkul aakhir mein chhuo.</p>
+  <p style="margin:0"><b>Split FIRST, engineer SECOND.</b> The test set is sacred — touch it only once, right at the very end.</p>
 </div>
 
 <!-- ================================= -->
@@ -192,42 +192,42 @@
 
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">Exam scores predict karne ki socho. Exam se ek raat pehle, ek student 10 hours padhta hai par 0 hours sota hai — wo fail ho jaata hai. Doosra 10 hours sota hai par 0 hours padhta hai — wo bhi fail. Success <b>study AND sleep ke combination</b> par depend karta hai, akele kisi ek par nahi. Kya algorithm yeh figure out kar sakta hai agar wo har column ko <b>alag-alag</b> dekhe?</p>
+  <p style="margin:0">Think about predicting exam scores. The night before, one student studies 10 hours but sleeps 0 — they fail. Another sleeps 10 hours but studies 0 — they also fail. Success depends on the <b>combination of study AND sleep</b>, not on either one alone. Can an algorithm figure that out if it looks at each column <b>separately</b>?</p>
 </div>
 
-<p>Raw data raw marble ki tarah hai. Feature Engineering use <b>tarashna</b> hai taaki underlying structure obvious ho jaye. Iske do operational pillars hain:</p>
+<p>Raw data is like raw marble. Feature engineering is the <b>carving</b> that makes the underlying structure obvious. It has two operational pillars:</p>
 
 <h3>Pillar 1 · Feature Creation</h3>
-<p>Existing inputs se bilkul naye inputs generate karna taaki hidden relationships expose ho.</p>
+<p>Generating entirely new inputs from existing ones, so that hidden relationships get exposed.</p>
 <ul>
-  <li><b>Leveraging Domain Knowledge:</b> Industry expertise se raw values ko meaningful concepts mein badalna.
-    <ul><li><b>Example:</b> Raw temperature (41°C) process karne ki jagah, meteorological thresholds use karke group karo: Cold ($\le 15°$C), Warm ($16$–$30°$C), Hot ($&gt;30°$C).</li>
-    <li>Isse infinite decimal noise <b>meaningful categories</b> mein reduce ho jaata hai jinhe model exploit kar sakta hai.</li></ul></li>
-  <li><b>Combining Features:</b> Columns ko mathematically combine karke joint effects capture karna.
+  <li><b>Leveraging domain knowledge:</b> using industry expertise to turn raw values into meaningful concepts.
+    <ul><li><b>Example:</b> instead of processing the raw temperature (41°C), group it using meteorological thresholds: Cold ($\le 15°$C), Warm ($16$–$30°$C), Hot ($&gt;30°$C).</li>
+    <li>This reduces infinite decimal noise into <b>meaningful categories</b> the model can actually exploit.</li></ul></li>
+  <li><b>Combining Features:</b> mathematically combining columns to capture joint effects.
     <ul><li><b>Example:</b> <code>Water_Availability_Index = Average_Rainfall_Inches × Soil_Moisture_Percentage</code></li>
-    <li>Yeh ek calculated value <b>combined effect</b> ko directly model tak pahuchati hai.</li></ul></li>
+    <li>This single calculated value hands the <b>combined effect</b> straight to the model.</li></ul></li>
 </ul>
 
 <h3>Pillar 2 · Feature Selection</h3>
-<p>Agar tum 500 features algorithm par phenk do, jinme se kai useless noise hain, to model confuse hoga aur <b>overfit</b> karega. Feature selection highly predictive inputs rakhta hai aur baaki discard karta hai.</p>
+<p>If you throw 500 features at an algorithm and many of them are useless noise, the model gets confused and <b>overfits</b>. Feature selection keeps the highly predictive inputs and discards the rest.</p>
 <div class="grid g3">
   <div class="box def" style="margin:0"><div class="box-title">Filter Methods</div>
-    <p style="margin:0">Training se <b>pehle</b> statistical metrics (e.g. correlation) se features screen karna. Agar feature ki target ke saath correlation $\approx 0$, filter it out.</p></div>
+    <p style="margin:0">Screening features with simple statistical metrics (e.g. correlation) <b>before</b> any training. If a feature's correlation with the target is $\approx 0$, filter it out.</p></div>
   <div class="box def" style="margin:0"><div class="box-title">Embedded Methods</div>
-    <p style="margin:0">Feature selection training ke <b>dauraan automatically</b> hota hai. Tree-based models (Random Forests) internal <b>Feature Importance Scores</b> calculate karte hain. L1 (Lasso) Regularization bhi embedded hai.</p></div>
+    <p style="margin:0">Feature selection happens <b>automatically during</b> training. Tree-based models (Random Forests) compute internal <b>feature importance scores</b>. L1 (Lasso) regularization is embedded too.</p></div>
   <div class="box def" style="margin:0"><div class="box-title">Wrapper Methods</div>
-    <p style="margin:0">Actual model ko alag-alag feature <b>subsets</b> par train karke dekhna ki konsa subset best perform karta hai. (👉 detail in <a href="l10.html">Lecture 10</a>)</p></div>
+    <p style="margin:0">Training the actual model on different feature <b>subsets</b> to see which subset performs best. (👉 in detail in <a href="l10.html">Lecture 10</a>)</p></div>
 </div>
 
 <div class="box insight">
   <div class="box-title">★ Key Insight</div>
-  <p style="margin:0">Agar tumhare features high quality hain, to ek <b>simple algorithm bhi</b> highly accurate predictions deta hai. Agar features poor hain, to sabse <b>complex neural network bhi</b> struggle karega.</p>
+  <p style="margin:0">If your features are high quality, even a <b>simple algorithm</b> gives highly accurate predictions. If the features are poor, even the most <b>complex neural network</b> will struggle.</p>
 </div>
 
 <div class="solved">
   <header><span class="qtag">Practice P3</span><h4>Feature Engineering application</h4></header>
   <div class="body">
-    <p><b>(a) [Interaction Term]</b> Ek house dataset mein "Length" aur "Width" hain. Naya interaction feature banao:</p>
+    <p><b>(a) [Interaction term]</b> A house dataset has "Length" and "Width". Create a new interaction feature:</p>
     <div class="answer">New feature: <b>Area</b> $= L \times W$</div>
     <p style="margin-top:1rem"><b>(b) [Match the Concept]</b></p>
     <div class="tbl-wrap" style="margin-bottom:0">
@@ -245,32 +245,32 @@
 
 <div class="box takeaway">
   <div class="box-title">♦ Takeaway</div>
-  <p style="margin:0">Feature Engineering ke do pillars: <b>Creation</b> (naye signals banao) aur <b>Selection</b> (noise hatao). Dono <b>splitting ke BAAD</b> chalte hain.</p>
+  <p style="margin:0">Two pillars of feature engineering: <b>Creation</b> (build new signal) and <b>Selection</b> (remove noise). Both run <b>AFTER</b> splitting.</p>
 </div>
 
 <!-- ================================= -->
 <h2 id="p7"><span class="h2-num">7</span>Baseline Establishment (The Performance Floor)</h2>
 
-<p>Complex model ka code likhne se pehle tumhe answer dena hoga: <b>"Good prediction" kya hota hai?</b> Ek baseline sabse simple possible model hai — often ek historical average, majority class guess, ya primitive linear model.</p>
+<p>Before you write a single line of a complex model, you have to answer: <b>what counts as a "good" prediction?</b> A baseline is the simplest possible model — often a historical average, a majority-class guess, or a primitive linear model.</p>
 
 <div class="grid g2">
   <div class="box def" style="margin:0"><div class="box-title">Technical benchmark</div>
-    <p style="margin:0">Agar ek zyada complex ML model simple baseline (historical average ya majority class) ko <b>beat nahi kar sakta</b>, to extra complexity <b>justified nahi</b> hai.</p></div>
+    <p style="margin:0">If a more complex ML model <b>cannot beat</b> a simple baseline (historical average or majority class), then the extra complexity is <b>not justified</b>.</p></div>
   <div class="box warn" style="margin:0"><div class="box-title">Business benchmark</div>
-    <p style="margin:0">Kya 2% accuracy increase cloud infrastructure, training time aur maintenance par <b>millions zyada kharch</b> karne layak hai?</p></div>
+    <p style="margin:0">Is a 2% accuracy increase worth spending <b>millions more</b> on cloud infrastructure, training time and maintenance?</p></div>
 </div>
 
 <div class="solved">
   <header><span class="qtag">Practice P4</span><h4>Cost–Benefit Analysis</h4></header>
   <div class="body">
-    <p>Ek Decision Tree classifier <b>80% accuracy</b> achieve karta hai. Ek Random Forest <b>81% accuracy</b> deta hai, par significantly zyada computation chahiye aur deploy karne mein <b>₹20 lakh extra</b> lagte hain.</p>
+    <p>A Decision Tree classifier achieves <b>80% accuracy</b>. A Random Forest gives <b>81% accuracy</b>, but needs significantly more computation and costs <b>₹20 lakh extra</b> to deploy.</p>
     <ol class="steps">
-      <li><span class="sh">(a) Kya 1% improvement zaroori hai worth it?</span>
-        <div class="answer">No — general case mein nahi.</div>
-        <p style="margin:.4rem 0 0">Lekin yeh <b>domain-dependent</b> hai. ₹20 lakh ke liye 1% gain e-commerce recommendation mein waste hai. Par agar yeh cancer screening ho aur 1% ka matlab 10,000 patients mein 100 extra correct diagnoses ho — to bilkul worth it hai. <b>Hamesha accuracy ko business value mein translate karo.</b></p>
+      <li><span class="sh">(a) Is a 1% improvement necessarily worth it?</span>
+        <div class="answer">No — not in the general case.</div>
+        <p style="margin:.4rem 0 0">But this is <b>domain-dependent</b>. A 1% gain for ₹20 lakh is a waste in e-commerce recommendations. But if this is cancer screening, and 1% means 100 extra correct diagnoses in 10,000 patients — then it is absolutely worth it. <b>Always translate accuracy into business value.</b></p>
       </li>
-      <li><span class="sh">(b) Complex model select karne se pehle baseline se compare karna kyun zaroori hai?</span>
-        <p style="margin:.2rem 0 0">Kyunki baseline ke bina tumhare paas <b>"good" ki koi definition hi nahi</b>. 81% accuracy impressive lagti hai — jab tak tumhe pata na chale ki majority-class guess bhi 79% de deta. Baseline ek <b>performance floor</b> set karta hai; wo floor jitna upar hoga, complexity ka justification utna kamzor.</p>
+      <li><span class="sh">(b) Why is it essential to compare against a baseline before selecting a complex model?</span>
+        <p style="margin:.2rem 0 0">Because without a baseline you have <b>no definition of "good" at all</b>. 81% accuracy looks impressive — until you find out that a majority-class guess already gives 79%. A baseline sets a <b>performance floor</b>; the higher that floor, the weaker the justification for complexity.</p>
       </li>
     </ol>
   </div>
@@ -278,28 +278,28 @@
 
 <div class="box takeaway">
   <div class="box-title">♦ Takeaway</div>
-  <p style="margin:0">Baseline performance floor set karta hai. Agar complex model use beat nahi kar sakta, to extra cost aur complexity <b>waste</b> hai.</p>
+  <p style="margin:0">The baseline sets a performance floor. If a complex model cannot beat it, the extra cost and complexity are <b>wasted</b>.</p>
 </div>
 
 <!-- ================================= -->
 <h2 id="p8"><span class="h2-num">8</span>The Modeling Loop (Select, Tune &amp; Train)</h2>
-<p>Production mein algorithm select karna, uske dials set karna, aur uska maths update karna <b>linearly nahi hota</b> — yeh ek iterative, experimental loop mein saath chalte hain.</p>
+<p>In production, selecting an algorithm, setting its dials and updating its maths <b>do not happen linearly</b> — they run together in one iterative, experimental loop.</p>
 
 <h3>Pillar A · Model Selection (Picking the Right Tool)</h3>
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">Ek hospital ko heart attacks predict karne hain. Ek <b>85% accurate</b> model apni reasoning step-by-step explain karta hai. Ek <b>92% accurate</b> model total black-box hai. Jab ek galat prediction <b>fatal</b> ho sakti hai, tum kaunsa choose karoge?</p>
+  <p style="margin:0">A hospital needs to predict heart attacks. One model is <b>85% accurate</b> and explains its reasoning step by step. Another is <b>92% accurate</b> but a total black box. When a wrong prediction can be <b>fatal</b>, which one do you choose?</p>
 </div>
 
-<p>Model selection kabhi bhi blindly "most powerful" algorithm pick karna nahi hai. Yeh <b>engineering trade-offs</b> ka exercise hai.</p>
+<p>Model selection is never about blindly picking the "most powerful" algorithm. It is an exercise in <b>engineering trade-offs</b>.</p>
 <div class="tbl-wrap">
 <table>
 <thead><tr><th>Decision Factor</th><th>What it Means</th><th>Trade-off</th></tr></thead>
 <tbody>
-<tr><td><b>Interpretability</b></td><td>Kya model apni reasoning explain kar sakta hai?</td><td>Higher → audit karna easy, par often <b>lower accuracy</b></td></tr>
-<tr><td><b>Accuracy</b></td><td>Predictions kitni correct hain?</td><td>Higher → better predictions, par <b>black-box</b> ho sakta hai</td></tr>
-<tr><td><b>Training Time</b></td><td>Train hone mein kitna time?</td><td>Complex models large data par <b>hours/days</b> lete hain</td></tr>
-<tr><td><b>Scalability</b></td><td>Kya millions of rows handle kar sakta hai?</td><td>Simple models easily scale; deep learning ko <b>GPUs</b> chahiye</td></tr>
+<tr><td><b>Interpretability</b></td><td>Can the model explain its reasoning?</td><td>Higher → easier to audit, but often <b>lower accuracy</b></td></tr>
+<tr><td><b>Accuracy</b></td><td>How correct are the predictions?</td><td>Higher → better predictions, but can be a <b>black box</b></td></tr>
+<tr><td><b>Training Time</b></td><td>How long does it take to train?</td><td>Complex models take <b>hours or days</b> on large data</td></tr>
+<tr><td><b>Scalability</b></td><td>Can it handle millions of rows?</td><td>Simple models scale easily; deep learning needs <b>GPUs</b></td></tr>
 </tbody>
 </table>
 </div>
@@ -320,38 +320,38 @@
   <header><span class="qtag">Practice P5</span><h4>Hospital case study — interpretability vs accuracy</h4></header>
   <div class="body">
     <p><b>Hospital chooses: A</b> (85% accurate but explainable).</p>
-    <p><b>Reasoning:</b> Medicine mein doctor ko model ki reasoning <b>audit</b> karni padti hai — wo patient par legal aur ethical responsibility leta hai. Ek black-box "high risk" output jise justify nahi kiya ja sakta, na hi clinically actionable hai aur na hi legally defensible. Liability, informed consent aur regulatory compliance sab traceable reasoning demand karte hain. 7% accuracy ka nuksaan uthana better hai bajaye ek aise system ke jise koi challenge ya debug hi na kar sake.</p>
+    <p><b>Reasoning:</b> In medicine, the doctor has to <b>audit</b> the model's reasoning — they carry the legal and ethical responsibility for the patient. A black-box "high risk" output that cannot be justified is neither clinically actionable nor legally defensible. Liability, informed consent and regulatory compliance all demand traceable reasoning. Better to give up 7% accuracy than deploy a system nobody can challenge or debug.</p>
     <p style="margin-bottom:0"><b>Self-driving car company: B</b> (92% accurate black-box).</p>
-    <p style="margin-bottom:0"><b>Kya answer badalta hai? Haan.</b> Yahan decisions <b>milliseconds</b> mein leni hoti hain — koi human real-time mein explanation review nahi kar raha. Metric jo matter karta hai wo hai <b>aggregate safety</b>: 92% accuracy ka matlab statistically kam crashes. Har individual braking decision explain karne ki koi practical value nahi jab tak fleet-level outcome better ho. <b>Yehi asli lesson hai:</b> "interpretability vs accuracy" ka koi universal answer nahi — yeh puri tarah se is baat par depend karta hai ki decision ko <b>human review chahiye ya nahi</b>.</p>
+    <p style="margin-bottom:0"><b>Does the answer change? Yes.</b> Here decisions happen in <b>milliseconds</b> — no human is reviewing an explanation in real time. The metric that matters is <b>aggregate safety</b>: 92% accuracy means statistically fewer crashes. Explaining each individual braking decision has no practical value as long as the fleet-level outcome is better. <b>And that is the real lesson:</b> there is no universal answer to "interpretability vs accuracy" — it depends entirely on whether the decision <b>needs human review</b>.</p>
   </div>
 </div>
 
 <h3>Pillar B · Model Training (The Engine Room)</h3>
-<p>Model Training core phase hai jahan algorithm data ko automated knowledge mein convert karta hai. Model training data review karta hai, apne errors calculate karta hai, aur apne internal parameters update karta hai.</p>
+<p>Model training is the core phase where the algorithm converts data into automated knowledge. The model reviews the training data, calculates its own errors, and updates its internal parameters.</p>
 
 <h4>Concrete example — Multiple Linear Regression</h4>
-<p>Ek model rainfall aur soil moisture se crop yield predict karta hai:</p>
+<p>A model predicts crop yield from rainfall and soil moisture:</p>
 <div class="formula"><span class="flabel">Model</span>$$y = w_0 + w_1x_1 + w_2x_2$$</div>
 <ul>
   <li>$y$ = predicted output (Crop Yield)</li>
   <li>$x_1, x_2$ = input features (Rainfall, Soil Moisture)</li>
-  <li>$w_1, w_2$ = weights (har feature ka kitna influence hai)</li>
-  <li>$w_0$ = intercept (baseline jab saare inputs zero hon)</li>
+  <li>$w_1, w_2$ = weights (how much influence each feature has)</li>
+  <li>$w_0$ = the intercept (the baseline when all inputs are zero)</li>
 </ul>
-<p>Weights $(w_1, w_2)$ aur intercept $(w_0)$ hi <b>internal parameters</b> hain. Training exact numerical values dhoondti hai jo sabse accurate predictions dein.</p>
+<p>The weights $(w_1, w_2)$ and the intercept $(w_0)$ are the <b>internal parameters</b>. Training finds the exact numerical values that give the most accurate predictions.</p>
 
 <h4>The Measuring Stick: The Loss Function (MSE)</h4>
-<p>Ek Loss Function (ya Cost Function) ek <b>single score</b> calculate karta hai jo batata hai ki predictions true values se kitni door hain:</p>
+<p>A loss function (or cost function) computes a <b>single score</b> telling you how far the predictions are from the true values:</p>
 <div class="formula"><span class="flabel">Mean Squared Error</span>$$\text{MSE} = \frac{1}{n}\sum_{i=1}^{n}(y_i - \hat y_i)^2$$</div>
 <ul>
   <li>$n$ = total number of data points</li>
   <li>$y_i$ = actual true value from dataset</li>
   <li>$\hat y_i$ = model's predicted value</li>
-  <li>Hum error ko <b>square</b> karte hain taaki negatives positives ko cancel na karein. Goal: $\text{MSE} \to 0$.</li>
+  <li>We <b>square</b> the error so that negatives don't cancel positives. Goal: $\text{MSE} \to 0$.</li>
 </ul>
 <div class="box def">
   <div class="box-title">Related</div>
-  <p style="margin:0">$\text{RMSE} = \sqrt{\text{MSE}}$ — yeh error ko wapas <b>target ki original units</b> mein le aata hai.</p>
+  <p style="margin:0">$\text{RMSE} = \sqrt{\text{MSE}}$ — this brings the error back into the <b>target's original units</b>.</p>
 </div>
 
 <div class="solved">
@@ -359,7 +359,7 @@
   <div class="body">
     <p>Actual $y = [10,\ 12,\ 13]$ &nbsp;·&nbsp; Predicted $\hat y = [9,\ 15,\ 13]$</p>
     <ol class="steps">
-      <li><span class="sh">Har point ka error nikalo</span>
+      <li><span class="sh">Find the error for each point</span>
         <div class="tbl-wrap" style="margin:.5rem 0">
         <table class="compact">
         <thead><tr><th class="num">$i$</th><th class="num">$y_i$</th><th class="num">$\hat y_i$</th><th class="num">$y_i - \hat y_i$</th><th class="num">$(y_i-\hat y_i)^2$</th></tr></thead>
@@ -369,16 +369,16 @@
         <tr><td class="num">3</td><td class="num">13</td><td class="num">13</td><td class="num">0</td><td class="num">0</td></tr>
         <tr><td colspan="4"><b>Sum of squared errors</b></td><td class="num"><b>10</b></td></tr>
         </tbody></table></div></li>
-      <li><span class="sh">MSE formula apply karo</span>
+      <li><span class="sh">Apply the MSE formula</span>
         $$\text{MSE} = \frac{1}{n}\sum (y_i - \hat y_i)^2 = \frac{10}{3} = \mathbf{3.33}$$</li>
-      <li><span class="sh">RMSE nikalo</span>
+      <li><span class="sh">Find the RMSE</span>
         $$\text{RMSE} = \sqrt{3.33} = \mathbf{1.826}$$</li>
-      <li><span class="sh">Interpret karo</span>
-        <div class="answer">Average squared miss 3.33 (units²) hai; original units mein typical miss ≈ 1.83 units. Point 2 (error −3) poore MSE mein $9/10 = 90\%$ contribute kar raha hai — <b>yahi squaring ka effect hai.</b></div></li>
+      <li><span class="sh">Interpret it</span>
+        <div class="answer">The average squared miss is 3.33 (units²); in original units the typical miss is ≈ 1.83. Point 2 (error −3) alone contributes $9/10 = 90\%$ of the MSE — <b>that is exactly what squaring does.</b></div></li>
     </ol>
     <div class="box warn" style="margin-bottom:0">
       <div class="box-title">Trap to remember</div>
-      <p style="margin:0">Agar ek prediction $\hat y = 50$ hoti jabki $y=13$, to us akele error ka square $(37)^2 = 1369$ hota — <b>baaki sab errors ko crush kar deta</b>. Isiliye MSE outliers ke prati bohot sensitive hai.</p>
+      <p style="margin:0">If one prediction were $\hat y = 50$ while $y=13$, that single error would square to $(37)^2 = 1369$ — <b>crushing every other error</b>. This is why MSE is so sensitive to outliers.</p>
     </div>
   </div>
 </div>
@@ -413,22 +413,22 @@
     <text x="200" y="120" font-size="11" font-style="italic" style="fill:var(--text-3)">convergence</text>
   </g>
 </svg>
-<figcaption>Left: convex loss curve — bottom par best weight. Right: loss vs iterations — flatten hona = converged.</figcaption>
+<figcaption>Left: the convex loss curve — the best weight sits at the bottom. Right: loss vs iterations — flattening out = converged.</figcaption>
 </figure>
 
-<p><b>Mountain analogy:</b> Socho tum ek pahaad par ghane kohre mein khade ho. Tum apne pairon ke neeche ka <b>slope mehsoos</b> karte ho aur dhalaan ki taraf ek step lete ho. Repeat karo jab tak zameen flat na ho jaye. <b>Altitude = Loss Value. Tumhare coordinates = Model Weights.</b> Gradient descent mathematical slope calculate karta hai aur weights ko lowest error ki taraf adjust karta hai.</p>
-<p><b>Convergence:</b> Jaise-jaise algorithm error valley ke bottom ke paas aata hai, slope zero ke paas pahuchta hai. Steps tiny ho jaate hain. Loss flatten ho jaati hai. Training complete hoti hai aur parameters lock ho jaate hain.</p>
+<p><b>Mountain analogy:</b> Imagine standing on a mountain in thick fog. You <b>feel the slope</b> under your feet and take one step downhill. Repeat until the ground is flat. <b>Altitude = loss value. Your coordinates = model weights.</b> Gradient descent computes the mathematical slope and adjusts the weights towards the lowest error.</p>
+<p><b>Convergence:</b> As the algorithm approaches the bottom of the error valley, the slope approaches zero. The steps become tiny. The loss flattens out. Training completes and the parameters lock in.</p>
 
 <h4>The step-by-step training loop ⭐</h4>
 <div class="tbl-wrap">
 <table>
 <thead><tr><th class="num">Step</th><th>Action</th><th>What Happens</th></tr></thead>
 <tbody>
-<tr><td class="num">1</td><td><b>Initialize</b></td><td>Random parameter values set karo — weights random numbers se start</td></tr>
-<tr><td class="num">2</td><td><b>Forward Pass</b></td><td>Predictions banao: $\hat y = w_0 + w_1x_1 + w_2x_2$</td></tr>
-<tr><td class="num">3</td><td><b>Compute Loss</b></td><td>Error measure karo (MSE) — predictions truth se kitni door hain?</td></tr>
-<tr><td class="num">4</td><td><b>Backward Pass</b></td><td>Gradient Descent — slope calculate karo; weights downhill adjust karo</td></tr>
-<tr><td class="num">5</td><td><b>Convergence?</b></td><td>Check karo loss stable hai kya. Flat → stop. Nahi → Step 2 se repeat</td></tr>
+<tr><td class="num">1</td><td><b>Initialize</b></td><td>Set random parameter values — the weights start from random numbers</td></tr>
+<tr><td class="num">2</td><td><b>Forward Pass</b></td><td>Make predictions: $\hat y = w_0 + w_1x_1 + w_2x_2$</td></tr>
+<tr><td class="num">3</td><td><b>Compute Loss</b></td><td>Measure the error (MSE) — how far are the predictions from the truth?</td></tr>
+<tr><td class="num">4</td><td><b>Backward Pass</b></td><td>Gradient Descent — calculate the slope; adjust the weights downhill</td></tr>
+<tr><td class="num">5</td><td><b>Convergence?</b></td><td>Check whether the loss is stable. Flat → stop. Not flat → repeat from Step 2</td></tr>
 </tbody>
 </table>
 </div>
@@ -451,31 +451,31 @@
 
 <div class="box takeaway">
   <div class="box-title">♦ Takeaway</div>
-  <p style="margin:0">Modeling Loop iterative hai: Select an algorithm → Set hyperparameters → Train (Forward Pass → Loss → Gradient Descent) → Check convergence → Repeat.</p>
+  <p style="margin:0">The Modeling Loop is iterative: Select an algorithm → Set hyperparameters → Train (Forward Pass → Loss → Gradient Descent) → Check convergence → Repeat.</p>
 </div>
 
 <!-- ================================= -->
 <h2 id="p9"><span class="h2-num">9</span>Offline Evaluation (The Final Exam)</h2>
-<p>Jab model train aur converge ho jaata hai, final exam ka time hai. Hum <b>untouched Test Set</b> ko locked model ke through pass karte hain.</p>
+<p>Once the model has trained and converged, it is time for the final exam. We pass the <b>untouched test set</b> through the locked model.</p>
 
 <h3>1. Technical evaluation metrics for Regression</h3>
 <div class="tbl-wrap">
 <table>
 <thead><tr><th>Metric</th><th>What It Does</th><th>Best For</th></tr></thead>
 <tbody>
-<tr><td><b>MAE</b><br>Mean Absolute Error<br>$\frac{1}{n}\sum|y_i - \hat y_i|$</td><td>$|$True − Predicted$|$ ka average. Saare errors ko <b>linearly</b> treat karta hai.</td><td>Non-technical stakeholders ke liye interpretable. MAE of 5.2 = average 5.2 units off.</td></tr>
-<tr><td><b>RMSE</b><br>Root Mean Squared Error<br>$\sqrt{\frac1n\sum(y_i-\hat y_i)^2}$</td><td>Average squared errors ka square root. Large errors ko <b>heavily penalize</b> karta hai.</td><td>Jab large errors catastrophic hon. 9 small errors + 1 huge error → <b>RMSE spike</b>.</td></tr>
-<tr><td><b>$R^2$ Score</b><br>Coefficient of Determination</td><td>Relative scale: 0 to 1. Model ko <b>baseline average guess</b> se compare karta hai.</td><td>0.85 = model 85% variance explain karta hai. Baseline ke upar improvement directly dikhata hai.</td></tr>
+<tr><td><b>MAE</b><br>Mean Absolute Error<br>$\frac{1}{n}\sum|y_i - \hat y_i|$</td><td>The average of $|$True − Predicted$|$. Treats all errors <b>linearly</b>.</td><td>Interpretable for non-technical stakeholders. An MAE of 5.2 = on average 5.2 units off.</td></tr>
+<tr><td><b>RMSE</b><br>Root Mean Squared Error<br>$\sqrt{\frac1n\sum(y_i-\hat y_i)^2}$</td><td>The square root of the average squared error. <b>Heavily penalises</b> large errors.</td><td>When large errors are catastrophic. 9 small errors + 1 huge one → <b>RMSE spikes</b>.</td></tr>
+<tr><td><b>$R^2$ Score</b><br>Coefficient of Determination</td><td>A relative scale from 0 to 1. Compares the model against a <b>baseline average guess</b>.</td><td>0.85 = the model explains 85% of the variance. Shows improvement over the baseline directly.</td></tr>
 </tbody>
 </table>
 </div>
-<p><small>📌 $R^2$ ko detail mein <a href="l07.html">Lecture 7</a> mein cover kiya gaya hai.</small></p>
+<p><small>📌 $R^2$ is covered in detail in <a href="l07.html">Lecture 7</a>.</small></p>
 
 <h3>2. Business metric mapping</h3>
-<p>Software industry mein mathematical performance ko <b>business value</b> mein translate karna hi padta hai. Engineers ko technical results seedhe operational impacts se map karna hota hai.</p>
+<p>In the software industry you <i>have</i> to translate mathematical performance into <b>business value</b>. Engineers must map technical results directly onto operational impact.</p>
 <div class="box insight">
   <div class="box-title">Example</div>
-  <p style="margin:0">Agriculture mein RMSE ko <b>1.5 units kam</b> karna → predicted crop failure mein <b>12% reduction</b> → estimated <b>₹2,00,000 per field hectare</b> ki lost revenue bachti hai.</p>
+  <p style="margin:0">In agriculture, reducing RMSE by <b>1.5 units</b> → a <b>12% reduction</b> in predicted crop failure → saves an estimated <b>₹2,00,000 per field hectare</b> in lost revenue.</p>
 </div>
 
 <div class="solved">
@@ -485,9 +485,9 @@
     <table>
       <thead><tr><th>Scenario</th><th>Metric</th><th>Why</th></tr></thead>
       <tbody>
-      <tr><td>(a) A medical prediction error of 100 units is catastrophic (fatal)</td><td><span class="pill r">RMSE</span></td><td>Squaring large errors ko disproportionately punish karti hai — exactly wahi behaviour jo hume chahiye jab ek bada miss fatal ho.</td></tr>
-      <tr><td>(b) A non-technical CEO asks "how much better is this model than random guessing?"</td><td><span class="pill b">$R^2$</span></td><td>$R^2$ ek <b>relative</b> score hai jo mean-only baseline se compare karta hai — "kitna behtar" ka seedha jawab.</td></tr>
-      <tr><td>(c) A logistics team wants "on average, how many km off are our delivery estimates?"</td><td><span class="pill g">MAE</span></td><td>"On average, how many units off" = literally MAE ki definition, aur original units mein interpretable.</td></tr>
+      <tr><td>(a) A medical prediction error of 100 units is catastrophic (fatal)</td><td><span class="pill r">RMSE</span></td><td>Squaring punishes large errors disproportionately — exactly the behaviour you want when one big miss is fatal.</td></tr>
+      <tr><td>(b) A non-technical CEO asks "how much better is this model than random guessing?"</td><td><span class="pill b">$R^2$</span></td><td>$R^2$ is a <b>relative</b> score against the mean-only baseline — a direct answer to "how much better".</td></tr>
+      <tr><td>(c) A logistics team wants "on average, how many km off are our delivery estimates?"</td><td><span class="pill g">MAE</span></td><td>"On average, how many units off" is literally the definition of MAE, and it reads in the original units.</td></tr>
       </tbody>
     </table>
     </div>
@@ -496,13 +496,13 @@
 
 <div class="box warn">
   <div class="box-title">△ Reflect 2</div>
-  <p style="margin:0">RMSE ko 1.5 units improve karna agricultural business ke liye valuable kyun hai?<br>
-  Kyunki <b>yield prediction hi poori downstream planning drive karti hai</b>: kitna fertilizer khareedna hai, kitne storage silos book karne hain, kis price par forward contracts sign karne hain. Ek chhota sa prediction error bhi over-purchasing, spoilage ya missed contracts mein translate hota hai. 1.5 units ka RMSE reduction directly predicted crop failure ko 12% kam karta hai, jo ₹2,00,000 per hectare bachata hai. <b>Yeh abstract statistical improvement nahi hai — yeh balance sheet par dikhta hai.</b></p>
+  <p style="margin:0">Why is improving RMSE by 1.5 units valuable to an agricultural business?<br>
+  Because <b>yield prediction drives all the downstream planning</b>: how much fertiliser to buy, how many storage silos to book, what price to sign forward contracts at. Even a small prediction error translates into over-purchasing, spoilage or missed contracts. A 1.5-unit RMSE reduction directly cuts predicted crop failure by 12%, which saves ₹2,00,000 per hectare. <b>This is not an abstract statistical improvement — it shows up on the balance sheet.</b></p>
 </div>
 
 <div class="box takeaway">
   <div class="box-title">♦ Takeaway</div>
-  <p style="margin:0"><b>MAE</b> equal-penalty interpretation ke liye. <b>RMSE</b> jab large errors catastrophic hon. <b>$R^2$</b> baseline ke against relative performance ke liye. Hamesha metrics ko business value mein translate karo.</p>
+  <p style="margin:0"><b>MAE</b> for an equal-penalty interpretation. <b>RMSE</b> when large errors are catastrophic. <b>$R^2$</b> for relative performance against a baseline. Always translate the metric into business value.</p>
 </div>
 
 <!-- ================================= -->
@@ -510,22 +510,22 @@
 
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">Tumne mahine lagaye ek accurate model banane mein. Wo tumhare laptop par perfectly chalta hai. Par customer tumhara terminal access nahi kar sakta. Is mathematical asset ko thousands of everyday customers ke liye usable kaise banaoge?</p>
+  <p style="margin:0">You spent months building an accurate model. It runs perfectly on your laptop. But the customer cannot access your terminal. How do you make this mathematical asset usable for thousands of everyday customers?</p>
 </div>
 
-<p>Laptop par bhi model ek business ke liye useless hai. Deployment trained parameters ko accessible formats mein package karta hai aur unhe production infrastructure mein embed karta hai.</p>
+<p>A model sitting on a laptop is useless to a business. Deployment packages the trained parameters into accessible formats and embeds them in production infrastructure.</p>
 
 <h3>1. Model exporting &amp; serialization</h3>
-<ul><li><code>.pkl</code> (Pickle): scikit-learn models ke liye standard Python format.</li></ul>
+<ul><li><code>.pkl</code> (Pickle): the standard Python format for scikit-learn models.</li></ul>
 
 <h3>2. Production infrastructure pathways</h3>
 <div class="tbl-wrap">
 <table>
 <thead><tr><th>Pathway</th><th>How It Works</th></tr></thead>
 <tbody>
-<tr><td><b>Web Services (APIs)</b></td><td>Model ko Flask/FastAPI mein wrap karo. Ek API endpoint expose hota hai.</td></tr>
-<tr><td><b>Cloud Platforms</b></td><td>AWS SageMaker, Google AI Platform ya Azure par deploy karo.</td></tr>
-<tr><td><b>Edge Deployment</b></td><td>Model ko compress karke local hardware (phone/IoT) par daalo.</td></tr>
+<tr><td><b>Web Services (APIs)</b></td><td>Wrap the model in Flask/FastAPI. An API endpoint gets exposed.</td></tr>
+<tr><td><b>Cloud Platforms</b></td><td>Deploy on AWS SageMaker, Google AI Platform or Azure.</td></tr>
+<tr><td><b>Edge Deployment</b></td><td>Compress the model and put it on local hardware (phone/IoT).</td></tr>
 </tbody>
 </table>
 </div>
@@ -535,15 +535,15 @@
 <table>
 <thead><tr><th>Strategy</th><th>How</th><th>Example</th></tr></thead>
 <tbody>
-<tr><td><b>Batch Predictions</b></td><td>Periodically (e.g. nightly) massive datasets par chalta hai</td><td>E-commerce ke liye weekly product recommendations</td></tr>
-<tr><td><b>Real-Time Inference</b></td><td>Instantly on demand, ek request at a time</td><td>Checkout par fraud detection</td></tr>
+<tr><td><b>Batch Predictions</b></td><td>Runs periodically (e.g. nightly) over massive datasets</td><td>Weekly product recommendations for e-commerce</td></tr>
+<tr><td><b>Real-Time Inference</b></td><td>Instantly on demand, one request at a time</td><td>Fraud detection at checkout</td></tr>
 </tbody>
 </table>
 </div>
 
 <div class="box takeaway">
   <div class="box-title">♦ Takeaway</div>
-  <p style="margin:0">Model serialize karo, sahi pathway choose karo (API, Cloud, Edge), aur latency needs ke basis par Batch vs Real-Time pick karo.</p>
+  <p style="margin:0">Serialise the model, choose the right pathway (API, Cloud, Edge), and pick Batch vs Real-Time based on latency needs.</p>
 </div>
 
 <!-- ================================= -->
@@ -551,19 +551,19 @@
 
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">Tum 2019 mein airline travel predict karne ke liye ek ML model deploy karte ho. 2020 mein ek global pandemic aa jaati hai. Tumhara model 2010–2019 ke data par trained tha. Kya wo abhi bhi accurate hai?</p>
+  <p style="margin:0">You deploy an ML model in 2019 to predict airline travel. In 2020 a global pandemic arrives. Your model was trained on 2010–2019 data. Is it still accurate?</p>
 </div>
 
 <div class="box def">
   <div class="box-title">Model Drift</div>
-  <p style="margin:0">Traditional code hamesha identically chalta hai. <b>ML models decay karte hain.</b> Model Drift tab hota hai jab prediction accuracy girti hai kyunki real-world environment badal gaya hai, jisse original training insights <b>outdated</b> ho jaate hain.</p>
+  <p style="margin:0">Traditional code runs identically forever. <b>ML models decay.</b> Model drift happens when prediction accuracy falls because the real-world environment has changed, leaving the original training insights <b>outdated</b>.</p>
 </div>
 
 <h3>Continuous production monitoring</h3>
 <ul>
-  <li><b>Prometheus</b> aur <b>MLflow</b> jaise tools background mein continuously chalte hain.</li>
-  <li>Ye incoming live data ke <b>statistical distributions</b> track karte hain.</li>
-  <li>Performance jaise hi acceptable baseline threshold ke neeche girti hai, ye engineering teams ko <b>alert</b> karte hain.</li>
+  <li>Tools like <b>Prometheus</b> and <b>MLflow</b> run continuously in the background.</li>
+  <li>They track the <b>statistical distributions</b> of incoming live data.</li>
+  <li>The moment performance falls below an acceptable baseline threshold, they <b>alert</b> the engineering team.</li>
 </ul>
 
 <h3>The retraining cycle</h3>
@@ -571,8 +571,8 @@
 <table>
 <thead><tr><th>Strategy</th><th>How It Works</th><th>Example</th></tr></thead>
 <tbody>
-<tr><td><b>Periodic Retraining</b></td><td>Fixed schedule (monthly/quarterly), <b>performance ki parwah kiye bina</b></td><td>Har mahine ki 1 tareekh ko automatically retrain</td></tr>
-<tr><td><b>Triggered Retraining</b></td><td>Tab start hota hai jab monitoring accuracy ko threshold ke neeche detect kare</td><td>Alert: accuracy 85% se neeche gir gayi → abhi retrain karo</td></tr>
+<tr><td><b>Periodic Retraining</b></td><td>A fixed schedule (monthly/quarterly), <b>regardless of performance</b></td><td>Automatically retrain on the 1st of every month</td></tr>
+<tr><td><b>Triggered Retraining</b></td><td>Starts when monitoring detects accuracy below a threshold</td><td>Alert: accuracy dropped below 85% → retrain now</td></tr>
 </tbody>
 </table>
 </div>
@@ -608,12 +608,12 @@
 
 <div class="box takeaway">
   <div class="box-title">♦ Takeaway</div>
-  <p style="margin:0">Ek model static script nahi hai. Wo ek <b>living mathematical system</b> hai jise monitoring aur retraining ke through badalte hue world ke saath adapt karna padta hai.</p>
+  <p style="margin:0">A model is not a static script. It is a <b>living mathematical system</b> that has to adapt to a changing world through monitoring and retraining.</p>
 </div>
 
 <!-- ================================= -->
 <h2 id="macro">The Complete Macro Loop</h2>
-<p>Har ML system is continuous, iterative framework ko follow karta hai:</p>
+<p>Every ML system follows this continuous, iterative framework:</p>
 
 <figure>
 <svg viewBox="0 0 640 490" role="img" aria-label="Ten step macro loop with retraining feedback">
@@ -647,7 +647,7 @@
     <text x="46" y="250" font-size="11.5" font-weight="800" fill="#ef4444" transform="rotate(-90 46 250)" text-anchor="middle">Retraining Loop</text>
   </g>
 </svg>
-<figcaption>Step 10 wapas Step 2 par jaata hai — isiliye yeh ek <b>loop</b> hai, straight line nahi.</figcaption>
+<figcaption>Step 10 feeds back into Step 2 — which is exactly why this is a <b>loop</b>, not a straight line.</figcaption>
 </figure>
 
 <div class="solved">
@@ -663,7 +663,7 @@
     <tr><td class="num"><b>4</b></td><td>Evaluation</td></tr>
     <tr><td class="num"><b>5</b></td><td>Deployment</td></tr>
     </tbody></table></div>
-    <p style="margin-bottom:0"><b>Yaad rakhne ka trick:</b> Splitting hamesha Feature Engineering se pehle — yeh #1 exam question hai.</p>
+    <p style="margin-bottom:0"><b>Memory trick:</b> splitting always comes before feature engineering — this is the #1 exam question.</p>
   </div>
 </div>
 
@@ -675,18 +675,18 @@
         <div class="answer">Test set</div></li>
       <li><span class="sh">Create one interaction feature using "Rainfall" and "Sunlight_Hours"</span>
         <div class="answer">e.g. <code>Growth_Potential_Index = Rainfall × Sunlight_Hours</code></div>
-        <p style="margin:.3rem 0 0">Logic: crop growth ke liye dono chahiye. Zyada rain par zero sunlight = koi growth nahi; zyada sunlight par zero rain = koi growth nahi. Product joint requirement capture karta hai — kisi ek column se yeh nahi dikhta.</p></li>
-      <li><span class="sh">Baseline (simple average) MAE = 12. Tumhara model MAE = 11. Training cost ₹15 lakh. Deploy karna worth it hai?</span>
+        <p style="margin:.3rem 0 0">Logic: crop growth needs both. Lots of rain with zero sunlight = no growth; lots of sunlight with zero rain = no growth. The product captures that joint requirement — neither column shows it alone.</p></li>
+      <li><span class="sh">Baseline (simple average) MAE = 12. Your model gets MAE = 11. Training costs ₹15 lakh. Is deploying it worth it?</span>
         <div class="answer">No.</div>
-        <p style="margin:.3rem 0 0">MAE 12 → 11 ka matlab sirf <b>8.3% improvement</b> hai ₹15 lakh ke liye. Yeh exactly <b>Phase 7 ka technical + business benchmark</b> fail kar raha hai: complex model baseline ko meaningfully beat nahi kar raha. Sirf tab justify hota agar us 1-unit improvement ki business value ₹15 lakh+ ho.</p></li>
+        <p style="margin:.3rem 0 0">MAE 12 → 11 is only an <b>8.3% improvement</b> for ₹15 lakh. This fails exactly the <b>technical + business benchmark of Phase 7</b>: the complex model is not meaningfully beating the baseline. It would only be justified if that 1-unit improvement were worth ₹15 lakh or more in business value.</p></li>
       <li><span class="sh">A prediction error of 50 tonnes is catastrophic. Choose the evaluation metric.</span>
-        <div class="answer">RMSE — squaring large errors ko heavily penalize karti hai.</div></li>
+        <div class="answer">RMSE — squaring penalises large errors heavily.</div></li>
       <li><span class="sh">Predict yields once per growing season for all 10,000 farms. Batch or Real-Time?</span>
         <div class="answer">Batch Inference</div>
-        <p style="margin:.3rem 0 0">"Once per season" = koi latency pressure nahi, par volume bada hai. Real-time inference infrastructure ki zaroorat hi nahi.</p></li>
+        <p style="margin:.3rem 0 0">"Once per season" means no latency pressure, but high volume. There is no need for real-time inference infrastructure at all.</p></li>
       <li><span class="sh">After deployment, a severe drought changes weather patterns. What is this called, and which retraining strategy handles it automatically?</span>
         <div class="answer">Model Drift &nbsp;·&nbsp; Triggered Retraining</div>
-        <p style="margin:.3rem 0 0">Drought ek <b>unpredictable event</b> hai — periodic schedule ka wait karna weeks tak bad predictions serve karta rahega. Triggered retraining accuracy girte hi fire ho jaata hai.</p></li>
+        <p style="margin:.3rem 0 0">A drought is an <b>unpredictable event</b> — waiting for a periodic schedule would keep serving bad predictions for weeks. Triggered retraining fires the moment accuracy drops.</p></li>
     </ol>
   </div>
 </div>
@@ -697,14 +697,14 @@
 <table>
 <thead><tr><th>Galti</th><th>Sahi Baat</th></tr></thead>
 <tbody>
-<tr><td>Feature engineering pehle, split baad mein</td><td><b>Split FIRST.</b> Warna val/test ki info train mein leak hoti hai.</td></tr>
-<tr><td>Poore dataset ka mean nikaal ke impute karna</td><td>Mean sirf <b>training set</b> se. Phir wahi mean val/test par apply karo.</td></tr>
-<tr><td>Test set par hyperparameters tune karna</td><td>Hyperparameters <b>validation set</b> par tune hote hain. Test sirf ek baar, end mein.</td></tr>
-<tr><td><code>learning_rate</code> ko parameter samajhna</td><td>Wo <b>hyperparameter</b> hai — tum set karte ho, model nahi seekhta.</td></tr>
-<tr><td>"Zyada accurate model hamesha better hai"</td><td>Baseline se compare karo aur cost–benefit dekho. 1% ke liye ₹20 lakh often waste.</td></tr>
-<tr><td>Deploy karke bhool jaana</td><td><b>Model drift</b> real hai. Monitoring + retraining mandatory hai.</td></tr>
-<tr><td>MAE aur RMSE ko interchangeable maanna</td><td>RMSE large errors ko heavily punish karta hai; MAE sabko equally. Metric choice = business decision.</td></tr>
-<tr><td>Periodic aur Triggered retraining ko mix karna</td><td>Periodic = fixed schedule, performance irrelevant. Triggered = threshold breach par fire.</td></tr>
+<tr><td>Feature engineering first, splitting afterwards</td><td><b>Split FIRST.</b> Otherwise val/test info leaks into training.</td></tr>
+<tr><td>Computing the mean over the whole dataset and imputing with it</td><td>Compute the mean from the <b>training set</b> only. Then apply that same mean to val and test.</td></tr>
+<tr><td>Tuning hyperparameters on the test set</td><td>Hyperparameters are tuned on the <b>validation set</b>. Test is used once, at the end.</td></tr>
+<tr><td>Thinking <code>learning_rate</code> is a parameter</td><td>It is a <b>hyperparameter</b> — you set it, the model does not learn it.</td></tr>
+<tr><td>"A more accurate model is always better"</td><td>Compare against the baseline and weigh the cost–benefit. ₹20 lakh for 1% is often a waste.</td></tr>
+<tr><td>Deploying and then forgetting about it</td><td><b>Model drift</b> is real. Monitoring + retraining are mandatory.</td></tr>
+<tr><td>Treating MAE and RMSE as interchangeable</td><td>RMSE punishes large errors heavily; MAE treats them all equally. The metric choice is a business decision.</td></tr>
+<tr><td>Mixing up Periodic and Triggered retraining</td><td>Periodic = fixed schedule, performance irrelevant. Triggered = fires on a threshold breach.</td></tr>
 </tbody>
 </table>
 </div>
@@ -724,13 +724,13 @@
 <div class="box takeaway">
   <div class="box-title">♦ By the end of this sheet you can…</div>
   <ul style="margin:0">
-    <li>Data ko Train/Val/Test blocks mein partition karna aur samjhaana ki splitting Feature Engineering se pehle kyun aati hai.</li>
-    <li>Feature Creation (Domain Knowledge, Interaction Terms) aur Feature Selection (Filter, Embedded) apply karna.</li>
-    <li>Performance baseline establish karna aur uska business cost-benefit evaluate karna.</li>
-    <li>Interpretability vs Accuracy trade-offs ke basis par models select karna aur tasks ko Regression/Classification/Clustering par map karna.</li>
-    <li>Parameters vs Hyperparameters classify karna aur complete Training Loop trace karna.</li>
-    <li>MSE by hand calculate karna aur given scenario ke liye sahi metric (MAE, RMSE, $R^2$) choose karna.</li>
-    <li>Serialized model ko APIs, Cloud ya Edge ke through deploy karna aur Model Drift ke liye monitor karna.</li>
+    <li>Partition data into Train/Val/Test blocks and explain why splitting comes before feature engineering.</li>
+    <li>Apply Feature Creation (Domain Knowledge, Interaction Terms) and Feature Selection (Filter, Embedded).</li>
+    <li>Establish a performance baseline and evaluate its business cost–benefit.</li>
+    <li>Select models based on interpretability vs accuracy trade-offs, and map tasks onto Regression/Classification/Clustering.</li>
+    <li>Classify parameters vs hyperparameters and trace the complete training loop.</li>
+    <li>Calculate MSE by hand and choose the right metric (MAE, RMSE, $R^2$) for a given scenario.</li>
+    <li>Deploy a serialised model via APIs, Cloud or Edge, and monitor it for model drift.</li>
   </ul>
 </div>
 
@@ -750,7 +750,7 @@ const MCQS = [
      'Nothing wrong, because only the training set was actually imputed',
      'Overfitting, because the mean is a biased estimator'],
   a:1,
-  e:'<b>B.</b> Us mean mein test rows ki information baithi hai, to test set ne training ko influence kiya — classic leakage. <b>C</b> is the sharpest trap: yeh sach hai ki sirf train impute hua, par <b>jo value use hui</b> wo test se contaminated thi. <b>A</b> exactly wahi galat practice hai jise sheet warn karti hai. <b>D</b> galat concept — yeh leakage hai, overfitting nahi.' },
+  e:'<b>B.</b> That mean carries information from the test rows, so the test set influenced training — classic leakage. <b>C</b> is the sharpest trap: it is true that only the training set was imputed, but <b>the value used</b> was contaminated by the test set. <b>A</b> is exactly the bad practice the sheet warns about. <b>D</b> is the wrong concept — this is leakage, not overfitting.' },
 
 { d:'easy',
   q:'Which of the following is a HYPERPARAMETER?',
@@ -759,13 +759,13 @@ const MCQS = [
      '<code>n_estimators</code> in a Random Forest',
      'The bias term learned during backpropagation'],
   a:2,
-  e:'<b>C.</b> <code>n_estimators</code> engineer <b>training se pehle manually</b> set karta hai. <b>A</b>, <b>B</b>, <b>D</b> sab <b>parameters</b> hain — training ke dauraan model automatically learn karta hai. Keyword pehchano: "learned during" = parameter.' },
+  e:'<b>C.</b> <code>n_estimators</code> is set <b>manually by the engineer before training</b>. <b>A</b>, <b>B</b> and <b>D</b> are all <b>parameters</b> — the model learns them automatically during training. Spot the keyword: "learned during" = parameter.' },
 
 { d:'med',
   q:'For $y = [10, 12, 13]$ and $\\hat y = [9, 15, 13]$, what is the MSE?',
   o:['$1.33$', '$3.33$', '$10.00$', '$1.83$'],
   a:1,
-  e:'<b>B.</b> Errors: $+1, -3, 0$. Squares: $1, 9, 0$. Sum $=10$. $\\text{MSE}=10/3=3.33$. <b>A</b> is MAE ($\\frac{1+3+0}{3}=1.33$). <b>C</b> divide karna bhool gaya — wo SSE hai. <b>D</b> is RMSE $=\\sqrt{3.33}$, ek step aage.' },
+  e:'<b>B.</b> Errors: $+1, -3, 0$. Squares: $1, 9, 0$. Sum $=10$. $\\text{MSE}=10/3=3.33$. <b>A</b> is MAE ($\\frac{1+3+0}{3}=1.33$). <b>C</b> forgot to divide — that is SSE. <b>D</b> is RMSE $=\\sqrt{3.33}$, one step further on.' },
 
 { d:'hard',
   q:'A baseline (simple average) predicts crop yield with MAE 12. Your model achieves MAE 11 but training costs ₹15 lakh. Which reasoning is correct?',
@@ -774,7 +774,7 @@ const MCQS = [
      'Deploy it, because MAE is not the right metric anyway',
      'Do not deploy, because MAE can never be compared to a baseline'],
   a:1,
-  e:'<b>B.</b> Phase 7 ka <b>business benchmark</b> exactly yehi poochta hai: kya marginal gain marginal cost justify karta hai? <b>A</b> ignores cost-benefit entirely. <b>C</b> irrelevant — MAE yahan perfectly valid hai. <b>D</b> false — baseline comparison hi MAE ka main use hai.' },
+  e:'<b>B.</b> The <b>business benchmark</b> of Phase 7 asks exactly this: does the marginal gain justify the marginal cost? <b>A</b> ignores the cost-benefit question entirely. <b>C</b> is irrelevant — MAE is perfectly valid here. <b>D</b> is false — comparing against a baseline is the main use of MAE.' },
 
 { d:'med',
   q:'Which metric should be chosen when a prediction error of 100 units is catastrophic (fatal)?',
@@ -783,13 +783,13 @@ const MCQS = [
      '$R^2$, because it compares against a baseline',
      'Accuracy, because it counts exact matches'],
   a:1,
-  e:'<b>B.</b> Sheet: "RMSE — when large errors are catastrophic. 9 small errors + 1 huge error → RMSE spikes." <b>A</b> is the exact opposite property — MAE bade error ko koi extra weight nahi deta. <b>C</b> relative comparison ke liye hai, error size ke liye nahi. <b>D</b> classification metric hai, regression ka nahi.' },
+  e:'<b>B.</b> Sheet: "RMSE — when large errors are catastrophic. 9 small errors + 1 huge error → RMSE spikes." <b>A</b> is the exact opposite property — MAE gives a large error no extra weight. <b>C</b> is for relative comparison, not for error size. <b>D</b> is a classification metric, not a regression one.' },
 
 { d:'hard',
   q:'A monitoring tool detects that accuracy has dropped from 92% to 78% and automatically starts retraining. This is:',
   o:['Periodic Retraining', 'Triggered Retraining', 'Batch Inference', 'Edge Deployment'],
   a:1,
-  e:'<b>B.</b> Threshold breach ne retraining <b>trigger</b> kiya. <b>A</b> fixed schedule par chalta hai <b>performance ki parwah kiye bina</b> — yahan performance hi trigger hai. <b>C</b> ek inference strategy hai, retraining strategy nahi. <b>D</b> ek deployment pathway hai.' },
+  e:'<b>B.</b> The threshold breach <b>triggered</b> the retraining. <b>A</b> runs on a fixed schedule <b>regardless of performance</b> — but here performance is the trigger. <b>C</b> is an inference strategy, not a retraining strategy. <b>D</b> is a deployment pathway.' },
 
 { d:'hard',
   q:'In the 5-step training loop, what is the correct order?',
@@ -798,7 +798,7 @@ const MCQS = [
      'Initialize → Forward Pass → Compute Loss → Gradient Descent → Convergence Check',
      'Initialize → Forward Pass → Gradient Descent → Compute Loss → Convergence Check'],
   a:2,
-  e:'<b>C.</b> Random weights set karo → predictions banao → error measure karo → slope se weights adjust karo → check karo loss flat hui kya. <b>B</b> loss compute karne ki koshish karta hai <b>predictions banane se pehle</b> — impossible. <b>D</b> gradient descent chalata hai loss jaane bina — gradient kis cheez ka? <b>A</b> initialise karne se pehle predict karta hai.' },
+  e:'<b>C.</b> Set random weights → make predictions → measure the error → adjust the weights using the slope → check whether the loss has flattened. <b>B</b> tries to compute the loss <b>before making any predictions</b> — impossible. <b>D</b> runs gradient descent without knowing the loss — the gradient of what? <b>A</b> predicts before initialising.' },
 
 { d:'med',
   q:'You must predict yields once per growing season for all 10,000 farms. Which ingestion strategy fits?',
@@ -807,7 +807,7 @@ const MCQS = [
      'Edge Deployment, because farms are remote',
      'Triggered Retraining, because seasons change'],
   a:1,
-  e:'<b>B.</b> "Once per season" = periodic, large volume, no latency requirement — textbook batch. <b>A</b> confuses data <b>volume</b> with latency <b>urgency</b>; real-time ek-ek request ke liye hota hai. <b>C</b> deployment pathway hai, ingestion strategy nahi. <b>D</b> retraining strategy hai, inference strategy nahi.' },
+  e:'<b>B.</b> "Once per season" = periodic, large volume, no latency requirement — textbook batch. <b>A</b> confuses data <b>volume</b> with latency <b>urgency</b>; real-time is for individual requests. <b>C</b> is a deployment pathway, not an ingestion strategy. <b>D</b> is a retraining strategy, not an inference strategy.' },
 
 { d:'hard',
   q:'A hospital must choose between an 85% accurate explainable model (A) and a 92% accurate black-box (B). A self-driving car company faces the same choice. What is the correct reasoning?',
@@ -816,7 +816,7 @@ const MCQS = [
      'The hospital picks A (a human must audit and defend each decision) while the car picks B (decisions happen in milliseconds with no human review, so aggregate safety dominates)',
      'Neither should deploy; 92% is too low for safety-critical systems'],
   a:2,
-  e:'<b>C.</b> Yeh sheet ka poora point hai: trade-off ka koi <b>universal</b> answer nahi. Decisive question yeh hai — kya decision ko human review chahiye? Hospital mein haan (liability, consent, clinical audit); self-driving car mein nahi (milliseconds). <b>A</b> aur <b>B</b> dono ek hi rule sab par thop rahe hain. <b>D</b> question hi avoid kar raha hai.' },
+  e:'<b>C.</b> This is the sheet\'s whole point: the trade-off has no <b>universal</b> answer. The decisive question is whether the decision needs human review. In the hospital, yes (liability, consent, clinical audit); in the self-driving car, no (milliseconds). <b>A</b> and <b>B</b> both impose one rule everywhere. <b>D</b> simply dodges the question.' },
 
 { d:'hard',
   q:'Which statement about the Complete Macro Loop is correct?',
@@ -825,7 +825,7 @@ const MCQS = [
      'Feature engineering happens before data splitting',
      'The test set is evaluated after every training iteration'],
   a:1,
-  e:'<b>B.</b> Sheet ka macro-loop diagram Step 10 se wapas Step 2 par retraining loop dikhata hai. <b>A</b> exactly wahi misconception hai — deployment end nahi hai, model drift karta hai. <b>C</b> reversed hai (Step 4 split, Step 5 engineer). <b>D</b> data leakage hoti — test set sirf ek baar use hota hai.' },
+  e:'<b>B.</b> The sheet\'s macro-loop diagram shows a retraining loop from Step 10 back to Step 2. <b>A</b> is exactly the misconception — deployment is not the end, models drift. <b>C</b> is reversed (Step 4 splits, Step 5 engineers). <b>D</b> would be data leakage — the test set is used only once.' },
 ];
 </script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>

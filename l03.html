@@ -19,7 +19,7 @@
 <header class="hero">
   <div class="eyebrow">Worksheet 03 · Lecture 3</div>
   <h1>Simple Linear Regression <span class="gradtext">using the OLS Method</span></h1>
-  <p class="sub">Scatter plots se best-fit line tak — poori Ordinary Least Squares derivation, ek bhi step skip kiye bina.</p>
+  <p class="sub">From scatter plots to the best-fit line — the full Ordinary Least Squares derivation, without skipping a single step.</p>
   <div class="chips">
     <span class="chip accent">⏱ ~35 min</span><span class="chip">📐 Full derivation</span>
     <span class="chip">🧮 5 solved numericals</span><span class="chip">✓ 10 MCQs</span>
@@ -28,7 +28,7 @@
 
 <div class="box hinglish">
   <div class="box-title">⚡ Ek Line Mein</div>
-  <p style="margin:0">Infinite lines possible hain. Hum wo line chunte hain jo <b>total squared error minimize</b> kare. Squared kyun? Kyunki signed error cancel ho jaata hai, aur absolute error $e=0$ par differentiable nahi hai. Squared error non-negative + smooth + convex hai — to calculus se <b>exact closed-form answer</b> mil jaata hai:<br>$m = \frac{\sum(x_i-\bar x)(y_i-\bar y)}{\sum(x_i-\bar x)^2}$ aur $c = \bar y - m\bar x$.</p>
+  <p style="margin:0">Infinitely many lines are possible. We pick the one that <b>minimises total squared error</b>. Why squared? Because signed error cancels out, and absolute error isn't differentiable at $e=0$. Squared error is non-negative + smooth + convex — so calculus hands us an <b>exact closed-form answer</b>:<br>$m = \frac{\sum(x_i-\bar x)(y_i-\bar y)}{\sum(x_i-\bar x)^2}$ and $c = \bar y - m\bar x$.</p>
 </div>
 
 <!-- ============================ -->
@@ -36,7 +36,7 @@
 
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">Maan lo mere paas NST students ka dataset hai. Mujhe unka CGPA aur jo internship stipend unhe mila, dono pata hai. Agar ek naya student mujhe apna CGPA bataye, to kya main uska stipend predict kar sakta hoon?</p>
+  <p style="margin:0">Suppose I have a dataset of NST students. I know both their CGPA and the internship stipend they received. If a new student tells me their CGPA, can I predict their stipend?</p>
 </div>
 
 <div class="grid g2" style="align-items:start">
@@ -73,23 +73,23 @@
     <text x="236" y="113">(8, 50)</text><text x="290" y="36">(9, 75)</text>
   </g>
 </svg>
-<figcaption>CGPA badhne par stipend badhne ka <b>linear-ish pattern</b> dikhta hai.</figcaption>
+<figcaption>There's a visible <b>linear-ish pattern</b> — as CGPA rises, so does the stipend.</figcaption>
 </figure>
 </div>
 
-<p>Kyunki data linear trend dikhata hai, hum is relationship ko ek <b>straight-line model</b> se capture karne ki koshish karte hain:</p>
+<p>Since the data shows a linear trend, we try to capture the relationship with a <b>straight-line model</b>:</p>
 <div class="formula"><span class="flabel">Straight-line model</span>$$\hat y = m(\text{CGPA}) + c$$</div>
 <ul>
   <li>$\hat y$ (y-hat) = predicted output (predicted stipend)</li>
   <li>$x$ = input variable (CGPA of the student)</li>
-  <li>$m$ = slope — CGPA ke saath stipend kitni steeply badalta hai</li>
+  <li>$m$ = the slope — how steeply the stipend changes with CGPA</li>
   <li>$c$ = intercept — predicted stipend jab CGPA $= 0$</li>
 </ul>
-<p>Is dataset mein hume input values (CGPA) aur corresponding output values (stipend) <b>dono</b> pata hain. Hum examples se seekh rahe hain jahan correct answers diye gaye hain. Isliye yeh <b>supervised learning</b> ka example hai.</p>
+<p>In this dataset we know <b>both</b> the input values (CGPA) and the corresponding output values (stipend). We are learning from examples where the correct answers are given. That makes this an example of <b>supervised learning</b>.</p>
 
 <!-- ============================ -->
 <h2 id="s2"><span class="h2-num">2</span>Infinite candidate models — which line is best?</h2>
-<p>Ab yeh critical realization aata hai. Model $\hat y = m(\text{CGPA}) + c$ mein <b>2 adjustable numbers</b> hain: $m$ aur $c$. Alag students alag values choose kar sakte hain:</p>
+<p>Now comes the critical realisation. The model $\hat y = m(\text{CGPA}) + c$ has <b>2 adjustable numbers</b>: $m$ and $c$. Different students could pick different values:</p>
 
 <div class="tbl-wrap">
 <table class="compact">
@@ -122,23 +122,23 @@
     <line x1="70" y1="82" x2="84" y2="82" stroke="#f97316" stroke-width="2.5"/><text x="90" y="86" style="fill:var(--text-2)">Candidate 2</text>
   </g>
 </svg>
-<figcaption>Teeno lines same structure ki hain, bas $m$ aur $c$ alag hain.</figcaption>
+<figcaption>All three lines have the same structure — only $m$ and $c$ differ.</figcaption>
 </figure>
 
 <ul>
-  <li><b>$m$ badalna</b> line ka <b>slope / tilt</b> badalta hai.</li>
-  <li><b>$c$ badalna</b> line ko <b>upar ya neeche shift</b> karta hai.</li>
-  <li>Sirf in do numbers ko badal kar hum <b>infinitely many</b> different straight lines bana sakte hain.</li>
+  <li><b>Changing $m$</b> changes the line's <b>slope / tilt</b>.</li>
+  <li><b>Changing $c$</b> shifts the line <b>up or down</b>.</li>
+  <li>By changing just these two numbers we can generate <b>infinitely many</b> different straight lines.</li>
 </ul>
 
 <div class="box insight">
   <div class="box-title">★ Key Insight — the engineering problem</div>
-  <p style="margin:0">Infinitely many possible straight lines mein se, main kaunsi choose karun? Hume ek <b>objective, mathematical criterion</b> chahiye — visual guess nahi.</p>
+  <p style="margin:0">Out of infinitely many possible straight lines, which one do I choose? We need an <b>objective, mathematical criterion</b> — not a visual guess.</p>
 </div>
 
 <!-- ============================ -->
 <h2 id="s3"><span class="h2-num">3</span>What if I have two input variables?</h2>
-<p>"Which line?" solve karne se pehle, example ko briefly extend karte hain. Maan lo CGPA ke saath har student ka <b>IQ score</b> bhi hai:</p>
+<p>Before solving "which line?", let's briefly extend the example. Suppose that alongside CGPA we also have each student's <b>IQ score</b>:</p>
 <div class="tbl-wrap">
 <table class="compact">
 <thead><tr><th class="num">IQ</th><th class="num">CGPA</th><th class="num">Stipend (₹k)</th></tr></thead>
@@ -154,11 +154,11 @@
 <div class="formula"><span class="flabel">Two input features</span>$$\hat y = m_1(\text{IQ}) + m_2(\text{CGPA}) + c$$</div>
 <ul>
   <li>$x_1 = $ IQ, &nbsp; $x_2 = $ CGPA</li>
-  <li>$m_1$ batata hai prediction IQ ke saath kaise badalti hai</li>
-  <li>$m_2$ batata hai prediction CGPA ke saath kaise badalti hai</li>
-  <li>$c$ intercept term hai</li>
+  <li>$m_1$ tells us how the prediction changes with IQ</li>
+  <li>$m_2$ tells us how the prediction changes with CGPA</li>
+  <li>$c$ is the intercept term</li>
 </ul>
-<p>Yeh ab <b>3D space mein ek plane</b> ka equation hai — line nahi. Jaise 1-input case mein infinitely many lines thi, waise hi yahan <b>infinitely many planes</b> exist karte hain.</p>
+<p>This is now the equation of a <b>plane in 3D space</b>, not a line. Just as the 1-input case had infinitely many lines, here there are <b>infinitely many planes</b>.</p>
 
 <div class="solved">
   <header><span class="qtag">Practice P2</span><h4>Model identification</h4></header>
@@ -174,18 +174,18 @@
     </ol>
   </div>
 </div>
-<p>Is lecture mein hum discussion ko <b>ek input variable</b> par focused rakhenge taaki mathematics simple aur intuitive rahe.</p>
+<p>In this lecture we keep the discussion focused on <b>one input variable</b>, so the mathematics stays simple and intuitive.</p>
 
 <!-- ============================ -->
 <h2 id="s4"><span class="h2-num">4</span>Formal notation — residuals and errors</h2>
-<p>"Stipend" aur "CGPA" har baar bolne ki jagah, hum <b>general notation</b> use karte hain:</p>
+<p>Instead of saying "stipend" and "CGPA" every time, we switch to <b>general notation</b>:</p>
 <ul>
   <li>$y$ = actual output value from the dataset</li>
   <li>$x$ = input value from the dataset</li>
-  <li>Har data point aise likha jaata hai: $(x_i, y_i)$ where $i = 1, 2, \dots, n$</li>
+  <li>Each data point is written as $(x_i, y_i)$ where $i = 1, 2, \dots, n$</li>
 </ul>
 <div class="formula"><span class="flabel">Prediction at the i-th point</span>$$\hat y_i = m x_i + c$$</div>
-<p>Model line usually <b>saare data points se exactly nahi guzregi</b>. Actual value aur predicted value ke beech ke mismatch ko us point par <b>error ya residual</b> kehte hain:</p>
+<p>The model line usually <b>will not pass exactly through every data point</b>. The mismatch between the actual value and the predicted value at a point is called the <b>error or residual</b> at that point:</p>
 <div class="formula"><span class="flabel">Residual</span>$$e_i = y_i - \hat y_i \qquad\Longrightarrow\qquad \boxed{\,e_i = y_i - (m x_i + c)\,}$$</div>
 
 <figure>
@@ -228,12 +228,12 @@
     <path d="M71 64 l10 0 M76 59 l0 10" stroke="#f97316" stroke-width="2"/><text x="88" y="68" style="fill:var(--text-2)">Predicted ŷᵢ</text>
   </g>
 </svg>
-<figcaption>Errors <b>vertical gaps</b> ki tarah dikhte hain. Vertical kyun? Kyunki regression mein $x$ fixed treat hota hai aur hum sirf corresponding $y$ predict karte hain.</figcaption>
+<figcaption>Errors appear as <b>vertical gaps</b>. Why vertical? Because in regression $x$ is treated as fixed and we only predict the corresponding $y$.</figcaption>
 </figure>
 
 <div class="box insight">
   <div class="box-title">★ Key Insight</div>
-  <p style="margin:0">Agar errors chhote hain, model accha hai. Agar errors bade hain, model bura hai. To best model choose karne ke liye, hume $m$ aur $c$ ki aisi values choose karni hain jo <b>errors ko jitna ho sake chhota</b> banayein.</p>
+  <p style="margin:0">Small errors mean a good model. Large errors mean a bad one. So to choose the best model, we need values of $m$ and $c$ that make the <b>errors as small as possible</b>.</p>
 </div>
 
 <div class="solved">
@@ -241,26 +241,26 @@
   <div class="body">
     <p>Model: $\hat y = 10x - 30$ &nbsp;·&nbsp; Data point: $(x = 8,\; y = 50)$</p>
     <ol class="steps">
-      <li><span class="sh">Step 1 — predicted value nikalo</span>
+      <li><span class="sh">Step 1 — find the predicted value</span>
         $$\hat y = 10 \times 8 - 30 = 80 - 30 = \mathbf{50}$$</li>
-      <li><span class="sh">Step 2 — residual nikalo</span>
+      <li><span class="sh">Step 2 — find the residual</span>
         $$e = y - \hat y = 50 - 50 = \mathbf{0}$$</li>
       <li><span class="sh">(b) Is this residual positive or negative? What does the sign mean?</span>
-        <div class="answer">Zero — yeh point <b>exactly line par</b> baitha hai.</div>
-        <p style="margin:.4rem 0 0"><b>Sign ka matlab (general rule):</b><br>
-        $e &gt; 0$ ⟹ actual predicted se zyada hai ⟹ model ne <b>under-predict</b> kiya (point line ke upar hai).<br>
-        $e &lt; 0$ ⟹ actual predicted se kam hai ⟹ model ne <b>over-predict</b> kiya (point line ke neeche hai).</p></li>
+        <div class="answer">Zero — this point sits <b>exactly on the line</b>.</div>
+        <p style="margin:.4rem 0 0"><b>What the sign means (general rule):</b><br>
+        $e &gt; 0$ ⟹ actual is greater than predicted ⟹ the model <b>under-predicted</b> (the point is above the line).<br>
+        $e &lt; 0$ ⟹ actual is less than predicted ⟹ the model <b>over-predicted</b> (the point is below the line).</p></li>
     </ol>
   </div>
 </div>
 
 <!-- ============================ -->
 <h2 id="s5"><span class="h2-num">5</span>Building the loss function — three attempts ⭐</h2>
-<p>Hum jaante hain hume errors minimize karne hain. Par saare individual errors ko ek <b>single number</b> mein kaise combine karein jo overall model quality measure kare? Us single number ko <b>loss function</b> kehte hain.</p>
+<p>We know we need to minimise the errors. But how do we combine all the individual errors into a <b>single number</b> that measures overall model quality? That single number is called the <b>loss function</b>.</p>
 
 <h3>Attempt 1: Minimize the Total Signed Error</h3>
 <div class="formula"><span class="flabel">Attempt 1</span>$$\text{Total Signed Error} = \sum_{i=1}^{n} e_i = \sum_{i=1}^{n}(y_i - \hat y_i)$$</div>
-<p>Yeh reasonable lagta hai — jis model ka total error sabse chhota, wo best. Par ek <b>fatal problem</b> hai: <b>positive aur negative errors ek dusre ko cancel kar dete hain!</b></p>
+<p>This looks reasonable — the model with the smallest total error wins. But there is a <b>fatal problem</b>: <b>positive and negative errors cancel each other out!</b></p>
 
 <div class="solved">
   <header><span class="qtag">Practice P4</span><h4>The Cancellation Trap</h4></header>
@@ -276,20 +276,20 @@
       <li><span class="sh">(b) A total signed error of 0 means the model is perfect. [T/F]</span>
         <div class="answer">False</div></li>
       <li><span class="sh">(c) Why is this total misleading?</span>
-        <p style="margin:.2rem 0 0">Kyunki yeh error ki <b>magnitude</b> measure hi nahi karta — sirf net balance measure karta hai. Yahan har single point galat hai (koi bhi residual zero nahi hai), phir bhi total 0 aata hai. Ek model jo har point ko 10 units se miss karta hai (half upar, half neeche) aur ek model jo <b>perfectly</b> fit karta hai — dono ka score same 0 aayega. Loss function jo perfect aur terrible mein farak na kar sake, <b>useless</b> hai.</p></li>
+        <p style="margin:.2rem 0 0">Because it doesn't measure the <b>magnitude</b> of the error at all — only the net balance. Here every single point is wrong (no residual is zero), yet the total comes to 0. A model that misses every point by 10 units (half above, half below) and a model that fits <b>perfectly</b> would both score 0. A loss function that cannot tell perfect from terrible is <b>useless</b>.</p></li>
     </ol>
   </div>
 </div>
 
 <div class="box danger">
   <div class="box-title">△ Warning — The Cancellation Problem</div>
-  <p style="margin:0">Errors ka plain sum ek <b>reliable loss function NAHI</b> hai. Zero total ka matlab model accha hai aisa nahi — iska sirf matlab hai ki positive aur negative errors ne ek dusre ko cancel kar diya.</p>
+  <p style="margin:0">A plain sum of errors is <b>NOT a reliable loss function</b>. A zero total doesn't mean the model is good — it only means the positive and negative errors cancelled.</p>
 </div>
 
 <h3>Attempt 2: Use Absolute Error</h3>
 <div class="formula"><span class="flabel">Attempt 2</span>$$\text{Total Absolute Error} = \sum_{i=1}^{n}|e_i| = \sum_{i=1}^{n}|y_i - mx_i - c|$$</div>
-<p>Yeh <b>cancellation problem solve kar deta hai</b> — error positive ho ya negative, $|e|$ hamesha non-negative hai. Line ke upar aur neeche ke errors ab cancel nahi ho sakte.</p>
-<p>Lekin OLS method ke liye absolute error ek <b>mathematical difficulty</b> create karta hai:</p>
+<p>This <b>solves the cancellation problem</b> — whether the error is positive or negative, $|e|$ is always non-negative. Errors above and below the line can no longer cancel.</p>
+<p>But for the OLS method, absolute error creates a <b>mathematical difficulty</b>:</p>
 
 <figure>
 <svg viewBox="0 0 520 260" role="img" aria-label="Absolute error loss showing a sharp corner at e equals zero">
@@ -305,38 +305,38 @@
   <text x="150" y="160" font-size="14" font-weight="800" fill="#8b5cf6">slope = -1</text>
   <text x="358" y="160" font-size="14" font-weight="800" fill="#8b5cf6">slope = +1</text>
 </svg>
-<figcaption>$|e|$ ka graph $e = 0$ par sharp <b>V-shape</b> banata hai.</figcaption>
+<figcaption>The graph of $|e|$ forms a sharp <b>V-shape</b> at $e = 0$.</figcaption>
 </figure>
 
 <div class="grid g2">
   <div class="box def" style="margin:0"><div class="box-title">Derivatives</div>
     <p style="margin:0">For $e &lt; 0$: &nbsp; $\dfrac{d}{de}|e| = -1$<br>For $e &gt; 0$: &nbsp; $\dfrac{d}{de}|e| = +1$</p></div>
   <div class="box danger" style="margin:0"><div class="box-title">The blocker</div>
-    <p style="margin:0">$e = 0$ par derivative <b>undefined</b> hai kyunki graph mein sharp corner hai. Iska matlab $|e|$ everywhere smoothly differentiable nahi hai — jo <b>clean OLS derivation ko block</b> kar deta hai.</p></div>
+    <p style="margin:0">At $e = 0$ the derivative is <b>undefined</b>, because the graph has a sharp corner there. That means $|e|$ is not smoothly differentiable everywhere — which <b>blocks the clean OLS derivation</b>.</p></div>
 </div>
 
 <h4>Why absolute error is robust to outliers</h4>
-<p>Absolute error errors ko <b>linearly</b> penalize karta hai. Agar error double ho, penalty bhi double hoti hai. Error of 1 ko penalty 1 milti hai. Error of 10 ko penalty 10. Bada error zyada penalize hota hai, par <b>disproportionately nahi</b>. Isiliye ek single outlier total loss ko dominate nahi kar sakta.</p>
+<p>Absolute error penalises errors <b>linearly</b>. Double the error, double the penalty. An error of 1 gets a penalty of 1. An error of 10 gets a penalty of 10. Bigger errors are penalised more, but <b>not disproportionately</b>. That is why a single outlier cannot dominate the total loss.</p>
 
 <div class="box insight">
-  <div class="box-title">★ Advanced — MAE ka loss surface kyun problematic hai</div>
-  <p style="margin:0">MAE loss curve <b>piecewise-linear</b> hoti hai: har residual $e_i = 0$ hone par ek <b>kink</b> aata hai, aur minimum ek <b>flat basin</b> (interval) ho sakta hai — ek unique point nahi. Do parameters mein yeh ek <b>faceted polygonal basin</b> banati hai, smooth bowl nahi. Isiliye MAE regression ko <b>Linear Programming</b> se solve kiya jaata hai, simple calculus se nahi. (MSE ki smooth paraboloid bowl ke bilkul ulta.)</p>
+  <div class="box-title">★ Advanced — why MAE's loss surface is problematic</div>
+  <p style="margin:0">The MAE loss curve is <b>piecewise-linear</b>: there's a <b>kink</b> wherever a residual $e_i = 0$, and the minimum can be a <b>flat basin</b> (an interval) rather than a unique point. In two parameters this becomes a <b>faceted polygonal basin</b>, not a smooth bowl. That is why MAE regression is solved with <b>Linear Programming</b> rather than simple calculus — the exact opposite of MSE's smooth paraboloid bowl.</p>
 </div>
 
 <h3>Attempt 3: Use Squared Error ✓</h3>
 <div class="formula"><span class="flabel">The OLS loss function</span>$$E(m, c) = \sum_{i=1}^{n} e_i^{\,2} = \sum_{i=1}^{n}(y_i - m x_i - c)^2$$</div>
-<p>Yeh wahi loss function hai jo <b>Ordinary Least Squares</b> mein use hoti hai. Iske teen important properties hain:</p>
+<p>This is exactly the loss function used in <b>Ordinary Least Squares</b>. It has three important properties:</p>
 <div class="grid g3">
   <div class="box takeaway" style="margin:0"><div class="box-title">1 · Always non-negative</div>
-    <p style="margin:0">Squaring sign hata deta hai. <b>No cancellation possible.</b></p></div>
+    <p style="margin:0">Squaring removes the sign. <b>No cancellation possible.</b></p></div>
   <div class="box takeaway" style="margin:0"><div class="box-title">2 · Differentiable everywhere</div>
-    <p style="margin:0">$x^2$ ek smooth parabola hai. Uska derivative $2x$ <b>har point par defined</b> hai, including $x = 0$.</p></div>
+    <p style="margin:0">$x^2$ is a smooth parabola. Its derivative $2x$ is <b>defined at every point</b>, including $x = 0$.</p></div>
   <div class="box takeaway" style="margin:0"><div class="box-title">3 · Penalizes large errors quadratically</div>
-    <p style="margin:0">Bade error ko chhote error se <b>bohot zyada</b> penalty milti hai.</p></div>
+    <p style="margin:0">A large error gets a <b>far bigger</b> penalty than a small one.</p></div>
 </div>
 
 <h4>Why squared error is sensitive to outliers</h4>
-<p>Agar error 1 se 2 ho jaye, squared penalty 1 se 4 ho jaati hai (<b>4× larger</b>). Agar error 10 hai, squared penalty 100 hai. To ek error jo $10\times$ bada hai use $100\times$ badi penalty milti hai. <b>Yehi wajah hai ki outlier points OLS best-fit line ko strongly influence karte hain.</b></p>
+<p>If the error goes from 1 to 2, the squared penalty goes from 1 to 4 (<b>4× larger</b>). If the error is 10, the squared penalty is 100. So an error that is $10\times$ bigger gets a $100\times$ bigger penalty. <b>That is why outlier points strongly influence the OLS best-fit line.</b></p>
 
 <div class="tbl-wrap">
 <table class="compact">
@@ -366,7 +366,7 @@
     <line x1="72" y1="66" x2="88" y2="66" stroke="#f97316" stroke-width="3"/><text x="94" y="70" style="fill:var(--text-2)">Squared error e²</text>
   </g>
 </svg>
-<figcaption>Linear vs disproportionate penalty growth — yehi MAE-vs-MSE trade-off ka pura core hai.</figcaption>
+<figcaption>Linear vs disproportionate penalty growth — this is the entire core of the MAE-vs-MSE trade-off.</figcaption>
 </figure>
 
 <div class="solved">
@@ -383,11 +383,11 @@
     </tbody></table></div>
     <ol class="steps">
       <li><span class="sh">(b) Signed error can give a total of 0 even when every individual error is nonzero. [T/F]</span>
-        <div class="answer">True — yahi cancellation trap hai.</div></li>
+        <div class="answer">True — this is the cancellation trap.</div></li>
       <li><span class="sh">(c) Absolute error $|e|$ is differentiable at $e = 0$. [T/F]</span>
-        <div class="answer">False — sharp corner par derivative undefined hai.</div></li>
+        <div class="answer">False — the derivative is undefined at the sharp corner.</div></li>
       <li><span class="sh">(d) Squared error penalizes an error of 10 exactly 10 times more than an error of 1. [T/F]</span>
-        <div class="answer">False — <b>100 times</b> more ($10^2 = 100$ vs $1^2 = 1$). Penalty quadratically grow karti hai, linearly nahi.</div></li>
+        <div class="answer">False — <b>100 times</b> more ($10^2 = 100$ vs $1^2 = 1$). The penalty grows quadratically, not linearly.</div></li>
       <li><span class="sh">(e) Match each property to the loss function</span>
         <div class="tbl-wrap" style="margin:.5rem 0 0">
         <table class="compact">
@@ -403,7 +403,7 @@
 
 <div class="box takeaway">
   <div class="box-title">♦ Takeaway</div>
-  <p style="margin:0">Hum squared error choose karte hain kyunki wo <b>non-negative</b> hai (no cancellation), <b>everywhere differentiable</b> hai (clean calculus), aur <b>large errors ko strongly penalize</b> karta hai. Trade-off: <b>outliers ke prati sensitivity</b>.</p>
+  <p style="margin:0">We choose squared error because it is <b>non-negative</b> (no cancellation), <b>differentiable everywhere</b> (clean calculus), and <b>strongly penalises large errors</b>. The trade-off: <b>sensitivity to outliers</b>.</p>
 </div>
 
 <!-- ============================ -->
@@ -412,8 +412,8 @@
 <table>
 <thead><tr><th>Approach</th><th>What It Means</th><th>Example</th></tr></thead>
 <tbody>
-<tr><td><b>Closed-Form Solution</b></td><td>Answer ke liye ek <b>exact formula</b>. Optimal parameters directly compute karo.</td><td><b>OLS</b> for Simple Linear Regression (this lecture)</td></tr>
-<tr><td><b>Iterative Solution</b></td><td>Initial guesses se start karo. Step-by-step update karo jab tak error chhota na ho.</td><td><b>Gradient Descent</b> (👉 <a href="l05.html">Lecture 5</a>)</td></tr>
+<tr><td><b>Closed-Form Solution</b></td><td>An <b>exact formula</b> for the answer. Compute the optimal parameters directly.</td><td><b>OLS</b> for Simple Linear Regression (this lecture)</td></tr>
+<tr><td><b>Iterative Solution</b></td><td>Start from initial guesses. Update step by step until the error is small.</td><td><b>Gradient Descent</b> (👉 <a href="l05.html">Lecture 5</a>)</td></tr>
 </tbody>
 </table>
 </div>
@@ -434,11 +434,11 @@
 <!-- ============================ -->
 <h2 id="s7"><span class="h2-num">7</span>Visualizing the error surface</h2>
 <div class="formula"><span class="flabel">Squared error function</span>$$E(m, c) = \sum_{i=1}^{n}(y_i - m x_i - c)^2$$</div>
-<p>$(m, c)$ ki har pair ke liye hum $E$ ki ek value calculate kar sakte hain. Ek 3D surface imagine karo:</p>
+<p>For every pair $(m, c)$ we can compute a value of $E$. Picture a 3D surface:</p>
 <ul>
   <li>x-axis = $m$ (slope) &nbsp;·&nbsp; y-axis = $c$ (intercept) &nbsp;·&nbsp; z-axis = $E(m,c)$ (total squared error)</li>
 </ul>
-<p>Simple linear regression ke liye yeh surface ek <b>convex, bowl-shaped surface</b> hai. Bowl ka bottom <b>global minimum</b> hai — best $(m, c)$ pair.</p>
+<p>For simple linear regression this surface is a <b>convex, bowl-shaped surface</b>. The bottom of the bowl is the <b>global minimum</b> — the best $(m, c)$ pair.</p>
 
 <figure>
 <svg viewBox="0 0 560 300" role="img" aria-label="Convex paraboloid bowl error surface with contours and minimum">
@@ -463,12 +463,12 @@
     <text x="14" y="120" font-size="11.5" font-weight="700" transform="rotate(-90 14 120)" text-anchor="middle" style="fill:var(--text-2)">c (intercept)</text>
   </g>
 </svg>
-<figcaption>Convex bowl — ek hi minimum, koi local minima nahi. Isiliye stationary point <b>guaranteed</b> global minimum hai.</figcaption>
+<figcaption>A convex bowl — one minimum only, no local minima. That is why the stationary point is <b>guaranteed</b> to be the global minimum.</figcaption>
 </figure>
 
-<p>Minimum par surface <b>dono directions mein flat</b> hai. Calculus mein:</p>
+<p>At the minimum the surface is <b>flat in both directions</b>. In calculus terms:</p>
 <div class="formula"><span class="flabel">Stationarity conditions</span>$$\frac{\partial E}{\partial c} = 0 \qquad \text{and} \qquad \frac{\partial E}{\partial m} = 0$$</div>
-<p>Kyunki surface <b>convex</b> hai, yeh stationary point guaranteed <b>global minimum</b> hai (sirf local nahi). Ab hum formulas derive karte hain.</p>
+<p>Because the surface is <b>convex</b>, this stationary point is guaranteed to be the <b>global minimum</b> (not merely a local one). Now we derive the formulas.</p>
 
 <!-- ============================ -->
 <h2 id="s8"><span class="h2-num">8</span>Deriving the Intercept $c$ (Equation 1)</h2>
@@ -476,28 +476,28 @@
 <div class="solved">
   <header><span class="qtag">Derivation</span><h4>Full step-by-step derivation of $c = \bar y - m\bar x$</h4></header>
   <div class="body">
-  <p>Hum yahan se shuru karte hain:</p>
+  <p>We start from here:</p>
   $$E(m,c) = \sum_{i=1}^{n}\left(y_i - m x_i - c\right)^2$$
   <ol class="steps">
-    <li><span class="sh">Step 1 — Partial derivative w.r.t. $c$ lo aur zero set karo</span>
+    <li><span class="sh">Step 1 — take the partial derivative w.r.t. $c$ and set it to zero</span>
       $$\frac{\partial E}{\partial c} = 0$$</li>
-    <li><span class="sh">Step 2 — Chain rule apply karo</span>
+    <li><span class="sh">Step 2 — apply the chain rule</span>
       $$\frac{\partial E}{\partial c} = \frac{\partial}{\partial c}\left[\sum_{i=1}^{n}(y_i - mx_i - c)^2\right] = \sum_{i=1}^{n}\frac{\partial}{\partial c}(y_i - mx_i - c)^2$$
       <p style="margin:.5rem 0 0">Let $r_i = y_i - mx_i - c$. Then</p>
       $$\frac{\partial}{\partial c} r_i^2 = \frac{\partial r_i^2}{\partial r_i}\cdot\frac{\partial r_i}{\partial c} = 2r_i\left(\frac{\partial r_i}{\partial c}\right)$$
-      <p style="margin:.5rem 0 0">Kyunki $y_i$ aur $mx_i$ dono $c$ ke respect mein constant hain, aur $-c$ ka derivative $-1$ hai:</p>
+      <p style="margin:.5rem 0 0">Since $y_i$ and $mx_i$ are both constant with respect to $c$, and the derivative of $-c$ is $-1$:</p>
       $$\frac{\partial r_i}{\partial c} = -1 \qquad\Longrightarrow\qquad \frac{\partial}{\partial c}(y_i - mx_i - c)^2 = -2(y_i - mx_i - c)$$
       $$\therefore\quad \frac{\partial E}{\partial c} = \sum_{i=1}^{n}\left[-2(y_i - mx_i - c)\right] = 0$$</li>
-    <li><span class="sh">Step 3 — Zero ke equal set karo aur dono sides ko $-2$ se divide karo</span>
+    <li><span class="sh">Step 3 — Set it equal to zero and divide both sides by $-2$</span>
       $$\sum_{i=1}^{n}(y_i - mx_i - c) = 0$$</li>
-    <li><span class="sh">Step 4 — Summation ko separate karo</span>
+    <li><span class="sh">Step 4 — separate the summation</span>
       $$\sum_{i=1}^{n}y_i \;-\; m\sum_{i=1}^{n}x_i \;-\; \sum_{i=1}^{n}c \;=\; 0$$
       <div class="box warn" style="margin:.7rem 0 0">
         <div class="box-title">Why does $\sum c$ become $nc$?</div>
-        <p style="margin:0">$c$ ek <b>constant</b> hai — wo $i$ ke saath badalta nahi. Ise khud mein $n$ baar add karne se $\underbrace{c + c + \dots + c}_{n\ \text{times}} = nc$ milta hai. Yeh <b>sabse common derivation mistake</b> hai.</p>
+        <p style="margin:0">$c$ is a <b>constant</b> — it doesn't change with $i$. Adding it to itself $n$ times gives $\underbrace{c + c + \dots + c}_{n\ \text{times}} = nc$. This is the <b>single most common derivation mistake</b>.</p>
       </div>
       $$\Longrightarrow\quad \sum_{i=1}^{n}y_i - m\sum_{i=1}^{n}x_i - nc = 0$$</li>
-    <li><span class="sh">Step 5 — $nc$ isolate karo aur $n$ se divide karo</span>
+    <li><span class="sh">Step 5 — Isolate $nc$ and divide by $n$</span>
       $$nc = \sum_{i=1}^{n}y_i - m\sum_{i=1}^{n}x_i$$
       $$c = \left(\frac{1}{n}\sum_{i=1}^{n}y_i\right) - m\left(\frac{1}{n}\sum_{i=1}^{n}x_i\right)$$
       <p style="margin:.5rem 0 0">Sample means pehchano:</p>
@@ -512,7 +512,7 @@
 
 <div class="box insight">
   <div class="box-title">★ Key Insight — beautiful intuition</div>
-  <p style="margin:0">Best-fit OLS line <b>hamesha</b> point $(\bar x, \bar y)$ se guzarti hai — data ka <b>center (mean)</b>! Isko check karo: $x = \bar x$ par, $\hat y = m\bar x + c = m\bar x + (\bar y - m\bar x) = \bar y$. ✓</p>
+  <p style="margin:0">The best-fit OLS line <b>always</b> passes through the point $(\bar x, \bar y)$ — the <b>centre (mean)</b> of the data! Check it: at $x = \bar x$, $\hat y = m\bar x + c = m\bar x + (\bar y - m\bar x) = \bar y$. ✓</p>
 </div>
 
 <div class="solved">
@@ -520,14 +520,14 @@
   <div class="body">
     <p><b>(a) The derivation contains one mathematical mistake. Identify it and write the correct step.</b></p>
     <p style="font-size:.93rem">Given: $\;\sum(y_i - mx_i - c) = 0 \;\Rightarrow\; \sum y_i - m\sum x_i - \sum c = 0 \;\Rightarrow\; \sum y_i - m\sum x_i - c = 0$</p>
-    <div class="answer">Mistake: last step mein $\sum_{i=1}^{n} c$ ko $c$ likh diya. Correct: $\sum_{i=1}^{n} c = nc$.<br>Correct step: $\;\sum y_i - m\sum x_i - \mathbf{nc} = 0$</div>
+    <div class="answer">Mistake: in the last step $\sum_{i=1}^{n} c$ was written as $c$. Correct: $\sum_{i=1}^{n} c = nc$.<br>Corrected step: $\;\sum y_i - m\sum x_i - \mathbf{nc} = 0$</div>
     <ol class="steps" style="margin-top:1rem">
       <li><span class="sh">(b) The intercept depends only on the mean of the outputs. [T/F]</span>
-        <div class="answer">False — $c = \bar y - m\bar x$ mein $\bar y$, $m$ <b>aur</b> $\bar x$ teeno aate hain.</div></li>
+        <div class="answer">False — $c = \bar y - m\bar x$ involves all three: $\bar y$, $m$ <b>and</b> $\bar x$.</div></li>
       <li><span class="sh">(c) The equation $\sum c = c$ is correct. [T/F]</span>
         <div class="answer">False — $\sum_{i=1}^{n} c = nc$.</div></li>
       <li><span class="sh">(d) What does $c = \bar y - m\bar x$ tell us about where the line passes?</span>
-        <div class="answer">Regression line <b>$(\bar x, \bar y)$ se guzarti hai</b> — data ka centroid.</div></li>
+        <div class="answer">The regression line <b>passes through $(\bar x, \bar y)$</b> — the centroid of the data.</div></li>
     </ol>
   </div>
 </div>
@@ -538,27 +538,27 @@
 <div class="solved">
   <header><span class="qtag">Derivation</span><h4>Full step-by-step derivation of $m$</h4></header>
   <div class="body">
-  <p>Ab $c = \bar y - m\bar x$ ko wapas error function mein substitute karte hain:</p>
+  <p>Now we substitute $c = \bar y - m\bar x$ back into the error function:</p>
   $$E(m,c) = \sum_{i=1}^{n}(y_i - mx_i - c)^2, \qquad c = \bar y - m\bar x$$
   $$E(m) = \sum_{i=1}^{n}\left(y_i - mx_i - \bar y + m\bar x\right)^2$$
   <ol class="steps">
-    <li><span class="sh">Step 1 — Bracket ke andar simplify karo (group karo)</span>
+    <li><span class="sh">Step 1 — Simplify inside the bracket (group the terms)</span>
       $$E(m) = \sum_{i=1}^{n}\Big(\underbrace{(y_i - \bar y)}_{a_i} - m\underbrace{(x_i - \bar x)}_{b_i}\Big)^2$$</li>
-    <li><span class="sh">Step 2 — Shorthand define karo</span>
+    <li><span class="sh">Step 2 — define the shorthand</span>
       <ul style="margin:.3rem 0 0">
         <li>$a_i = y_i - \bar y$ &nbsp;— deviation of each $y$ from the mean</li>
         <li>$b_i = x_i - \bar x$ &nbsp;— deviation of each $x$ from the mean</li>
       </ul>
       $$E(m) = \sum_{i=1}^{n}(a_i - m b_i)^2$$</li>
-    <li><span class="sh">Step 3 — $m$ ke respect mein differentiate karo</span>
+    <li><span class="sh">Step 3 — Differentiate with respect to $m$</span>
       $$\frac{dE}{dm} = \sum_{i=1}^{n} 2(a_i - m b_i)\cdot\frac{d}{dm}(a_i - m b_i)$$
       <p style="margin:.4rem 0 0">Since $\dfrac{d}{dm}(a_i - m b_i) = -b_i$:</p>
       $$\frac{dE}{dm} = \sum_{i=1}^{n} 2(a_i - m b_i)(-b_i) = -2\sum_{i=1}^{n} b_i(a_i - m b_i)$$</li>
-    <li><span class="sh">Step 4 — Minimum ke liye zero set karo</span>
+    <li><span class="sh">Step 4 — Set it to zero for the minimum</span>
       $$-2\sum_{i=1}^{n} b_i(a_i - m b_i) = 0$$
       <p style="margin:.4rem 0 0">Dividing by $-2$:</p>
       $$\sum_{i=1}^{n} b_i(a_i - m b_i) = 0$$</li>
-    <li><span class="sh">Step 5 — Summation expand karo</span>
+    <li><span class="sh">Step 5 — expand the summation</span>
       $$\sum_{i=1}^{n} b_i a_i - \sum_{i=1}^{n} m b_i^2 = 0$$
       <p style="margin:.4rem 0 0">Since $m$ is constant with respect to $i$:</p>
       $$\sum_{i=1}^{n} b_i a_i - m\sum_{i=1}^{n} b_i^2 = 0$$</li>
@@ -572,15 +572,15 @@
 
 <div class="box insight">
   <div class="box-title">★ Key Insight — what the formula actually says</div>
-  <p style="margin:0"><b>Numerator</b> measure karta hai ki $x$ aur $y$ kitna <b>saath-saath</b> vary karte hain (<b>covariance</b>).<br>
-  <b>Denominator</b> measure karta hai ki $x$ khud kitna vary karta hai (<b>variance</b>).<br>
-  Slope batata hai ki $y$ kitna badalta hai $x$ ke saath, <b>$x$ ke spread ke liye adjusted</b>. Formally:</p>
+  <p style="margin:0">The <b>numerator</b> measures how much $x$ and $y$ vary <b>together</b> (<b>covariance</b>).<br>
+  The <b>denominator</b> measures how much $x$ varies on its own (<b>variance</b>).<br>
+  So the slope tells you how much $y$ changes with $x$, <b>adjusted for the spread of $x$</b>. Formally:</p>
   <div class="formula tight" style="margin:.7rem 0 0">$$m = \frac{\frac{1}{n}\sum(x_i-\bar x)(y_i-\bar y)}{\frac1n\sum(x_i-\bar x)^2} = \frac{\operatorname{Cov}(X,Y)}{\operatorname{Var}(X)}$$</div>
 </div>
 
 <div class="box warn">
   <div class="box-title">△ When does this break?</div>
-  <p style="margin:0">Yeh formula assume karta hai ki <b>denominator zero nahi hai</b>. Agar har student ka CGPA bilkul same hota, to $x_i = \bar x$ har $i$ ke liye, to $\sum(x_i-\bar x)^2 = 0$ — koi variation nahi, koi meaningful slope nahi, $m$ <b>undefined</b>.</p>
+  <p style="margin:0">This formula assumes the <b>denominator is not zero</b>. If every student had exactly the same CGPA, then $x_i = \bar x$ for every $i$, so $\sum(x_i-\bar x)^2 = 0$ — no variation, no meaningful slope, and $m$ is <b>undefined</b>.</p>
 </div>
 
 <div class="solved">
@@ -588,7 +588,7 @@
   <div class="body">
     <ol class="steps">
       <li><span class="sh">(a) Why is the intercept $c$ substituted before optimizing the slope?</span>
-        <p style="margin:.2rem 0 0">Taaki two-variable minimization ek <b>single-variable</b> problem ban jaye — $c$ ko $m$ ke terms mein express karne se $E$ sirf $m$ ka function ban jaata hai, jise simple ordinary derivative se solve kar sakte hain.</p></li>
+        <p style="margin:.2rem 0 0">So that a two-variable minimisation becomes a <b>single-variable</b> problem — expressing $c$ in terms of $m$ makes $E$ a function of $m$ alone, which an ordinary derivative can solve.</p></li>
       <li><span class="sh">(b) Compute $\dfrac{d}{dm}(a_i - m b_i)^2$</span>
         <div class="answer">$= 2(a_i - m b_i)\cdot(-b_i) = -2b_i(a_i - m b_i)$</div></li>
       <li><span class="sh">(c) Starting from $\sum b_i(a_i - mb_i) = 0$, derive the expression for $m$</span>
@@ -596,7 +596,7 @@
       <li><span class="sh">(d) What does the denominator $\sum(x_i - \bar x)^2$ represent?</span>
         <div class="answer"><b>B — Variance of $x$</b> (technically $n \times$ variance, i.e. the total sum of squares of $x$)</div></li>
       <li><span class="sh">(e) Why would the slope be undefined if every $x_i$ has the same value?</span>
-        <p style="margin:.2rem 0 0">Kyunki tab $x_i - \bar x = 0$ har $i$ ke liye, to denominator $\sum(x_i-\bar x)^2 = 0$, aur <b>division by zero</b> undefined hai. Geometrically: saare points ek <b>vertical line</b> par hain — uska slope exist hi nahi karta.</p></li>
+        <p style="margin:.2rem 0 0">Because then $x_i - \bar x = 0$ for every $i$, so the denominator $\sum(x_i-\bar x)^2 = 0$, and <b>division by zero</b> is undefined. Geometrically: all the points sit on a <b>vertical line</b> — which has no slope at all.</p></li>
     </ol>
   </div>
 </div>
@@ -611,7 +611,7 @@ $$m = \frac{\sum_{i=1}^{n}(x_i-\bar x)(y_i-\bar y)}{\sum_{i=1}^{n}(x_i-\bar x)^2
   <li><b>Step 2:</b> Substitute $m$ into Equation 1 to compute $c$.</li>
   <li><b>Step 3:</b> Write the final model: $\hat y = mx + c$</li>
 </ul>
-<p>Yeh OLS <b>best-fit line</b> hai. "Best-fit" phrase ka matlab precisely yeh hai: wo line jo <b>total squared error minimize</b> karti hai.</p>
+<p>This is the OLS <b>best-fit line</b>. The phrase "best-fit" means precisely this: the line that <b>minimises total squared error</b>.</p>
 
 <div class="solved">
   <header><span class="qtag">Practice P9</span><h4>Arrange the OLS steps (1–6)</h4></header>
@@ -679,7 +679,7 @@ $$m = \frac{\sum_{i=1}^{n}(x_i-\bar x)(y_i-\bar y)}{\sum_{i=1}^{n}(x_i-\bar x)^2
 
       <li><span class="sh">Step 5 — Final model</span>
         <div class="formula" style="margin:.5rem 0 0">$$\hat y = 6.75\,x + 19.25$$</div>
-        <p style="margin:.6rem 0 0"><b>Interpretation:</b> har <b>extra study hour</b> ke liye quiz score average <b>6.75 marks</b> badhta hai. Zero study hours par baseline predicted score 19.25 hai.</p></li>
+        <p style="margin:.6rem 0 0"><b>Interpretation:</b> each <b>extra study hour</b> raises the quiz score by <b>6.75 marks</b> on average. At zero study hours the baseline predicted score is 19.25.</p></li>
 
       <li><span class="sh">Step 6 — Prediction at $x = 6$</span>
         $$\hat y = 6.75 \times 6 + 19.25 = 40.5 + 19.25 = \mathbf{59.75}$$</li>
@@ -689,14 +689,14 @@ $$m = \frac{\sum_{i=1}^{n}(x_i-\bar x)(y_i-\bar y)}{\sum_{i=1}^{n}(x_i-\bar x)^2
       <div class="box-title">Reflect 1 — Verify the line passes through $(\bar x, \bar y)$</div>
       <p style="margin:0">$\hat y$ at $x = \bar x = 5$:
       $\;\hat y = 6.75(5) + 19.25 = 33.75 + 19.25 = 53 = \bar y$ ✓<br>
-      Algebraically yeh <b>hamesha</b> hoga: $\hat y = m\bar x + c = m\bar x + (\bar y - m\bar x) = \bar y$.</p>
+      Algebraically this will <b>always</b> hold: $\hat y = m\bar x + c = m\bar x + (\bar y - m\bar x) = \bar y$.</p>
     </div>
 
     <div class="box warn" style="margin-bottom:0">
       <div class="box-title">Reflect 2 — What if every student studied exactly 5 hours?</div>
       <p style="margin:0">Tab $x_i = 5$ for all $i$, so $\bar x = 5$ and $x_i - \bar x = 0$ for every $i$.<br>
       $\sum(x_i - \bar x)^2 = 0$ ⟹ $m = \frac{0}{0}$ — <b>undefined</b>.<br>
-      <b>Model ke liye iska matlab:</b> $x$ mein <b>koi variation hi nahi</b>, to $x$ se $y$ ki variation explain karna asambhav hai. Regression ke liye input ka vary karna zaroori hai.</p>
+      <b>What this means for the model:</b> there is <b>no variation in $x$ at all</b>, so it is impossible to explain the variation in $y$ using $x$. Regression requires the input to vary.</p>
     </div>
   </div>
 </div>
@@ -711,13 +711,13 @@ $$m = \frac{\sum_{i=1}^{n}(x_i-\bar x)(y_i-\bar y)}{\sum_{i=1}^{n}(x_i-\bar x)^2
   <table>
   <thead><tr><th>Statement</th><th>T/F</th><th>Why</th></tr></thead>
   <tbody>
-  <tr><td>(a) The OLS line always passes through every single data point</td><td><span class="pill r">F</span></td><td>Sirf tab jab data perfectly collinear ho. Generally residuals nonzero hote hain.</td></tr>
-  <tr><td>(b) The OLS line always passes through $(\bar x, \bar y)$</td><td><span class="pill g">T</span></td><td>Seedha $c = \bar y - m\bar x$ se follow hota hai.</td></tr>
-  <tr><td>(c) Squared error is more robust to outliers than absolute error</td><td><span class="pill r">F</span></td><td><b>Ulta</b> hai — absolute error robust hai; squared error outliers ke prati sensitive hai.</td></tr>
-  <tr><td>(d) The derivative of $|x|$ exists at $x = 0$</td><td><span class="pill r">F</span></td><td>Sharp corner — left derivative $-1$, right derivative $+1$; match nahi karte.</td></tr>
-  <tr><td>(e) In $\hat y = mx + c$, $m$ and $c$ are the learnable parameters</td><td><span class="pill g">T</span></td><td>Training data se seekhe jaate hain.</td></tr>
-  <tr><td>(f) OLS gives an iterative (step-by-step) solution</td><td><span class="pill r">F</span></td><td>OLS <b>closed-form</b> hai. Gradient Descent iterative hai.</td></tr>
-  <tr><td>(g) If all $x_i$ values are identical, the slope $m$ is undefined</td><td><span class="pill g">T</span></td><td>Denominator zero ho jaata hai.</td></tr>
+  <tr><td>(a) The OLS line always passes through every single data point</td><td><span class="pill r">F</span></td><td>Only when the data is perfectly collinear. Generally the residuals are nonzero.</td></tr>
+  <tr><td>(b) The OLS line always passes through $(\bar x, \bar y)$</td><td><span class="pill g">T</span></td><td>Follows directly from $c = \bar y - m\bar x$.</td></tr>
+  <tr><td>(c) Squared error is more robust to outliers than absolute error</td><td><span class="pill r">F</span></td><td><b>The opposite</b> — absolute error is robust; squared error is sensitive to outliers.</td></tr>
+  <tr><td>(d) The derivative of $|x|$ exists at $x = 0$</td><td><span class="pill r">F</span></td><td>A sharp corner — left derivative $-1$, right derivative $+1$; they do not match.</td></tr>
+  <tr><td>(e) In $\hat y = mx + c$, $m$ and $c$ are the learnable parameters</td><td><span class="pill g">T</span></td><td>They are learned from the training data.</td></tr>
+  <tr><td>(f) OLS gives an iterative (step-by-step) solution</td><td><span class="pill r">F</span></td><td>OLS is <b>closed-form</b>. Gradient Descent is the iterative one.</td></tr>
+  <tr><td>(g) If all $x_i$ values are identical, the slope $m$ is undefined</td><td><span class="pill g">T</span></td><td>The denominator becomes zero.</td></tr>
   <tr><td>(h) The error surface $E(m,c)$ is convex for SLR</td><td><span class="pill g">T</span></td><td>Bowl shaped — ek hi global minimum.</td></tr>
   </tbody></table></div>
   </div>
@@ -726,27 +726,27 @@ $$m = \frac{\sum_{i=1}^{n}(x_i-\bar x)(y_i-\bar y)}{\sum_{i=1}^{n}(x_i-\bar x)^2
 <div class="solved">
   <header><span class="qtag">Practice P12</span><h4>Outlier Impact Analysis</h4></header>
   <div class="body">
-    <p>Dataset mein 6th student add karo: $(x = 10,\; y = 20)$. Yeh student ne 10 hours padha par sirf 20 score kiya — ek <b>clear outlier</b>.</p>
+    <p>Add a 6th student to the dataset: $(x = 10,\; y = 20)$. This student studied 10 hours but scored only 20 — a <b>clear outlier</b>.</p>
     <ol class="steps">
       <li><span class="sh">(a) Under absolute error, the penalty for this point is $|e| = |20 - (m\times10 + c)|$. How does this grow?</span>
         <div class="answer"><b>Linearly</b> with the error.</div>
-        <p style="margin:.3rem 0 0">Pichle model $\hat y = 6.75x + 19.25$ se: $\hat y = 6.75(10)+19.25 = 86.75$, to $e = 20 - 86.75 = -66.75$, aur $|e| = \mathbf{66.75}$.</p></li>
+        <p style="margin:.3rem 0 0">From the earlier model $\hat y = 6.75x + 19.25$: $\hat y = 6.75(10)+19.25 = 86.75$, so $e = 20 - 86.75 = -66.75$, and $|e| = \mathbf{66.75}$.</p></li>
       <li><span class="sh">(b) Under squared error, the penalty is $e^2 = (20-\hat y)^2$. How does this grow?</span>
         <div class="answer"><b>Quadratically</b> with the error.</div>
-        <p style="margin:.3rem 0 0">$e^2 = (66.75)^2 = \mathbf{4455.6}$ — baaki saare points ke combined squared error se kahin zyada.</p></li>
+        <p style="margin:.3rem 0 0">$e^2 = (66.75)^2 = \mathbf{4455.6}$ — far more than the combined squared error of all the other points.</p></li>
       <li><span class="sh">(c) Which loss function will be more affected by this outlier? Why?</span>
         <div class="answer"><b>Squared error (OLS)</b>.</div>
-        <p style="margin:.3rem 0 0">Kyunki $e^2$ error ke saath quadratically grow karta hai, is ek point ka contribution total loss ko <b>dominate</b> kar deta hai. Loss minimize karne ke liye optimizer ko is point ke error ko shrink karna <b>hi</b> padega, chahe baaki paanch points ka fit kharab ho jaye.</p></li>
+        <p style="margin:.3rem 0 0">Because $e^2$ grows quadratically with the error, this one point's contribution <b>dominates</b> the total loss. To minimise the loss, the optimiser <b>has</b> to shrink this point's error — even if the fit for the other five points gets worse.</p></li>
       <li><span class="sh">(d) Will the OLS best-fit line shift toward this outlier or away from it?</span>
         <div class="answer"><b>Toward</b> the outlier.</div>
-        <p style="margin:.3rem 0 0">Optimizer $\sum e^2$ minimize kar raha hai. Us huge squared term ko kam karne ka sabse effective tareeka hai line ko outlier ki taraf <b>tilt/drop</b> karna. Practically: slope $m$ <b>ghategi</b> (kyunki outlier high $x$ par low $y$ hai), aur line 6 points ke beech mein ek compromise position le legi — <b>saare</b> predictions kharab karke.</p></li>
+        <p style="margin:.3rem 0 0">The optimiser is minimising $\sum e^2$. The most effective way to shrink that huge squared term is to <b>tilt/drop</b> the line towards the outlier. Practically: the slope $m$ will <b>decrease</b> (the outlier sits at high $x$ with low $y$), and the line settles into a compromise position among the 6 points — making <b>every</b> prediction worse.</p></li>
     </ol>
   </div>
 </div>
 
 <div class="box insight">
   <div class="box-title">➜ Forward Handoff</div>
-  <p style="margin:0">Next lecture mein hum yahi idea ek input feature se multiple input features tak extend karenge (<b>Multiple Linear Regression</b>). OLS derivation wahi principle use karegi — minimize squared error — par simple algebra ki jagah <b>matrices aur vectors</b> ke saath. Gradient Descent (iterative optimization) bhi introduce hoga.</p>
+  <p style="margin:0">In the next lecture we extend this same idea from one input feature to multiple input features (<b>Multiple Linear Regression</b>). The OLS derivation uses the same principle — minimise squared error — but with <b>matrices and vectors</b> instead of simple algebra. Gradient Descent (iterative optimisation) also gets introduced.</p>
 </div>
 
 <!-- ============================ -->
@@ -755,14 +755,14 @@ $$m = \frac{\sum_{i=1}^{n}(x_i-\bar x)(y_i-\bar y)}{\sum_{i=1}^{n}(x_i-\bar x)^2
 <table>
 <thead><tr><th>Galti</th><th>Sahi Baat</th></tr></thead>
 <tbody>
-<tr><td>$\sum_{i=1}^{n} c = c$</td><td>$\sum_{i=1}^{n} c = \mathbf{nc}$ — yeh derivation ki #1 mistake hai.</td></tr>
-<tr><td>Slope formula mein numerator aur denominator ulta karna</td><td>Numerator = $\sum(x_i-\bar x)(y_i-\bar y)$ (covariance). Denominator = $\sum(x_i-\bar x)^2$ (variance of $x$ only).</td></tr>
-<tr><td>"Squared error outliers ke liye robust hai"</td><td><b>Absolute error</b> robust hai. Squared error outliers ke prati <b>sensitive</b> hai.</td></tr>
-<tr><td>"Error 10× bada to penalty 10× badi"</td><td>Squared error mein penalty <b>100×</b> badi hoti hai.</td></tr>
-<tr><td>"OLS line har data point se guzarti hai"</td><td>Sirf perfectly collinear data mein. Generally residuals nonzero.</td></tr>
-<tr><td>Residual ko $\hat y - y$ likhna</td><td>Convention: $e_i = y_i - \hat y_i$ (<b>actual minus predicted</b>). Sign matter karta hai.</td></tr>
-<tr><td>OLS ko iterative samajhna</td><td>OLS <b>closed-form</b> hai — ek formula, ek shot mein answer.</td></tr>
-<tr><td>Denominator zero hone ka case bhool jaana</td><td>Agar saare $x_i$ same hain, $m$ undefined hai.</td></tr>
+<tr><td>$\sum_{i=1}^{n} c = c$</td><td>$\sum_{i=1}^{n} c = \mathbf{nc}$ — the #1 mistake in this derivation.</td></tr>
+<tr><td>Swapping the numerator and denominator in the slope formula</td><td>Numerator = $\sum(x_i-\bar x)(y_i-\bar y)$ (covariance). Denominator = $\sum(x_i-\bar x)^2$ (variance of $x$ only).</td></tr>
+<tr><td>"Squared error is robust to outliers"</td><td><b>Absolute error</b> is robust. Squared error is <b>sensitive</b> to outliers.</td></tr>
+<tr><td>"10× bigger error means 10× bigger penalty"</td><td>With squared error the penalty is <b>100×</b> bigger.</td></tr>
+<tr><td>"The OLS line passes through every data point"</td><td>Only for perfectly collinear data. Generally the residuals are nonzero.</td></tr>
+<tr><td>Writing the residual as $\hat y - y$</td><td>Convention: $e_i = y_i - \hat y_i$ (<b>actual minus predicted</b>). The sign matters.</td></tr>
+<tr><td>Thinking OLS is iterative</td><td>OLS is <b>closed-form</b> — one formula, answer in one shot.</td></tr>
+<tr><td>Forgetting the zero-denominator case</td><td>If all $x_i$ are identical, $m$ is undefined.</td></tr>
 </tbody>
 </table>
 </div>
@@ -806,7 +806,7 @@ const MCQS = [
      'The model is underfitting the data',
      'The squared error must also be 0'],
   a:1,
-  e:'<b>B.</b> Yeh cancellation trap hai: har single residual nonzero hai, phir bhi total 0. <b>A</b> exactly wahi galat conclusion hai jise sheet warn karti hai. <b>C</b> unrelated — signed sum underfitting nahi batata. <b>D</b> false: $\\sum e_i^2 = 100+25+16+100+9+36 = 286 \\ne 0$.' },
+  e:'<b>B.</b> This is the cancellation trap: every single residual is nonzero, yet the total is 0. <b>A</b> is exactly the wrong conclusion the sheet warns about. <b>C</b> is unrelated — a signed sum says nothing about underfitting. <b>D</b> is false: $\\sum e_i^2 = 100+25+16+100+9+36 = 286 \\ne 0$.' },
 
 { d:'hard',
   q:'Why is absolute error rejected for the OLS derivation despite solving the cancellation problem?',
@@ -815,7 +815,7 @@ const MCQS = [
      'Because $|e|$ is more sensitive to outliers than $e^2$',
      'Because $|e|$ does not penalise errors at all'],
   a:1,
-  e:'<b>B.</b> $e&lt;0$ par derivative $-1$, $e&gt;0$ par $+1$, aur $e=0$ par <b>undefined</b>. Isse $\\partial E/\\partial m = 0$ wala clean approach toot jaata hai. <b>A</b> false — $|e| \\ge 0$ hamesha. <b>C</b> exactly reversed — absolute error <b>zyada robust</b> hai. <b>D</b> false — wo linearly penalise karta hai.' },
+  e:'<b>B.</b> The derivative is $-1$ for $e&lt;0$, $+1$ for $e&gt;0$, and <b>undefined</b> at $e=0$. That breaks the clean "set $\\partial E/\\partial m = 0$" approach. <b>A</b> is false — $|e| \\ge 0$ always. <b>C</b> is exactly reversed — absolute error is <b>more robust</b>. <b>D</b> is false — it penalises linearly.' },
 
 { d:'hard',
   q:'A student writes: $\\sum_{i=1}^{n}(y_i - mx_i - c) = 0 \\Rightarrow \\sum y_i - m\\sum x_i - c = 0$. What is wrong?',
@@ -824,13 +824,13 @@ const MCQS = [
      'The sign of $m\\sum x_i$ should be positive',
      'The derivative should have been taken with respect to $m$, not $c$'],
   a:1,
-  e:'<b>B.</b> $c$ ek constant hai; use $n$ baar add karne se $nc$ milta hai. Yeh <b>sabse common derivation error</b> hai aur isse $c = \\bar y - m\\bar x$ nikalna impossible ho jaata hai. <b>C</b> false — sign correct hai. <b>D</b> irrelevant; intercept derivation mein $c$ ke respect mein hi differentiate karte hain.' },
+  e:'<b>B.</b> $c$ is a constant; adding it $n$ times gives $nc$. This is the <b>single most common derivation error</b>, and it makes deriving $c = \\bar y - m\\bar x$ impossible. <b>C</b> is false — the sign is correct. <b>D</b> is irrelevant; the intercept derivation differentiates with respect to $c$ itself.' },
 
 { d:'med',
   q:'For the model $\\hat y = 6.75x + 19.25$ built on $\\bar x = 5$, $\\bar y = 53$, what is $\\hat y$ at $x = \\bar x$?',
   o:['$19.25$', '$33.75$', '$53$', 'Cannot be determined without the residuals'],
   a:2,
-  e:'<b>C.</b> $6.75(5) + 19.25 = 33.75 + 19.25 = 53 = \\bar y$. Yeh coincidence nahi — algebraically $\\hat y(\\bar x) = m\\bar x + (\\bar y - m\\bar x) = \\bar y$ <b>hamesha</b>. <b>A</b> intercept hai ($x=0$ par). <b>B</b> sirf $m\\bar x$ hai, intercept add karna bhool gaye. <b>D</b> false — formula se directly nikalta hai.' },
+  e:'<b>C.</b> $6.75(5) + 19.25 = 33.75 + 19.25 = 53 = \\bar y$. This is no coincidence — algebraically $\\hat y(\\bar x) = m\\bar x + (\\bar y - m\\bar x) = \\bar y$ <b>always</b>. <b>A</b> is the intercept (at $x=0$). <b>B</b> is only $m\\bar x$, forgetting to add the intercept. <b>D</b> is false — it follows directly from the formula.' },
 
 { d:'hard',
   q:'A 6th point $(x=10, y=20)$ is added to a dataset whose fitted line is $\\hat y = 6.75x + 19.25$. Which statement is correct?',
@@ -839,13 +839,13 @@ const MCQS = [
      'Both penalties are equal because the residual is the same',
      'The OLS line will shift AWAY from the outlier to minimise its influence'],
   a:1,
-  e:'<b>B.</b> $\\hat y = 6.75(10)+19.25 = 86.75$, so $e = -66.75$: $|e| = 66.75$, $e^2 \\approx 4455.6$. Kyunki optimizer $\\sum e^2$ minimize karta hai, us huge term ko shrink karne ka tareeka line ko outlier ki <b>taraf</b> kheenchna hai. <b>A</b> swaps the two. <b>C</b> false — squaring hi to difference banata hai. <b>D</b> is the intuitive-but-wrong answer: minimising means chasing the big error, not avoiding it.' },
+  e:'<b>B.</b> $\\hat y = 6.75(10)+19.25 = 86.75$, so $e = -66.75$: $|e| = 66.75$, $e^2 \\approx 4455.6$. Because the optimizer minimizes $\\sum e^2$, the way to shrink that huge term is to pull the line <b>toward</b> the outlier. <b>A</b> swaps the two. <b>C</b> is false — the squaring is exactly what creates the difference. <b>D</b> is the intuitive-but-wrong answer: minimising means chasing the big error, not avoiding it.' },
 
 { d:'med',
   q:'What does the denominator $\\sum(x_i - \\bar x)^2$ in the slope formula represent?',
   o:['Covariance between $x$ and $y$', 'Variance (total spread) of $x$', 'Mean of $x$', 'Mean squared error'],
   a:1,
-  e:'<b>B.</b> Yeh total sum of squares of $x$ hai — $n\\times$ variance. Formula overall $m = \\operatorname{Cov}(X,Y)/\\operatorname{Var}(X)$ banta hai. <b>A</b> is the <b>numerator</b> — classic swap trap. <b>C</b> galat — mean $\\bar x$ hai, yeh squared deviations hai. <b>D</b> galat — MSE mein $y$ ke residuals hote hain, $x$ ke deviations nahi.' },
+  e:'<b>B.</b> This is the total sum of squares of $x$ — $n\\times$ the variance. Overall the formula becomes $m = \\operatorname{Cov}(X,Y)/\\operatorname{Var}(X)$. <b>A</b> is the <b>numerator</b> — the classic swap trap. <b>C</b> is wrong — the mean is $\\bar x$; these are squared deviations. <b>D</b> is wrong — MSE uses residuals in $y$, not deviations in $x$.' },
 
 { d:'hard',
   q:'Why is the stationary point of $E(m,c)$ guaranteed to be the GLOBAL minimum for simple linear regression?',
@@ -854,7 +854,7 @@ const MCQS = [
      'Because we used the chain rule correctly',
      'Because $n$ is finite'],
   a:1,
-  e:'<b>B.</b> Sheet: "Because the surface is convex, this stationary point is guaranteed to be the global minimum (not just a local one)." <b>A</b> is true but insufficient — positive function ke bhi multiple local minima ho sakte hain. <b>C</b> derivation ki correctness hai, surface geometry nahi. <b>D</b> irrelevant.' },
+  e:'<b>B.</b> Sheet: "Because the surface is convex, this stationary point is guaranteed to be the global minimum (not just a local one)." <b>A</b> is true but insufficient — a positive function can still have multiple local minima. <b>C</b> is about the correctness of the derivation, not the geometry of the surface. <b>D</b> is irrelevant.' },
 
 { d:'hard',
   q:'Every student in a dataset studied exactly 5 hours. What happens to the OLS slope?',
@@ -863,7 +863,7 @@ const MCQS = [
      '$m = \\bar y / \\bar x = 53/5$',
      '$m$ equals the covariance, since the variance term drops out'],
   a:1,
-  e:'<b>B.</b> $x_i = \\bar x$ for all $i$, so every deviation is 0 and the denominator vanishes — <b>division by zero</b>. Geometrically saare points ek vertical line par hain, jiska slope exist hi nahi karta. <b>A</b> is the tempting near-miss: $m=0$ ka matlab hoga horizontal line, jo ek <b>defined</b> answer hai — par yahan koi answer hi nahi. <b>C</b> aur <b>D</b> formula ko misapply karte hain.' },
+  e:'<b>B.</b> $x_i = \\bar x$ for all $i$, so every deviation is 0 and the denominator vanishes — <b>division by zero</b>. Geometrically all the points lie on a vertical line, whose slope simply does not exist. <b>A</b> is the tempting near-miss: $m=0$ would mean a horizontal line, which is a <b>defined</b> answer — but here there is no answer at all. <b>C</b> and <b>D</b> misapply the formula.' },
 
 { d:'med',
   q:'Which pairing is correct?',
@@ -872,7 +872,7 @@ const MCQS = [
      'Both OLS and Gradient Descent are closed-form',
      'Both OLS and Gradient Descent are iterative'],
   a:1,
-  e:'<b>B.</b> OLS ek <b>exact formula</b> deta hai — data plug karo, answer nikal aayega. Gradient Descent random guesses se start karke step-by-step improve karta hai. <b>A</b> exactly reversed. <b>C</b> aur <b>D</b> dono unhe conflate karte hain.' },
+  e:'<b>B.</b> OLS gives an <b>exact formula</b> — plug in the data and the answer comes out. Gradient Descent starts from random guesses and improves step by step. <b>A</b> is exactly reversed. <b>C</b> and <b>D</b> both conflate the two.' },
 ];
 </script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>

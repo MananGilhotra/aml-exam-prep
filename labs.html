@@ -19,7 +19,7 @@
 <header class="hero">
   <div class="eyebrow">Practical · Viva · Lab Exam</div>
   <h1><span class="gradtext">Lab Code Companion</span></h1>
-  <p class="sub">Har lecture ka NumPy / scikit-learn implementation — <b>theory ko code se connect</b> karne ke liye. Viva mein "isko code kaise karoge?" ka answer yahan hai.</p>
+  <p class="sub">The NumPy / scikit-learn implementation of every lecture — to <b>connect the theory to code</b>. If a viva asks "how would you code this?", the answer is here.</p>
   <div class="chips">
     <span class="chip accent">🐍 Pure NumPy first</span><span class="chip">📦 sklearn equivalents</span><span class="chip">🔬 Labs 3–11</span>
   </div>
@@ -27,7 +27,7 @@
 
 <div class="box warn">
   <div class="box-title">How to read this page</div>
-  <p style="margin:0">Har section mein pehle <b>from-scratch NumPy</b> version hai (jo <em>samajhne</em> ke liye hai aur viva mein poocha jaata hai), phir <b>scikit-learn</b> equivalent (jo production mein use hota hai). Yeh course ke apne lab notebooks ke structure ko follow karta hai. Concept theory ke liye har section ke lecture link par jao.</p>
+  <p style="margin:0">Each section gives the <b>from-scratch NumPy</b> version first (which is for <em>understanding</em>, and is what a viva asks about), then the <b>scikit-learn</b> equivalent (which is what you use in production). This follows the structure of the course's own lab notebooks. For the concept theory, follow the lecture link in each section.</p>
 </div>
 
 <!-- ================================================= -->
@@ -153,7 +153,7 @@ def r_square(y, y_pred, y_mean):
 
 <div class="box insight">
   <div class="box-title">Viva question you will be asked</div>
-  <p style="margin:0"><b>"Agar denominator zero ho to?"</b> → Tab saare $x_i$ identical hain, $\operatorname{Var}(X) = 0$, aur slope <b>undefined</b> hai. Production code mein guard lagao: <code>if denominator == 0: raise ValueError("x has zero variance")</code>.</p>
+  <p style="margin:0"><b>"What if the denominator is zero?"</b> → Then all the $x_i$ are identical, $\operatorname{Var}(X) = 0$, and the slope is <b>undefined</b>. In production code, guard it: <code>if denominator == 0: raise ValueError("x has zero variance")</code>.</p>
 </div>
 
 <!-- ================================================= -->
@@ -611,7 +611,7 @@ print(gs.best_params_)</pre>
 
 <div class="box hinglish">
   <div class="box-title">📌 Source</div>
-  <p style="margin:0">Yeh implementations course ke apne lab repository (<code>aml_lab</code>: Labs 3–11) ke solved notebooks aur helper modules par based hain, aur har worksheet ki theory se align kiye gaye hain. Dataset-download aur plotting boilerplate hata diya gaya hai taaki <b>sirf wo logic dikhe jo exam/viva mein poocha jaata hai</b>.</p>
+  <p style="margin:0">These implementations are based on the solved notebooks and helper modules of the course's own lab repository (<code>aml_lab</code>: Labs 3–11), and are aligned with the theory of each worksheet. Dataset-download and plotting boilerplate has been removed so that <b>only the logic an exam or viva asks about remains visible</b>.</p>
 </div>
 
 </div>

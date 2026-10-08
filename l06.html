@@ -19,7 +19,7 @@
 <header class="hero">
   <div class="eyebrow">Worksheet 06 · Lecture 6</div>
   <h1><span class="gradtext">Stochastic &amp; Mini-Batch</span><br>Gradient Descent</h1>
-  <p class="sub">Batch GD kyun itna wait karta hai, SGD kaise ek sample se hi chal padta hai, aur Mini-Batch kaise dono ka best deta hai.</p>
+  <p class="sub">Why Batch GD waits so long, how SGD gets moving from a single sample, and how Mini-Batch gives you the best of both.</p>
   <div class="chips">
     <span class="chip accent">⏱ ~35 min</span><span class="chip">🔁 3 dry runs</span>
     <span class="chip">💻 3 pseudocodes</span><span class="chip">✓ 10 MCQs</span>
@@ -28,7 +28,7 @@
 
 <div class="box hinglish">
   <div class="box-title">⚡ Ek Line Mein</div>
-  <p style="margin:0"><b>Batch GD:</b> poore dataset ka average gradient → <b>1 update per epoch</b>, accurate par slow. <b>SGD:</b> ek random sample ka gradient → <b>$m$ updates per epoch</b>, fast par noisy. <b>Mini-Batch:</b> $b$ samples ka average → <b>$\lceil m/b\rceil$ updates per epoch</b> — practical compromise jo almost har real system use karta hai.</p>
+  <p style="margin:0"><b>Batch GD:</b> the average gradient over the whole dataset → <b>1 update per epoch</b>, accurate but slow. <b>SGD:</b> the gradient of one random sample → <b>$m$ updates per epoch</b>, fast but noisy. <b>Mini-Batch:</b> the average over $b$ samples → <b>$\lceil m/b\rceil$ updates per epoch</b> — the practical compromise that almost every real system actually uses.</p>
 </div>
 
 <h3>Notation used throughout</h3>
@@ -52,16 +52,16 @@
 <h2 id="s1"><span class="h2-num">1</span>Revision and Motivation</h2>
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">Batch Gradient Descent mein hum saare $m$ examples par average cost ka gradient compute karte hain aur phir $\boldsymbol\theta$ ko <b>ek baar</b> update karte hain. Rhythm yeh hai: <b>saare samples scan karo → unke gradients average karo → ek baar update karo.</b> Kya hume har ek update se pehle poore dataset ka wait karna hi padega?</p>
+  <p style="margin:0">In Batch Gradient Descent we compute the gradient of the average cost over all $m$ examples and then update $\boldsymbol\theta$ <b>once</b>. The rhythm is: <b>scan all the samples → average their gradients → update once.</b> Must we always wait for the entire dataset before a single update?</p>
 </div>
-<p>Agar $m = 10{,}000{,}000$, to ek BGD epoch mein kitne parameter updates hote hain? <b>Ek.</b> Kya ek update 10 million samples har baar scan karne ke layak hai?</p>
+<p>If $m = 10{,}000{,}000$, how many parameter updates happen in one BGD epoch? <b>One.</b> Is a single update worth scanning 10 million samples every time?</p>
 
 <h3>Why BGD is attractive</h3>
 <ul>
-  <li><b>Stable direction:</b> har sample contribute karta hai, to noisy gradients average out ho jaate hain.</li>
-  <li><b>Deterministic path:</b> same initialization ke liye steps exactly repeatable hote hain.</li>
-  <li><b>Smooth convergence:</b> simple convex losses par cost usually smoothly ghat-ti hai.</li>
-  <li><b>Good for small datasets:</b> exact gradients affordable hain jab data memory mein fit ho jaye.</li>
+  <li><b>Stable direction:</b> every sample contributes, so noisy gradients average out.</li>
+  <li><b>Deterministic path:</b> the steps are exactly repeatable for the same initialisation.</li>
+  <li><b>Smooth convergence:</b> on simple convex losses the cost usually falls smoothly.</li>
+  <li><b>Good for small datasets:</b> exact gradients are affordable when the data fits in memory.</li>
 </ul>
 
 <h3>Disadvantages as real problems</h3>
@@ -77,7 +77,7 @@
 </tbody>
 </table>
 </div>
-<p>In saari problems ka <b>ek hi root cause</b> hai: <b>BGD move karne se pehle ek exact full-data gradient demand karta hai.</b> Exactness useful hai, par huge data ke liye yeh bohot mehnga pad sakta hai.</p>
+<p>All of these problems share <b>one root cause</b>: <b>BGD demands an exact full-data gradient before it moves.</b> Exactness is useful, but for huge data it gets very expensive.</p>
 
 <div class="solved">
   <header><span class="qtag">Practice P1</span><h4>Scenario matching</h4></header>
@@ -86,9 +86,9 @@
     <table>
     <thead><tr><th>Scenario</th><th>Primary BGD Limitation</th><th>Why</th></tr></thead>
     <tbody>
-    <tr><td>1. A recommendation model trained on 500 GB of user-item logs</td><td><b>B — Memory and I/O pressure</b></td><td>500 GB RAM mein fit nahi hota; har epoch ko disk se poora dataset re-read karna padta hai.</td></tr>
-    <tr><td>2. A fraud detection system that needs to adapt immediately to new incoming transactions</td><td><b>A — Slow feedback</b></td><td>BGD tabhi seekhta hai jab full scan poora ho; ek new fraud pattern ko reflect hone mein pura epoch lag jayega.</td></tr>
-    <tr><td>3. A dataset with 10 million identical ad impressions</td><td><b>C — Redundant work</b></td><td>Identical samples identical gradients dete hain; unhe 10 million baar compute karke average karna pure waste hai.</td></tr>
+    <tr><td>1. A recommendation model trained on 500 GB of user-item logs</td><td><b>B — Memory and I/O pressure</b></td><td>500 GB doesn't fit in RAM; every epoch has to re-read the whole dataset from disk.</td></tr>
+    <tr><td>2. A fraud detection system that needs to adapt immediately to new incoming transactions</td><td><b>A — Slow feedback</b></td><td>BGD only learns once a full scan completes; a new fraud pattern takes an entire epoch to show up.</td></tr>
+    <tr><td>3. A dataset with 10 million identical ad impressions</td><td><b>C — Redundant work</b></td><td>Identical samples give identical gradients; computing and averaging them 10 million times is pure waste.</td></tr>
     </tbody></table></div>
   </div>
 </div>
@@ -97,56 +97,56 @@
 <h2 id="s2"><span class="h2-num">2</span>Stochastic Gradient Descent (SGD)</h2>
 <div class="box hook">
   <div class="box-title">? Think &amp; Discuss</div>
-  <p style="margin:0">Full gradient compute karna mehnga hai. <b>Sabse chhota</b> amount of data kitna hai jo abhi bhi $\boldsymbol\theta$ ko move karne ki direction de sake? <b>Ek single sample.</b> Aur wo choice turant ek naya danger create kar deti hai — <b>noise</b>.</p>
+  <p style="margin:0">Computing the full gradient is expensive. What is the <b>smallest</b> amount of data that could still give a direction to move $\boldsymbol\theta$ in? <b>A single sample.</b> And that choice immediately creates a new danger — <b>noise</b>.</p>
 </div>
 
-<p>SGD waiting problem ka answer hai. Poore dataset se ek perfect direction maangne ki jagah, SGD <b>ek randomly chosen example</b> se ek quick direction maangta hai aur turant update kar deta hai.</p>
+<p>SGD is the answer to the waiting problem. Instead of asking the whole dataset for one perfect direction, SGD asks <b>one randomly chosen example</b> for a quick direction and updates immediately.</p>
 
 <div class="box def">
   <div class="box-title">Analogy</div>
-  <p style="margin:0">Batch GD koi bhi decision lene se pehle <b>poori class</b> ka poll leta hai. SGD <b>ek random student</b> se poochta hai, uske answer par turant act karta hai, phir agle se poochta hai. Koi bhi single answer galat ho sakta hai, par decisions full roll call ke baad ke bajaye <b>instantly</b> hote hain.</p>
+  <p style="margin:0">Batch GD polls the <b>entire class</b> before making any decision. SGD asks <b>one random student</b>, acts on their answer immediately, then asks the next. Any single answer might be off, but decisions happen <b>instantly</b> instead of after a full roll call.</p>
 </div>
 
 <h3>Core intuition</h3>
-<p>Har training example $\boldsymbol\theta$ ko kaise move karna chahiye iske baare mein ek <b>chhoti si opinion</b> deta hai. Ek single opinion biased ho sakti hai, par agar randomly select ki jaye, to bohot saari opinions <b>full-data direction ki taraf average</b> ho jaati hain. <b>SGD loss function nahi badalta</b> — wo sirf yeh badalta hai ki hum har update se pehle gradient ko kaise <b>estimate</b> karte hain.</p>
+<p>Each training example offers a <b>small opinion</b> about how $\boldsymbol\theta$ should move. A single opinion may be biased, but if selected randomly, many opinions <b>average towards the full-data direction</b>. <b>SGD does not change the loss function</b> — it only changes how we <b>estimate</b> the gradient before each update.</p>
 
 <div class="formula"><span class="flabel">The stochastic update</span>
 $$i_t \sim \text{Uniform}\{1, 2, \dots, m\}, \qquad \mathbf g_t = \nabla J_{i_t}(\boldsymbol\theta_t), \qquad \boldsymbol\theta_{t+1} = \boldsymbol\theta_t - \alpha\,\mathbf g_t$$</div>
 <ul>
-  <li>$J_{i_t}$ — iteration $t$ par selected training example ka loss</li>
-  <li>$\nabla J_{i_t}$ — us example ke liye gradient (vector of loss slopes)</li>
-  <li>$\boldsymbol\theta_t$ — current parameter vector jab gradient evaluate hota hai</li>
-  <li>$\mathbf g_t = \nabla J_{i_t}(\boldsymbol\theta_t)$ — selected example ka gradient, <b>current parameters</b> par compute kiya gaya</li>
+  <li>$J_{i_t}$ — the loss of the training example selected at iteration $t$</li>
+  <li>$\nabla J_{i_t}$ — the gradient for that example (a vector of loss slopes)</li>
+  <li>$\boldsymbol\theta_t$ — the current parameter vector at which the gradient is evaluated</li>
+  <li>$\mathbf g_t = \nabla J_{i_t}(\boldsymbol\theta_t)$ — the selected example's gradient, computed at the <b>current parameters</b></li>
 </ul>
 
 <div class="box insight">
-  <div class="box-title">★ Key Insight — sabse bada misconception</div>
-  <p style="margin:0">SGD <b>sirf ek sample par forever</b> train nahi kar raha! <b>Ek update</b> ek sample use karti hai, par <b>ek epoch</b> har sample use karta hai. Agar $m = 1000$, to ek SGD epoch mein <b>1000 updates</b> hote hain.<br>
-  $E$ full epochs ke baad SGD ne total <b>$E \times m$ updates</b> kiye hain — compare karo Batch GD ke mere <b>$E$ updates</b> se, utne hi $E$ epochs mein.</p>
+  <div class="box-title">★ Key Insight — the biggest misconception</div>
+  <p style="margin:0">SGD is <b>not</b> training on just one sample forever! <b>One update</b> uses one sample, but <b>one epoch</b> uses every sample. If $m = 1000$, one SGD epoch contains <b>1000 updates</b>.<br>
+  After $E$ full epochs SGD has made <b>$E \times m$ updates</b> in total — compare that to Batch GD's mere <b>$E$ updates</b> over the same $E$ epochs.</p>
 </div>
 
 <h3>Complete SGD workflow</h3>
 <ol>
-  <li><b>Initialize $\boldsymbol\theta$.</b> Learning rate $\alpha$ aur number of epochs choose karo.</li>
-  <li>Har epoch ke start par, training examples ko <b>shuffle</b> karo.</li>
-  <li>Samples ko shuffled order mein <b>ek-ek karke visit</b> karo.</li>
-  <li>Har sample ke liye prediction, sample loss, sample gradient compute karo, aur <b>turant $\boldsymbol\theta$ update</b> karo.</li>
-  <li>Multiple epochs ke liye repeat karo, saath-saath training (ya validation) loss trend track karte hue.</li>
+  <li><b>Initialize $\boldsymbol\theta$.</b> Choose the learning rate $\alpha$ and the number of epochs.</li>
+  <li>At the start of each epoch, <b>shuffle</b> the training examples.</li>
+  <li><b>Visit the samples one by one</b> in the shuffled order.</li>
+  <li>For each sample compute the prediction, sample loss and sample gradient, and <b>update $\boldsymbol\theta$ immediately</b>.</li>
+  <li>Repeat for multiple epochs, tracking the training (or validation) loss trend as you go.</li>
 </ol>
 
 <div class="box danger">
   <div class="box-title">△ Warning — SHUFFLING</div>
-  <p style="margin:0">Real datasets often <b>ordered</b> hote hain (date ke hisaab se, class label ke hisaab se, region ke hisaab se). Shuffling ke bina, consecutive SGD updates <b>true learning signal ki jagah ordering pattern</b> ko follow kar sakti hain. Randomization SGD ko biased updates se <b>protect</b> karta hai!</p>
+  <p style="margin:0">Real datasets are often <b>ordered</b> (by date, by class label, by region). Without shuffling, consecutive SGD updates can follow <b>the ordering pattern instead of the true learning signal</b>. Randomisation is what protects SGD from biased updates!</p>
 </div>
 
 <h3>Effect of learning rate &amp; noisy gradients</h3>
 <div class="grid g2">
   <div class="box def" style="margin:0"><div class="box-title">Small $\alpha$</div><p style="margin:0">Safe but slow.</p></div>
-  <div class="box danger" style="margin:0"><div class="box-title">Large $\alpha$</div><p style="margin:0">Dangerous; ek noisy gradient ek <b>huge jump</b> cause kar sakta hai.</p></div>
-  <div class="box warn" style="margin:0"><div class="box-title">Constant $\alpha$</div><p style="margin:0">Implement karna simple, par $\boldsymbol\theta$ optimum ke paas <b>bounce karta reh sakta hai</b> — settle nahi hota.</p></div>
-  <div class="box takeaway" style="margin:0"><div class="box-title">Decreasing $\alpha$</div><p style="margin:0">Shuru mein bade steps se explore karo, baad mein chhote steps se settle karo. <em>(Learning-rate schedules Deep Learning course mein detail mein.)</em></p></div>
+  <div class="box danger" style="margin:0"><div class="box-title">Large $\alpha$</div><p style="margin:0">Dangerous; one noisy gradient can cause a <b>huge jump</b>.</p></div>
+  <div class="box warn" style="margin:0"><div class="box-title">Constant $\alpha$</div><p style="margin:0">Simple to implement, but $\boldsymbol\theta$ may <b>keep bouncing</b> near the optimum instead of settling into it.</p></div>
+  <div class="box takeaway" style="margin:0"><div class="box-title">Decreasing $\alpha$</div><p style="margin:0">Explore with larger steps early, settle with smaller steps later. <em>(Learning-rate schedules are covered in depth in the Deep Learning course.)</em></p></div>
 </div>
-<p><b>Note:</b> ek single SGD step <b>temporarily full training loss badha sakta hai</b>, kyunki wo ek sample ko follow karta hai. Useful behavior hai <b>many random updates par downward trend</b>.</p>
+<p><b>Note:</b> a single SGD step <b>may temporarily increase the full training loss</b>, because it follows one sample. The useful behaviour is the <b>downward trend over many random updates</b>.</p>
 
 <h3>Misconceptions corrected ⭐</h3>
 <div class="tbl-wrap">
@@ -175,7 +175,7 @@ $$i_t \sim \text{Uniform}\{1, 2, \dots, m\}, \qquad \mathbf g_t = \nabla J_{i_t}
 
 <!-- =========================== -->
 <h2 id="s3"><span class="h2-num">3</span>Mathematical Comparison: Batch GD vs SGD</h2>
-<p>Key idea simple hai: <b>same objective, different gradient estimator.</b></p>
+<p>The key idea is simple: <b>same objective, different gradient estimator.</b></p>
 
 <div class="tbl-wrap">
 <table>
@@ -194,12 +194,12 @@ $$i_t \sim \text{Uniform}\{1, 2, \dots, m\}, \qquad \mathbf g_t = \nabla J_{i_t}
 
 <div class="box insight">
   <div class="box-title">★ Why SGD gradients are noisy</div>
-  <p style="margin:0">Sample $i$ ka gradient contribution "sample gradient" hai. Full gradient in saare contributions ka <b>average</b> hai. SGD randomly ek contribution select karta hai, to selected gradient ek <b>random variable</b> hai. Wo <b>unbiased</b> hai (bohot random choices par uski average direction full-gradient direction ke barabar hai), par ek selected sample us average se <b>bohot door</b> ho sakta hai. Outliers, class imbalance aur rare patterns is variance ko badha dete hain, jisse <b>zig-zag path</b> banta hai.</p>
+  <p style="margin:0">Sample $i$'s gradient contribution is its "sample gradient". The full gradient is the <b>average</b> of all these contributions. SGD randomly selects one contribution, so the selected gradient is a <b>random variable</b>. It is <b>unbiased</b> (its average direction over many random choices equals the full-gradient direction), but one selected sample can still be far from that average. Outliers, class imbalance and rare patterns increase this variance, producing the zig-zag path.</p>
 </div>
 
 <div class="box insight">
   <div class="box-title">★ Why noise can sometimes HELP</div>
-  <p style="margin:0">Neural networks jaise <b>non-convex</b> models mein, optimization shallow local minima mein atak sakta hai. SGD ki randomness optimizer ko un flat regions se <b>bounce out</b> karne mein help kar sakti hai. However, bohot zyada noise convergence ko slow ya prevent bhi kar sakta hai — learning rate aur batch size carefully choose karne padte hain.</p>
+  <p style="margin:0">In <b>non-convex</b> models like neural networks, optimisation can get stuck in shallow local minima. SGD's randomness can help the optimiser <b>bounce out</b> of those flat regions. However, too much noise can also slow or prevent convergence — the learning rate and batch size have to be chosen carefully.</p>
 </div>
 
 <!-- =========================== -->
@@ -225,14 +225,14 @@ $$i_t \sim \text{Uniform}\{1, 2, \dots, m\}, \qquad \mathbf g_t = \nabla J_{i_t}
   <text x="26" y="170" font-size="12" font-weight="700" transform="rotate(-90 26 170)" text-anchor="middle" style="fill:var(--text-2)">θ₁</text>
   <text x="320" y="292" text-anchor="middle" font-size="12" font-weight="700" style="fill:var(--text-2)">θ₀</text>
 </svg>
-<figcaption>Dono paths <b>same optimum</b> ki taraf ja rahe hain. Har arrow $\boldsymbol\theta$ ka ek real step hai.</figcaption>
+<figcaption>Both paths are heading towards the <b>same optimum</b>. Every arrow is one real step of $\boldsymbol\theta$.</figcaption>
 </figure>
 
 <ul>
-  <li><b>BGD convergence path:</b> center ki taraf smooth arrows. Full gradients stable, averaged directions dete hain.</li>
-  <li><b>SGD zig-zag path:</b> arrows left-right jump karte hain par inward trend karte hain. Single samples noisy directions produce karte hain.</li>
-  <li><b>Loss vs epoch:</b> BGD ki curve smooth hai; SGD ki bumpy downward trend hai.</li>
-  <li><b>Parameter-plane view:</b> upar ka figure literally $\theta_0$-$\theta_1$ plane hai.</li>
+  <li><b>BGD convergence path:</b> smooth arrows towards the centre. Full gradients give stable, averaged directions.</li>
+  <li><b>SGD zig-zag path:</b> arrows jump left and right while trending inward. Single samples produce noisy directions.</li>
+  <li><b>Loss vs epoch:</b> BGD has a smooth curve; SGD has a bumpy downward trend.</li>
+  <li><b>Parameter-plane view:</b> the figure above is literally the $\theta_0$-$\theta_1$ plane.</li>
 </ul>
 
 <figure>
@@ -250,24 +250,24 @@ $$i_t \sim \text{Uniform}\{1, 2, \dots, m\}, \qquad \mathbf g_t = \nabla J_{i_t}
   <text x="330" y="60" font-size="12.5" font-weight="800" fill="#ef4444">SGD</text>
   <text x="330" y="76" font-size="10.5" fill="#ef4444">m pts/epoch</text>
 </svg>
-<figcaption>BGD ko per epoch sirf <b>ek</b> x-axis step chahiye. SGD ko <b>bohot</b> steps chahiye — har iteration ek — aur har step noisy hai, phir bhi dono curves same low-loss region mein settle ho jaati hain. <b>SGD ko uske trend se judge karo, kisi ek point se nahi.</b></figcaption>
+<figcaption>BGD needs only <b>one</b> x-axis step per epoch. SGD needs <b>many</b> — one per iteration — and each step is noisy, yet both curves settle into the same low-loss region. <b>Judge SGD by its trend, not by any single point.</b></figcaption>
 </figure>
 
 <div class="box def">
   <div class="box-title">? Think &amp; Discuss — answers</div>
   <ol style="margin:0">
-    <li><b>Batch GD ke arrows parameter-plane mein wildly direction kyun nahi badalte?</b><br>
-    Kyunki har arrow saare $m$ samples ka <b>average</b> hai. Individual samples ka noise average lene se cancel ho jaata hai, to consecutive gradients ek jaise hote hain aur path smooth rehta hai.</li>
-    <li><b>Kya ek "bad-looking" SGD step overall training ke liye useful ho sakta hai?</b><br>
-    <b>Haan.</b> Do wajah se: (i) us step ne ek real sample ki information incorporate ki — full loss badh sakti hai par $\boldsymbol\theta$ ek underrepresented direction mein move hua; (ii) non-convex problems mein wahi jhatka optimizer ko shallow local minimum se bahar nikaal sakta hai.</li>
-    <li><b>Do training runs ki speed compare karne ke liye sabse fair x-axis kya hai — epochs, iterations ya wall-clock time?</b><br>
-    <b>Wall-clock time.</b> Epochs BGD ko unfairly flatter karte hain (1 epoch mein 1 update dikhta hai par cost $m$ samples ki hai). Iterations SGD ko unfairly flatter karte hain (1 iteration sasti hai). Sirf wall-clock time actual computational cost capture karta hai, jo practically matter karti hai.</li>
+    <li><b>Why don't Batch GD's arrows change direction wildly in the parameter plane?</b><br>
+    Because every arrow is the <b>average</b> of all $m$ samples. Individual-sample noise cancels out in the averaging, so consecutive gradients look alike and the path stays smooth.</li>
+    <li><b>Can one "bad-looking" SGD step still be useful for training overall?</b><br>
+    <b>Yes.</b> For two reasons: (i) that step incorporated information from a real sample — the full loss may rise, but $\boldsymbol\theta$ moved in an underrepresented direction; (ii) in non-convex problems, that very jolt can knock the optimiser out of a shallow local minimum.</li>
+    <li><b>What is the fairest x-axis for comparing the speed of two training runs — epochs, iterations, or wall-clock time?</b><br>
+    <b>Wall-clock time.</b> Epochs unfairly flatter BGD (one epoch shows one update but costs $m$ samples). Iterations unfairly flatter SGD (one iteration is cheap). Only wall-clock time captures the actual computational cost, which is what matters in practice.</li>
   </ol>
 </div>
 
 <!-- =========================== -->
 <h2 id="s5"><span class="h2-num">5</span>Dry Run — One Epoch of BGD and SGD ⭐</h2>
-<p>Ek tiny linear regression dataset par dekhte hain ki $\boldsymbol\theta$ <b>kab</b> actually badalta hai. Initial values: $\theta_0 = 0$, $\theta_1 = 0$, $\alpha = 0.1$.</p>
+<p>Let's use a tiny linear regression dataset to see <b>when</b> $\boldsymbol\theta$ actually changes. Initial values: $\theta_0 = 0$, $\theta_1 = 0$, $\alpha = 0.1$.</p>
 
 <div class="tbl-wrap" style="max-width:280px">
 <table class="compact">
@@ -292,7 +292,7 @@ $$i_t \sim \text{Uniform}\{1, 2, \dots, m\}, \qquad \mathbf g_t = \nabla J_{i_t}
     <p>$J_i = \frac12(\theta_0 + \theta_1x_i - y_i)^2$. Let $e_i = \theta_0 + \theta_1x_i - y_i$.</p>
     $$\frac{\partial J_i}{\partial\theta_0} = \tfrac12 \cdot 2e_i \cdot \frac{\partial e_i}{\partial\theta_0} = e_i \cdot (1) = e_i$$
     $$\frac{\partial J_i}{\partial\theta_1} = \tfrac12 \cdot 2e_i \cdot \frac{\partial e_i}{\partial\theta_1} = e_i \cdot (x_i) = e_i x_i$$
-    <p style="margin-bottom:0">Yahi wajah hai ki loss mein $\frac12$ rakha jaata hai — wo squaring se aane wale 2 ko cancel kar deta hai, formulas clean rehte hain.</p>
+    <p style="margin-bottom:0">This is why the $\frac12$ is put in the loss — it cancels the 2 that comes from squaring, keeping the formulas clean.</p>
   </div>
 </details>
 
@@ -316,7 +316,7 @@ $$i_t \sim \text{Uniform}\{1, 2, \dots, m\}, \qquad \mathbf g_t = \nabla J_{i_t}
     $$\boldsymbol\theta = \begin{bmatrix}0\\0\end{bmatrix} - 0.1\begin{bmatrix}-5\\ -15\end{bmatrix} = \begin{bmatrix}\mathbf{0.5}\\ \mathbf{1.5}\end{bmatrix}$$
     <div class="box def" style="margin-bottom:0">
       <div class="box-title">? Quick check — Did $\boldsymbol\theta$ change after Sample 1 was processed?</div>
-      <p style="margin:0"><b>No.</b> Poore table mein <b>Prediction column har row mein 0 hai</b> — yeh directly prove karta hai ki $\boldsymbol\theta$ table process hone ke dauraan constant raha. Gradients accumulate hote rahe, aur update tabhi hua jab saare 4 samples dekh liye gaye.</p>
+      <p style="margin:0"><b>No.</b> Across the whole table the <b>Prediction column is 0 in every row</b> — which directly proves that $\boldsymbol\theta$ stayed constant while the table was being processed. The gradients kept accumulating, and the update only happened after all 4 samples had been seen.</p>
     </div>
   </div>
 </div>
@@ -355,9 +355,9 @@ $$i_t \sim \text{Uniform}\{1, 2, \dots, m\}, \qquad \mathbf g_t = \nabla J_{i_t}
 
     <div class="box insight" style="margin-bottom:0">
       <div class="box-title">? Think &amp; Discuss — why did the error sign flip?</div>
-      <p style="margin:0">Samples 2 aur 4 (Steps 1–2) ne <b>negative</b> errors diye ($-4.000$, $-4.400$), par Sample 1 (Step 3) ne <b>positive</b> error diya ($+1.400$) — jabki saare chaar points exactly line $y = 2x$ par hain!</p>
-      <p style="margin:.5rem 0 0"><b>Reason:</b> Steps 1–2 ke baad $\theta_1$ <b>0.8 se 2.56</b> par pahuch gaya tha — true slope 2 se kaafi <b>upar</b>. Model ab <b>over-predict</b> kar raha tha. Isliye Step 3 mein $\hat y = 3.4$ aaya jabki actual $y = 2$ tha → positive error.</p>
-      <p style="margin:.5rem 0 0"><b>Aur yahi SGD ki asli tasveer hai:</b> kyunki har update sirf ek sample ko dekhti hai, optimizer target ke aage-peeche <b>oscillate</b> karta hai. Sample 4 ka bada gradient ($-17.6$) ne $\theta_1$ ko overshoot karwa diya; agle do samples ne use wapas neeche kheencha ($2.56 \to 2.42 \to 1.83$). <b>Batch GD mein aisa nahi hota</b> — wahan ek epoch mein sirf ek averaged, conservative step hota hai.</p>
+      <p style="margin:0">Samples 2 and 4 (Steps 1–2) gave <b>negative</b> errors ($-4.000$, $-4.400$), but Sample 1 (Step 3) gave a <b>positive</b> error ($+1.400$) — even though all four points lie exactly on the line $y = 2x$!</p>
+      <p style="margin:.5rem 0 0"><b>Reason:</b> after Steps 1–2, $\theta_1$ had moved from <b>0.8 to 2.56</b> — well <b>above</b> the true slope of 2. The model was now <b>over-predicting</b>. So in Step 3, $\hat y = 3.4$ while the actual $y = 2$ → a positive error.</p>
+      <p style="margin:.5rem 0 0"><b>And this is the real picture of SGD:</b> because every update looks at only one sample, the optimiser <b>oscillates</b> back and forth around the target. Sample 4's large gradient ($-17.6$) made $\theta_1$ overshoot; the next two samples pulled it back down ($2.56 \to 2.42 \to 1.83$). <b>This does not happen in Batch GD</b> — there, one epoch gives just one averaged, conservative step.</p>
     </div>
   </div>
 </div>
@@ -407,11 +407,11 @@ return theta</pre>
         theta = theta - alpha * grad_J_i(theta)   <span class="tok-com"># A</span></pre>
     <div class="box danger" style="margin-bottom:0">
       <div class="box-title">★ Implementation warning</div>
-      <p style="margin:0">SGD mein, full sample loop ke through gradients <b>accumulate mat karo</b> update se pehle. Wo silently code ko wapas <b>Batch GD</b> bana deta hai.</p>
+      <p style="margin:0">In SGD, <b>do not accumulate</b> gradients through the full sample loop before updating. That silently turns the code back into <b>Batch GD</b>.</p>
     </div>
     <div class="box def" style="margin-bottom:0">
       <div class="box-title">? Spot the Difference — exactly ONE line moves</div>
-      <p style="margin:0">Line jo move karti hai wo hai <b>$\boldsymbol\theta$ update line</b>. Batch GD mein wo sample loop ke <b>bahar</b> hai (loop khatam hone ke baad, ek baar). SGD mein wo sample loop ke <b>andar</b> chali jaati hai (har sample ke baad). Aur ek extra line add hoti hai — <code>shuffle(D)</code>.</p>
+      <p style="margin:0">The line that moves is the <b>$\boldsymbol\theta$ update line</b>. In Batch GD it sits <b>outside</b> the sample loop (once, after the loop finishes). In SGD it moves <b>inside</b> the sample loop (after every sample). And one extra line gets added — <code>shuffle(D)</code>.</p>
     </div>
   </div>
 </div>
@@ -419,57 +419,57 @@ return theta</pre>
 <!-- =========================== -->
 <h2 id="s7"><span class="h2-num">7</span>Advantages of SGD</h2>
 <ul>
-  <li><b>Faster first update:</b> Model $m$ samples ke baad nahi, <b>ek</b> sample ke baad badal jaata hai. Learning turant shuru hoti hai.</li>
-  <li><b>Lower memory usage:</b> Ek update ke liye sirf ek sample, current $\boldsymbol\theta$, aur ek gradient chahiye.</li>
-  <li><b>Better scalability:</b> Per-update cost $m$ ke saath grow nahi karti. Jab $m$ huge ho to yeh useful hai.</li>
-  <li><b>Suitable for massive datasets:</b> Model improve karna shuru karne ke liye ek approximate direction often kaafi hai; exact full gradient ka wait karna wasteful ho sakta hai.</li>
-  <li><b>Better exploration:</b> Non-convex problems mein noisy gradients flat ya shallow regions mein atakne se bachne mein help kar sakte hain.</li>
+  <li><b>Faster first update:</b> the model changes after <b>one</b> sample instead of after $m$. Learning begins immediately.</li>
+  <li><b>Lower memory usage:</b> an update only needs one sample, the current $\boldsymbol\theta$, and one gradient.</li>
+  <li><b>Better scalability:</b> the per-update cost does not grow with $m$. That is useful when $m$ is huge.</li>
+  <li><b>Suitable for massive datasets:</b> an approximate direction is often enough to start improving the model; waiting for the exact full gradient can be wasteful.</li>
+  <li><b>Better exploration:</b> in non-convex problems, noisy gradients can help avoid getting stuck in flat or shallow regions.</li>
 </ul>
 
 <h2 id="s8"><span class="h2-num">8</span>Limitations of SGD</h2>
 <ul>
-  <li><b>Oscillating convergence:</b> Alag samples $\boldsymbol\theta$ ko conflicting directions mein push kar sakte hain.</li>
-  <li><b>Noisy updates:</b> Ek outlier sample ek <b>large gradient jump</b> create kar sakta hai.</li>
-  <li><b>Sensitive learning rate:</b> $\alpha$ step size aur $\boldsymbol\theta$ par noise ka asar dono control karta hai.</li>
-  <li><b>Many updates needed:</b> Har update sasti hai par kam informative.</li>
-  <li><b>Difficult stopping:</b> Iteration-level loss rapidly fluctuate karti hai — "converged" decide karna mushkil.</li>
-  <li><b>Variance across runs:</b> Alag shuffles alag paths produce kar sakte hain.</li>
+  <li><b>Oscillating convergence:</b> different samples can push $\boldsymbol\theta$ in conflicting directions.</li>
+  <li><b>Noisy updates:</b> one outlier sample can create a <b>large gradient jump</b>.</li>
+  <li><b>Sensitive learning rate:</b> $\alpha$ controls both the step size and how much the noise affects $\boldsymbol\theta$.</li>
+  <li><b>Many updates needed:</b> each update is cheap but less informative.</li>
+  <li><b>Difficult stopping:</b> iteration-level loss fluctuates rapidly — deciding "converged" is hard.</li>
+  <li><b>Variance across runs:</b> different shuffles can produce different paths.</li>
 </ul>
 
 <!-- =========================== -->
 <h2 id="s9"><span class="h2-num">9</span>Motivation for Mini-Batch Gradient Descent</h2>
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">SGD ne waiting problem solve kar di par noisy movement create kar di. Agar <b>ek</b> sample bohot noisy hai, aur <b>saare</b> samples ek saath bohot expensive hain — to <b>middle ground</b> kya hai? Kya hum noise cut kar sakte hain bina har baar poora dataset scan kiye?</p>
+  <p style="margin:0">SGD solved the waiting problem but created noisy movement. If <b>one</b> sample is too noisy and <b>all</b> samples together are too expensive — what is the <b>middle ground</b>? Can we cut the noise <i>without</i> going back to scanning the whole dataset every time?</p>
 </div>
-<p><b>Natural answer:</b> samples ke ek <b>chhote group</b> ka average lo. Yahi Mini-Batch Gradient Descent hai.</p>
+<p><b>The natural answer:</b> average a <b>small group</b> of samples. That is Mini-Batch Gradient Descent.</p>
 <div class="box def">
   <div class="box-title">Analogy</div>
-  <p style="margin:0">Poori class ya ek student se poochne ki jagah, ek <b>chhote group</b> se poocho. Group ka answer ek insaan se <b>kam noisy</b> hai, par sabse poochne se <b>bohot faster</b> hai.</p>
+  <p style="margin:0">Instead of asking the whole class or one student, ask a <b>small group</b>. The group's answer is <b>less noisy</b> than one person's, but <b>much faster</b> than asking everyone.</p>
 </div>
 
 <!-- =========================== -->
 <h2 id="s10"><span class="h2-num">10</span>Mini-Batch Gradient Descent</h2>
-<p>Mini-batch GD shuffled dataset ko chhote groups mein todta hai jinhe <b>mini-batches</b> kehte hain. Har update ek mini-batch (size $b$) par <b>average gradient</b> use karti hai.</p>
-<p>Batch size <b>compromise dial</b> hai: $b = 1$ SGD ki tarah behave karta hai, $b = m$ Batch GD ki tarah, aur beech ki values speed ko steadier direction ke liye trade karti hain.</p>
+<p>Mini-batch GD splits the shuffled dataset into small groups called <b>mini-batches</b>. Each update uses the <b>average gradient</b> over one mini-batch of size $b$.</p>
+<p>The batch size is the <b>compromise dial</b>: $b = 1$ behaves like SGD, $b = m$ behaves like Batch GD, and values in between trade some speed for a steadier direction.</p>
 
 <div class="formula"><span class="flabel">Updates per epoch</span>$$\left\lceil \frac{m}{b} \right\rceil$$</div>
 
 <h4>Workflow</h4>
 <ol>
-  <li>Har epoch ke start par dataset shuffle karo.</li>
-  <li>Use size $b$ ke mini-batches mein split karo.</li>
-  <li>Pehle mini-batch par average gradient compute karo aur $\boldsymbol\theta$ <b>immediately</b> update karo.</li>
-  <li>Continue karo jab tak har sample ek baar use na ho jaaye.</li>
-  <li>Multiple epochs ke liye repeat karo.</li>
+  <li>Shuffle the dataset at the start of each epoch.</li>
+  <li>Split it into mini-batches of size $b$.</li>
+  <li>Compute the average gradient over the first mini-batch and update $\boldsymbol\theta$ <b>immediately</b>.</li>
+  <li>Continue until every sample has been used once.</li>
+  <li>Repeat for multiple epochs.</li>
 </ol>
 
 <h4>Practical points</h4>
 <ul>
-  <li><b>Typical batch sizes:</b> 16, 32, 64, 128, 256 — common choices hain, compulsory nahi.</li>
-  <li><b>Why powers of two:</b> GPU aur hardware kernels in sizes ko sabse efficiently handle karte hain; maths khud demand nahi karti.</li>
-  <li><b>GPU utilization:</b> ek single sample GPU ke parallel cores ko <b>under-use</b> karta hai; ek mini-batch use busy rakhne ke liye kaafi parallel work deta hai.</li>
-  <li><b>Memory efficiency:</b> ek update ke liye sirf <b>current mini-batch</b> ko memory mein rakhna padta hai — poora dataset nahi.</li>
+  <li><b>Typical batch sizes:</b> 16, 32, 64, 128, 256 — these are common choices, not requirements.</li>
+  <li><b>Why powers of two:</b> GPU and hardware kernels handle these sizes most efficiently; the maths itself does not require them.</li>
+  <li><b>GPU utilisation:</b> a single sample <b>under-uses</b> a GPU's parallel cores; a mini-batch gives it enough parallel work to stay busy.</li>
+  <li><b>Memory efficiency:</b> only the <b>current mini-batch</b> needs to sit in memory for an update — not the whole dataset.</li>
 </ul>
 
 <h4>Reference · Mini-Batch Gradient Descent</h4>
@@ -530,7 +530,7 @@ return theta</pre>
       <tr><td>Mini-Batch ($b{=}2$)</td><td class="num">2</td><td class="num">$[0.540,\ \mathbf{1.880}]$</td><td><b>Closest to true slope 2</b> — best of both</td></tr>
       <tr><td>SGD</td><td class="num">4</td><td class="num">$[0.504,\ 1.832]$</td><td>Overshot to 2.56 then oscillated back down</td></tr>
       </tbody></table></div>
-      <p style="margin:.6rem 0 0">Update ek-dusre ke aage kam noisy hai SGD se (do gradients average hote hain), par abhi bhi <b>full dataset process hone se pehle</b> ho jaati hai.</p>
+      <p style="margin:.6rem 0 0">The update is less noisy than SGD's (two gradients get averaged), but still happens <b>before the full dataset is processed</b>.</p>
     </div>
   </div>
 </div>
@@ -557,7 +557,7 @@ return theta</pre>
         $$\boldsymbol\theta^{(2)} = \begin{bmatrix}0.467\\ 1.400\end{bmatrix} - 0.1\begin{bmatrix}-1.333\\ -4.000\end{bmatrix} = \begin{bmatrix}\mathbf{0.600}\\ \mathbf{1.800}\end{bmatrix}$$</li>
       <li><span class="sh">Number of mini-batches in the epoch</span>
         $$K = \left\lceil \frac{m}{b} \right\rceil = \left\lceil \frac{4}{3} \right\rceil = \mathbf{2}$$
-        <div class="answer">Last batch mein sirf 1 sample hai — yeh bilkul normal hai. Ceiling function isliye use hota hai: <b>koi bhi leftover sample apna chhota batch banata hai</b>, discard nahi hota.</div></li>
+        <div class="answer">The last batch has only 1 sample — that is perfectly normal. This is exactly why the ceiling function is used: <b>any leftover sample forms its own small batch</b>, rather than being discarded.</div></li>
     </ol>
   </div>
 </div>
@@ -618,7 +618,7 @@ return theta</pre>
 
 <div class="box takeaway">
   <div class="box-title">♦ Takeaway</div>
-  <p style="margin:0">Batch GD accurate hai par update karne mein slow; SGD update karne mein fast hai par noisy; <b>Mini-Batch GD practical compromise hai jo actually zyadatar real systems use karte hain.</b></p>
+  <p style="margin:0">Batch GD is accurate but slow to update; SGD is fast to update but noisy; <b>Mini-Batch GD is the practical compromise that most real systems actually use.</b></p>
 </div>
 
 <div class="solved">
@@ -628,9 +628,9 @@ return theta</pre>
   <table>
   <thead><tr><th>Statement</th><th>T/F</th><th>Justification</th></tr></thead>
   <tbody>
-  <tr><td>(a) The loss is guaranteed to decrease after every single SGD update</td><td><span class="pill r">F</span></td><td>Update ek sample ko follow karti hai, poore dataset ko nahi. Full training loss <b>temporarily badh sakti hai</b>. Sirf <b>trend</b> downward hona chahiye.</td></tr>
-  <tr><td>(b) Mini-Batch GD with batch size $b = 1$ is mathematically identical to SGD</td><td><span class="pill g">T</span></td><td>Ek sample ka average wahi sample hai. $b=1$ par mini-batch formula exactly SGD update ban jaata hai.</td></tr>
-  <tr><td>(c) If $m = 1000$ and $b = 100$, one epoch of Mini-Batch GD will perform 1000 updates</td><td><span class="pill r">F</span></td><td>$\lceil m/b\rceil = \lceil 1000/100\rceil = \mathbf{10}$ updates. 1000 <b>SGD</b> ka answer hota. Yeh sabse common confusion hai.</td></tr>
+  <tr><td>(a) The loss is guaranteed to decrease after every single SGD update</td><td><span class="pill r">F</span></td><td>The update follows one sample, not the whole dataset. The full training loss <b>can temporarily increase</b>. Only the <b>trend</b> has to be downward.</td></tr>
+  <tr><td>(b) Mini-Batch GD with batch size $b = 1$ is mathematically identical to SGD</td><td><span class="pill g">T</span></td><td>The average of one sample is that sample. At $b=1$ the mini-batch formula becomes exactly the SGD update.</td></tr>
+  <tr><td>(c) If $m = 1000$ and $b = 100$, one epoch of Mini-Batch GD will perform 1000 updates</td><td><span class="pill r">F</span></td><td>$\lceil m/b\rceil = \lceil 1000/100\rceil = \mathbf{10}$ updates. 1000 would be the <b>SGD</b> answer. This is the most common confusion of the two.</td></tr>
   </tbody></table></div>
   </div>
 </div>
@@ -660,14 +660,14 @@ return theta</pre>
 <table>
 <thead><tr><th>Galti</th><th>Sahi Baat</th></tr></thead>
 <tbody>
-<tr><td>"SGD sirf ek sample use karta hai, baaki data waste ho jaata hai"</td><td>Ek <b>update</b> ek sample use karti hai; ek <b>epoch</b> saare $m$ use karta hai.</td></tr>
+<tr><td>"SGD only uses one sample, so the rest of the data is wasted"</td><td>One <b>update</b> uses one sample; one <b>epoch</b> uses all $m$.</td></tr>
 <tr><td>$m=1000$, $b=100$ → 1000 updates per epoch</td><td>$\lceil m/b\rceil = 10$ updates.</td></tr>
-<tr><td>SGD mein gradients accumulate karke end mein update karna</td><td>Wo code ko silently <b>Batch GD</b> bana deta hai. Update <b>loop ke andar</b> hona chahiye.</td></tr>
-<tr><td>Shuffling skip kar dena</td><td>Ordered data → biased update sequences. Har epoch ke start par shuffle mandatory hai.</td></tr>
-<tr><td>"Loss har SGD step par girni chahiye"</td><td>Noisy step par full loss badh sakti hai. Trend dekho, single point nahi.</td></tr>
-<tr><td>"Zyada updates = faster convergence"</td><td>Har update sasti par kam accurate hai. Wall-clock time aur stability bhi matter karte hain.</td></tr>
-<tr><td>"Stochastic ka matlab parameters random hain"</td><td>Randomness sirf <b>sample selection</b> mein hai; update rule deterministic hai.</td></tr>
-<tr><td>Epoch aur iteration ko interchange karna</td><td>BGD: 1 epoch = 1 iteration. SGD: 1 epoch = $m$ iterations. Mini-Batch: 1 epoch = $\lceil m/b\rceil$ iterations.</td></tr>
+<tr><td>Accumulating gradients in SGD and updating at the end</td><td>That silently turns the code into <b>Batch GD</b>. The update must sit <b>inside</b> the loop.</td></tr>
+<tr><td>Skipping the shuffle</td><td>Ordered data → biased update sequences. Shuffling at the start of each epoch is mandatory.</td></tr>
+<tr><td>"The loss should drop at every SGD step"</td><td>A noisy step can raise the full loss. Look at the trend, not a single point.</td></tr>
+<tr><td>"More updates = faster convergence"</td><td>Each update is cheaper but less accurate. Wall-clock time and stability matter too.</td></tr>
+<tr><td>"Stochastic means the parameters are random"</td><td>The randomness is only in <b>sample selection</b>; the update rule is deterministic.</td></tr>
+<tr><td>Using epoch and iteration interchangeably</td><td>BGD: 1 epoch = 1 iteration. SGD: 1 epoch = $m$ iterations. Mini-Batch: 1 epoch = $\lceil m/b\rceil$ iterations.</td></tr>
 </tbody>
 </table>
 </div>
@@ -685,11 +685,11 @@ return theta</pre>
 <div class="box takeaway">
   <div class="box-title">♦ By the end of this sheet you can…</div>
   <ul style="margin:0">
-    <li>Explain karna ki Batch GD update karne mein bohot wait kyun karta hai aur SGD natural fix kyun hai.</li>
-    <li>SGD aur Mini-Batch GD ka ek epoch <b>by hand</b> perform karna.</li>
-    <li>BGD, SGD aur Mini-Batch ko mathematically aur visually compare karna.</li>
-    <li>Explain karna ki stochastic updates ke liye data shuffle karna critical kyun hai.</li>
-    <li>Small data, massive data, deep learning aur streaming data ke liye suitable method choose karna.</li>
+    <li>Explain why Batch GD waits so long to update, and why SGD is the natural fix.</li>
+    <li>Perform one epoch of SGD and Mini-Batch GD <b>by hand</b>.</li>
+    <li>Compare BGD, SGD and Mini-Batch both mathematically and visually.</li>
+    <li>Explain why shuffling the data is critical for stochastic updates.</li>
+    <li>Choose a suitable method for small data, massive data, deep learning and streaming data.</li>
   </ul>
 </div>
 
@@ -706,7 +706,7 @@ const MCQS = [
   q:'A dataset has $m = 1000$ examples and Mini-Batch GD uses $b = 100$. How many parameter updates happen in one epoch?',
   o:['1', '10', '100', '1000'],
   a:1,
-  e:'<b>B.</b> $\\lceil m/b\\rceil = \\lceil 1000/100\\rceil = 10$. <b>D</b> is the single most common trap — wo <b>SGD</b> ka answer hai ($m$ updates). <b>A</b> is the Batch GD answer. <b>C</b> confuses batch size with update count.' },
+  e:'<b>B.</b> $\\lceil m/b\\rceil = \\lceil 1000/100\\rceil = 10$. <b>D</b> is the single most common trap — that is the <b>SGD</b> answer ($m$ updates). <b>A</b> is the Batch GD answer. <b>C</b> confuses batch size with update count.' },
 
 { d:'hard',
   q:'In the SGD dry run, Samples 2 and 4 gave negative errors but Sample 1 then gave $+1.400$ — even though all four points lie exactly on $y = 2x$. Why?',
@@ -715,13 +715,13 @@ const MCQS = [
      'SGD randomly flips the sign of gradients',
      'The learning rate was negative for that step'],
   a:1,
-  e:'<b>B.</b> Step 2 ke gradient ($-17.6$ on $\\theta_1$) ne $\\theta_1$ ko $0.8 \\to 2.56$ push kar diya — true slope 2 se upar. Ab $\\hat y_1 = 3.4$ vs $y_1 = 2$ ⟹ positive error. Yeh <b>SGD oscillation</b> hai, data ka defect nahi. <b>A</b> false — saare points perfectly linear hain. <b>C</b> and <b>D</b> are invented.' },
+  e:'<b>B.</b> The Step 2 gradient ($-17.6$ on $\\theta_1$) pushed $\\theta_1$ from $0.8 \\to 2.56$ — above the true slope of 2. Now $\\hat y_1 = 3.4$ vs $y_1 = 2$ ⟹ a positive error. This is <b>SGD oscillation</b>, not a defect in the data. <b>A</b> is false — all the points are perfectly linear. <b>C</b> and <b>D</b> are invented.' },
 
 { d:'hard',
   q:'A student writes SGD but accumulates gradients across the whole sample loop before updating $\\boldsymbol\\theta$. What has actually been implemented?',
   o:['Correct SGD', 'Batch Gradient Descent', 'Mini-Batch GD with $b=1$', 'Nothing — the code will crash'],
   a:1,
-  e:'<b>B.</b> Saare $m$ gradients accumulate karke <b>ek</b> update karna — wo literally Batch GD ki definition hai. Sheet explicitly warn karti hai: "do not accumulate gradients through the full sample loop before updating. That silently turns the code back into Batch GD." <b>C</b> is backwards ($b=1$ IS SGD). <b>D</b> false — code chalega, bas galat algorithm hoga.' },
+  e:'<b>B.</b> Accumulating all $m$ gradients and making <b>one</b> update is literally the definition of Batch GD. The sheet warns explicitly: "do not accumulate gradients through the full sample loop before updating. That silently turns the code back into Batch GD." <b>C</b> is backwards ($b=1$ IS SGD). <b>D</b> is false — the code runs, it just implements the wrong algorithm.' },
 
 { d:'med',
   q:'Why is shuffling the dataset at the start of each epoch critical for SGD?',
@@ -730,7 +730,7 @@ const MCQS = [
      'It reduces the memory footprint',
      'It guarantees the loss decreases monotonically'],
   a:1,
-  e:'<b>B.</b> Agar data class-wise sorted hai, to SGD pehle sirf class A dekhega, phir sirf class B — parameters class A ki taraf drift karke phir violently swing karenge. Randomization <b>biased update sequences</b> se bachata hai. <b>A</b> and <b>C</b> are unrelated benefits (shuffling ka cost hai, saving nahi). <b>D</b> false — SGD mein loss monotonic kabhi nahi hoti.' },
+  e:'<b>B.</b> If the data is sorted class-wise, SGD will see only class A first, then only class B — the parameters drift toward class A and then swing violently. Randomization avoids <b>biased update sequences</b>. <b>A</b> and <b>C</b> are unrelated benefits (shuffling costs time, it does not save it). <b>D</b> is false — the loss in SGD is never monotonic.' },
 
 { d:'hard',
   q:'Which is the most defensible x-axis for fairly comparing the training speed of Batch GD and SGD?',
@@ -739,7 +739,7 @@ const MCQS = [
      'Wall-clock time, because epochs flatter Batch GD and iterations flatter SGD — only real time captures actual compute cost',
      'Number of samples seen, because that is identical for both'],
   a:2,
-  e:'<b>C.</b> Ek BGD "epoch" ek update dikhata hai par cost $m$ samples ki hai; ek SGD "iteration" sasti hai par kam informative. Dono axes ek algorithm ko artificially flatter karte hain. <b>Wall-clock time</b> hi actual computational cost reflect karta hai. <b>A</b> and <b>B</b> pick exactly the two biased axes. <b>D</b> is true per epoch but hides the per-update cost difference entirely.' },
+  e:'<b>C.</b> One BGD "epoch" shows one update but costs $m$ samples; one SGD "iteration" is cheap but far less informative. Either axis artificially flatters one algorithm. <b>Wall-clock time</b> is what reflects the actual computational cost. <b>A</b> and <b>B</b> pick exactly the two biased axes. <b>D</b> is true per epoch but hides the per-update cost difference entirely.' },
 
 { d:'hard',
   q:'Mini-Batch GD with $b = 4$ and $m = 10$. What is $K$ (mini-batches per epoch), and what happens to the leftover samples?',
@@ -748,7 +748,7 @@ const MCQS = [
      '$K = 2.5$; fractional batches are allowed',
      '$K = 10$; each sample becomes its own batch'],
   a:1,
-  e:'<b>B.</b> $K = \\lceil 10/4 \\rceil = 3$: batches of 4, 4 and <b>2</b>. Ceiling function ka pura point yehi hai — <b>koi sample discard nahi hota</b>, leftover apna chhota batch banate hain. <b>A</b> loses data (never correct). <b>C</b> is not a valid count. <b>D</b> would be $b=1$, i.e. SGD.' },
+  e:'<b>B.</b> $K = \\lceil 10/4 \\rceil = 3$: batches of 4, 4 and <b>2</b>. That is the whole point of the ceiling function — <b>no sample is discarded</b>, and the leftovers form their own smaller batch. <b>A</b> loses data (never correct). <b>C</b> is not a valid count. <b>D</b> would be $b=1$, i.e. SGD.' },
 
 { d:'med',
   q:'Why are batch sizes usually chosen as powers of two (16, 32, 64, 128, 256)?',
@@ -757,7 +757,7 @@ const MCQS = [
      'Because powers of two guarantee faster convergence',
      'Because $\\lceil m/b\\rceil$ is only defined for powers of two'],
   a:1,
-  e:'<b>B.</b> Sheet: "GPU and hardware kernels often handle these sizes most efficiently; the math itself does not require them." Yeh pura ek <b>hardware</b> optimisation hai. <b>A</b> and <b>D</b> invent a mathematical requirement that does not exist — $b = 37$ perfectly valid hai. <b>C</b> confuses hardware throughput with convergence rate.' },
+  e:'<b>B.</b> Sheet: "GPU and hardware kernels often handle these sizes most efficiently; the math itself does not require them." This is purely a <b>hardware</b> optimisation. <b>A</b> and <b>D</b> invent a mathematical requirement that does not exist — $b = 37$ is perfectly valid. <b>C</b> confuses hardware throughput with convergence rate.' },
 
 { d:'hard',
   q:'"An SGD gradient is unbiased." What exactly does this mean?',
@@ -766,7 +766,7 @@ const MCQS = [
      'SGD never makes an update that increases the loss',
      'The gradient has zero variance'],
   a:1,
-  e:'<b>B.</b> Unbiased = <b>expected value</b> correct hai. Yeh har individual draw ke baare mein kuch nahi kehta — variance bada ho sakta hai, aur outliers/class imbalance use aur badha dete hain. Yahi zig-zag path banata hai. <b>A</b> confuses the expectation with each realisation. <b>C</b> is false (and is a separate misconception). <b>D</b> is the opposite of what makes SGD noisy.' },
+  e:'<b>B.</b> Unbiased means the <b>expected value</b> is correct. That says nothing about any individual draw — the variance can be large, and outliers or class imbalance make it larger still. This is what creates the zig-zag path. <b>A</b> confuses the expectation with each realisation. <b>C</b> is false (and is a separate misconception). <b>D</b> is the opposite of what makes SGD noisy.' },
 
 { d:'hard',
   q:'After one epoch on the dataset $(1,2),(2,4),(3,6),(4,8)$ with $\\alpha=0.1$ starting from $\\boldsymbol\\theta = [0,0]^\\top$, Batch GD gives $\\boldsymbol\\theta = [0.5, 1.5]$. What was the averaged gradient?',
@@ -781,7 +781,7 @@ const MCQS = [
      'Training a deep network on millions of images with GPUs',
      'A dataset where $\\mathbf X^\\top\\mathbf X$ is invertible and $m = 3$ features'],
   a:2,
-  e:'<b>C.</b> Mini-Batch GPU parallelism ke liye <b>best fit</b> hai — ek sample cores ko under-use karta hai, poora dataset memory exceed kar deta hai. Yahi deep learning ka standard hai. <b>A</b> favours Batch GD (exact gradients affordable). <b>B</b> favours SGD (online, one-at-a-time). <b>D</b> favours the closed-form OLS solution entirely.' },
+  e:'<b>C.</b> Mini-Batch is the <b>best fit</b> for GPU parallelism — a single sample under-uses the cores, while the full dataset exceeds memory. This is the standard in deep learning. <b>A</b> favours Batch GD (exact gradients are affordable). <b>B</b> favours SGD (online, one at a time). <b>D</b> favours the closed-form OLS solution entirely.' },
 ];
 </script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>

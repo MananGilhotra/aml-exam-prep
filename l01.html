@@ -28,7 +28,7 @@
 
 <div class="box hinglish">
   <div class="box-title">⚡ Ek Line Mein</div>
-  <p style="margin:0">Code likhne se <b>pehle</b> chaar cheezein: (1) vague business request ko <b>quantified ML objective</b> banao, (2) data source karo aur uska <b>structure + feature type</b> pehchano, (3) EDA se data ki <b>bimari diagnose</b> karo, (4) preprocessing se ek <b>clean numerical matrix</b> banao. Algorithm baad mein aata hai — hamesha.</p>
+  <p style="margin:0">Four things <b>before</b> you write any code: (1) turn the vague business request into a <b>quantified ML objective</b>, (2) source the data and identify its <b>structure + feature types</b>, (3) use EDA to diagnose what is wrong with the data, (4) use preprocessing to produce a <b>clean numerical matrix</b>. The algorithm comes later — hamesha.</p>
 </div>
 
 <div class="tbl-wrap">
@@ -48,21 +48,21 @@
 
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">Tumhari music streaming company kehti hai: <em>"Users leaving hain! Isko fix karne ke liye ek AI banao!"</em> Agar tum abhi laptop kholke linear regression code karna shuru kar do, to tum <b>almost guaranteed fail</b> kyun ho?</p>
+  <p style="margin:0">Your music streaming company says: <em>"Users are leaving! Build an AI to fix it!"</em> If you open your laptop right now and start coding a linear regression, why are you <b>almost guaranteed to fail</b>?</p>
 </div>
 
 <h3>The five-step blueprint</h3>
-<p>Ek algorithm guess nahi kar sakta ki tumhari business ko kya chahiye. Phase 1 ek <b>messy human problem</b> ko <b>explicit mathematical framework</b> mein translate karta hai — paanch steps se:</p>
+<p>An algorithm cannot guess what your business needs. Phase 1 translates a <b>messy human problem</b> into an <b>explicit mathematical framework</b> — in five steps:</p>
 
 <div class="tbl-wrap">
 <table>
 <thead><tr><th>Step</th><th>What You Do</th><th>Example</th></tr></thead>
 <tbody>
-<tr><td><b>1. Understand the Problem</b></td><td>Exact friction point isolate karo</td><td>Users canceling premium subscriptions = <b>churn</b></td></tr>
-<tr><td><b>2. Set Quantifiable Goals</b></td><td>Ek <b>measurable target</b> define karo</td><td>"Reduce churn by 10% over two quarters"</td></tr>
-<tr><td><b>3. Assess ML Feasibility</b></td><td>Poocho: kya hume ML chahiye? Kya data hai?</td><td>Kya ek SQL query kaam kar degi? Agar haan, to <b>ML skip karo</b>.</td></tr>
+<tr><td><b>1. Understand the Problem</b></td><td>Isolate the exact friction point</td><td>Users canceling premium subscriptions = <b>churn</b></td></tr>
+<tr><td><b>2. Set Quantifiable Goals</b></td><td>Define a <b>measurable target</b></td><td>"Reduce churn by 10% over two quarters"</td></tr>
+<tr><td><b>3. Assess ML Feasibility</b></td><td>Ask: do we even need ML? Do we have the data?</td><td>Would a SQL query do the job? If yes, <b>skip ML entirely</b>.</td></tr>
 <tr><td><b>4. Identify Constraints</b></td><td>Budget, latency, privacy laws (GDPR)</td><td>Predictions in &lt;10 ms on a phone?</td></tr>
-<tr><td><b>5. Stakeholder Alignment</b></td><td>PMs, devs, execs success par agree karein</td><td>Shared definition of "success"</td></tr>
+<tr><td><b>5. Stakeholder Alignment</b></td><td>PMs, devs and execs agree on what success means</td><td>Shared definition of "success"</td></tr>
 </tbody>
 </table>
 </div>
@@ -77,7 +77,7 @@
 
 <div class="box insight">
   <div class="box-title">★ Key Insight</div>
-  <p style="margin:0">Ek <b>poorly defined problem ek bad algorithm se zyada time waste karta hai</b>. Tum "make it better" optimize nahi kar sakte — algorithm ko <b>ek number chahiye jise minimize kare</b>.</p>
+  <p style="margin:0">A <b>poorly defined problem wastes more time than a bad algorithm</b>. You cannot optimise "make it better" — the algorithm needs <b>a number it can minimise</b>.</p>
 </div>
 
 <div class="solved">
@@ -98,13 +98,13 @@
 
 <div class="box warn">
   <div class="box-title">△ Reflect 1</div>
-  <p style="margin:0">Ek company ke paas excellent customer data hai, lekin us data ko ML model train karne ke liye use karne ki <b>permission nahi</b> hai. Yeh problem lifecycle ke kis phase mein aati hai?<br>
-  <b>Answer:</b> Step 4 — <b>Identify Constraints</b> (Operational / legal constraints, e.g. GDPR). Yeh Phase 1 mein hi pakad mein aani chahiye, data collection ke baad nahi.</p>
+  <p style="margin:0">A company has excellent customer data, but does <b>not have permission</b> to use that data to train an ML model. Which phase of the lifecycle does this problem belong to?<br>
+  <b>Answer:</b> Step 4 — <b>Identify Constraints</b> (operational / legal constraints, e.g. GDPR). This should be caught in Phase 1 itself, not after data collection.</p>
 </div>
 
 <div class="box takeaway">
   <div class="box-title">♦ Takeaway</div>
-  <p style="margin:0">Jab tak tumhare paas <b>quantified target, confirmed data access aur stakeholder agreement</b> na ho — code ko haath mat lagao.</p>
+  <p style="margin:0">Until you have a <b>quantified target, confirmed data access and stakeholder agreement</b> — don't touch the code.</p>
 </div>
 
 <!-- ============================================ -->
@@ -112,7 +112,7 @@
 
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">Kya tum bina kisi data ke ML model bana sakte ho? Algorithm ko reality ka koi concept nahi hai — wo sirf wahi duniya jaanta hai jo tum training data ke through present karte ho. <b>Flawed collection = broken model.</b></p>
+  <p style="margin:0">Can you build an ML model with no data at all? The algorithm has no concept of reality — it only knows the world you present to it through the training data. <b>Flawed collection = broken model.</b></p>
 </div>
 
 <h3>Five production data sources</h3>
@@ -157,7 +157,7 @@
 
 <div class="box insight">
   <div class="box-title">★ Key Insight</div>
-  <p style="margin:0">Algorithm sirf wahi duniya jaanta hai jo tum use dikhate ho. <b>Garbage In = Garbage Out.</b></p>
+  <p style="margin:0">The algorithm only knows the world you show it. <b>Garbage In = Garbage Out.</b></p>
 </div>
 
 <div class="solved">
@@ -167,10 +167,10 @@
   <table>
   <thead><tr><th>Scenario</th><th>Structure</th><th>Feature type</th><th>Reasoning</th></tr></thead>
   <tbody>
-  <tr><td>(a) Food delivery app stores ratings as 1, 2, 3, 4, or 5 stars</td><td><span class="pill b">Structured</span></td><td><span class="pill a">Categorical (Ordinal)</span></td><td>Numbers hain par <b>rank</b> represent karte hain — 5★ &gt; 4★. Gap equal nahi hai, isliye pure numerical nahi.</td></tr>
+  <tr><td>(a) Food delivery app stores ratings as 1, 2, 3, 4, or 5 stars</td><td><span class="pill b">Structured</span></td><td><span class="pill a">Categorical (Ordinal)</span></td><td>They are numbers, but they represent a <b>rank</b> — 5★ &gt; 4★. The gaps aren't equal, so it isn't purely numerical.</td></tr>
   <tr><td>(b) Hospital records body temperature every hour for 7 days after surgery</td><td><span class="pill b">Time-series + Structured</span></td><td><span class="pill g">Numerical (Continuous)</span></td><td>Time-indexed readings; temperature infinitely divisible hai (36.7°C, 36.74°C…).</td></tr>
-  <tr><td>(c) E-commerce stores each product's free-text description</td><td><span class="pill r">Unstructured</span></td><td><span class="pill a">Textual feature</span></td><td>Koi grid/schema nahi — raw text.</td></tr>
-  <tr><td>(d) Government database stores PIN code of each citizen</td><td><span class="pill b">Structured</span></td><td><span class="pill a">Categorical (Nominal)</span></td><td><b>Trap:</b> PIN code number dikhta hai par uspar arithmetic meaningless hai. 110001 + 110002 ka koi matlab nahi. Isliye nominal category.</td></tr>
+  <tr><td>(c) E-commerce stores each product's free-text description</td><td><span class="pill r">Unstructured</span></td><td><span class="pill a">Textual feature</span></td><td>No grid or schema — raw prose.</td></tr>
+  <tr><td>(d) Government database stores PIN code of each citizen</td><td><span class="pill b">Structured</span></td><td><span class="pill a">Categorical (Nominal)</span></td><td><b>Trap:</b> a PIN code looks like a number, but arithmetic on it is meaningless. 110001 + 110002 means nothing. So it is a nominal category.</td></tr>
   <tr><td>(e) Weather station logs wind speed in km/h every 10 minutes for a year</td><td><span class="pill b">Structured + Time-series</span></td><td><span class="pill g">Numerical (Continuous)</span></td><td>Time-indexed + speed continuous.</td></tr>
   </tbody>
   </table>
@@ -180,12 +180,12 @@
 
 <div class="box warn">
   <div class="box-title">△ Reflect 2 — Is more data always better?</div>
-  <p style="margin:0">Tumhara scraper 100k reviews collect karta hai par <b>40% bot-generated spam</b> hai. <br><b>Answer: Nahi.</b> Quality &gt; quantity. 40% garbage rows model ko <b>spam patterns ko genuine signal</b> samajhna sikha denge, distribution shift kar denge aur bias inject karenge. 60k clean reviews 100k dirty reviews se behtar hain. Yeh seedha "Garbage In = Garbage Out" ka case hai.</p>
+  <p style="margin:0">Your scraper collects 100k reviews but <b>40% of them are bot-generated spam</b>. <br><b>Answer: no.</b> Quality beats quantity. Those 40% garbage rows will teach the model to treat <b>spam patterns as genuine signal</b>, shift the distribution, and inject bias. 60k clean reviews beat 100k dirty ones. This is exactly the "Garbage In = Garbage Out" case.</p>
 </div>
 
 <div class="box takeaway">
   <div class="box-title">♦ Takeaway</div>
-  <p style="margin:0">Ek bhi line code likhne se pehle: <b>apne sources jaano, structure jaano, feature types jaano.</b></p>
+  <p style="margin:0">Before writing a single line of code: <b>know your sources, know the structure, know the feature types.</b></p>
 </div>
 
 <!-- ============================================ -->
@@ -193,10 +193,10 @@
 
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">Tumhari company tumhe 500,000 customer records deti hai. Sabse pehla kaam kya? Agar tumne kaha "train a model" — <b>ruko</b>. Doctor patient ko examine kiye bina treatment prescribe nahi karta.</p>
+  <p style="margin:0">Your company hands you 500,000 customer records. What is the very first thing you do? If you said "train a model" — <b>stop</b>. A doctor does not prescribe treatment without examining the patient first.</p>
 </div>
 
-<p>EDA <b>diagnostic stage</b> hai. Yeh raw data ko preprocessing se <b>pehle</b> actionable insights mein transform karta hai.</p>
+<p>EDA is the <b>diagnostic stage</b>. It turns raw data into actionable insight <b>before</b> preprocessing begins.</p>
 
 <h3>EDA checklist — 7 goals</h3>
 <div class="tbl-wrap">
@@ -261,7 +261,7 @@
   <line x1="530" y1="170" x2="530" y2="186" stroke="#a855f7" stroke-width="2.5"/>
   <text x="365" y="206" text-anchor="middle" font-size="12" font-weight="800" fill="#a855f7">interquartile range (IQR = Q3 − Q1)</text>
 </svg>
-<figcaption>Box plot outliers aur spread dikhata hai — Robust Scaling isi IQR par based hai.</figcaption>
+<figcaption>A box plot shows outliers and spread — Robust Scaling is built on exactly this IQR.</figcaption>
 </figure>
 
 <h3>Correlation</h3>
@@ -293,7 +293,7 @@
 
 <div class="box insight">
   <div class="box-title">★ Key Insight</div>
-  <p style="margin:0">EDA skip karo aur tum missing values, outliers, duplicates aur imbalanced classes par train karne ka risk lete ho — jo sab <b>silently performance destroy</b> karte hain. <b>EDA optional nahi hai.</b></p>
+  <p style="margin:0">Skip EDA and you risk training on missing values, outliers, duplicates and imbalanced classes — all of which <b>silently destroy performance</b>. <b>EDA is not optional.</b></p>
 </div>
 
 <div class="solved">
@@ -301,16 +301,16 @@
   <div class="body">
     <p><b>First 3 EDA steps you perform:</b></p>
     <ol class="steps">
-      <li><span class="sh">Size &amp; dataset structure</span> — shape (100000 × 6), dtypes check karo, feature names verify karo, Customer_ID ko identifier mark karo (predictor nahi).</li>
-      <li><span class="sh">Missing values + duplicates + summary stats</span> — per-column null counts, duplicate rows, aur mean / median / mode / $\sigma$ nikalo.</li>
-      <li><span class="sh">Class imbalance + graph plotting</span> — Gender/City ka distribution dekho, phir distributions aur relationships plot karo.</li>
+      <li><span class="sh">Size &amp; dataset structure</span> — check the shape (100000 × 6) and dtypes, verify the feature names, and mark Customer_ID as an identifier (not a predictor).</li>
+      <li><span class="sh">Missing values + duplicates + summary stats</span> — per-column null counts, duplicate rows, and mean / median / mode / $\sigma$.</li>
+      <li><span class="sh">Class imbalance + plotting</span> — look at the Gender/City distribution, then plot the distributions and relationships.</li>
     </ol>
     <div class="tbl-wrap">
     <table>
     <thead><tr><th>Question</th><th>Right chart</th><th>Why</th></tr></thead>
     <tbody>
       <tr><td>Chart for <b>Age distribution</b>?</td><td><span class="pill b">Histogram</span></td><td>Univariate numerical → distribution &amp; skewness.</td></tr>
-      <tr><td>Chart for <b>Income vs Spending_Score</b>?</td><td><span class="pill b">Scatter Plot</span></td><td>Do numerical variables ke beech relationship.</td></tr>
+      <tr><td>Chart for <b>Income vs Spending_Score</b>?</td><td><span class="pill b">Scatter Plot</span></td><td>The relationship between two numerical variables.</td></tr>
       <tr><td>Check if <b>Gender affects Spending_Score</b>?</td><td><span class="pill b">Bar Chart</span></td><td>Categorical (Gender) vs numerical comparison → grouped bar of means.</td></tr>
     </tbody>
     </table>
@@ -320,13 +320,13 @@
 
 <div class="box warn">
   <div class="box-title">△ Reflect 3 — The 95% accuracy trap</div>
-  <p style="margin:0">Dataset 95% Class A aur 5% Class B hai. Model har baar A predict karta hai → 95% accuracy. Useful hai?<br>
-  <b>Nahi.</b> Class B ka <b>recall = 0</b> hai (0 out of all actual B pakde gaye). Model ne kuch seekha hi nahi — sirf majority class guess kar raha hai. Yeh <b>class imbalance</b> hai; accuracy yahan jhoot bolti hai. Precision, recall, F1 ya confusion matrix dekho (👉 <a href="l07.html">Lecture 7</a>).</p>
+  <p style="margin:0">A dataset is 95% Class A and 5% Class B. The model predicts A every single time → 95% accuracy. Is that useful?<br>
+  <b>No.</b> Class B has <b>recall = 0</b> (none of the actual B cases were caught). The model learned nothing — it is just guessing the majority class. This is <b>class imbalance</b>, and accuracy lies here. Look at precision, recall, F1 or the confusion matrix instead (👉 <a href="l07.html">Lecture 7</a>).</p>
 </div>
 
 <div class="box takeaway">
   <div class="box-title">♦ Takeaway</div>
-  <p style="margin:0">EDA first, algorithm later. Structure samjho → issues dhoondo → patterns visualize karo → phir preprocess karo.</p>
+  <p style="margin:0">EDA first, algorithm later. Understand the structure → hunt for issues → visualise the patterns → then preprocess.</p>
 </div>
 
 <!-- ============================================ -->
@@ -334,18 +334,18 @@
 
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">Textbooks mein data hamesha clean hota hai. Real world mein? Messy, biased, incomplete. Kya ek sophisticated algorithm khud self-correct karke garbage ignore kar dega? <b>Nahi. Garbage In, Garbage Out.</b></p>
+  <p style="margin:0">In textbooks the data is always clean. In the real world? Messy, biased, incomplete. Will a sophisticated algorithm self-correct and ignore the garbage on its own? <b>No. Garbage In, Garbage Out.</b></p>
 </div>
 
-<p>Algorithms data ko <b>numbers ke matrices</b> ke roop mein dekhte hain. Missing value? Equation break. Ek feature millions mein, doosra single digits mein? Bada feature maths ko overwhelm kar dega. Preprocessing ek <b>clean numerical matrix</b> banata hai.</p>
+<p>Algorithms see data as <b>matrices of numbers</b>. A missing value? The equation breaks. One feature in the millions and another in single digits? The bigger one overwhelms the maths. Preprocessing produces a <b>clean numerical matrix</b>.</p>
 
 <h3>Step 1: Handling missing values</h3>
 <div class="tbl-wrap">
 <table>
 <thead><tr><th>Strategy</th><th>Action</th><th>When to Use</th><th>Danger</th></tr></thead>
 <tbody>
-<tr><td><b>Deletion</b></td><td>Rows ya columns drop karo</td><td>&lt;1–2% missing; ya column &gt;80% empty</td><td>Info discard hoti hai, <b>bias introduce</b> hota hai</td></tr>
-<tr><td><b>Imputation</b></td><td>Mean/median (numerical) ya mode (categorical) se fill karo</td><td>Moderate missingness</td><td><b>Artificial patterns</b> introduce ho sakte hain</td></tr>
+<tr><td><b>Deletion</b></td><td>Drop the rows or columns</td><td>&lt;1–2% missing; or a column that is &gt;80% empty</td><td>Information is discarded and <b>bias gets introduced</b></td></tr>
+<tr><td><b>Imputation</b></td><td>Fill with mean/median (numerical) or mode (categorical)</td><td>Moderate missingness</td><td>Can introduce <b>artificial patterns</b></td></tr>
 </tbody>
 </table>
 </div>
@@ -355,17 +355,17 @@
 <table>
 <thead><tr><th>Type</th><th>Issue</th><th>Fix</th></tr></thead>
 <tbody>
-<tr><td>Mixed Units</td><td>Weight kg aur lbs dono mein</td><td>Single unit par standardize karo</td></tr>
+<tr><td>Mixed Units</td><td>Weight recorded in both kg and lbs</td><td>Standardise onto a single unit</td></tr>
 <tr><td>Typos</td><td>'Californa', 'California', 'CA'</td><td>Regex / Levenshtein distance matching</td></tr>
-<tr><td>Duplicates</td><td>Same record twice logged</td><td>Duplicate records remove karo</td></tr>
-<tr><td>Inconsistent Labels</td><td>Yes, Y, True, 1 — sab "yes" hain</td><td>Sab ko single label format par map karo</td></tr>
+<tr><td>Duplicates</td><td>Same record twice logged</td><td>Remove the duplicate records</td></tr>
+<tr><td>Inconsistent Labels</td><td>Yes, Y, True, 1 — all mean "yes"</td><td>Map them all to a single label format</td></tr>
 </tbody>
 </table>
 </div>
 
 <!-- ------- SCALING ------- -->
 <h3 id="scaling">Step 3: Feature scaling ⭐</h3>
-<p>Jab ek feature 1–5 (bedrooms) range karta hai aur doosra $\$20{,}000$–$\$500{,}000$ (income), to <b>distance-based algorithms</b> (KNN, SVM) aur <b>gradient descent</b> bade feature se dominate ho jaate hain. Scaling ise fix karta hai.</p>
+<p>When one feature ranges 1–5 (bedrooms) and another ranges $\$20{,}000$–$\$500{,}000$ (income), <b>distance-based algorithms</b> (KNN, SVM) and <b>gradient descent</b> get dominated by the bigger feature. Scaling fixes this.</p>
 
 <div class="tbl-wrap">
 <table>
@@ -375,25 +375,25 @@
   <td><b>A. Min-Max</b><br><small>(Normalization)</small></td>
   <td>$X_{\text{scaled}} = \dfrac{X - X_{\min}}{X_{\max} - X_{\min}}$<br><small>Maps to $[0, 1]$</small></td>
   <td>Not Gaussian; neural nets; bounded ranges</td>
-  <td>Ek outlier baaki sab ko <b>0 ke paas squash</b> kar deta hai</td>
+  <td>A single outlier <b>squashes everything else near 0</b></td>
 </tr>
 <tr>
   <td><b>B. Z-Score</b><br><small>(Standardization)</small></td>
   <td>$Z = \dfrac{X - \mu}{\sigma}$<br><small>Mean → 0, Std → 1</small></td>
-  <td>Data Normal distribution follow karta hai</td>
+  <td>The data follows a Normal distribution</td>
   <td>Best tab jab features approximately Gaussian hon</td>
 </tr>
 <tr>
   <td><b>C. Max Absolute</b></td>
   <td>$X_{\text{scaled}} = \dfrac{X}{\max(|X|)}$<br><small>Maps to $[-1, 1]$</small></td>
   <td>Sparse data (many zeros, e.g. bag-of-words)</td>
-  <td><b>Zeros aur sign preserve</b> karta hai</td>
+  <td><b>Preserves zeros and sign</b></td>
 </tr>
 <tr>
   <td><b>D. Robust</b></td>
   <td>$X_{\text{scaled}} = \dfrac{X - \text{Median}}{Q_3 - Q_1}$<br><small>$\text{IQR} = Q_3 - Q_1$</small></td>
-  <td>Heavy outliers jinhe tum drop nahi kar sakte</td>
-  <td>Mean/std ignore karta hai; median + middle 50% use karta hai</td>
+  <td>Heavy outliers that you cannot drop</td>
+  <td>Ignores mean/std; uses the median + middle 50%</td>
 </tr>
 </tbody>
 </table>
@@ -401,7 +401,7 @@
 
 <div class="box insight">
   <div class="box-title">★ Key Insight</div>
-  <p style="margin:0"><b>Min-Max outliers ke prati sensitive hai</b> (ek extreme value sab kuch squash kar deti hai). <b>Z-Score normality assume</b> karta hai. <b>Robust Scaling tumhara safety net hai</b> jab outliers unavoidable hon.</p>
+  <p style="margin:0"><b>Min-Max is sensitive to outliers</b> (one extreme value squashes everything). <b>Z-Score assumes normality.</b> <b>Robust Scaling is your safety net</b> when outliers are unavoidable.</p>
 </div>
 
 <div class="solved">
@@ -410,14 +410,14 @@
     <ol class="steps">
       <li><span class="sh">Formula likho</span>
         $$X_{\text{scaled}} = \frac{X - X_{\min}}{X_{\max} - X_{\min}}$$</li>
-      <li><span class="sh">Min aur Max nikalo</span>
+      <li><span class="sh">Find Min and Max</span>
         $X_{\min} = 10$, &nbsp; $X_{\max} = 50$ &nbsp;⟹&nbsp; denominator $= 50 - 10 = 40$</li>
-      <li><span class="sh">Har value substitute karo</span>
+      <li><span class="sh">Substitute each value</span>
         $$X = 10:\quad \frac{10-10}{40} = \frac{0}{40} = \mathbf{0}$$
         $$X = 30:\quad \frac{30-10}{40} = \frac{20}{40} = \mathbf{0.5}$$
         $$X = 50:\quad \frac{50-10}{40} = \frac{40}{40} = \mathbf{1}$$</li>
       <li><span class="sh">Sanity check</span>
-        <div class="answer">Min hamesha → 0, Max hamesha → 1. Poora vector: $[0,\ 0.25,\ 0.5,\ 0.75,\ 1]$ ✓</div></li>
+        <div class="answer">Min always → 0, Max always → 1. The full vector: $[0,\ 0.25,\ 0.5,\ 0.75,\ 1]$ ✓</div></li>
     </ol>
   </div>
 </div>
@@ -426,7 +426,7 @@
   <header><span class="qtag">Numerical B</span><h4>Z-Score Standardization · $X = [2, 4, 6, 8, 10]$</h4></header>
   <div class="body">
     <ol class="steps">
-      <li><span class="sh">Mean nikalo</span>
+      <li><span class="sh">Find the mean</span>
         $$\mu = \frac{2+4+6+8+10}{5} = \frac{30}{5} = \mathbf{6}$$</li>
       <li><span class="sh">Deviations aur unke squares</span>
         <div class="tbl-wrap" style="margin:.5rem 0">
@@ -437,12 +437,12 @@
         </tbody></table></div></li>
       <li><span class="sh">Standard deviation</span>
         $$\sigma^2 = \frac{16+4+0+4+16}{5} = \frac{40}{5} = 8 \quad\Rightarrow\quad \sigma = \sqrt{8} \approx 2.828$$</li>
-      <li><span class="sh">Har value ka $z$</span>
+      <li><span class="sh">The $z$ for each value</span>
         $$X=2:\ z = \frac{2-6}{\sqrt 8} = \frac{-4}{2.828} = \mathbf{-1.414}$$
         $$X=6:\ z = \frac{6-6}{\sqrt 8} = \mathbf{0}$$
         $$X=10:\ z = \frac{10-6}{\sqrt 8} = \frac{4}{2.828} = \mathbf{+1.414}$$</li>
       <li><span class="sh">Verify</span>
-        <div class="answer">Mean value ($X=6$) hamesha $z=0$ deti hai. Symmetric data → symmetric z-scores. ✓</div></li>
+        <div class="answer">The mean value ($X=6$) always gives $z=0$. Symmetric data → symmetric z-scores. ✓</div></li>
     </ol>
   </div>
 </div>
@@ -451,7 +451,7 @@
   <header><span class="qtag">Numerical C</span><h4>Robust Scaling — full walkthrough · $X = [100, 150, 200, 250, 50000]$</h4></header>
   <div class="body">
     <ol class="steps">
-      <li><span class="sh">Sort karo</span> $[100,\ 150,\ 200,\ 250,\ 50000]$ — already sorted.</li>
+      <li><span class="sh">Sort</span> $[100,\ 150,\ 200,\ 250,\ 50000]$ — already sorted.</li>
       <li><span class="sh">Median ($Q_2$)</span> 5 values → middle (3rd) value. $\;Q_2 = \mathbf{200}$</li>
       <li><span class="sh">$Q_1$ = median of lower half $[100, 150]$</span>
         $$Q_1 = \frac{100 + 150}{2} = \mathbf{125}$$</li>
@@ -463,12 +463,12 @@
         $$\frac{100 - 200}{25000} = \frac{-100}{25000} = \mathbf{-0.004}$$</li>
       <li><span class="sh">Scale $X = 50000$</span>
         $$\frac{50000 - 200}{25000} = \frac{49800}{25000} = \mathbf{1.992}$$</li>
-      <li><span class="sh">Outlier (50000) ne scale kyun nahi toda?</span>
-        <div class="answer">Kyunki Robust Scaling <b>median aur IQR</b> use karta hai, min/max ya mean/std nahi. Outlier median ko barely hilaata hai, aur IQR sirf middle 50% ko dekhta hai. Isliye normal values ($100, 150, 200$) apas mein <b>distinguishable</b> rehti hain ($-0.004$, $-0.002$, $0$) — collapse nahi hotin.</div></li>
+      <li><span class="sh">Why did the outlier (50000) not break the scale?</span>
+        <div class="answer">Because Robust Scaling uses the <b>median and IQR</b>, not min/max or mean/std. The outlier barely moves the median, and the IQR only looks at the middle 50%. So the normal values ($100, 150, 200$) stay <b>distinguishable</b> from each other ($-0.004$, $-0.002$, $0$) instead of collapsing together.</div></li>
     </ol>
     <div class="box danger" style="margin-bottom:0">
-      <div class="box-title">Compare: wahi data Min-Max se</div>
-      <p style="margin:0">$X_{\max} - X_{\min} = 50000 - 100 = 49900$. Ab: $100 \to 0$, $150 \to 0.001$, $200 \to 0.002$, $250 \to 0.003$, $50000 \to 1$. Chaaron normal values <b>0 ke paas squash</b> ho gayin — model unke beech farak hi nahi dekh paayega. <b>Yehi Reflect 4 ka answer hai.</b></p>
+      <div class="box-title">Compare: the same data under Min-Max</div>
+      <p style="margin:0">$X_{\max} - X_{\min} = 50000 - 100 = 49900$. Now: $100 \to 0$, $150 \to 0.001$, $200 \to 0.002$, $250 \to 0.003$, $50000 \to 1$. All four normal values got <b>squashed near 0</b> — the model can no longer tell them apart. <b>That is the answer to Reflect 4.</b></p>
     </div>
   </div>
 </div>
@@ -480,10 +480,10 @@
     <table>
       <thead><tr><th>Scenario</th><th>Scaler</th><th>Why</th></tr></thead>
       <tbody>
-      <tr><td>(a) Salary data: $20k–$5M with CEO outliers at $50M</td><td><span class="pill g">Robust Scaler</span></td><td>Extreme outliers present hain jinhe drop nahi kar sakte; median + IQR unse unaffected rehte hain.</td></tr>
-      <tr><td>(b) Pixel values for images, range [0, 255], no outliers</td><td><span class="pill b">Min-Max Scaler</span></td><td>Range already bounded aur known hai, koi outlier nahi — clean $[0,1]$ mapping perfect hai.</td></tr>
-      <tr><td>(c) Bag-of-words TF-IDF matrix (90% zeros)</td><td><span class="pill a">Max Absolute</span></td><td>Sparse data — zeros preserve hote hain (subtraction nahi hota), memory efficient rehta hai.</td></tr>
-      <tr><td>(d) Heights of adults, roughly bell-shaped</td><td><span class="pill b">Z-Score</span></td><td>Data approximately Gaussian hai — standardization ka ideal case.</td></tr>
+      <tr><td>(a) Salary data: $20k–$5M with CEO outliers at $50M</td><td><span class="pill g">Robust Scaler</span></td><td>There are extreme outliers you cannot drop; the median + IQR stay unaffected by them.</td></tr>
+      <tr><td>(b) Pixel values for images, range [0, 255], no outliers</td><td><span class="pill b">Min-Max Scaler</span></td><td>The range is already bounded and known, with no outliers — a clean $[0,1]$ mapping is perfect.</td></tr>
+      <tr><td>(c) Bag-of-words TF-IDF matrix (90% zeros)</td><td><span class="pill a">Max Absolute</span></td><td>Sparse data — the zeros are preserved (nothing is subtracted), so it stays memory-efficient.</td></tr>
+      <tr><td>(d) Heights of adults, roughly bell-shaped</td><td><span class="pill b">Z-Score</span></td><td>The data is approximately Gaussian — the ideal case for standardization.</td></tr>
       </tbody>
     </table>
     </div>
@@ -491,22 +491,22 @@
 </div>
 
 <div class="box takeaway">
-  <div class="box-title">♦ Takeaway — scaler ko data se match karo</div>
+  <div class="box-title">♦ Takeaway — match the scaler to the data</div>
   <p style="margin:0"><b>Min-Max</b> for bounded/clean · <b>Z-Score</b> for Gaussian · <b>Robust</b> for outliers · <b>Max Abs</b> for sparse.</p>
 </div>
 
 <!-- ------- ENCODING ------- -->
 <h3 id="encoding">Step 4: Categorical encoding ⭐</h3>
-<p>Agar hum Red=0, Green=1, Blue=2 map karein, to model sochta hai <b>Blue &gt; Green &gt; Red</b>, aur (Red+Blue)/2 = Green. Yeh ek <b>mathematical lie</b> hai. Encoding carefully choose karo.</p>
+<p>If we map Red=0, Green=1, Blue=2, the model believes <b>Blue &gt; Green &gt; Red</b>, and that (Red+Blue)/2 = Green. That is a <b>mathematical lie</b>. Choose the encoding carefully.</p>
 
 <div class="tbl-wrap">
 <table>
 <thead><tr><th>Encoding</th><th>How</th><th>Safe For</th><th>Danger</th></tr></thead>
 <tbody>
-<tr><td><b>Label</b></td><td>Har category ko unique integer<br>Red=0, Blue=1, Green=2</td><td>Binary targets (Spam=1/0); tree-based models (split karte hain, distance nahi)</td><td>Distance-based models (KNN, SVM) ke liye <b>false order imply</b> karta hai</td></tr>
-<tr><td><b>Ordinal</b></td><td>Controlled rank mapping<br>Low=0, Med=1, High=2</td><td>Natural rank wali categories; tree + linear models</td><td>Galat, agar categories actually unordered hon</td></tr>
-<tr><td><b>One-Hot</b></td><td>$N$ binary columns (1 = present)<br>Red→[0,0,1], Blue→[1,0,0]</td><td>Unordered nominal data with <b>few</b> unique values</td><td><b>Curse of Dimensionality</b> jab bohot categories hon</td></tr>
-<tr><td><b>Binary</b></td><td>Integer → binary digits, $\log_2 N$ columns mein split</td><td>Many categories; space-efficient alternative</td><td>One-Hot se <b>lower dimensional</b> representation (kuch interpretability jaati hai)</td></tr>
+<tr><td><b>Label</b></td><td>A unique integer per category<br>Red=0, Blue=1, Green=2</td><td>Binary targets (Spam=1/0); tree-based models (they split, they don't measure distance)</td><td>Implies a <b>false order</b> for distance-based models (KNN, SVM)</td></tr>
+<tr><td><b>Ordinal</b></td><td>Controlled rank mapping<br>Low=0, Med=1, High=2</td><td>Categories with a natural rank; tree + linear models</td><td>Wrong if the categories are actually unordered</td></tr>
+<tr><td><b>One-Hot</b></td><td>$N$ binary columns (1 = present)<br>Red→[0,0,1], Blue→[1,0,0]</td><td>Unordered nominal data with <b>few</b> unique values</td><td>The <b>Curse of Dimensionality</b> when there are many categories</td></tr>
+<tr><td><b>Binary</b></td><td>Integer → binary digits, split across $\log_2 N$ columns</td><td>Many categories; a space-efficient alternative</td><td>A <b>lower-dimensional</b> representation than One-Hot (you lose some interpretability)</td></tr>
 </tbody>
 </table>
 </div>
@@ -522,7 +522,7 @@
     <tr><td><b>Blue</b></td><td class="num">1</td><td class="num">0</td><td class="num">0</td></tr>
     <tr><td><b>Green</b></td><td class="num">0</td><td class="num">1</td><td class="num">0</td></tr>
     </tbody></table></div>
-    <p style="margin-bottom:0">3 categories → <b>3 columns</b>. Har row mein exactly ek 1. Koi false ordering nahi — sab categories mathematically equidistant hain.</p>
+    <p style="margin-bottom:0">3 categories → <b>3 columns</b>. Exactly one 1 per row. No false ordering — all categories are mathematically equidistant.</p>
   </div>
 </div>
 
@@ -537,13 +537,13 @@
     <tr><td><b>Green (11)</b></td><td class="num">1</td><td class="num">1</td></tr>
     <tr><td><b>Blue (01)</b></td><td class="num">0</td><td class="num">1</td></tr>
     </tbody></table></div>
-    <p style="margin-bottom:0">3 categories → sirf <b>2 columns</b> (One-Hot ko 3 chahiye the).</p>
+    <p style="margin-bottom:0">3 categories → only <b>2 columns</b> (One-Hot needed 3).</p>
   </div>
 </div>
 
 <div class="box insight">
   <div class="box-title">★ Key Insight — the scaling argument</div>
-  <p style="margin:0">One-Hot: 3 categories = <b>3 columns</b>. Binary: 3 categories = <b>2 columns</b>. Aur 1000 categories ke liye? One-Hot = <b>1000 columns</b>; Binary $\approx \lceil\log_2 1000\rceil = $ <b>10 columns</b>. Yahi curse of dimensionality ka jawab hai.</p>
+  <p style="margin:0">One-Hot: 3 categories = <b>3 columns</b>. Binary: 3 categories = <b>2 columns</b>. And for 1000 categories? One-Hot = <b>1000 columns</b>; Binary $\approx \lceil\log_2 1000\rceil = $ <b>10 columns</b>. That is the answer to the curse of dimensionality.</p>
 </div>
 
 <div class="solved">
@@ -553,9 +553,9 @@
     <table>
       <thead><tr><th>Scenario</th><th>Encoding</th><th>Why</th></tr></thead>
       <tbody>
-      <tr><td>(a) 500 city names, algorithm = Logistic Regression</td><td><span class="pill a">Binary Encoding</span></td><td>Cities nominal hain (koi order nahi) par 500 unique values → One-Hot 500 columns bana dega = curse of dimensionality. Binary sirf $\lceil\log_2 500\rceil = 9$ columns leta hai.</td></tr>
-      <tr><td>(b) Education (HS &lt; Bachelor &lt; Master &lt; PhD), algorithm = Linear Regression</td><td><span class="pill g">Ordinal Encoding</span></td><td>Yahan order <b>genuinely exist</b> karta hai aur meaningful hai. Linear model us rank ko useful signal ki tarah use kar sakta hai.</td></tr>
-      <tr><td>(c) Color (Red, Blue, Green), algorithm = KNN</td><td><span class="pill b">One-Hot Encoding</span></td><td>Sirf 3 categories (dimensionality problem nahi) aur KNN <b>distance-based</b> hai — Label encoding jhoothi ordering create kar deta. One-Hot sab ko equidistant rakhta hai.</td></tr>
+      <tr><td>(a) 500 city names, algorithm = Logistic Regression</td><td><span class="pill a">Binary Encoding</span></td><td>Cities are nominal (no order), but 500 unique values → One-Hot would create 500 columns = curse of dimensionality. Binary needs only $\lceil\log_2 500\rceil = 9$.</td></tr>
+      <tr><td>(b) Education (HS &lt; Bachelor &lt; Master &lt; PhD), algorithm = Linear Regression</td><td><span class="pill g">Ordinal Encoding</span></td><td>Here the order <b>genuinely exists</b> and is meaningful. A linear model can use that rank as real signal.</td></tr>
+      <tr><td>(c) Color (Red, Blue, Green), algorithm = KNN</td><td><span class="pill b">One-Hot Encoding</span></td><td>Only 3 categories (no dimensionality problem) and KNN is <b>distance-based</b> — Label encoding would invent a false ordering. One-Hot keeps them equidistant.</td></tr>
       </tbody>
     </table>
     </div>
@@ -566,8 +566,8 @@
   <header><span class="qtag">Practice P7</span><h4>Binary encoding by hand — [Cat, Dog, Fish, Bird]</h4></header>
   <div class="body">
     <ol class="steps">
-      <li><span class="sh">Integers assign karo (1–4)</span> Cat=1, Dog=2, Fish=3, Bird=4</li>
-      <li><span class="sh">Binary mein convert karo</span>
+      <li><span class="sh">Assign integers (1–4)</span> Cat=1, Dog=2, Fish=3, Bird=4</li>
+      <li><span class="sh">Convert to binary</span>
         <div class="tbl-wrap" style="margin:.5rem 0">
         <table class="compact">
         <thead><tr><th>Category</th><th class="num">Integer</th><th class="num">Binary</th></tr></thead>
@@ -577,10 +577,10 @@
         <tr><td>Fish</td><td class="num">3</td><td class="num"><b>011</b></td></tr>
         <tr><td>Bird</td><td class="num">4</td><td class="num"><b>100</b></td></tr>
         </tbody></table></div></li>
-      <li><span class="sh">Kitne bits chahiye?</span>
-        Highest integer = 4, aur $4_{10} = 100_2$ → <b>3 bits</b>. (General rule: $\lceil \log_2(N+1) \rceil$ jab integers 1 se start hon.)
+      <li><span class="sh">How many bits are needed?</span>
+        Highest integer = 4, and $4_{10} = 100_2$ → <b>3 bits</b>. (General rule: $\lceil \log_2(N+1) \rceil$ when the integers start from 1.)
         <div class="answer">Bits needed = 3</div></li>
-      <li><span class="sh">One-Hot ko kitne columns chahiye hote?</span>
+      <li><span class="sh">How many columns would One-Hot need?</span>
         4 distinct categories = 4 columns.
         <div class="answer">One-Hot columns = 4 &nbsp;(vs Binary = 3)</div></li>
     </ol>
@@ -588,14 +588,14 @@
 </div>
 
 <div class="box warn">
-  <div class="box-title">△ Reflect 5 — Label Encoding KNN ko kyun mislead karta hai par Decision Tree ko nahi?</div>
-  <p style="margin:0"><b>KNN distances compute karta hai.</b> Agar Red=0, Blue=1, Green=2, to KNN ke liye $|Red - Green| = 2$ par $|Red - Blue| = 1$ — yaani Red, Blue se "zyada similar" hai Green ke comparison mein. Yeh <b>completely fabricated</b> hai.<br>
-  <b>Decision Tree splits karta hai</b>, distance nahi. Wo poochta hai "Is value $\le 0.5$?" — jo effectively Red ko {Blue, Green} se separate karta hai. Tree kisi bhi threshold par split karke categories recover kar sakta hai; magnitudes ka use hi nahi hota. Isliye tree-based models ke liye Label Encoding safe hai.</p>
+  <div class="box-title">△ Reflect 5 — why does Label Encoding mislead KNN but not a Decision Tree?</div>
+  <p style="margin:0"><b>KNN computes distances.</b> If Red=0, Blue=1, Green=2, then for KNN $|Red - Green| = 2$ while $|Red - Blue| = 1$ — meaning Red is "more similar" to Blue than to Green. That is <b>completely fabricated</b>.<br>
+  <b>A Decision Tree splits</b>, it doesn't measure distance. It asks "Is value $\le 0.5$?" — which effectively separates Red from {Blue, Green}. A tree can recover the categories by splitting at any threshold; the magnitudes are never used. That is why Label Encoding is safe for tree-based models.</p>
 </div>
 
 <div class="box takeaway">
   <div class="box-title">♦ Takeaway</div>
-  <p style="margin:0"><b>Ordinal</b> ranked categories ke liye · <b>One-Hot</b> nominal with few values · <b>Binary</b> nominal with many · <b>Label</b> sirf tree models ya binary targets ke liye.</p>
+  <p style="margin:0"><b>Ordinal</b> for ranked categories · <b>One-Hot</b> for nominal with few values · <b>Binary</b> for nominal with many · <b>Label</b> only for tree models or binary targets.</p>
 </div>
 
 <!-- ============================================ -->
@@ -604,14 +604,14 @@
 <table>
 <thead><tr><th>Galti</th><th>Sahi Baat</th></tr></thead>
 <tbody>
-<tr><td>PIN code ko numerical feature maan lena</td><td>PIN code <b>Categorical (Nominal)</b> hai — arithmetic meaningless hai.</td></tr>
-<tr><td>Star ratings (1–5) ko continuous numerical maan lena</td><td>Wo <b>Ordinal categorical</b> hai — order hai par gaps equal nahi.</td></tr>
-<tr><td>Outlier wale data par Min-Max lagana</td><td>Ek outlier denominator $(X_{\max}-X_{\min})$ ko blow up kar deta hai, baaki sab 0 ke paas squash ho jaate hain. <b>Robust</b> use karo.</td></tr>
-<tr><td>Nominal categories par Label Encoding + KNN/SVM</td><td>Yeh <b>false distances</b> create karta hai. One-Hot ya Binary use karo.</td></tr>
-<tr><td>1000 categories par One-Hot</td><td>1000 extra columns = curse of dimensionality. <b>Binary encoding</b> ~10 columns mein kaam kar deta hai.</td></tr>
-<tr><td>"Zyada data hamesha better hota hai"</td><td>40% bot spam wale 100k rows, 60k clean rows se <b>bure</b> hain. Quality &gt; quantity.</td></tr>
-<tr><td>95% accuracy dekh ke khush ho jaana</td><td>Class imbalance check karo. Minority class ka recall dekho.</td></tr>
-<tr><td>Poore dataset par scaling fit karna, phir split karna</td><td><b>Data leakage!</b> Pehle split, phir sirf train par fit. (👉 <a href="l02.html">Lecture 2</a>)</td></tr>
+<tr><td>Treating a PIN code as a numerical feature</td><td>A PIN code is <b>Categorical (Nominal)</b> — arithmetic on it is meaningless.</td></tr>
+<tr><td>Treating star ratings (1–5) as continuous numerical</td><td>They are <b>Ordinal categorical</b> — ordered, but with unequal gaps.</td></tr>
+<tr><td>Applying Min-Max to data with outliers</td><td>One outlier blows up the denominator $(X_{\max}-X_{\min})$ and squashes everything else near 0. Use <b>Robust</b> instead.</td></tr>
+<tr><td>Label Encoding on nominal categories + KNN/SVM</td><td>This creates <b>false distances</b>. Use One-Hot or Binary.</td></tr>
+<tr><td>One-Hot on 1000 categories</td><td>1000 extra columns = curse of dimensionality. <b>Binary encoding</b> does the job in ~10.</td></tr>
+<tr><td>"More data is always better"</td><td>100k rows with 40% bot spam are <b>worse</b> than 60k clean rows. Quality &gt; quantity.</td></tr>
+<tr><td>Celebrating a 95% accuracy score</td><td>Check for class imbalance. Look at the minority class recall.</td></tr>
+<tr><td>Fitting the scaler on the whole dataset, then splitting</td><td><b>Data leakage!</b> Split first, then fit on train only. (👉 <a href="l02.html">Lecture 2</a>)</td></tr>
 </tbody>
 </table>
 </div>
@@ -635,11 +635,11 @@
 <div class="box takeaway">
   <div class="box-title">♦ By the end of this sheet you can…</div>
   <ul style="margin:0">
-    <li>Vague business request ko quantifiable goals ke saath constrained ML problem statement banana.</li>
-    <li>Data sources classify karna aur structured / unstructured / semi-structured / time-series distinguish karna.</li>
-    <li>EDA perform karna: missing values, outliers, duplicates, class imbalance detect karna aur correlations interpret karna.</li>
-    <li>Sahi feature scaling (Min-Max, Z-Score, Robust) <b>by hand</b> select aur compute karna.</li>
-    <li>Sahi categorical encoding (Label, Ordinal, One-Hot, Binary) choose karke justify karna.</li>
+    <li>Turn a vague business request into a constrained ML problem statement with quantifiable goals.</li>
+    <li>Classify data sources and distinguish structured / unstructured / semi-structured / time-series.</li>
+    <li>Perform EDA: detect missing values, outliers, duplicates and class imbalance, and interpret correlations.</li>
+    <li>Select and compute the right feature scaling (Min-Max, Z-Score, Robust) <b>by hand</b>.</li>
+    <li>Choose and justify the right categorical encoding (Label, Ordinal, One-Hot, Binary).</li>
   </ul>
 </div>
 
@@ -665,7 +665,7 @@ const MCQS = [
      'Categorical (Nominal), because arithmetic on PIN codes is meaningless',
      'Categorical (Ordinal), because higher PIN codes are further north'],
   a:2,
-  e:'<b>C.</b> PIN code sirf <b>dikhne mein</b> number hai. 110001 + 110002 ka koi meaning nahi, aur na hi average. Isliye yeh <b>Nominal categorical</b> hai. <b>A</b> classic trap — integer hona numerical nahi banata. <b>B</b> galat — countable, finite set hai. <b>D</b> fabricated ordering hai, exactly wahi galti jo Label Encoding karta hai.' },
+  e:'<b>C.</b> A PIN code is a number only <b>in appearance</b>. 110001 + 110002 has no meaning, and nor does their average. So it is <b>Nominal categorical</b>. <b>A</b> is the classic trap — being an integer does not make it numerical. <b>B</b> is wrong — the set is countable and finite. <b>D</b> is a fabricated ordering, exactly the mistake Label Encoding makes.' },
 
 { d:'hard',
   q:'Why does Min-Max scaling fail when one value is 50,000 and all others are under 300?',
@@ -674,7 +674,7 @@ const MCQS = [
      'Because Min-Max requires the data to be Normally distributed',
      'Because the outlier gets mapped to 0 instead of 1'],
   a:1,
-  e:'<b>B.</b> Denominator $\\approx 49900$ ho jaata hai, to $100\\to0$, $150\\to0.001$, $200\\to0.002$ — sab effectively same. <b>A</b> nonsense. <b>C</b> is the risk of <b>Z-Score</b>, not Min-Max — classic swap trap. <b>D</b> ulta hai: outlier hi $X_{\\max}$ hai, to wo 1 par map hota hai.' },
+  e:'<b>B.</b> The denominator becomes $\\approx 49900$, so $100\\to0$, $150\\to0.001$, $200\\to0.002$ — all effectively identical. <b>A</b> is nonsense. <b>C</b> is the risk of <b>Z-Score</b>, not Min-Max — the classic swap trap. <b>D</b> is reversed: the outlier <em>is</em> $X_{\\max}$, so it maps to 1.' },
 
 { d:'med',
   q:'You must encode 500 city names before feeding them to Logistic Regression. Which encoding is most appropriate?',
@@ -683,7 +683,7 @@ const MCQS = [
      'Binary Encoding — nominal but too many categories for One-Hot',
      'Ordinal Encoding — cities can be ranked alphabetically'],
   a:2,
-  e:'<b>C.</b> Cities nominal hain, to Label galat hai (Logistic Regression coefficients ko false order milega). Lekin 500 categories par One-Hot 500 columns bana dega → curse of dimensionality. Binary $\\lceil\\log_2 500\\rceil = 9$ columns mein kaam karta hai. <b>B</b> is the near-miss trap — right reasoning about nominality but wrong on dimensionality. <b>D</b> galat — alphabetical order artificial hai, real rank nahi.' },
+  e:'<b>C.</b> Cities are nominal, so Label encoding is wrong (Logistic Regression coefficients would receive a false ordering). But with 500 categories, One-Hot would create 500 columns → the curse of dimensionality. Binary does the job in $\\lceil\\log_2 500\\rceil = 9$ columns. <b>B</b> is the near-miss trap — right reasoning about nominality but wrong on dimensionality. <b>D</b> is wrong — alphabetical order is artificial, not a real rank.' },
 
 { d:'hard',
   q:'Why is Label Encoding safe for a Decision Tree but dangerous for KNN?',
@@ -692,7 +692,7 @@ const MCQS = [
      'KNN requires all inputs to be strings',
      'Decision Trees can only accept integer inputs anyway'],
   a:1,
-  e:'<b>B.</b> Tree poochta hai "value $\\le 0.5$?" — koi bhi threshold categories ko separate kar sakta hai; integer ka magnitude irrelevant hai. KNN ke liye $|Red-Green|=2$ vs $|Red-Blue|=1$ ek <b>fabricated distance</b> ban jaata hai. <b>A</b> false — trees normalise nahi karte. <b>C</b> false. <b>D</b> false.' },
+  e:'<b>B.</b> A tree asks "is value $\\le 0.5$?" — any threshold can separate the categories, and the magnitude of the integer is irrelevant. For KNN, $|Red-Green|=2$ vs $|Red-Blue|=1$ becomes a <b>fabricated distance</b>. <b>A</b> is false — trees do not normalise. <b>C</b> is false. <b>D</b> is false.' },
 
 { d:'med',
   q:'For $X = [2, 4, 6, 8, 10]$, the Z-score of $X = 10$ is:',
@@ -705,7 +705,7 @@ const MCQS = [
   o:['Step 2 — Set Quantifiable Goals', 'Step 3 — Assess ML Feasibility',
      'Step 4 — Identify Constraints (budget, latency, privacy laws)', 'Step 5 — Stakeholder Alignment'],
   a:2,
-  e:'<b>C.</b> Blueprint mein Step 4 explicitly "Budget, latency, privacy laws (GDPR)" cover karta hai — legal permission ek <b>operational constraint</b> hai. <b>B</b> is the tempting near-miss: feasibility poochta hai "kya data hai?" — data <b>hai</b>, problem uska usable hona hai. <b>A</b> aur <b>D</b> unrelated.' },
+  e:'<b>C.</b> Step 4 of the blueprint explicitly covers "Budget, latency, privacy laws (GDPR)" — legal permission is an <b>operational constraint</b>. <b>B</b> is the tempting near-miss: feasibility asks "does the data exist?" — the data <b>does</b> exist, the problem is whether it is usable. <b>A</b> and <b>D</b> are unrelated.' },
 
 { d:'med',
   q:'A fraud dataset is 95% non-fraud and 5% fraud. A model predicts "non-fraud" always and scores 95% accuracy. What is the correct EDA-level diagnosis?',
@@ -714,7 +714,7 @@ const MCQS = [
      'The features need Min-Max scaling',
      'The dataset has too many duplicates'],
   a:1,
-  e:'<b>B.</b> Yeh EDA checklist ka goal #7 hai: "95% Non-Fraud vs 5% Fraud → accuracy lies." Model ne minority class ka <b>ek bhi</b> case nahi pakda → recall $= 0$. <b>A</b> exactly wo trap hai jo sheet warn karti hai. <b>C</b> aur <b>D</b> alag issues hain, yeh symptom unka nahi.' },
+  e:'<b>B.</b> This is goal #7 of the EDA checklist: "95% Non-Fraud vs 5% Fraud → accuracy lies." The model caught <b>not a single</b> case of the minority class → recall $= 0$. <b>A</b> is exactly the trap the sheet warns about. <b>C</b> and <b>D</b> are different issues; this symptom does not belong to them.' },
 
 { d:'hard',
   q:'Which pairing of scaler-to-scenario is INCORRECT?',
@@ -723,13 +723,13 @@ const MCQS = [
      'Min-Max → salary data with $50M CEO outliers, because it bounds everything to [0,1]',
      'Robust → heavy outliers you cannot drop, because it uses median and IQR'],
   a:2,
-  e:'<b>C</b> is the incorrect pairing (and therefore the answer). Bounding to $[0,1]$ <b>solve nahi karta</b> — outlier denominator ko blow up karke normal salaries ko indistinguishable bana deta hai. Yahan <b>Robust</b> chahiye. <b>A</b>, <b>B</b>, <b>D</b> sab sheet ke table se exactly correct hain.' },
+  e:'<b>C</b> is the incorrect pairing (and therefore the answer). Bounding to $[0,1]$ <b>does not solve the problem</b> — the outlier blows up the denominator and makes the normal salaries indistinguishable. <b>Robust</b> scaling is what is needed here. <b>A</b>, <b>B</b> and <b>D</b> are all exactly correct per the sheet\'s table.' },
 
 { d:'hard',
   q:'For 1000 unique categories, how many columns do One-Hot and Binary encoding produce respectively?',
   o:['1000 and 1000', '1000 and approximately 10', '10 and 1000', '1000 and 500'],
   a:1,
-  e:'<b>B.</b> One-Hot har category ko apna column deta hai → 1000 columns. Binary integer ko bits mein todta hai → $\\lceil\\log_2 1000\\rceil = 10$ columns. Sheet: "For 1000 categories, One-Hot = 1000 cols; Binary ≈ 10 cols." <b>C</b> reversed hai. <b>A</b> aur <b>D</b> binary ke logarithmic compression ko miss karte hain.' },
+  e:'<b>B.</b> One-Hot gives every category its own column → 1000 columns. Binary breaks the integer into bits → $\\lceil\\log_2 1000\\rceil = 10$ columns. Sheet: "For 1000 categories, One-Hot = 1000 cols; Binary ≈ 10 cols." <b>C</b> is reversed. <b>A</b> and <b>D</b> both miss the logarithmic compression of binary encoding.' },
 ];
 </script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>

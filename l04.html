@@ -19,7 +19,7 @@
 <header class="hero">
   <div class="eyebrow">Worksheet 04 · Lecture 4</div>
   <h1>Multiple Linear Regression <span class="gradtext">using OLS</span></h1>
-  <p class="sub">Ek feature se $m$ features tak. Wahi principle — minimize squared error — par ab <b>matrices aur vectors</b> ke saath.</p>
+  <p class="sub">From one feature to $m$ features. Same principle — minimise squared error — but now with <b>matrices and vectors</b>.</p>
   <div class="chips">
     <span class="chip accent">⏱ ~38 min</span><span class="chip">📐 Matrix calculus</span>
     <span class="chip">🧮 6 solved numericals</span><span class="chip">✓ 10 MCQs</span>
@@ -28,12 +28,12 @@
 
 <div class="box hinglish">
   <div class="box-title">⚡ Ek Line Mein</div>
-  <p style="margin:0">Saari $n$ prediction equations ko ek line mein pack karo: $\hat{\mathbf y} = \mathbf X\boldsymbol\beta$. Loss ban jaati hai $L(\boldsymbol\beta) = \mathbf e^\top\mathbf e$. Use expand karo, 3 matrix-calculus identities lagao, gradient zero set karo — aur <b>Normal Equation</b> nikal aati hai: $\mathbf X^\top\mathbf X\boldsymbol\beta = \mathbf X^\top\mathbf y$, jiska solution $\boldsymbol\beta^* = (\mathbf X^\top\mathbf X)^{-1}\mathbf X^\top\mathbf y$ hai. Catch: inverse ko exist karna padega (no multicollinearity) aur uski cost $O(m^3)$ hai.</p>
+  <p style="margin:0">Pack all $n$ prediction equations into one line: $\hat{\mathbf y} = \mathbf X\boldsymbol\beta$. The loss becomes $L(\boldsymbol\beta) = \mathbf e^\top\mathbf e$. Expand it, apply 3 matrix-calculus identities, set the gradient to zero — and out comes the <b>Normal Equation</b>: $\mathbf X^\top\mathbf X\boldsymbol\beta = \mathbf X^\top\mathbf y$, whose solution is $\boldsymbol\beta^* = (\mathbf X^\top\mathbf X)^{-1}\mathbf X^\top\mathbf y$. The catch: the inverse has to exist (no multicollinearity), aur uski cost $O(m^3)$ hai.</p>
 </div>
 
 <!-- ======================= -->
 <h2 id="s1"><span class="h2-num">1</span>Starting with the MLR dataset</h2>
-<p>Lecture 3 mein akela CGPA stipend predict karta tha. Par agar IQ, attendance aur project scores bhi matter karte hon? Ek feature kaafi nahi — hume bohot chahiye.</p>
+<p>In Lecture 3, CGPA alone predicted the stipend. But what if IQ, attendance and project scores matter too? One feature isn't enough — we need many.</p>
 
 <div class="tbl-wrap">
 <table class="compact">
@@ -57,7 +57,7 @@
 
 <div class="box insight">
   <div class="box-title">★ Key Insight</div>
-  <p style="margin:0">Yeh $m$ dimensions mein ek <b>hyperplane</b> ka equation hai. Yeh abhi bhi ek <b>linear equation</b> hai — sirf input variables ki sankhya 1 se $m$ ho gayi hai.</p>
+  <p style="margin:0">This is the equation of a <b>hyperplane</b> in $m$ dimensions. It is still a <b>linear equation</b> — only the number of input variables has gone from 1 to $m$.</p>
 </div>
 
 <div class="solved">
@@ -70,7 +70,7 @@
         <div class="answer">Total $\beta$ parameters = <b>5</b> &nbsp;($m = 4$ features $+$ 1 intercept $= m+1$)</div></li>
       <li><span class="sh">(b) If you add a fifth feature (age of building), must $\beta_1$ (for area) stay the same?</span>
         <div class="answer">No.</div>
-        <p style="margin:.3rem 0 0">MLR mein har coefficient ka matlab hai "$x_j$ mein ek unit change ka effect, <b>baaki saare features constant rakhte hue</b>". Naya feature add karne se wo "baaki sab" set hi badal jaata hai. Agar building age area se correlated hai (purani buildings often bada area), to wo shared signal ab redistribute ho jayega aur $\beta_1$ shift karega. <b>Coefficients context-dependent hote hain, absolute truths nahi.</b></p></li>
+        <p style="margin:.3rem 0 0">In MLR, each coefficient means "the effect of a one-unit change in $x_j$, <b>holding all other features constant</b>". Adding a new feature changes that "all other features" set itself. If building age is correlated with area (older buildings often have more area), then that shared signal gets redistributed and $\beta_1$ shifts. <b>Coefficients are context-dependent, not absolute truths.</b></p></li>
     </ol>
   </div>
 </div>
@@ -79,19 +79,19 @@
 <h2 id="s2"><span class="h2-num">2</span>Writing the prediction equation for each data point</h2>
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">Humare paas <b>ek equation template</b> hai — par $n$ data points. Har single row ke liye prediction kaise likhein?</p>
+  <p style="margin:0">We have <b>one equation template</b> — but $n$ data points. How do we write the prediction for every single row?</p>
 </div>
 
 <p>For the 1st data point: &nbsp; $\hat y_1 = \beta_0 + \beta_1 x_{11} + \beta_2 x_{12} + \cdots + \beta_m x_{1m}$</p>
 <p>For the 2nd data point: &nbsp; $\hat y_2 = \beta_0 + \beta_1 x_{21} + \beta_2 x_{22} + \cdots + \beta_m x_{2m}$</p>
 <p>For the $i$-th data point: &nbsp; $\hat y_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_m x_{im}$</p>
 
-<p>Saari predicted values ko ek <b>vector</b> ki tarah likhte hain:</p>
+<p>We write all the predicted values as a single <b>vector</b>:</p>
 <div class="formula">$$\hat{\mathbf y} = \begin{bmatrix}\hat y_1\\ \hat y_2\\ \vdots\\ \hat y_n\end{bmatrix} = \begin{bmatrix}\beta_0 + \beta_1x_{11} + \cdots + \beta_mx_{1m}\\ \beta_0 + \beta_1x_{21} + \cdots + \beta_mx_{2m}\\ \vdots\\ \beta_0 + \beta_1x_{n1} + \cdots + \beta_mx_{nm}\end{bmatrix}$$</div>
 
 <div class="box insight">
   <div class="box-title">★ Key Insight</div>
-  <p style="margin:0">Har predicted value ke paas <b>same parameters</b> $(\beta_0, \beta_1, \dots, \beta_m)$ hote hain, par <b>feature values row se row badalti</b> hain.</p>
+  <p style="margin:0">Every predicted value uses the <b>same parameters</b> $(\beta_0, \beta_1, \dots, \beta_m)$, but the <b>feature values change from row to row</b>.</p>
 </div>
 
 <div class="solved">
@@ -109,10 +109,10 @@
     <ol class="steps">
       <li><span class="sh">(b) Who is predicted to score highest?</span>
         <div class="answer">Priya (65)</div>
-        <p style="margin:.3rem 0 0">Interesting: Rahul ka CGPA <b>sabse zyada</b> hai (9), phir bhi Priya jeet rahi hai. Kyun? $x_2$ par uska +6 hour advantage ($10$ vs $4$) $= 2 \times 6 = 12$ points deta hai, jabki uska $-2$ CGPA disadvantage sirf $5 \times 2 = 10$ points cost karta hai. <b>Net $+2$.</b> Yeh dikhata hai ki MLR features ko unke coefficients ke through <b>weigh</b> karta hai.</p></li>
+        <p style="margin:.3rem 0 0">Interesting: Rahul has the <b>highest</b> CGPA (9), yet Priya wins. Why? Her +6 hour advantage on $x_2$ ($10$ vs $4$) is worth $2 \times 6 = 12$ points, while her $-2$ CGPA disadvantage only costs $5 \times 2 = 10$ points. <b>Net $+2$.</b> This shows how MLR <b>weighs</b> features through their coefficients.</p></li>
       <li><span class="sh">(c) A new student Maya (CGPA 8.5, Study Hrs 8) joins. Can you predict with the same model, or must you retrain?</span>
         <div class="answer">Same model — no retraining needed.</div>
-        <p style="margin:.3rem 0 0">$\hat y = 10 + 5(8.5) + 2(8) = 10 + 42.5 + 16 = \mathbf{68.5}$. Trained model ka pura point yehi hai: wo ek <b>fixed function</b> seekh leta hai jo kisi bhi naye input par apply hota hai. Retraining tab chahiye jab tum <b>dataset mein rows add karke</b> parameters improve karna chaho — prediction karne ke liye nahi.</p></li>
+        <p style="margin:.3rem 0 0">$\hat y = 10 + 5(8.5) + 2(8) = 10 + 42.5 + 16 = \mathbf{68.5}$. That is the whole point of a trained model: it has learned a <b>fixed function</b> that applies to any new input. You only need retraining when you want to <b>add rows to the dataset</b> to improve the parameters — not to make a prediction.</p></li>
     </ol>
   </div>
 </div>
@@ -121,17 +121,17 @@
 <h2 id="s3"><span class="h2-num">3</span>Converting the prediction equations into matrix form ⭐</h2>
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">$n$ alag equations likhna tedious hai. Kya hum sab ko <b>ek single matrix equation</b> mein pack kar sakte hain?</p>
+  <p style="margin:0">Writing $n$ separate equations is tedious. Can we pack them all into <b>one single matrix equation</b>?</p>
 </div>
 
 <div class="formula">$$\hat{\mathbf y} = \begin{bmatrix}1 & x_{11} & x_{12} & \cdots & x_{1m}\\ 1 & x_{21} & x_{22} & \cdots & x_{2m}\\ \vdots & \vdots & \vdots & \ddots & \vdots\\ 1 & x_{n1} & x_{n2} & \cdots & x_{nm}\end{bmatrix}\begin{bmatrix}\beta_0\\ \beta_1\\ \beta_2\\ \vdots\\ \beta_m\end{bmatrix}$$</div>
 
 <div class="box warn">
   <div class="box-title">△ Why the column of 1s?</div>
-  <p style="margin:0">Matrix ka pehla column sirf <b>1s</b> rakhta hai. Yeh column isliye include hota hai kyunki intercept term $\beta_0$ ko <b>har row mein appear</b> karna hai. $1 \times \beta_0 = \beta_0$ — bilkul wahi jo hume chahiye.</p>
+  <p style="margin:0">The first column of the matrix holds nothing but <b>1s</b>. That column is included because the intercept term $\beta_0$ has to <b>appear in every row</b>. And $1 \times \beta_0 = \beta_0$ — exactly what we want.</p>
 </div>
 
-<h4>Sizes — yeh exam mein pakka poocha jaata hai</h4>
+<h4>Sizes — this is guaranteed to come up in the exam</h4>
 <div class="tbl-wrap">
 <table>
 <thead><tr><th>Object</th><th>Name</th><th>Dimensions</th><th>Contents</th></tr></thead>
@@ -207,7 +207,7 @@
         <div class="answer">Yes ✓ — matches Arjun's prediction exactly.</div></li>
       <li><span class="sh">(d) If a 4th student is added, what changes?</span>
         <div class="answer">The number of <b>ROWS</b> in $\mathbf X$ (3 → 4).</div>
-        <p style="margin:.3rem 0 0">Columns in $\mathbf X$ <b>change nahi</b> hote (features wahi hain), aur $\boldsymbol\beta$ ki length bhi wahi rehti hai. $\boldsymbol\beta$ ki length sirf tab badalti hai jab tum <b>feature</b> add/remove karo.</p></li>
+        <p style="margin:.3rem 0 0">The columns in $\mathbf X$ <b>don't change</b> (the features are the same), and the length of $\boldsymbol\beta$ stays the same too. $\boldsymbol\beta$ only changes length when you add or remove a <b>feature</b>.</p></li>
     </ol>
   </div>
 </div>
@@ -218,13 +218,13 @@
 <div class="formula"><span class="flabel">Total squared error — the loss to minimize</span>$$L = e_1^2 + e_2^2 + \cdots + e_n^2 = \sum_{i=1}^{n}(y_i - \hat y_i)^2$$</div>
 <div class="box insight">
   <div class="box-title">★ Key Insight</div>
-  <p style="margin:0">Chhota residual = accurate prediction. Bada residual = poor prediction. Hum is total squared error ko $L(\boldsymbol\beta)$ se denote karte hain — yahi <b>loss function</b> hai jise minimize karna hai.</p>
+  <p style="margin:0">Small residual = accurate prediction. Large residual = poor prediction. We denote this total squared error by $L(\boldsymbol\beta)$ — that is the <b>loss function</b> we need to minimise.</p>
 </div>
 
 <div class="solved">
   <header><span class="qtag">Practice P4</span><h4>Comparing two models</h4></header>
   <div class="body">
-    <p>Do ML models monthly sales (lakhs mein) predict karte hain teen stores ke liye:</p>
+    <p>Two ML models predict monthly sales (in lakhs) for three stores:</p>
     <div class="tbl-wrap" style="margin-top:.5rem">
     <table class="compact">
     <thead><tr><th>Store</th><th class="num">Actual</th><th class="num">Model A</th><th class="num">Model B</th><th class="num">Residual A</th><th class="num">Residual B</th></tr></thead>
@@ -240,7 +240,7 @@
         $$\text{TSE}_A = (+2)^2 + (-6)^2 + (+1)^2 = 4 + 36 + 1 = \mathbf{41}$$
         $$\text{TSE}_B = (-2)^2 + (+2)^2 + (-1)^2 = 4 + 4 + 1 = \mathbf{9}$$
         <div class="answer">Model B fits the data better (TSE 9 &lt; 41).</div>
-        <p style="margin:.3rem 0 0"><b>Note:</b> Model A ka <b>signed</b> total $= 2 - 6 + 1 = -3$ hai aur Model B ka $= -2+2-1 = -1$ — dono chhote lagte hain. Par squared totals ne asli farak reveal kar diya: A ka ek <b>bada</b> miss (−6) squaring ke baad poore score ko dominate kar deta hai. <b>Yehi squared error ka point hai.</b></p></li>
+        <p style="margin:.3rem 0 0"><b>Note:</b> Model A's <b>signed</b> total is $2 - 6 + 1 = -3$ and Model B's is $-2+2-1 = -1$ — both look small. But the squared totals reveal the real difference: A's one <b>big</b> miss (−6) dominates the whole score once squared. <b>That is exactly the point of squared error.</b></p></li>
     </ol>
   </div>
 </div>
@@ -249,28 +249,28 @@
 <h2 id="s5"><span class="h2-num">5</span>Writing the residuals as a vector</h2>
 <div class="formula">$$\mathbf e = \begin{bmatrix}e_1\\ e_2\\ e_3\\ \vdots\\ e_n\end{bmatrix} = \begin{bmatrix}y_1 - \hat y_1\\ y_2 - \hat y_2\\ y_3 - \hat y_3\\ \vdots\\ y_n - \hat y_n\end{bmatrix} = \mathbf y - \hat{\mathbf y}$$</div>
 
-<p>Ab residual vector ko uske transpose se multiply karo:</p>
+<p>Now multiply the residual vector by its own transpose:</p>
 <div class="formula">$$\mathbf e^\top\mathbf e = \begin{bmatrix}(y_1-\hat y_1) & (y_2-\hat y_2) & \cdots & (y_n-\hat y_n)\end{bmatrix}\begin{bmatrix}y_1-\hat y_1\\ y_2-\hat y_2\\ \vdots\\ y_n-\hat y_n\end{bmatrix}$$</div>
-<p>Yeh multiplication perform karne par:</p>
+<p>Performing this multiplication:</p>
 <div class="formula">$$\mathbf e^\top\mathbf e = (y_1-\hat y_1)^2 + (y_2-\hat y_2)^2 + \cdots + (y_n-\hat y_n)^2 = \sum_{i=1}^{n}(y_i - \hat y_i)^2$$</div>
 
 <div class="box insight">
   <div class="box-title">★ Key Insight</div>
-  <p style="margin:0">Dot product $\mathbf e^\top\mathbf e$ <b>automatically</b> sum of squared residuals compute kar deta hai — <b>ek matrix operation</b> poori summation ko replace kar deti hai.</p>
+  <p style="margin:0">The dot product $\mathbf e^\top\mathbf e$ <b>automatically</b> computes the sum of squared residuals — <b>one matrix operation</b> replaces the entire summation.</p>
 </div>
 
 <div class="formula"><span class="flabel">Loss in matrix form</span>$$L = \mathbf e^\top\mathbf e \qquad\text{and since } \mathbf e = \mathbf y - \mathbf X\boldsymbol\beta:$$
 $$\boxed{\;L(\boldsymbol\beta) = (\mathbf y - \mathbf X\boldsymbol\beta)^\top(\mathbf y - \mathbf X\boldsymbol\beta)\;}$$</div>
 <div class="box takeaway">
   <div class="box-title">♦ Takeaway</div>
-  <p style="margin:0">Loss function $L(\boldsymbol\beta) = \mathbf e^\top\mathbf e$ parameter vector $\boldsymbol\beta$ ko <b>input</b> leti hai aur <b>ek number</b> (total squared error) return karti hai. Formally: $L : \mathbb R^{m+1} \to \mathbb R$.</p>
+  <p style="margin:0">The loss function $L(\boldsymbol\beta) = \mathbf e^\top\mathbf e$ takes the parameter vector $\boldsymbol\beta$ as <b>input</b> and returns <b>one number</b> (the total squared error). Formally: $L : \mathbb R^{m+1} \to \mathbb R$.</p>
 </div>
 
 <!-- ======================= -->
 <h2 id="s6"><span class="h2-num">6</span>Expanding the Loss Function</h2>
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">$L(\boldsymbol\beta) = (\mathbf y - \mathbf X\boldsymbol\beta)^\top(\mathbf y - \mathbf X\boldsymbol\beta)$ compact hai par differentiate karna mushkil. Ise <b>term by term expand</b> karte hain.</p>
+  <p style="margin:0">$L(\boldsymbol\beta) = (\mathbf y - \mathbf X\boldsymbol\beta)^\top(\mathbf y - \mathbf X\boldsymbol\beta)$ is compact but hard to differentiate. Let's <b>expand it term by term</b>.</p>
 </div>
 
 <div class="solved">
@@ -283,7 +283,7 @@ $$\boxed{\;L(\boldsymbol\beta) = (\mathbf y - \mathbf X\boldsymbol\beta)^\top(\m
     <li><span class="sh">Multiply out</span>
       $$L(\boldsymbol\beta) = (\mathbf y^\top - \boldsymbol\beta^\top\mathbf X^\top)(\mathbf y - \mathbf X\boldsymbol\beta)$$
       $$= \mathbf y^\top\mathbf y - \mathbf y^\top\mathbf X\boldsymbol\beta - \boldsymbol\beta^\top\mathbf X^\top\mathbf y + \boldsymbol\beta^\top\mathbf X^\top\mathbf X\boldsymbol\beta$$</li>
-    <li><span class="sh">Dimension verification — sab scalars hain</span>
+    <li><span class="sh">Dimension verification — they are all scalars</span>
       <div class="tbl-wrap" style="margin:.5rem 0">
       <table class="compact">
       <thead><tr><th>Term</th><th>Dimensions</th><th>Result</th></tr></thead>
@@ -295,7 +295,7 @@ $$\boxed{\;L(\boldsymbol\beta) = (\mathbf y - \mathbf X\boldsymbol\beta)^\top(\m
       </tbody></table></div></li>
     <li><span class="sh">The two middle terms are equal</span>
       $$\mathbf y^\top\mathbf X\boldsymbol\beta = \boldsymbol\beta^\top\mathbf X^\top\mathbf y$$
-      <p style="margin:.4rem 0 0"><b>Why?</b> Kyunki dono <b>scalars</b> hain, aur ek scalar ka transpose khud wahi scalar hota hai. Formally: $(\mathbf y^\top\mathbf X\boldsymbol\beta)^\top = \boldsymbol\beta^\top\mathbf X^\top\mathbf y$, aur LHS $1\times 1$ hai, to $\mathbf y^\top\mathbf X\boldsymbol\beta = \boldsymbol\beta^\top\mathbf X^\top\mathbf y$.</p>
+      <p style="margin:.4rem 0 0"><b>Why?</b> Because both are <b>scalars</b>, and the transpose of a scalar is that same scalar. Formally: $(\mathbf y^\top\mathbf X\boldsymbol\beta)^\top = \boldsymbol\beta^\top\mathbf X^\top\mathbf y$, and the LHS is $1\times 1$, so $\mathbf y^\top\mathbf X\boldsymbol\beta = \boldsymbol\beta^\top\mathbf X^\top\mathbf y$.</p>
       $$\text{Combining: }\; -\mathbf y^\top\mathbf X\boldsymbol\beta - \boldsymbol\beta^\top\mathbf X^\top\mathbf y = -2\,\mathbf y^\top\mathbf X\boldsymbol\beta$$</li>
     <li><span class="sh">Final expanded form</span>
       <div class="formula" style="margin:.5rem 0 0"><span class="flabel">Equation 1</span>$$\boxed{\;L(\boldsymbol\beta) = \mathbf y^\top\mathbf y - 2\,\mathbf y^\top\mathbf X\boldsymbol\beta + \boldsymbol\beta^\top\mathbf X^\top\mathbf X\boldsymbol\beta\;}$$</div></li>
@@ -310,7 +310,7 @@ $$\boxed{\;L(\boldsymbol\beta) = (\mathbf y - \mathbf X\boldsymbol\beta)^\top(\m
     <li>$-2\,\mathbf y^\top\mathbf X\boldsymbol\beta$ — <b>linear</b> in $\boldsymbol\beta$</li>
     <li>$\boldsymbol\beta^\top\mathbf X^\top\mathbf X\boldsymbol\beta$ — <b>quadratic</b> in $\boldsymbol\beta$</li>
   </ul>
-  <p style="margin:.5rem 0 0">Yeh loss <b>convex</b> hai — minimum exist karta hai aur <b>unique</b> hai. Aur yahi teen types hume teen identities ki zaroorat batati hain.</p>
+  <p style="margin:.5rem 0 0">This loss is <b>convex</b> — a minimum exists and it is <b>unique</b>. And these three term types are exactly why we need three identities.</p>
 </div>
 
 <div class="solved">
@@ -338,27 +338,27 @@ $$\boxed{\;L(\boldsymbol\beta) = (\mathbf y - \mathbf X\boldsymbol\beta)^\top(\m
 
 <!-- ======================= -->
 <h2 id="s7"><span class="h2-num">7</span>Writing the gradient condition for the minimum</h2>
-<p>Bowl ke bottom par, har direction flat hoti hai. Math mein: saare partial derivatives zero hote hain.</p>
+<p>At the bottom of the bowl, every direction is flat. In maths: all the partial derivatives are zero.</p>
 <div class="formula">$$\frac{\partial L}{\partial\beta_0} = 0, \quad \frac{\partial L}{\partial\beta_1} = 0, \quad \dots, \quad \frac{\partial L}{\partial\beta_m} = 0$$</div>
-<p>Inhe <b>gradient vector</b> mein stack karo:</p>
+<p>Stack them into the <b>gradient vector</b>:</p>
 <div class="formula">$$\nabla L = \begin{bmatrix}\dfrac{\partial L}{\partial\beta_0} & \dfrac{\partial L}{\partial\beta_1} & \cdots & \dfrac{\partial L}{\partial\beta_m}\end{bmatrix}^\top \qquad\Longrightarrow\qquad \boxed{\;\frac{\partial L}{\partial\boldsymbol\beta} = \mathbf 0\;}\ \text{(zero vector)}$$</div>
 <div class="box takeaway">
   <div class="box-title">♦ Takeaway</div>
-  <p style="margin:0">Equation (1) ko differentiate karne ke liye hume <b>teen identities</b> chahiye — har term type ke liye ek (constant, linear, quadratic).</p>
+  <p style="margin:0">To differentiate Equation (1) we need <b>three identities</b> — one for each term type (constant, linear, quadratic).</p>
 </div>
 
 <!-- ======================= -->
 <h2 id="s8"><span class="h2-num">8</span>Identity 1 · Derivative of a Constant w.r.t. a Vector</h2>
-<p>Agar $f(\boldsymbol\beta) = c$ (ek constant scalar jo $\boldsymbol\beta$ par depend nahi karta):</p>
+<p>If $f(\boldsymbol\beta) = c$ (a constant scalar that does not depend on $\boldsymbol\beta$):</p>
 <div class="formula">$$\frac{\partial f}{\partial\boldsymbol\beta} = \mathbf 0 \quad\text{(zero vector)}$$</div>
-<p>Humari loss par apply: $\mathbf y^\top\mathbf y$, $\boldsymbol\beta$ se independent hai, isliye:</p>
+<p>Applied to our loss: $\mathbf y^\top\mathbf y$ is independent of $\boldsymbol\beta$, so:</p>
 <div class="formula"><span class="flabel">Equation 2</span>$$\frac{\partial(\mathbf y^\top\mathbf y)}{\partial\boldsymbol\beta} = \mathbf 0$$</div>
 
 <!-- ======================= -->
 <h2 id="s9"><span class="h2-num">9</span>Identity 2 · Derivative of a Linear Form</h2>
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">$\mathbf a^\top\boldsymbol\beta = a_0\beta_0 + a_1\beta_1 + \cdots$ — har term differentiate karne par wapas $a_i$ milta hai. Poora gradient kaisa dikhta hai?</p>
+  <p style="margin:0">$\mathbf a^\top\boldsymbol\beta = a_0\beta_0 + a_1\beta_1 + \cdots$ — differentiating each term gives back $a_i$. So what does the full gradient look like?</p>
 </div>
 
 <div class="solved">
@@ -381,7 +381,7 @@ $$\boxed{\;L(\boldsymbol\beta) = (\mathbf y - \mathbf X\boldsymbol\beta)^\top(\m
     <ol class="steps">
       <li><span class="sh">(a) Let $f(\boldsymbol\beta) = 42$. What is $\partial f/\partial\boldsymbol\beta$? Why does this make sense intuitively?</span>
         <div class="answer">$\mathbf 0$ (the zero vector)</div>
-        <p style="margin:.3rem 0 0">Intuitively: tum $\boldsymbol\beta$ kuch bhi daalo, output hamesha 42 rehta hai. Koi bhi parameter badalne se function nahi badalta — to har direction mein rate of change <b>zero</b> hai.</p></li>
+        <p style="margin:.3rem 0 0">Intuitively: whatever you put in for $\boldsymbol\beta$, the output is always 42. Changing any parameter changes nothing — so the rate of change in every direction is <b>zero</b>.</p></li>
       <li><span class="sh">(b) Let $\mathbf a = [3,\ -1]^\top$. Write $f(\boldsymbol\beta) = \mathbf a^\top\boldsymbol\beta$ as a scalar expression, differentiate, stack</span>
         $$f = 3\beta_1 - \beta_2$$
         $$\frac{\partial f}{\partial\beta_1} = \mathbf{3}, \qquad \frac{\partial f}{\partial\beta_2} = \mathbf{-1}$$
@@ -398,7 +398,7 @@ $$\boxed{\;L(\boldsymbol\beta) = (\mathbf y - \mathbf X\boldsymbol\beta)^\top(\m
 <h2 id="s10"><span class="h2-num">10</span>Identity 3 · Derivative of a Quadratic Form</h2>
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">$\boldsymbol\beta^\top\mathbf A\boldsymbol\beta$ $ax^2$ ka matrix version hai. $ax^2$ ka derivative $2ax$ hota hai. Matrix version kya hoga?</p>
+  <p style="margin:0">$\boldsymbol\beta^\top\mathbf A\boldsymbol\beta$ is the matrix version of $ax^2$. The derivative of $ax^2$ is $2ax$. So what is the matrix version?</p>
 </div>
 
 <div class="solved">
@@ -467,7 +467,7 @@ $$\boxed{\;L(\boldsymbol\beta) = (\mathbf y - \mathbf X\boldsymbol\beta)^\top(\m
   </ol>
   <div class="box insight" style="margin-bottom:0">
     <div class="box-title">★ Key Insight</div>
-    <p style="margin:0">Yeh Multiple Linear Regression ka <b>closed-form OLS solution</b> hai. Yeh optimal $\boldsymbol\beta$ ko data se <b>directly</b> compute karta hai — no iteration, no guessing. Equation $\mathbf X^\top\mathbf X\boldsymbol\beta = \mathbf X^\top\mathbf y$ ko <b>Normal Equation</b> kehte hain.</p>
+    <p style="margin:0">This is the <b>closed-form OLS solution</b> for Multiple Linear Regression. It computes the optimal $\boldsymbol\beta$ <b>directly</b> from the data — no iteration, no guessing. The equation $\mathbf X^\top\mathbf X\boldsymbol\beta = \mathbf X^\top\mathbf y$ is called the <b>Normal Equation</b>.</p>
   </div>
   </div>
 </div>
@@ -479,37 +479,37 @@ $$\boxed{\;L(\boldsymbol\beta) = (\mathbf y - \mathbf X\boldsymbol\beta)^\top(\m
 
 <!-- ======================= -->
 <h2 id="s12"><span class="h2-num">12</span>When does this closed-form solution work?</h2>
-<p>$\boldsymbol\beta^* = (\mathbf X^\top\mathbf X)^{-1}\mathbf X^\top\mathbf y$ ke kaam karne ke liye, $(\mathbf X^\top\mathbf X)^{-1}$ ka <b>exist karna zaroori</b> hai. Iske liye $\mathbf X$ ke columns ko <b>linearly independent</b> hona chahiye. Agar $\det(\mathbf X^\top\mathbf X) = 0$, to $\mathbf X^\top\mathbf X$ <b>singular</b> hai aur inverse exist nahi karta.</p>
+<p>For $\boldsymbol\beta^* = (\mathbf X^\top\mathbf X)^{-1}\mathbf X^\top\mathbf y$ to work, $(\mathbf X^\top\mathbf X)^{-1}$ <b>must exist</b>. That requires the columns of $\mathbf X$ to be <b>linearly independent</b>. If $\det(\mathbf X^\top\mathbf X) = 0$, then $\mathbf X^\top\mathbf X$ is <b>singular</b> and the inverse does not exist.</p>
 
 <div class="box danger">
   <div class="box-title">△ Warning — MULTICOLLINEARITY</div>
-  <p style="margin:0">Agar $\mathbf X$ ka koi column doosre columns ka <b>linear combination</b> hai, to $\mathbf X^\top\mathbf X$ singular ban jaata hai. Ise <b>multicollinearity</b> kehte hain — closed-form solution poori tarah break down ho jaata hai. (Detail mein 👉 <a href="l08.html">Lecture 8</a>.)</p>
+  <p style="margin:0">If any column of $\mathbf X$ is a <b>linear combination</b> of the other columns, $\mathbf X^\top\mathbf X$ becomes singular. This is called <b>multicollinearity</b> — and the closed-form solution breaks down completely. (In detail 👉 <a href="l08.html">Lecture 8</a>.)</p>
 </div>
 
 <div class="box takeaway">
   <div class="box-title">♦ Takeaway</div>
-  <p style="margin:0">OLS formula $\mathbf X^\top\mathbf X$ ki <b>invertibility</b> par depend karta hai. Dependent columns → no inverse → no solution.</p>
+  <p style="margin:0">The OLS formula depends on the <b>invertibility</b> of $\mathbf X^\top\mathbf X$. Dependent columns → no inverse → no solution.</p>
 </div>
 
 <!-- ======================= -->
 <h2 id="s13"><span class="h2-num">13</span>Computational limitation of the closed-form solution</h2>
-<p>$\mathbf X^\top\mathbf X$ ke dimensions $(m+1)\times(m+1)$ hain. Ek $k \times k$ matrix invert karne ki cost approximately:</p>
+<p>$\mathbf X^\top\mathbf X$ has dimensions $(m+1)\times(m+1)$. Inverting a $k \times k$ matrix costs approximately:</p>
 <div class="formula">$$O(k^3)$$</div>
 <p>Agar $m = 10{,}000$ features:</p>
 <div class="formula">$$10{,}000^3 = 10^{12}\ \text{operations} \;-\; \textbf{one trillion!}$$</div>
 
 <div class="box insight">
   <div class="box-title">★ Key Insight</div>
-  <p style="margin:0">Jab features ki sankhya badi hoti hai, closed-form solution <b>impractical</b> ho jaata hai. Tab hum iterative methods jaise <b>Gradient Descent</b> use karte hain (👉 <a href="l05.html">Lecture 5</a>).</p>
+  <p style="margin:0">When the number of features is large, the closed-form solution becomes <b>impractical</b>. That is when we switch to iterative methods like <b>Gradient Descent</b> (👉 <a href="l05.html">Lecture 5</a>).</p>
 </div>
 
 <!-- ======================= -->
 <h2 id="s14"><span class="h2-num">14</span>Proof of the $O(k^3)$ inverse complexity</h2>
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">Ek $k\times k$ matrix invert karne mein exactly $k^3$ operations kyun lagte hain? <b>Teen nested loops</b> poori kahani bata dete hain.</p>
+  <p style="margin:0">Why does inverting a $k\times k$ matrix take roughly $k^3$ operations? <b>Three nested loops</b> tell the whole story.</p>
 </div>
-<p>Ek $k\times k$ matrix $\mathbf A$ invert karne ke liye, augmented matrix $[\mathbf A \mid \mathbf I]$ banao aur $\mathbf A$ ko $\mathbf I$ mein row-reduce karo (<b>Gauss–Jordan elimination</b>).</p>
+<p>To invert a $k\times k$ matrix $\mathbf A$, build the augmented matrix $[\mathbf A \mid \mathbf I]$ and row-reduce $\mathbf A$ into $\mathbf I$ (<b>Gauss–Jordan elimination</b>).</p>
 
 <div class="tbl-wrap">
 <table>
@@ -529,9 +529,9 @@ $$\boxed{\;L(\boldsymbol\beta) = (\mathbf y - \mathbf X\boldsymbol\beta)^\top(\m
     <ol class="steps">
       <li><span class="sh">(a) A startup collects three features: <em>temperature</em> (°C), <em>humidity</em> (%), and <em>temperature + humidity</em> (they literally summed the first two columns to create the third). Can they apply the OLS formula?</span>
         <div class="answer">No.</div>
-        <p style="margin:.3rem 0 0"><b>Exactly kya galat hota hai:</b> Column 3 $=$ Column 1 $+$ Column 2 — ek <b>exact linear combination</b>. Iska matlab $\mathbf X$ ke columns <b>linearly dependent</b> hain. Isliye $\mathbf X^\top\mathbf X$ ka $\det = 0$ hoga → $\mathbf X^\top\mathbf X$ <b>singular</b> hai → $(\mathbf X^\top\mathbf X)^{-1}$ exist hi nahi karta → formula undefined.</p>
-        <p style="margin:.3rem 0 0"><b>Problem ka naam:</b> <b>Perfect (exact) Multicollinearity</b>.</p>
-        <p style="margin:.3rem 0 0"><b>Fix:</b> teeno mein se ek column drop kar do — wo koi nayi information de hi nahi raha.</p></li>
+        <p style="margin:.3rem 0 0"><b>What exactly goes wrong:</b> Column 3 $=$ Column 1 $+$ Column 2 — an <b>exact linear combination</b>. That means the columns of $\mathbf X$ are <b>linearly dependent</b>. So $\det(\mathbf X^\top\mathbf X) = 0$ → $\mathbf X^\top\mathbf X$ is <b>singular</b> → $(\mathbf X^\top\mathbf X)^{-1}$ does not exist → the formula is undefined.</p>
+        <p style="margin:.3rem 0 0"><b>The name of the problem:</b> <b>Perfect (exact) Multicollinearity</b>.</p>
+        <p style="margin:.3rem 0 0"><b>Fix:</b> drop one of the three columns — it was adding no new information at all.</p></li>
 
       <li><span class="sh">(b) Dataset has $m = 100{,}000$ features. Computer does $10^9$ operations/second. How long would matrix inversion take?</span>
         $$\text{Inversion cost} \approx (100{,}000)^3 = (10^5)^3 = \mathbf{10^{15}}\ \text{operations}$$
@@ -540,9 +540,9 @@ $$\boxed{\;L(\boldsymbol\beta) = (\mathbf y - \mathbf X\boldsymbol\beta)^\top(\m
         <div class="answer">Practical? <b>No.</b> Instead use <b>Gradient Descent</b> (iterative, per-iteration cost is only $O(nm)$).</div></li>
 
       <li><span class="sh">(c) A colleague says: "Always use OLS — it gives the exact optimal answer!" Give two reasons why this is not always a good idea.</span>
-        <div class="answer"><b>1.</b> Agar features linearly dependent hain (multicollinearity), $\mathbf X^\top\mathbf X$ singular hai aur formula <b>kaam hi nahi karta</b> — exact answer to door ki baat.<br>
-        <b>2.</b> Cost $O(m^3)$ hai. Large $m$ ke liye yeh computationally <b>infeasible</b> ho jaata hai (upar dekho: 11.6 days).</div>
-        <p style="margin:.3rem 0 0"><b>Bonus (worth mentioning in exams):</b> Numerical instability — jab $\mathbf X^\top\mathbf X$ <b>near</b>-singular ho (features almost dependent), inverse mathematically exist karta hai par floating-point mein wildly unstable hota hai.</p></li>
+        <div class="answer"><b>1.</b> If the features are linearly dependent (multicollinearity), $\mathbf X^\top\mathbf X$ is singular and the formula <b>does not work at all</b> — forget an exact answer.<br>
+        <b>2.</b> The cost is $O(m^3)$. For large $m$ this becomes computationally <b>infeasible</b> (see above: 11.6 days).</div>
+        <p style="margin:.3rem 0 0"><b>Bonus (worth mentioning in exams):</b> numerical instability — when $\mathbf X^\top\mathbf X$ is <b>near</b>-singular (features almost dependent), the inverse exists mathematically but is wildly unstable in floating point.</p></li>
     </ol>
   </div>
 </div>
@@ -591,7 +591,7 @@ $$\boxed{\;L(\boldsymbol\beta) = (\mathbf y - \mathbf X\boldsymbol\beta)^\top(\m
   <text x="340" y="243" text-anchor="middle" font-size="14" font-weight="700" style="fill:var(--text)">β* = (XᵀX)⁻¹Xᵀy</text>
   <text x="340" y="276" text-anchor="middle" font-size="10.5" font-style="italic" fill="#f87171">Works only if det(XᵀX) ≠ 0  ·  costs O(m³)</text>
 </svg>
-<figcaption>Yeh 8-step chain exam mein bohot common hai — ise <b>order ke saath</b> yaad rakho.</figcaption>
+<figcaption>This 8-step chain is very common in exams — memorise it <b>in order</b>.</figcaption>
 </figure>
 
 <div class="tbl-wrap">
@@ -705,14 +705,14 @@ $$\boxed{\;L(\boldsymbol\beta) = (\mathbf y - \mathbf X\boldsymbol\beta)^\top(\m
 
     <div class="box warn" style="margin-bottom:0">
       <div class="box-title">△ Reflect 1 — Why was the fit perfect, and would 100 points also fit perfectly?</div>
-      <p style="margin:0">Humare paas <b>3 data points aur 3 parameters</b> the — yaani 3 equations, 3 unknowns. Generically iska ek exact solution hota hai, isliye residuals zero aaye.<br>
-      100 data points par sirf 3 parameters ke saath? <b>Nahi.</b> Ab 100 equations hain par sirf 3 unknowns — system <b>overdetermined</b> hai. Perfect fit tabhi possible hai jab $n \le (m+1)$. Otherwise OLS <b>best compromise</b> dhundta hai jo total squared error minimize kare.<br>
-      <b>Aur yeh acchi baat hai:</b> perfect fit ka matlab aksar yeh hota hai ki model ne noise memorize kar liya. 👉 <a href="l09.html">Lecture 9 — Bias–Variance</a></p>
+      <p style="margin:0">We had <b>3 data points and 3 parameters</b> — that is 3 equations in 3 unknowns. Generically that has an exact solution, which is why the residuals came out zero.<br>
+      With 100 data points but only 3 parameters? <b>No.</b> Now there are 100 equations and only 3 unknowns — the system is <b>overdetermined</b>. A perfect fit is only possible when $n \le (m+1)$. Otherwise OLS finds the <b>best compromise</b> that minimises total squared error.<br>
+      <b>And that is a good thing:</b> a perfect fit often just means the model memorised the noise. 👉 <a href="l09.html">Lecture 9 — Bias–Variance</a></p>
     </div>
 
     <div class="box insight" style="margin-bottom:0">
-      <div class="box-title">△ Reflect 2 — Formula ek step mein exact answer deta hai. Gradient Descent bohot steps leta hai. Slow method kyun prefer karein?</div>
-      <p style="margin:0">Kyunki "ek step" ki cost $O(m^3)$ hai. $m = 10{,}000$ par wo $10^{12}$ operations hai. Gradient Descent ki per-iteration cost sirf $O(nm)$ hai — wo <b>hazaar iterations</b> bhi ek single matrix inversion se sasta hoga. Aur GD tab bhi chal jaata hai jab $\mathbf X^\top\mathbf X$ singular ho.</p>
+      <div class="box-title">△ Reflect 2 — the formula gives an exact answer in one step, while Gradient Descent takes many. So why prefer the slow method?</div>
+      <p style="margin:0">Because that "one step" costs $O(m^3)$. At $m = 10{,}000$ that is $10^{12}$ operations. Gradient Descent costs only $O(nm)$ per iteration — even <b>a thousand iterations</b> would be cheaper than one matrix inversion. And GD still runs when $\mathbf X^\top\mathbf X$ is singular.</p>
     </div>
   </div>
 </div>
@@ -724,14 +724,14 @@ $$\boxed{\;L(\boldsymbol\beta) = (\mathbf y - \mathbf X\boldsymbol\beta)^\top(\m
 <thead><tr><th>Statement</th><th>T/F</th><th>Justification</th></tr></thead>
 <tbody>
 <tr><td>(a) SLR is a special case of MLR with $m = 1$</td><td><span class="pill g">T</span></td><td>$\hat y = \beta_0 + \beta_1x_1$ is exactly $\hat y = c + mx$.</td></tr>
-<tr><td>(b) If you double every value in column $x_2$ of $\mathbf X$, the OLS formula still produces a valid $\boldsymbol\beta^*$</td><td><span class="pill g">T</span></td><td>Column scale karne se linear independence nahi tootti, to $\mathbf X^\top\mathbf X$ invertible rehta hai. Simply $\beta_2$ half ho jaayega, aur predictions <b>identical</b> rahengi.</td></tr>
-<tr><td>(c) OLS minimizes the sum of <em>absolute</em> residuals</td><td><span class="pill r">F</span></td><td>OLS <b>squared</b> residuals minimize karta hai. Absolute residuals minimize karne wali method ko LAD/quantile regression kehte hain.</td></tr>
-<tr><td>(d) If $\mathbf X$ has 200 rows and 5 features, then $\mathbf X^\top\mathbf X$ is a $6\times 6$ matrix</td><td><span class="pill g">T</span></td><td>Intercept column ke saath $\mathbf X$ is $200 \times 6$, so $\mathbf X^\top\mathbf X$ is $(6\times200)(200\times6) = 6\times6$.</td></tr>
-<tr><td>(e) Multicollinearity means two features are <em>slightly</em> correlated</td><td><span class="pill r">F</span></td><td>Multicollinearity ka matlab features <b>highly</b> correlated ya exactly linearly dependent hain. Slight correlation normal aur harmless hai.</td></tr>
-<tr><td>(f) If Gradient Descent and OLS are both applicable, they find <em>different</em> optimal $\boldsymbol\beta^*$</td><td><span class="pill r">F</span></td><td>Loss convex hai — ek hi global minimum. Dono <b>same</b> $\boldsymbol\beta^*$ par pahuchte hain (GD approximately, up to tolerance).</td></tr>
-<tr><td>(g) Adding more features <em>always</em> reduces Total Squared Error on the <b>training</b> data</td><td><span class="pill g">T</span></td><td>Worst case, optimizer naye feature ka coefficient $0$ set kar sakta hai — to training error kabhi <b>badh</b> nahi sakta. (Test error badh sakta hai — yahi overfitting hai.)</td></tr>
-<tr><td>(h) The Normal Equation is $\mathbf X^\top\mathbf X\boldsymbol\beta = \mathbf X^\top\mathbf y$</td><td><span class="pill g">T</span></td><td>Gradient ko zero set karne se yahi nikalta hai.</td></tr>
-<tr><td>(i) If $n &lt; (m+1)$, the model can perfectly fit the training data, and this is <em>always</em> a good thing</td><td><span class="pill r">F</span></td><td>Perfect fit <b>ho sakta hai</b>, par yeh acchi baat nahi — model noise memorize kar raha hai. Aur $n &lt; m+1$ par $\mathbf X^\top\mathbf X$ <b>singular</b> hota hai (rank $\le n &lt; m+1$), to OLS formula kaam hi nahi karega.</td></tr>
+<tr><td>(b) If you double every value in column $x_2$ of $\mathbf X$, the OLS formula still produces a valid $\boldsymbol\beta^*$</td><td><span class="pill g">T</span></td><td>Scaling a column does not break linear independence, so $\mathbf X^\top\mathbf X$ stays invertible. $\beta_2$ simply halves, and the predictions stay <b>identical</b>.</td></tr>
+<tr><td>(c) OLS minimizes the sum of <em>absolute</em> residuals</td><td><span class="pill r">F</span></td><td>OLS minimises <b>squared</b> residuals. The method that minimises absolute residuals is called LAD / quantile regression.</td></tr>
+<tr><td>(d) If $\mathbf X$ has 200 rows and 5 features, then $\mathbf X^\top\mathbf X$ is a $6\times 6$ matrix</td><td><span class="pill g">T</span></td><td>The intercept column counts: $(m{+}1) = 6$.</td></tr>
+<tr><td>(e) Multicollinearity means two features are <em>slightly</em> correlated</td><td><span class="pill r">F</span></td><td>Multicollinearity means the features are <b>highly</b> correlated or exactly linearly dependent. Slight correlation is normal and harmless.</td></tr>
+<tr><td>(f) If Gradient Descent and OLS are both applicable, they find <em>different</em> optimal $\boldsymbol\beta^*$</td><td><span class="pill r">F</span></td><td>The loss is convex — one global minimum. Both reach the <b>same</b> $\boldsymbol\beta^*$ (GD approximately, up to tolerance).</td></tr>
+<tr><td>(g) Adding more features <em>always</em> reduces Total Squared Error on the <b>training</b> data</td><td><span class="pill g">T</span></td><td>Worst case, the optimiser can set the new feature's coefficient to $0$ — so training error can never <b>increase</b>. (Test error can, and that is overfitting.)</td></tr>
+<tr><td>(h) The Normal Equation is $\mathbf X^\top\mathbf X\boldsymbol\beta = \mathbf X^\top\mathbf y$</td><td><span class="pill g">T</span></td><td>This is exactly what falls out of setting the gradient to zero.</td></tr>
+<tr><td>(i) If $n &lt; (m+1)$, the model can perfectly fit the training data, and this is <em>always</em> a good thing</td><td><span class="pill r">F</span></td><td>A perfect fit <b>is possible</b>, but it isn't a good thing — the model is memorising noise. And when $n &lt; m+1$, $\mathbf X^\top\mathbf X$ is <b>singular</b> (rank $\le n &lt; m+1$), so the OLS formula won't even run.</td></tr>
 </tbody>
 </table>
 </div>
@@ -760,14 +760,14 @@ $$\boxed{\;L(\boldsymbol\beta) = (\mathbf y - \mathbf X\boldsymbol\beta)^\top(\m
 <table>
 <thead><tr><th>Galti</th><th>Sahi Baat</th></tr></thead>
 <tbody>
-<tr><td>Design matrix mein 1s column bhool jaana</td><td>Bina us column ke intercept $\beta_0$ model mein aata hi nahi. $\mathbf X$ is $n\times(m+1)$, not $n\times m$.</td></tr>
-<tr><td>$\mathbf X^\top\mathbf X$ ko $n\times n$ samajhna</td><td>Wo $(m+1)\times(m+1)$ hai — features ki sankhya se, rows se nahi.</td></tr>
+<tr><td>Forgetting the column of 1s in the design matrix</td><td>Without that column the intercept $\beta_0$ never enters the model. $\mathbf X$ is $n\times(m+1)$, not $n\times m$.</td></tr>
+<tr><td>Thinking $\mathbf X^\top\mathbf X$ is $n\times n$</td><td>It is $(m+1)\times(m+1)$ — set by the number of features, not the number of rows.</td></tr>
 <tr><td>$(\mathbf{AB})^\top = \mathbf A^\top\mathbf B^\top$</td><td>Correct rule: $(\mathbf{AB})^\top = \mathbf B^\top\mathbf A^\top$ — <b>order reverses</b>.</td></tr>
-<tr><td>Identity 2 mein $-2$ factor drop kar dena</td><td>$\partial(-2\mathbf y^\top\mathbf X\boldsymbol\beta)/\partial\boldsymbol\beta = -2\mathbf X^\top\mathbf y$ — minus two carry karo.</td></tr>
-<tr><td>Identity 3 ko non-symmetric $\mathbf A$ par lagana</td><td>$2\mathbf A\boldsymbol\beta$ sirf symmetric $\mathbf A$ ke liye hai. Luckily $\mathbf X^\top\mathbf X$ hamesha symmetric hota hai.</td></tr>
-<tr><td>"Multicollinearity = thodi si correlation"</td><td>Nahi — <b>high</b> correlation ya exact linear dependence. Slight correlation harmless hai.</td></tr>
+<tr><td>Dropping the $-2$ factor in Identity 2</td><td>$\partial(-2\mathbf y^\top\mathbf X\boldsymbol\beta)/\partial\boldsymbol\beta = -2\mathbf X^\top\mathbf y$ — carry the minus two through.</td></tr>
+<tr><td>Applying Identity 3 to a non-symmetric $\mathbf A$</td><td>$2\mathbf A\boldsymbol\beta$ only holds for symmetric $\mathbf A$. Luckily $\mathbf X^\top\mathbf X$ is always symmetric.</td></tr>
+<tr><td>"Multicollinearity = a bit of correlation"</td><td>No — it means <b>high</b> correlation or exact linear dependence. Slight correlation is harmless.</td></tr>
 <tr><td>"OLS aur GD alag answers denge"</td><td>Convex loss ⟹ <b>ek</b> global minimum ⟹ same $\boldsymbol\beta^*$.</td></tr>
-<tr><td>Normal Equation ko $\mathbf X\boldsymbol\beta = \mathbf y$ likhna</td><td>Correct: $\mathbf X^\top\mathbf X\boldsymbol\beta = \mathbf X^\top\mathbf y$.</td></tr>
+<tr><td>Writing the Normal Equation as $\mathbf X\boldsymbol\beta = \mathbf y$</td><td>Correct: $\mathbf X^\top\mathbf X\boldsymbol\beta = \mathbf X^\top\mathbf y$.</td></tr>
 </tbody>
 </table>
 </div>
@@ -785,12 +785,12 @@ $$\boxed{\;L(\boldsymbol\beta) = (\mathbf y - \mathbf X\boldsymbol\beta)^\top(\m
 <div class="box takeaway">
   <div class="box-title">♦ By the end of this sheet you can…</div>
   <ul style="margin:0">
-    <li>SLR ko MLR tak extend karna aur intercept column ke saath design matrix $\mathbf X$ banana.</li>
-    <li>Loss ko $L(\boldsymbol\beta) = (\mathbf y-\mathbf X\boldsymbol\beta)^\top(\mathbf y-\mathbf X\boldsymbol\beta)$ likhna aur teen terms mein expand karna.</li>
-    <li>Teeno matrix calculus identities derive karna (constant, linear form, quadratic form).</li>
+    <li>Extend SLR to MLR and build the design matrix $\mathbf X$ with its intercept column.</li>
+    <li>Write the loss as $L(\boldsymbol\beta) = (\mathbf y-\mathbf X\boldsymbol\beta)^\top(\mathbf y-\mathbf X\boldsymbol\beta)$ and expand it into three terms.</li>
+    <li>Derive all three matrix-calculus identities (constant, linear form, quadratic form).</li>
     <li>Identities apply karke closed-form OLS solution $\boldsymbol\beta^* = (\mathbf X^\top\mathbf X)^{-1}\mathbf X^\top\mathbf y$ nikalna.</li>
-    <li>Explain karna ki solution kab fail hota hai (multicollinearity) aur inversion ki cost $O(m^3)$ kyun hai.</li>
-    <li>Chhote dataset par matrix operations se $\boldsymbol\beta^*$ <b>by hand</b> compute karna.</li>
+    <li>Explain when the solution fails (multicollinearity) and why inversion costs $O(m^3)$.</li>
+    <li>Compute $\boldsymbol\beta^*$ <b>by hand</b> on a small dataset using matrix operations.</li>
   </ul>
 </div>
 
@@ -807,7 +807,7 @@ const MCQS = [
   q:'A dataset has 200 rows and 5 features. What are the dimensions of $\\mathbf X^\\top\\mathbf X$?',
   o:['$200 \\times 200$', '$5 \\times 5$', '$6 \\times 6$', '$200 \\times 6$'],
   a:2,
-  e:'<b>C.</b> Intercept column ke saath $\\mathbf X$ is $200\\times 6$. So $\\mathbf X^\\top\\mathbf X = (6\\times200)(200\\times6) = 6\\times6$. <b>B</b> is the most common trap — intercept column ko count karna bhool jaana. <b>A</b> $\\mathbf X\\mathbf X^\\top$ hota (a different matrix). <b>D</b> is $\\mathbf X$ itself.' },
+  e:'<b>C.</b> With the intercept column, $\\mathbf X$ is $200\\times 6$. So $\\mathbf X^\\top\\mathbf X = (6\\times200)(200\\times6) = 6\\times6$. <b>B</b> is the most common trap — forgetting to count the intercept column. <b>A</b> would be $\\mathbf X\\mathbf X^\\top$ (a different matrix). <b>D</b> is $\\mathbf X$ itself.' },
 
 { d:'hard',
   q:'For $\\mathbf X = \\begin{bmatrix}1&1&0\\\\1&0&1\\\\1&1&1\\end{bmatrix}$ and $\\mathbf y = [2,3,6]^\\top$, the OLS solution $\\boldsymbol\\beta^*$ is:',
@@ -840,13 +840,13 @@ const MCQS = [
      'Because $\\mathbf X$ is symmetric',
      'Because $\\boldsymbol\\beta$ is a unit vector'],
   a:1,
-  e:'<b>B.</b> Dimension check: $(1\\times n)(n\\times(m{+}1))((m{+}1)\\times1) = 1\\times1$. Ek scalar ka transpose khud wahi scalar hai, to dono terms equal hain. <b>A</b> false — matrix multiplication generally commutative nahi hai. <b>C</b> false — $\\mathbf X$ square bhi nahi hai. <b>D</b> irrelevant.' },
+  e:'<b>B.</b> Dimension check: $(1\\times n)(n\\times(m{+}1))((m{+}1)\\times1) = 1\\times1$. The transpose of a scalar is that same scalar, so both terms are equal. <b>A</b> is false — matrix multiplication is not generally commutative. <b>C</b> is false — $\\mathbf X$ is not even square. <b>D</b> is irrelevant.' },
 
 { d:'hard',
   q:'Your dataset has $m = 100{,}000$ features and your machine does $10^9$ operations per second. Roughly how long does the matrix inversion in OLS take?',
   o:['About 1 second', 'About 17 minutes', 'About 11–12 days', 'About 30 years'],
   a:2,
-  e:'<b>C.</b> $(10^5)^3 = 10^{15}$ operations; $10^{15}/10^9 = 10^6$ s; $10^6/86400 \\approx 11.6$ days. <b>A</b> and <b>B</b> badly underestimate the cubic blow-up. <b>D</b> overestimates by ~1000×. Point yeh hai: $O(m^3)$ large $m$ par kaam ka nahi — <b>Gradient Descent</b> use karo.' },
+  e:'<b>C.</b> $(10^5)^3 = 10^{15}$ operations; $10^{15}/10^9 = 10^6$ s; $10^6/86400 \\approx 11.6$ days. <b>A</b> and <b>B</b> badly underestimate the cubic blow-up. <b>D</b> overestimates by ~1000×. The point: $O(m^3)$ is unusable for large $m$ — use <b>Gradient Descent</b>.' },
 
 { d:'hard',
   q:'"If Gradient Descent and OLS are both applicable, they will find different optimal $\\boldsymbol\\beta^*$." True or false, and why?',
@@ -855,7 +855,7 @@ const MCQS = [
      'True — GD minimises absolute error while OLS minimises squared error',
      'False — GD cannot be applied to linear regression at all'],
   a:1,
-  e:'<b>B.</b> $L(\\boldsymbol\\beta)$ convex hai — ek hi minimum exist karta hai. OLS wahan jump kar jaata hai; GD wahan walk karke pahuchta hai (numerical tolerance ke andar). <b>A</b> confuses numerical precision with a genuinely different optimum. <b>C</b> false — dono same squared-error loss minimise karte hain. <b>D</b> false — GD is the standard method for large $m$.' },
+  e:'<b>B.</b> $L(\\boldsymbol\\beta)$ is convex — only one minimum exists. OLS jumps straight to it; GD walks there (within numerical tolerance). <b>A</b> confuses numerical precision with a genuinely different optimum. <b>C</b> is false — both minimise the same squared-error loss. <b>D</b> is false — GD is the standard method for large $m$.' },
 
 { d:'med',
   q:'Two models predict store sales. Model A residuals: $+2, -6, +1$. Model B residuals: $-2, +2, -1$. Which model fits better and why?',
@@ -864,7 +864,7 @@ const MCQS = [
      'They are equal, because both have three residuals',
      'Model A, because it has the single largest individual residual'],
   a:1,
-  e:'<b>B.</b> $\\text{TSE}_A = 4+36+1 = 41$; $\\text{TSE}_B = 4+4+1 = 9$. Chhota TSE = better fit. Note: signed totals ($-3$ vs $-1$) dono chhote dikhte hain aur kuch nahi batate — squaring ne A ka $-6$ wala bada miss expose kiya. <b>D</b> has the right observation but the wrong conclusion — bada residual hona <b>bura</b> hai.' },
+  e:'<b>B.</b> $\\text{TSE}_A = 4+36+1 = 41$; $\\text{TSE}_B = 4+4+1 = 9$. A smaller TSE = a better fit. Note: the signed totals ($-3$ vs $-1$) both look small and reveal nothing — the squaring is what exposed A\'s big $-6$ miss. <b>D</b> has the right observation but the wrong conclusion — having a large residual is <b>bad</b>.' },
 
 { d:'hard',
   q:'"Adding more features always reduces Total Squared Error on the TRAINING data." Which analysis is correct?',
@@ -873,7 +873,7 @@ const MCQS = [
      'True, and it also guarantees lower test error',
      'False — training error is fixed once $n$ is fixed'],
   a:1,
-  e:'<b>B.</b> Naya feature optimizer ko ek <b>strictly larger</b> search space deta hai; purana solution ($\\beta_{\\text{new}} = 0$) abhi bhi available hai, to minimum badh nahi sakta. Catch: <b>test</b> error badh sakta hai. <b>C</b> is the dangerous version — training gain kabhi bhi test gain guarantee nahi karta. <b>A</b> and <b>D</b> misstate the mechanism.' },
+  e:'<b>B.</b> A new feature gives the optimizer a <b>strictly larger</b> search space; the old solution ($\\beta_{\\text{new}} = 0$) is still available, so the minimum cannot increase. The catch: <b>test</b> error can increase. <b>C</b> is the dangerous version — a training gain never guarantees a test gain. <b>A</b> and <b>D</b> misstate the mechanism.' },
 
 { d:'hard',
   q:'A model is fitted on 3 data points with 3 parameters and achieves a perfect fit ($L = 0$). What is the correct interpretation?',
@@ -882,7 +882,7 @@ const MCQS = [
      'The computation must contain an error, since $L = 0$ is impossible',
      'It proves the features are multicollinear'],
   a:1,
-  e:'<b>B.</b> 3 equations, 3 unknowns → generically exact solution. Perfect training fit model quality ka <b>evidence nahi</b> hai. <b>A</b> exactly wo overconfidence hai jo Lecture 9 (bias–variance) address karta hai. <b>C</b> false — $L=0$ bilkul possible hai. <b>D</b> reversed — multicollinearity hoti to $\\mathbf X^\\top\\mathbf X$ singular hota aur solve hi nahi hota.' },
+  e:'<b>B.</b> 3 equations, 3 unknowns → generically an exact solution. A perfect training fit is <b>no evidence</b> of model quality. <b>A</b> is exactly the overconfidence that Lecture 9 (bias–variance) addresses. <b>C</b> is false — $L=0$ is entirely possible. <b>D</b> is reversed — with multicollinearity $\\mathbf X^\\top\\mathbf X$ would be singular and could not be solved at all.' },
 ];
 </script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>

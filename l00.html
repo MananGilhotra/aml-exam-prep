@@ -20,7 +20,7 @@
 <header class="hero">
   <div class="eyebrow">Worksheet 0 · Lecture 0</div>
   <h1>Setting the Foundation — <span class="gradtext">From Code to Learning</span></h1>
-  <p class="sub">Traditional Programming → Artificial Intelligence → Machine Learning → Deep Learning. Phir data ke flavours (labelled/unlabelled), 4 learning strategies, aur 3 core engineering tasks.</p>
+  <p class="sub">Traditional Programming → Artificial Intelligence → Machine Learning → Deep Learning. Then the flavours of data (labelled/unlabelled), the 4 learning strategies, and the 3 core engineering tasks.</p>
   <div class="chips">
     <span class="chip accent">⏱ <b>~22 min</b> read</span>
     <span class="chip">🧠 7 Parts</span>
@@ -32,7 +32,7 @@
 
 <div class="box hinglish">
   <div class="box-title">⚡ Ek Line Mein (TL;DR)</div>
-  <p style="margin:0">Traditional programming mein <b>insaan rules likhta hai</b> → machine answers deti hai. Machine Learning mein <b>insaan answers deta hai</b> → machine khud rules nikaalti hai. Deep Learning wahi ML hai, bas features bhi machine khud seekh leti hai — raw images/audio se. Aur pura field ka naam? <b>AI</b> — sabka chhata (umbrella).</p>
+  <p style="margin:0">In traditional programming <b>the human writes the rules</b> → the machine produces answers. In Machine Learning <b>the human supplies the answers</b> → the machine works out the rules itself. Deep Learning is still ML, bas ab the machine learns the features too — straight from raw images and audio. And the name for the whole field? <b>AI</b> — sabka chhata, the umbrella over all of it.</p>
 </div>
 
 <!-- ================================================== -->
@@ -40,12 +40,12 @@
 
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">Socho tumhe Python mein spam filter banana hai. Tum rules add karte ho: block karo emails jinme <code>'FREE'</code>, <code>'WINNER'</code>, <code>'CRYPTO'</code> ho. Kaam karta hai — jab tak spammer <code>'FR33'</code> ya <code>'W1NNER'</code> nahi likhta. Program toot jaata hai. Tum patch karte ho. Wo phir badal dete hain. <b>Fundamental structural problem kya hai?</b></p>
+  <p style="margin:0">Say you have to build a spam filter in Python. You start adding rules: block any email containing <code>'FREE'</code>, <code>'WINNER'</code>, <code>'CRYPTO'</code>. It works — until a spammer writes <code>'FR33'</code> or <code>'W1NNER'</code>. The program breaks. You patch it. They change again. <b>So what is the fundamental structural problem here?</b></p>
 </div>
 
 <div class="box def">
   <div class="box-title">Definition</div>
-  <p style="margin:0"><b>Traditional Programming:</b> Ek paradigm jahan human engineers <b>manually explicit logical rules likhte hain</b> taaki input data process ho aur specific outputs/answers nikle.</p>
+  <p style="margin:0"><b>Traditional Programming:</b> a paradigm in which human engineers <b>manually write explicit logical rules</b> so that input data is processed and specific outputs/answers come out.
 </div>
 
 <figure>
@@ -74,17 +74,17 @@
   <rect x="528" y="77" width="150" height="46" rx="10" fill="rgba(16,185,129,.16)" stroke="#10b981"/>
   <text x="603" y="105" text-anchor="middle" font-size="14" font-weight="700" style="fill:var(--text)">Answers</text>
 </svg>
-<figcaption>Traditional Programming: <b>Data + Rules → Answers</b>. Computer sirf executor hai, zero autonomy.</figcaption>
+<figcaption>Traditional Programming: <b>Data + Rules → Answers</b>. The computer is only an executor, with zero autonomy.</figcaption>
 </figure>
 
 <h3>Analogy — rigid cookbook recipe</h3>
-<p>Traditional programming ek <b>rigid cookbook recipe</b> likhne jaisa hai. Developer ko poora problem samajhna padta hai, har rule, har edge case, har logical branch figure out karna padta hai — aur explicitly computer ko dictate karna padta hai. Computer purely ek executor hai jiske paas <b>zero autonomy</b> hai.</p>
+<p>Traditional programming is like writing a <b>rigid cookbook recipe</b>. The developer has to understand the entire problem, work out every rule, every edge case and every logical branch — and then dictate all of it explicitly to the computer. The computer is purely an executor with <b>zero autonomy</b>.</p>
 
-<h3>The Breakdown: real world mein yeh fail kyun hota hai</h3>
+<h3>The breakdown: why this fails in the real world</h3>
 <ul>
-  <li>Spammer dekhta hai ki <code>"FREE"</code> block ho raha hai → wo <code>"F-R-E-E"</code> ya <code>"FR33"</code> likh deta hai.</li>
-  <li>Tumhara code toot jaata hai. Fix karne ke liye source file kholo, ek aur <code>if-else</code> add karo, recompile karo.</li>
-  <li>Traditional programs <b>structurally rigid</b> hain — set in stone. Jis pal environment shift hota hai (unusual weather patterns logistics system disrupt karti hain, users apni slang badal dete hain), program appropriate decisions nahi le paata kyunki wo <b>dynamically adapt nahi kar sakta</b>.</li>
+  <li>The spammer notices that <code>"FREE"</code> is being blocked → so they write <code>"F-R-E-E"</code> or <code>"FR33"</code> instead.</li>
+  <li>Your code breaks. To fix it you open the source file, add one more <code>if-else</code>, and recompile.</li>
+  <li>Traditional programs are <b>structurally rigid</b> — set in stone. The moment the environment shifts (unusual weather patterns disrupt a logistics system, users change their slang), the program can no longer make appropriate decisions, kyunki it <b>cannot adapt dynamically</b>.</li>
 </ul>
 
 <figure>
@@ -113,17 +113,17 @@
   <circle cx="330" cy="167" r="11" fill="none" style="stroke:var(--text)" stroke-width="2"/>
   <circle cx="330" cy="167" r="6" style="fill:var(--text)"/>
 </svg>
-<figcaption>Har decision hardcoded — jitne cases utne branches. Yahi scalability ka dead-end hai.</figcaption>
+<figcaption>Every decision hardcoded — as many branches as there are cases. This is the scalability dead-end.</figcaption>
 </figure>
 
 <div class="box insight">
   <div class="box-title">★ Key Insight</div>
-  <p style="margin:0">Traditional programs <b>dynamically adapt nahi kar sakte</b>. Har baar real world shift hone par manual intervention chahiye. Yehi rigidity poore Machine Learning field ki <b>core motivation</b> hai.</p>
+  <p style="margin:0">Traditional programs <b>cannot adapt dynamically</b>. Every time the real world shifts, a human has to step in manually. That rigidity is the <b>core motivation</b> behind the entire field of Machine Learning.</p>
 </div>
 
 <div class="box takeaway">
   <div class="box-title">♦ Takeaway</div>
-  <p style="margin:0">Traditional Programming: <b>Data + Rules → Answers.</b> Hard-coded. Rigid. Duniya badalte hi toot jaata hai.</p>
+  <p style="margin:0">Traditional Programming: <b>Data + Rules → Answers.</b> Hard-coded. Rigid. It breaks the moment the world changes.</p>
 </div>
 
 <!-- ================================================== -->
@@ -131,54 +131,54 @@
 
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">Agar rigid explicit code real world ke messy hote hi toot jaata hai — to insaan kaise handle karte hain? Tum spam email ko real se kaise pehchaante ho, chahe spammer aisa word use kare jo tumne kabhi dekha hi na ho? <b>Konsi ability hum computers ko dena chahte hain?</b></p>
+  <p style="margin:0">If rigid explicit code breaks the moment the real world gets messy — then how do humans manage it? How do you tell a spam email from a real one, even when the spammer uses a word you have never seen before? <b>What is the ability we actually want to give computers?</b></p>
 </div>
 
 <h3>Building the intuition</h3>
-<p>Insaan hardcoded if-else blocks par nahi chalte. Human decision-making <b>millions of incredibly flexible, fuzzy, pattern-based rules</b> par chalti hai jinhe hum constantly update karte rehte hain. Hum big picture dekhte hain, context notice karte hain, aur adapt karte hain. Agar hum chahte hain ki computers diseases diagnose karein, cars chalayein, ya speech samjhein — to unhe yeh broader, <b>generalized adaptability</b> mimic karni hogi. Isi aspiration ka naam hai <b>Artificial Intelligence</b>.</p>
+<p>Humans do not run on hardcoded if-else blocks. Human decision-making runs on <b>millions of incredibly flexible, fuzzy, pattern-based rules</b> that we keep updating constantly. We see the big picture, we notice context, and we adapt. If we want computers to diagnose diseases, drive cars or understand speech, they will have to mimic that broader, <b>generalised adaptability</b>. That aspiration is what we call <b>Artificial Intelligence</b>.</p>
 
 <div class="box def">
   <div class="box-title">Definition &amp; Core Focus</div>
-  <p><b>Artificial Intelligence (AI):</b> Computer science ka broad, overarching field jo aise hardware aur software systems banane ko dedicated hai jo <b>human-like intelligence mimic</b> kar sakein.</p>
-  <p style="margin:0"><b>The Ultimate Goal:</b> Aise systems engineer karna jo independently reason kar sakein, problems solve karein, environments perceive karein, aur autonomous decisions lein — bina human ke har single scenario hardcode kiye.</p>
+  <p><b>Artificial Intelligence (AI):</b> The broad, overarching field of computer science dedicated to building hardware and software systems that can <b>mimic human-like intelligence</b>.</p>
+  <p style="margin:0"><b>The ultimate goal:</b> to engineer systems that can reason independently, solve problems, perceive their environment and make autonomous decisions — without a human hardcoding every single scenario.</p>
 </div>
 
 <h3>Key Areas of Modern AI</h3>
 <div class="grid g2">
   <div class="card" style="margin:0">
     <h4 style="margin-top:0">🔍 Search Algorithms</h4>
-    <p style="margin:0;font-size:.9rem">Google Maps ya Uber routing. Yeh sirf static line calculate nahi kar raha — <b>millions of combinatorial routes</b> mein dynamically search kar raha hai optimal path ke liye, real-time traffic ke hisaab se.</p>
+    <p style="margin:0;font-size:.9rem">Google Maps or Uber routing. It isn't just calculating a static line — it is dynamically searching through <b>millions of combinatorial routes</b> for the optimal path, adjusting to real-time traffic.</p>
   </div>
   <div class="card" style="margin:0">
     <h4 style="margin-top:0">💬 Large Language Models (LLMs)</h4>
-    <p style="margin:0;font-size:.9rem">Wo systems jo coherent, contextually aware human text generate karte hain.</p>
+    <p style="margin:0;font-size:.9rem">Systems that generate coherent, contextually aware human text.</p>
   </div>
   <div class="card" style="margin:0">
     <h4 style="margin-top:0">🤖 Robotics</h4>
-    <p style="margin:0;font-size:.9rem">Physical agents design karna jo unpredictable physical world mein safely navigate, manipulate aur interact kar sakein.</p>
+    <p style="margin:0;font-size:.9rem">Designing physical agents that can safely navigate, manipulate and interact in an unpredictable physical world.</p>
   </div>
   <div class="card" style="margin:0">
     <h4 style="margin-top:0">🗣️ Natural Language Processing (NLP)</h4>
-    <p style="margin:0;font-size:.9rem">Google Assistant / Siri ka engine — raw audio waves lete hain, grammar parse karte hain, semantic meaning extract karte hain, intelligently respond karte hain.</p>
+    <p style="margin:0;font-size:.9rem">The engine behind Google Assistant and Siri — it takes raw audio waves, parses grammar, extracts semantic meaning, and responds intelligently.</p>
   </div>
   <div class="card" style="margin:0">
     <h4 style="margin-top:0">🎮 Game NPCs</h4>
-    <p style="margin:0;font-size:.9rem">Modern video games ke non-player characters jo <em>tumhare</em> khelne ke tareeke ke hisaab se combat strategies dynamically adapt karte hain.</p>
+    <p style="margin:0;font-size:.9rem">Non-player characters in modern video games that adapt their combat strategy dynamically, based on <em>how you</em> play.</p>
   </div>
   <div class="card" style="margin:0">
     <h4 style="margin-top:0">👁️ Computer Vision (CV)</h4>
-    <p style="margin:0;font-size:.9rem">Computers ko visual world interpret karna sikhana. Analog cameras se visual data digitize karke deep neural networks objects, faces, poore scenes accurately identify/track/classify karte hain.</p>
+    <p style="margin:0;font-size:.9rem">Teaching computers to interpret the visual world. Visual data is digitised from analog cameras, and deep neural networks then identify, track and classify objects, faces and whole scenes accurately.</p>
   </div>
 </div>
 
 <div class="box insight">
   <div class="box-title">★ Key Insight</div>
-  <p style="margin:0">AI ek <b>aspiration</b> hai: machines jo human-like adaptability mimic karein. ML us aspiration ko achieve karne ka <b>primary engine</b> hai — lekin AI mein <b>non-learning systems bhi</b> aate hain (jaise search algorithms). Isliye AI, ML se bada hai.</p>
+  <p style="margin:0">AI is an <b>aspiration</b>: machines that mimic human-like adaptability. ML is the <b>primary engine</b> for achieving it — but AI also includes <b>non-learning systems</b> (search algorithms, for instance). That is why AI is bigger than ML.</p>
 </div>
 
 <div class="box takeaway">
   <div class="box-title">♦ Takeaway</div>
-  <p style="margin:0">AI overarching field hai. ML, Search, NLP, CV, Robotics — sab AI ke andar sub-domains hain.</p>
+  <p style="margin:0">AI is the overarching field. ML, Search, NLP, CV and Robotics are all sub-domains within AI.</p>
 </div>
 
 <!-- ================================================== -->
@@ -186,10 +186,10 @@
 
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">Rules likhne ki jagah — agar hum computer ko 50,000 real emails AUR 50,000 spam emails dein aur kahein: <em>"Figure out karo inme difference kya hai"</em>? Yeh software engineering paradigm ko kaise ulta kar deta hai?</p>
+  <p style="margin:0">Instead of writing rules — what if we hand the computer 50,000 real emails AND 50,000 spam emails and say: <em>"You figure out what the difference is"</em>? How does that flip the software-engineering paradigm on its head?</p>
 </div>
 
-<h3>The Paradigm Flip ⭐ (sabse important exam line)</h3>
+<h3>The Paradigm Flip ⭐ (the single most important exam line)</h3>
 <figure>
 <svg viewBox="0 0 700 250" role="img" aria-label="Traditional programming vs machine learning paradigm flip">
   <defs>
@@ -221,35 +221,35 @@
   <text x="600" y="185" text-anchor="middle" font-size="12" font-weight="700" fill="#fbbf24">Output flip!</text>
   <text x="600" y="203" text-anchor="middle" font-size="11" style="fill:var(--text-3)">Rules ab output hain</text>
 </svg>
-<figcaption>ML mein input–output ulta ho jaata hai. Humans examples supply karte hain; algorithm patterns discover karta hai.</figcaption>
+<figcaption>In ML the input and output swap places. Humans supply the examples; the algorithm discovers the patterns.</figcaption>
 </figure>
 
 <div class="box def">
   <div class="box-title">Definition &amp; Mechanics</div>
-  <p><b>Machine Learning (ML):</b> AI ka ek specialized subset jo aise mathematical models aur algorithms develop karne par focus karta hai jo computers ko <b>autonomously patterns extract</b> karne aur <b>directly data se insights seekhne</b> dete hain — explicit, hardcoded instructions par bharosa kiye bina.</p>
-  <p style="margin:0"><b>The Workflow:</b> ML model historical records (training data) analyze karta hai → implicit statistical relationships identify karta hai → un relationships ka ek generalized mathematical representation banata hai → aur us representation ko <b>entirely new, unseen future data</b> par predictions/classifications ke liye apply karta hai.</p>
+  <p><b>Machine Learning (ML):</b> A specialised subset of AI focused on developing mathematical models and algorithms that let computers <b>extract patterns autonomously</b> and <b>learn insights directly from data</b> — without relying on explicit, hardcoded instructions.</p>
+  <p style="margin:0"><b>The workflow:</b> the ML model analyses historical records (training data) → identifies implicit statistical relationships → builds a generalised mathematical representation of those relationships → and applies that representation to make predictions on <b>entirely new, unseen future data</b>.</p>
 </div>
 
 <h3>Classic Examples of ML</h3>
 <div class="tbl-wrap">
 <table>
-<thead><tr><th>Example</th><th>Kaise kaam karta hai</th></tr></thead>
+<thead><tr><th>Example</th><th>How it works</th></tr></thead>
 <tbody>
-<tr><td><b>Spam Detection</b></td><td>Email servers continuously billions of user actions ingest karte hain (spam mark karna vs inbox mein move karna) taaki filtering patterns <b>automatically update</b> ho — bina software update ke.</td></tr>
-<tr><td><b>Stock Price Prediction</b></td><td>Decades ke multi-variable financial tickers, trading volumes, aur macroeconomic indicators analyze karke future asset pricing trends forecast karna.</td></tr>
-<tr><td><b>Medical Diagnostics</b></td><td>Laboratory blood panels, genomic data aur historical patient vitals evaluate karke chronic illnesses ka early onset predict karna.</td></tr>
+<tr><td><b>Spam Detection</b></td><td>Email servers continuously ingest billions of user actions (marking something as spam vs moving it to the inbox) so that filtering patterns <b>update automatically</b> — with no software update at all.</td></tr>
+<tr><td><b>Stock Price Prediction</b></td><td>Analysing decades of multi-variable financial tickers, trading volumes and macroeconomic indicators to forecast future asset pricing trends.</td></tr>
+<tr><td><b>Medical Diagnostics</b></td><td>Evaluating laboratory blood panels, genomic data and historical patient vitals to predict the early onset of chronic illnesses.</td></tr>
 </tbody>
 </table>
 </div>
 
 <div class="box insight">
   <div class="box-title">★ Key Insight</div>
-  <p style="margin:0">ML models ko programmer se rules <b>pehle se jaanne ki zaroorat nahi</b>. Wo historical labelled examples se <b>generalize</b> karte hain aur us generalization ko unseen data par apply karte hain.</p>
+  <p style="margin:0">ML models <b>do not need the rules handed to them</b> by a programmer. They <b>generalise</b> from historical labelled examples and apply that generalisation to unseen data.</p>
 </div>
 
 <div class="box takeaway">
   <div class="box-title">♦ Takeaway</div>
-  <p style="margin:0">ML: <b>Data + Answers → Rules.</b> Algorithm patterns discover karta hai; humans examples supply karte hain.</p>
+  <p style="margin:0">ML: <b>Data + Answers → Rules.</b> The algorithm discovers the patterns; humans only supply the examples.</p>
 </div>
 
 <!-- ================================================== -->
@@ -257,34 +257,34 @@
 
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">Ek basic ML algorithm ko billi ki photo milti hai. Photo millions of pixel numbers ka grid hai. Agar billi apna sar tilt kar de, <b>har single pixel value completely shift ho jaati hai</b>. Standard ML yahan struggle kyun karta hai — aur Deep Learning ise kaise solve karta hai?</p>
+  <p style="margin:0">A basic ML algorithm is handed a photo of a cat. That photo is a grid of millions of pixel numbers. If the cat simply tilts its head, <b>every single pixel value shifts completely</b>. So why does standard ML struggle here — and how does Deep Learning solve it?</p>
 </div>
 
 <h3>Structured vs Unstructured Data</h3>
 <div class="grid g2">
   <div class="box takeaway" style="margin:0">
-    <div class="box-title">✓ Standard ML iske liye great hai</div>
+    <div class="box-title">✓ Standard ML is great for this</div>
     <ul style="margin:0">
       <li><b>Structured data:</b> Excel spreadsheets, clean databases</li>
       <li>Example features: Square footage, Number of bedrooms</li>
     </ul>
   </div>
   <div class="box danger" style="margin:0">
-    <div class="box-title">✗ Standard ML yahan struggle karta hai</div>
+    <div class="box-title">✗ Standard ML struggles here</div>
     <ul style="margin:0">
       <li><b>Unstructured raw data:</b> images, audio, long essays</li>
-      <li>Human engineers ko pehle <b>manually features extract</b> karne padte hain (geometric shapes detect karna, frequency changes)</li>
+      <li>Human engineers first have to <b>extract features manually</b> (detecting geometric shapes, frequency changes)</li>
     </ul>
   </div>
 </div>
 
 <h3>The Human Brain Analogy</h3>
-<p>Human brain visual complexity handle karta hai <b>billions of interconnected neurons</b> ke massive network se. Jab light tumhari retina par padti hai, neurons ki pehli layer simple lines aur edges recognize karti hai. Har agli layer ek <b>zyada abstract representation</b> banati hai. <b>Deep Learning yehi cheez mathematically karta hai.</b></p>
+<p>The human brain handles visual complexity through a massive network of <b>billions of interconnected neurons</b>. When light hits your retina, the first layer of neurons recognises simple lines and edges. Each next layer builds a <b>more abstract representation</b>. <b>Deep Learning does exactly this, mathematically.</b></p>
 
 <div class="box def">
   <div class="box-title">Definition &amp; Core Strengths</div>
-  <p><b>Deep Learning (DL):</b> Machine Learning ka highly specialized subfield jo <b>multi-layered Artificial Neural Networks</b> use karke representations ko <b>automatically discover, extract aur optimize</b> karta hai — seedha raw, unstructured data se.</p>
-  <p style="margin:0"><b>"Deep" ka matlab kya?</b> "Deep" specifically <b>structural architecture</b> ko refer karta hai. Ek single layer of computation ki jagah, yeh models <b>dozens ya hundreds of processing layers (hidden layers)</b> sequentially stack karte hain.</p>
+  <p><b>Deep Learning (DL):</b> A highly specialised subfield of Machine Learning that uses <b>multi-layered Artificial Neural Networks</b> to <b>automatically discover, extract and optimise</b> representations — directly from raw, unstructured data.</p>
+  <p style="margin:0"><b>What does "deep" actually mean?</b> "Deep" refers specifically to the <b>structural architecture</b>. Instead of a single layer of computation, these models stack <b>dozens or hundreds of processing layers (hidden layers)</b> one after another.</p>
 </div>
 
 <figure>
@@ -324,13 +324,13 @@
   <text x="265" y="22"  text-anchor="middle" font-size="12" font-weight="700" style="fill:var(--text-2)">Hidden Layers</text>
   <text x="470" y="272" text-anchor="middle" font-size="12" font-weight="700" style="fill:var(--text-2)">Output Layer</text>
 </svg>
-<figcaption>"Deep" = many sequential hidden layers. Har layer pichli layer se zyada abstract representation banati hai.</figcaption>
+<figcaption>"Deep" = many sequential hidden layers. Each layer builds a more abstract representation than the one before it.</figcaption>
 </figure>
 
 <h3>Key Examples of DL</h3>
 <ul>
-  <li><b>Image Recognition:</b> Autonomous vehicles 360-degree video feeds ko frame-by-frame process karke instantly pedestrians, lane markings aur stop signs identify karte hain.</li>
-  <li><b>Voice Assistants:</b> Raw audio waveform se background noise strip karna, vocal frequencies isolate karna aur spoken words instantly transcribe karna.</li>
+  <li><b>Image Recognition:</b> Autonomous vehicles process 360-degree video feeds frame by frame to instantly identify pedestrians, lane markings and stop signs.</li>
+  <li><b>Voice Assistants:</b> Stripping background noise from a raw audio waveform, isolating vocal frequencies, and transcribing spoken words instantly.</li>
 </ul>
 
 <h3>Visualizing the Ecosystem</h3>
@@ -346,17 +346,17 @@
   <text x="210" y="222" text-anchor="middle" font-size="14" font-weight="800" style="fill:var(--text)">Deep</text>
   <text x="210" y="240" text-anchor="middle" font-size="14" font-weight="800" style="fill:var(--text)">Learning</text>
 </svg>
-<figcaption>$\text{DL} \subset \text{ML} \subset \text{AI}$ — yeh relation exam mein bohot common hai.</figcaption>
+<figcaption>$\text{DL} \subset \text{ML} \subset \text{AI}$ — this relationship comes up in exams very often.</figcaption>
 </figure>
 
 <div class="box insight">
   <div class="box-title">★ Key Insight</div>
-  <p style="margin:0">DL standard ML ka <b>feature-engineering bottleneck</b> solve karta hai unstructured data ke liye. Depth = many sequential hidden layers, har ek pichli se zyada abstract representations banati hai.</p>
+  <p style="margin:0">DL solves the <b>feature-engineering bottleneck</b> of standard ML for unstructured data. Depth = many sequential hidden layers, each building more abstract representations than the last.</p>
 </div>
 
 <div class="box takeaway">
   <div class="box-title">♦ Takeaway</div>
-  <p style="margin:0">$\text{DL} \subset \text{ML} \subset \text{AI}$. Depth = raw unstructured data se <b>automatic hierarchical feature learning</b>.</p>
+  <p style="margin:0">$\text{DL} \subset \text{ML} \subset \text{AI}$. Depth = <b>automatic hierarchical feature learning</b> from raw unstructured data.</p>
 </div>
 
 <!-- ================================================== -->
@@ -364,7 +364,7 @@
 
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">Maan lo main tumhe pet images ke do folders deta hoon. Folder A mein har image batati hai ki wo <b>cat</b> hai ya <b>dog</b>. Folder B mein sirf images hain — koi labels nahi, koi hints nahi. Folder B mein kya hai, yeh tum kaise figure out karoge?</p>
+  <p style="margin:0">Suppose I hand you two folders of pet images. In Folder A, every image tells you whether it is a <b>cat</b> or a <b>dog</b>. Folder B has only images — no labels, no hints. How would you figure out what is in Folder B?</p>
 </div>
 
 <figure>
@@ -400,17 +400,17 @@
   </g>
   <text x="496" y="206" text-anchor="middle" font-size="11" font-style="italic" style="fill:var(--text-3)">koi ground-truth tag nahi</text>
 </svg>
-<figcaption>Ground-truth label ki presence/absence hi decide karti hai ki tum konsa learning paradigm use kar sakte ho.</figcaption>
+<figcaption>The presence or absence of a ground-truth label is what decides which learning paradigm you can even use.</figcaption>
 </figure>
 
 <div class="grid g2">
   <div class="box def" style="margin:0">
     <div class="box-title">Labelled Data</div>
-    <p style="margin:0">Aisa data jisme input features ke saath <b>explicit target outcome / correct answer (ground truth)</b> directly coupled hota hai.</p>
+    <p style="margin:0">Data in which the input features come directly coupled with an <b>explicit target outcome / correct answer (ground truth)</b>.</p>
   </div>
   <div class="box warn" style="margin:0">
     <div class="box-title">Unlabelled Data</div>
-    <p style="margin:0">Raw data jisme sirf input features/attributes hote hain, bilkul bhi accompanying target tags, categories ya historical outcomes nahi.</p>
+    <p style="margin:0">Raw data that contains only input features or attributes, with no accompanying target tags, categories or historical outcomes at all.</p>
   </div>
 </div>
 
@@ -421,18 +421,18 @@
     <table>
       <thead><tr><th>Dataset</th><th>Answer</th><th>Kyun</th></tr></thead>
       <tbody>
-        <tr><td>50,000 emails tagged 'spam' or 'not spam'</td><td><span class="pill g">Labelled</span></td><td>Har email ke saath ground-truth tag attached hai.</td></tr>
-        <tr><td>200,000 chest X-rays with no radiologist annotations</td><td><span class="pill a">Unlabelled</span></td><td>Sirf raw input (image) hai, koi diagnosis/outcome nahi.</td></tr>
+        <tr><td>50,000 emails tagged 'spam' or 'not spam'</td><td><span class="pill g">Labelled</span></td><td>Every email comes with a ground-truth tag attached.</td></tr>
+        <tr><td>200,000 chest X-rays with no radiologist annotations</td><td><span class="pill a">Unlabelled</span></td><td>Only the raw input (the image) is there — no diagnosis, no outcome.</td></tr>
       </tbody>
     </table>
     </div>
-    <p style="margin-bottom:0"><b>Reflect:</b> Labelled data mehnga kyun hota hai? Kyunki labelling ke liye <b>human domain experts</b> chahiye — radiologists, lawyers, linguists. Ek radiologist ko 200,000 X-rays annotate karwana costly aur slow hai. Isliye real world mein unlabelled data sasta aur abundant hota hai, labelled data scarce aur premium.</p>
+    <p style="margin-bottom:0"><b>Reflect:</b> Why is labelled data expensive? Because labelling needs <b>human domain experts</b> — radiologists, lawyers, linguists. Getting a radiologist to annotate 200,000 X-rays is costly and slow. That is why, in the real world, unlabelled data is cheap and abundant while labelled data is scarce and premium.</p>
   </div>
 </div>
 
 <div class="box takeaway">
   <div class="box-title">♦ Takeaway</div>
-  <p style="margin:0">Labelled = input + correct answer. Unlabelled = input only. Label hi decide karta hai ki konsa paradigm use kar sakte ho.</p>
+  <p style="margin:0">Labelled = input + correct answer. Unlabelled = input only. The label is what decides which paradigm is even available to you.</p>
 </div>
 
 <!-- ================================================== -->
@@ -440,52 +440,52 @@
 
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">Ek parent ball ki taraf ishaara karke kehta hai 'Ball' — teacher-guided learning. Wahi bachcha playground par akela explore karta hai, toys ko shape ke hisaab se group karta hai. Ek video game AI ko jeetne par +10 points milte hain, crash par −5. Yeh teen scenarios 4 ML learning types se kaise map hote hain?</p>
+  <p style="margin:0">A parent points at a ball and says 'Ball' — teacher-guided learning. That same child, alone in a playground, explores and groups toys by shape. A video-game AI gets +10 points for winning and −5 for crashing. How do these three scenarios map onto the 4 ML learning types?</p>
 </div>
 
 <div class="grid g2">
   <div class="card" style="margin:0;border-left:4px solid #10b981">
     <h3 style="margin-top:0">1 · Supervised Learning <small>(Teacher-Guided)</small></h3>
-    <p><b>Concept:</b> Model <b>labelled data</b> se seekhta hai. Dono cheezein milti hain — questions (inputs) aur explicit correct answers (labels). Objective: ek general <b>mapping function</b> seekhna jo new, unseen inputs ka label accurately predict kar sake.</p>
-    <p style="margin:0"><b>Example:</b> Housing market prices predict karna. Features: square footage, location. Label: exact sale price.</p>
+    <p><b>Concept:</b> The model learns from <b>labelled data</b>. It gets both things — the questions (inputs) and the explicit correct answers (labels). The objective is to learn a general <b>mapping function</b> that can accurately predict the label of new, unseen inputs.</p>
+    <p style="margin:0"><b>Example:</b> predicting housing market prices. Features: square footage, location. Label: the exact sale price.</p>
   </div>
   <div class="card" style="margin:0;border-left:4px solid #f59e0b">
     <h3 style="margin-top:0">2 · Unsupervised Learning <small>(Self-Organized Discovery)</small></h3>
-    <p><b>Concept:</b> Model ko completely <b>unlabelled data</b> diya jaata hai. Na teacher, na scoring key. Algorithm ek <b>data detective</b> ki tarah act karta hai — hidden structures, natural groupings aur underlying patterns khud statistical similarities ke basis par uncover karta hai.</p>
-    <p style="margin:0"><b>Example:</b> Market segmentation. Algorithm anonymous customer purchasing histories se distinct consumer archetypes discover karta hai.</p>
+    <p><b>Concept:</b> The model is given completely <b>unlabelled data</b>. No teacher, no scoring key. The algorithm acts like a <b>data detective</b> — uncovering hidden structures, natural groupings and underlying patterns purely from statistical similarity.</p>
+    <p style="margin:0"><b>Example:</b> Market segmentation. The algorithm discovers distinct consumer archetypes from anonymous customer purchasing histories.</p>
   </div>
   <div class="card" style="margin:0;border-left:4px solid #6366f1">
     <h3 style="margin-top:0">3 · Semi-Supervised Learning <small>(The Practical Hybrid)</small></h3>
-    <p><b>Concept:</b> Real world mein labelling incredibly expensive aur time-consuming hai kyunki human experts chahiye. Semi-supervised learning ise address karta hai: <b>bohot chhota pool high-quality labelled data</b> + <b>massive pool sasta raw unlabelled data</b>. Model chhote labelled dataset se basic understanding anchor karta hai, phir us knowledge ko vast unlabelled dataset par <b>propagate</b> karta hai.</p>
+    <p><b>Concept:</b> In the real world labelling is incredibly expensive and time-consuming, because it needs human experts. Semi-supervised learning addresses exactly this: a <b>very small pool of high-quality labelled data</b> + a <b>massive pool of cheap raw unlabelled data</b>. The model anchors a basic understanding from the small labelled dataset, then <b>propagates</b> that knowledge across the vast unlabelled one.</p>
     <div class="box insight" style="margin:.8rem 0 0">
       <div class="box-title">Case Study · Google Photos</div>
-      <p style="margin:0;font-size:.9rem">App khud faces ko cluster karta hai (<b>unsupervised step</b>). Phir poochta hai: "Is this person Alex?" — <b>tumse ek single label</b>. Instantly thousands of photos label ho jaati hain jinme wahi face hai (<b>supervised propagation</b>).</p>
+      <p style="margin:0;font-size:.9rem">The app clusters the faces on its own (<b>unsupervised step</b>). Then it asks: "Is this person Alex?" — <b>one single label from you</b>. Instantly, thousands of photos containing that same face get labelled (<b>supervised propagation</b>).</p>
     </div>
   </div>
   <div class="card" style="margin:0;border-left:4px solid #ec4899">
     <h3 style="margin-top:0">4 · Reinforcement Learning <small>(Trial &amp; Error Paradigm)</small></h3>
-    <p><b>Concept:</b> Static datasets par <b>rely hi nahi karta</b>. Ek autonomous agent dynamically ek <b>unknown environment</b> se interact karta hai. Agent action leta hai, consequences experience karta hai, aur feedback receive karta hai: <b>rewards</b> (positive outcomes) ya <b>penalties</b> (mistakes). Millions of iterations mein wo apni <b>policy</b> optimize karna seekhta hai taaki cumulative rewards maximize ho.</p>
-    <p><b>'Unknown environment' kyun matter karta hai:</b> Agent ke paas na map hai, na prior knowledge, na koi dataset. Use <b>entirely trial and error</b> se explore karna padta hai — apna <b>khud ka training signal generate</b> karke, ek aise world se interact karke jo usne kabhi dekha hi nahi. Yehi RL ko baaki teen paradigms se fundamentally alag banata hai.</p>
+    <p><b>Concept:</b> It <b>does not rely on static datasets at all</b>. An autonomous agent interacts dynamically with an <b>unknown environment</b>. The agent takes an action, experiences the consequences, and receives feedback: <b>rewards</b> for positive outcomes or <b>penalties</b> for mistakes. Over millions of iterations it learns to optimise its <b>policy</b> so that cumulative reward is maximised.</p>
+    <p><b>Why 'unknown environment' matters:</b> The agent has no map, no prior knowledge, and no dataset. It has to explore <b>entirely by trial and error</b> — <b>generating its own training signal</b> by interacting with a world it has never seen. Yahi is what makes RL fundamentally different from the other three paradigms.</p>
     <div class="box insight" style="margin:.8rem 0 0">
       <div class="box-title">Case Study · Autonomous Drone</div>
-      <p style="margin:0;font-size:.9rem">Drone ko windy industrial warehouses mein fly karna sikhana. Crash par penalty, stability maintain karke destination reach karne par reward. Millions of simulated flights mein wo optimal rotor adjustment policy seekh leta hai.</p>
+      <p style="margin:0;font-size:.9rem">Teaching a drone to fly through windy industrial warehouses. Penalty for crashing, reward for reaching the destination while staying stable. Over millions of simulated flights it learns an optimal rotor-adjustment policy.</p>
     </div>
   </div>
 </div>
 
 <div class="box insight">
-  <div class="box-title">★ Key Insight — one-liners yaad rakho</div>
+  <div class="box-title">★ Key Insight — memorise these one-liners</div>
   <ul style="margin:0">
-    <li><b>Supervised</b> = labelled data, mapping seekhta hai.</li>
-    <li><b>Unsupervised</b> = unlabelled, structure discover karta hai.</li>
-    <li><b>Semi-supervised</b> = real-world compromise: labels mehnge hain.</li>
-    <li><b>Reinforcement</b> = koi dataset nahi; agent unknown environment explore karke <b>apna feedback khud generate</b> karta hai.</li>
+    <li><b>Supervised</b> = labelled data; it learns a mapping.</li>
+    <li><b>Unsupervised</b> = unlabelled; it discovers structure.</li>
+    <li><b>Semi-supervised</b> = the real-world compromise: labels are expensive.</li>
+    <li><b>Reinforcement</b> = no dataset at all; the agent explores an unknown environment and <b>generates its own feedback</b>.</li>
   </ul>
 </div>
 
 <div class="box takeaway">
   <div class="box-title">♦ Takeaway</div>
-  <p style="margin:0">Chaar paradigms — ek key question: <b>Kya tumhare paas labels hain? Kya tumhare agent ko apna feedback generate karne ke liye unknown environment explore karna hai?</b></p>
+  <p style="margin:0">Four paradigms, one key question: <b>Do you have labels? And does your agent need to explore an unknown environment to generate its own feedback?</b></p>
 </div>
 
 <!-- ================================================== -->
@@ -493,7 +493,7 @@
 
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">Uber ko surge multiplier set karna hai (1.4×, 2.1×…). Hospital ko patient ko 'high risk' ya 'low risk' flag karna hai. Netflix ko viewers ko micro-genre clusters mein group karna hai bina predefined categories ke. Teen problems. Teen alag task types. Instantly kaise pehchano?</p>
+  <p style="margin:0">Uber needs to set a surge multiplier (1.4×, 2.1×…). A hospital needs to flag a patient as 'high risk' or 'low risk'. Netflix needs to group viewers into micro-genre clusters with no predefined categories. Three problems, three different task types. How do you tell them apart in five seconds?</p>
 </div>
 
 <div class="tbl-wrap">
@@ -542,31 +542,31 @@
   <text x="552" y="212" text-anchor="middle" font-size="13" font-weight="800" style="fill:var(--text)">CLUSTERING</text>
   <text x="552" y="228" text-anchor="middle" font-size="10.5" style="fill:var(--text-3)">"Kaun se natural groups?"</text>
 </svg>
-<figcaption>Exam mein 5 second mein task identify karne ka decision tree.</figcaption>
+<figcaption>A decision tree for identifying the task in 5 seconds during the exam.</figcaption>
 </figure>
 
 <h3>Task A: Regression — Predicting Continuous Values</h3>
-<p><b>What is it?</b> Regression ek <b>supervised</b> learning task hai jahan target output variable completely <b>continuous aur numerical</b> hota hai. Discrete categories ke set mein se pick karne ki jagah, model ek <b>precise scalar value</b> output karta hai ek infinite mathematical continuum par.</p>
-<p><b>When do we need it?</b> Jab prediction target aise questions answer kare: <em>"How much?"</em>, <em>"How many?"</em>, ya <em>"What value?"</em></p>
+<p><b>What is it?</b> Regression is a <b>supervised</b> learning task where the target output variable is entirely <b>continuous and numerical</b>. Instead of picking from a set of discrete categories, the model outputs a <b>precise scalar value</b> on an infinite mathematical continuum.</p>
+<p><b>When do we need it?</b> When the prediction target answers questions like: <em>"How much?"</em>, <em>"How many?"</em>, or <em>"What value?"</em></p>
 <ul>
-  <li><b>House Price Prediction:</b> Square footage, zip code, historical trends se ghar ki exact valuation.</li>
-  <li><b>Temperature Forecasting:</b> Kal ka peak afternoon temperature (Celsius mein).</li>
-  <li><b>Car Mileage Estimation:</b> Engine displacement aur chassis weight se expected MPG.</li>
+  <li><b>House Price Prediction:</b> the exact valuation of a house from square footage, zip code and historical trends.</li>
+  <li><b>Temperature Forecasting:</b> tomorrow's peak afternoon temperature (in Celsius).</li>
+  <li><b>Car Mileage Estimation:</b> expected MPG from engine displacement and chassis weight.</li>
 </ul>
 <div class="box insight">
   <div class="box-title">Case Study · Uber Surge Pricing</div>
-  <p style="margin:0">Uber sophisticated real-time regression architectures use karta hai jo localized demand metrics, active driver distributions, weather constraints aur time variables analyze karke specific geo-fenced zones ke liye <b>continuous fare multiplier</b> (1.4×, 2.1×) dynamically output karta hai.</p>
+  <p style="margin:0">Uber uses sophisticated real-time regression architectures that analyse localised demand metrics, active driver distributions, weather constraints and time variables to dynamically output a <b>continuous fare multiplier</b> (1.4×, 2.1×) for specific geo-fenced zones.</p>
 </div>
 <p><b>Common Regression Algorithms:</b> 1. Linear Regression &nbsp;· 2. Support Vector Regression (SVR) &nbsp;· 3. Decision Tree Regression &nbsp;· 4. Random Forest Regression</p>
 
 <h3>Task B: Classification — Predicting Categories</h3>
-<p><b>What is it?</b> Target output ek <b>discrete, predefined category ya class label</b> hota hai. Objective: data space mein clear <b>decision boundaries</b> draw karna taaki different classes cleanly separate ho jayein.</p>
+<p><b>What is it?</b> The target output is a <b>discrete, predefined category or class label</b>. The objective is to draw clear <b>decision boundaries</b> in the data space so that different classes separate cleanly.</p>
 <p><b>When do we need it?</b> Jab target answer kare: "Is this A, B, or C?", "Is this safe or unsafe?", "Which species does this belong to?"</p>
 <div class="tbl-wrap">
 <table>
 <thead><tr><th>Application</th><th>Input Data</th><th>Output Label / Category</th></tr></thead>
 <tbody>
-<tr><td>Spam vs Not Spam</td><td>Email payload content</td><td>Binary choice — incoming email payload evaluate karna</td></tr>
+<tr><td>Spam vs Not Spam</td><td>Email payload content</td><td>A binary choice — evaluating the incoming email payload</td></tr>
 <tr><td>Disease Diagnostics</td><td>Clinical vitals, blood biomarkers</td><td>Patient positive ya negative for a condition</td></tr>
 <tr><td>Computer Vision Labelling</td><td>Isolated image pixel matrix</td><td>Cat / Dog / Fox — specific class label</td></tr>
 </tbody>
@@ -574,21 +574,21 @@
 </div>
 <div class="box insight">
   <div class="box-title">Case Study · Medical Screening</div>
-  <p style="margin:0">Hospitals specialized classification models deploy karte hain jo patient symptoms, blood biomarkers aur respiratory vitals cross-reference karke emergency room admissions ko infectious diseases ke <b>probability risk brackets</b> mein immediately categorize karte hain.</p>
+  <p style="margin:0">Hospitals deploy specialised classification models that cross-reference patient symptoms, blood biomarkers and respiratory vitals to immediately categorise emergency-room admissions into <b>probability risk brackets</b> for infectious diseases.</p>
 </div>
 <p><b>Common Classification Algorithms:</b> Logistic Regression · K-Nearest Neighbors (KNN) · Decision Tree Classification · Support Vector Machines (SVM) · Naive Bayes Classifier · Random Forest Classification</p>
 
 <h3>Task C: Clustering — Grouping Similar Data</h3>
-<p><b>What is it?</b> Ek <b>unsupervised</b> learning task. Algorithm natural statistical distributions, dense regions aur data points ki geometric proximity analyze karke unhe distinct, coherent <b>clusters</b> mein group karta hai. Ek cluster ke andar points aapas mein <b>highly similar</b> hote hain, aur dusre clusters ke points se <b>highly distinct</b>.</p>
-<p><b>When do we need it?</b> Jab hume categories pehle se pata na ho aur hum raw customer/operational data ke andar hidden structures, segmentations ya natural divisions discover karna chahein.</p>
+<p><b>What is it?</b> An <b>unsupervised</b> learning task. The algorithm analyses natural statistical distributions, dense regions and the geometric proximity of data points, and groups them into distinct, coherent <b>clusters</b>. Points inside one cluster are <b>highly similar</b> to each other and <b>highly distinct</b> from points in other clusters.</p>
+<p><b>When do we need it?</b> When we do not know the categories in advance, and we want to discover hidden structures, segmentations or natural divisions inside raw customer or operational data.</p>
 <ul>
-  <li><b>Customer Behavior Segmentation:</b> Purchasing patterns ke basis par hidden sub-groups identify karke tailored marketing campaigns design karna.</li>
-  <li><b>Document Topic Modeling:</b> Thousands of academic papers scan karke unhe automatically thematic subject groups mein organize karna — bina human reading ke.</li>
-  <li><b>Image Segmentation:</b> Ek image ko distinct object regions mein partition karna, similar color channels aur spatial proximity wale pixels ko cluster karke. <b>Classification poori image ko label karta hai; segmentation har pixel ko label karta hai</b> — ek map produce karta hai ki image ka har region kya contain karta hai.</li>
+  <li><b>Customer Behavior Segmentation:</b> identifying hidden sub-groups on the basis of purchasing patterns, in order to design tailored marketing campaigns.</li>
+  <li><b>Document Topic Modeling:</b> Scanning thousands of academic papers and automatically organising them into thematic subject groups — with no human reading them.</li>
+  <li><b>Image Segmentation:</b> Partitioning an image into distinct object regions by clustering pixels with similar colour channels and spatial proximity. <b>Classification labels the whole image; segmentation labels every pixel</b> — producing a map of what each region of the image contains.</li>
 </ul>
 <div class="box insight">
   <div class="box-title">Case Study · Netflix Micro-Genres</div>
-  <p style="margin:0">Netflix complex clustering algorithms use karke user viewing behaviors, watch histories aur interactions evaluate karta hai. 'Sci-Fi' jaisi broad categories ki jagah, yeh algorithms <b>hundreds of highly specific, localized user taste-clusters</b> uncover karte hain jo personalized homepage recommendation carousels drive karte hain.</p>
+  <p style="margin:0">Netflix uses complex clustering algorithms to evaluate user viewing behaviours, watch histories and interactions. Instead of broad categories like 'Sci-Fi', these algorithms uncover <b>hundreds of highly specific, localised user taste-clusters</b> that drive the personalised homepage recommendation carousels.</p>
 </div>
 <p><b>Common Clustering Algorithms:</b> K-Means Clustering · K-Medoids Clustering · DBSCAN (Density-Based Spatial Clustering of Applications with Noise) · Hierarchical Clustering (Agglomerative) · Gaussian Mixture Models (GMM)</p>
 
@@ -598,13 +598,13 @@
 <table>
 <thead><tr><th>Galti</th><th>Sahi Baat</th></tr></thead>
 <tbody>
-<tr><td>"AI aur ML same cheez hai"</td><td>AI umbrella hai. ML AI ka subset hai. AI mein non-learning systems bhi aate hain (search algorithms).</td></tr>
-<tr><td>"DL, ML se alag field hai"</td><td>$\text{DL} \subset \text{ML}$. DL ML ka specialized subfield hai jo multi-layer neural networks use karta hai.</td></tr>
-<tr><td>"Clustering supervised hai kyunki groups milte hain"</td><td>Clustering <b>unsupervised</b> hai — koi ground-truth group label nahi diya jaata; algorithm khud discover karta hai.</td></tr>
-<tr><td>"Reinforcement Learning ek unlabelled dataset use karta hai"</td><td>RL koi <b>static dataset use hi nahi karta</b>. Agent environment se interact karke apna training signal khud generate karta hai.</td></tr>
-<tr><td>"Image segmentation = image classification"</td><td>Classification poori image ko ek label deta hai. Segmentation <b>har pixel</b> ko label karta hai (clustering-based).</td></tr>
-<tr><td>"Semi-supervised = thoda supervised thoda unsupervised, dono equal"</td><td>Nahi — <b>chhota</b> labelled pool + <b>massive</b> unlabelled pool. Ratio heavily unlabelled ki taraf hai.</td></tr>
-<tr><td>"Regression aur classification dono supervised hain to interchangeable hain"</td><td>Output type decide karta hai: continuous scalar → regression; discrete label → classification.</td></tr>
+<tr><td>"AI and ML are the same thing"</td><td>AI is the umbrella. ML is a subset of AI. AI also includes non-learning systems (search algorithms).</td></tr>
+<tr><td>"DL is a separate field from ML"</td><td>$\text{DL} \subset \text{ML}$. DL is a specialised subfield of ML that uses multi-layer neural networks.</td></tr>
+<tr><td>"Clustering is supervised because you get groups out"</td><td>Clustering is <b>unsupervised</b> — no ground-truth group label is ever given; the algorithm discovers them itself.</td></tr>
+<tr><td>"Reinforcement Learning uses an unlabelled dataset"</td><td>RL uses <b>no static dataset at all</b>. The agent generates its own training signal by interacting with the environment.</td></tr>
+<tr><td>"Image segmentation = image classification"</td><td>Classification gives the whole image one label. Segmentation labels <b>every pixel</b> (clustering-based).</td></tr>
+<tr><td>"Semi-supervised = half supervised, half unsupervised, equally"</td><td>No — a <b>small</b> labelled pool + a <b>massive</b> unlabelled pool. The ratio leans heavily towards unlabelled.</td></tr>
+<tr><td>"Regression and classification are both supervised, so they're interchangeable"</td><td>The output type decides: continuous scalar → regression; discrete label → classification.</td></tr>
 </tbody>
 </table>
 </div>
@@ -623,12 +623,12 @@
   <div class="box def" style="margin:0"><div class="box-title">3 Core Tasks</div>
     <p style="margin:0">Regression (continuous, sup.) · Classification (discrete, sup.) · Clustering (groups, unsup.)</p></div>
   <div class="box def" style="margin:0"><div class="box-title">Why DL?</div>
-    <p style="margin:0">Unstructured data ke liye <b>manual feature engineering bottleneck</b> hata deta hai.</p></div>
+    <p style="margin:0">It removes the <b>manual feature-engineering bottleneck</b> for unstructured data.</p></div>
 </div>
 
 <div class="box takeaway">
   <div class="box-title">♦ Summary Wrap-Up</div>
-  <p style="margin:0">Aaj humne field ka coherent narrative banaya: traditional programming real-world complexity ke neeche kaise toot-ta hai → AI ka adaptive umbrella → ML kaise systems ko directly data se rules seekhne deta hai → DL kaise human neural structures mimic karke complex unstructured data handle karta hai. Finally humne toolkits categorize kiye: <b>structural data flavours</b> (Labelled vs Unlabelled), <b>learning strategies</b> (Supervised, Unsupervised, Semi-Supervised, Reinforcement), aur <b>concrete engineering tasks</b> (Regression, Classification, Clustering).</p>
+  <p style="margin:0">Today we built a coherent narrative of the field: how traditional programming breaks under real-world complexity → the adaptive umbrella of AI → how ML lets systems learn rules directly from data → how DL mimics human neural structures to handle complex unstructured data. Finally we categorised the toolkit: <b>data flavours</b> (Labelled vs Unlabelled), <b>learning strategies</b> (Supervised, Unsupervised, Semi-Supervised, Reinforcement), and <b>concrete engineering tasks</b> (Regression, Classification, Clustering).</p>
 </div>
 
 <!-- ================================================== -->
@@ -648,7 +648,7 @@ const MCQS = [
      'Traditional: Rules + Answers → Data; ML: Data + Rules → Answers',
      'Both produce Answers; only the speed differs'],
   a:1,
-  e:'<b>B.</b> Traditional programming mein engineer <b>rules likhta hai</b> aur program answers deta hai. ML mein hum data ke saath <b>answers (labels)</b> dete hain aur algorithm <b>rules discover</b> karta hai. <b>A</b> exactly ulta hai (classic trap). <b>C</b> nonsense hai. <b>D</b> galat — difference structural hai, speed ka nahi.' },
+  e:'<b>B.</b> In traditional programming the engineer <b>writes the rules</b> and the program produces answers. In ML we supply data together with <b>answers (labels)</b> and the algorithm <b>discovers the rules</b>. <b>A</b> is exactly reversed (the classic trap). <b>C</b> is nonsense. <b>D</b> is wrong — the difference is structural, not about speed.' },
 
 { d:'med',
   q:'A logistics company uses a Dijkstra-based shortest-path engine that never learns from data. Where does this system sit?',
@@ -657,7 +657,7 @@ const MCQS = [
      'It is AI but not ML, since AI includes non-learning systems such as search algorithms',
      'It is neither AI nor ML because no neural network is used'],
   a:2,
-  e:'<b>C.</b> Sheet clearly kehti hai: "AI includes non-learning systems too (e.g., search algorithms)." Search algorithms AI ke key areas mein listed hain. <b>A</b> galat — optimisation ≠ learning from data. <b>B</b> galat — graph ki layers ka neural network depth se koi lena-dena nahi. <b>D</b> galat — AI ke liye neural network zaroori nahi.' },
+  e:'<b>C.</b> The sheet says it clearly: "AI includes non-learning systems too (e.g., search algorithms)." Search algorithms are listed among the key areas of AI. <b>A</b> is wrong — optimisation ≠ learning from data. <b>B</b> is wrong — the layers of a graph have nothing to do with neural network depth. <b>D</b> is wrong — AI does not require a neural network.' },
 
 { d:'med',
   q:'Why is Deep Learning specifically preferred over standard ML for raw images and audio?',
@@ -666,7 +666,7 @@ const MCQS = [
      'DL uses a different optimisation objective that ignores errors',
      'DL converts unstructured data into spreadsheets before training'],
   a:1,
-  e:'<b>B.</b> Key Insight: "DL solves the feature-engineering bottleneck of standard ML for unstructured data. Depth = many sequential hidden layers, each building more abstract representations than the last." <b>A</b> ulta hai — DL ko generally <b>zyada</b> data chahiye. <b>C</b> nonsense. <b>D</b> galat — DL raw pixels/waveforms par hi kaam karta hai.' },
+  e:'<b>B.</b> Key Insight: "DL solves the feature-engineering bottleneck of standard ML for unstructured data. Depth = many sequential hidden layers, each building more abstract representations than the last." <b>A</b> is reversed — DL generally needs <b>more</b> data. <b>C</b> is nonsense. <b>D</b> is wrong — DL works directly on raw pixels/waveforms.' },
 
 { d:'hard',
   q:'Which single property most fundamentally separates Reinforcement Learning from the other three paradigms?',
@@ -675,13 +675,13 @@ const MCQS = [
      'It uses no static dataset at all — the agent explores an unknown environment and generates its own training signal',
      'It can only be applied to games and simulations'],
   a:2,
-  e:'<b>C.</b> Sheet: "Does not rely on static datasets… The agent has no map, no prior knowledge, and no dataset to draw from. It must explore entirely through trial and error — generating its own training signal." <b>A</b> is the classic trap: unsupervised learning bhi unlabelled data use karta hai, to yeh RL ko distinguish nahi karta. <b>B</b> incidental hai, fundamental nahi. <b>D</b> galat — RL robotics, pricing, recommendation sab mein use hota hai.' },
+  e:'<b>C.</b> Sheet: "Does not rely on static datasets… The agent has no map, no prior knowledge, and no dataset to draw from. It must explore entirely through trial and error — generating its own training signal." <b>A</b> is the classic trap: unsupervised learning also uses unlabelled data, so it does not distinguish RL at all. <b>B</b> is incidental, not fundamental. <b>D</b> is wrong — RL is used in robotics, pricing and recommendation alike.' },
 
 { d:'hard',
   q:'Google Photos clusters faces automatically, then asks you once "Is this person Alex?" and instantly labels thousands of photos. This is the textbook case study for:',
   o:['Pure Unsupervised Learning', 'Pure Supervised Learning', 'Semi-Supervised Learning', 'Reinforcement Learning'],
   a:2,
-  e:'<b>C.</b> Yeh exactly sheet ka Google Photos case study hai: clustering = unsupervised step, tumhara <b>one single label</b> = supervised propagation. Dono milkar semi-supervised banate hain. <b>A</b> incomplete — label use ho raha hai. <b>B</b> galat — poora dataset labelled nahi hai, sirf ek. <b>D</b> galat — koi reward/penalty loop nahi.' },
+  e:'<b>C.</b> This is exactly the sheet\'s Google Photos case study: the clustering is the unsupervised step, and <b>your one single label</b> is the supervised propagation. Together they make it semi-supervised. <b>A</b> is incomplete — a label <em>is</em> being used. <b>B</b> is wrong — the whole dataset is not labelled, only one item. <b>D</b> is wrong — there is no reward/penalty loop.' },
 
 { d:'med',
   q:'Uber computing a surge multiplier of 1.4× or 2.1× for a geo-fenced zone is an example of which core task?',
@@ -690,7 +690,7 @@ const MCQS = [
      'Regression, because the output is a continuous scalar on a numerical continuum',
      'Semi-supervised learning, because some fares are unlabelled'],
   a:2,
-  e:'<b>C.</b> Fare multiplier ek <b>continuous scalar</b> hai — 1.4×, 2.1×, 1.73× kuch bhi ho sakta hai. Sheet ka Uber case study explicitly regression ke under hai. <b>A</b> trap hai: do example values dikhne se output discrete nahi ho jaata. <b>B</b> galat — output ek number hai, group nahi. <b>D</b> task type nahi, learning paradigm hai.' },
+  e:'<b>C.</b> The fare multiplier is a <b>continuous scalar</b> — it could be 1.4×, 2.1×, 1.73×, anything. The sheet\'s Uber case study sits explicitly under regression. <b>A</b> is the trap: seeing two example values does not make the output discrete. <b>B</b> is wrong — the output is a number, not a group. <b>D</b> names a learning paradigm, not a task type.' },
 
 { d:'hard',
   q:'What is the precise difference between image classification and image segmentation?',
@@ -699,7 +699,7 @@ const MCQS = [
      'They are the same task with different names',
      'Segmentation is supervised while classification is unsupervised'],
   a:1,
-  e:'<b>B.</b> Sheet: "Unlike classification (which labels the whole image), segmentation labels every pixel — producing a map of what each region of the image contains." <b>A</b> exactly reversed. <b>C</b> galat. <b>D</b> galat — sheet mein segmentation clustering (unsupervised) ke applications mein listed hai aur classification supervised hai, to yeh option bhi ulta hai.' },
+  e:'<b>B.</b> Sheet: "Unlike classification (which labels the whole image), segmentation labels every pixel — producing a map of what each region of the image contains." <b>A</b> is exactly reversed. <b>C</b> is wrong. <b>D</b> is also reversed — in the sheet, segmentation is listed under clustering (unsupervised) applications while classification is supervised.' },
 
 { d:'med',
   q:'Labelled data is expensive to produce primarily because:',
@@ -708,7 +708,7 @@ const MCQS = [
      'Labels must be encoded in binary, which takes time',
      'Labelled data always needs more rows than unlabelled data'],
   a:1,
-  e:'<b>B.</b> Sheet: "Labelling requires human domain experts (radiologists, lawyers, linguists) — which is costly and slow." Yehi semi-supervised learning ki motivation hai. <b>A</b> galat — label ek chhoti string/number hai. <b>C</b> irrelevant. <b>D</b> galat — row count se koi relation nahi.' },
+  e:'<b>B.</b> Sheet: "Labelling requires human domain experts (radiologists, lawyers, linguists) — which is costly and slow." That is precisely the motivation for semi-supervised learning. <b>A</b> is wrong — a label is just a short string or number. <b>C</b> is irrelevant. <b>D</b> is wrong — it has no relation to row count.' },
 
 { d:'hard',
   q:'A team feeds an algorithm 200,000 unannotated chest X-rays and wants it to find naturally occurring groups of similar scans. Which combination is correct?',
@@ -717,7 +717,7 @@ const MCQS = [
      'Labelled data · Unsupervised learning · Clustering',
      'Unlabelled data · Reinforcement learning · Regression'],
   a:0,
-  e:'<b>A.</b> No annotations = <b>unlabelled data</b>. No target = <b>unsupervised</b> paradigm. "Find natural groups" = <b>clustering</b> task. <b>B</b> impossible — supervised learning ke liye labels chahiye. <b>C</b> contradictory — annotations nahi hain. <b>D</b> galat — koi environment/reward nahi, aur output group hai number nahi.' },
+  e:'<b>A.</b> No annotations = <b>unlabelled data</b>. No target = the <b>unsupervised</b> paradigm. "Find natural groups" = a <b>clustering</b> task. <b>B</b> is impossible — supervised learning needs labels. <b>C</b> is contradictory — there are no annotations. <b>D</b> is wrong — there is no environment or reward, and the output is a group, not a number.' },
 
 { d:'hard',
   q:'Which statement about "deep" in Deep Learning is technically correct?',
@@ -726,7 +726,7 @@ const MCQS = [
      '"Deep" refers to structural architecture — dozens or hundreds of hidden layers stacked sequentially',
      '"Deep" refers to the number of features in the input'],
   a:2,
-  e:'<b>C.</b> Sheet: \'The term "deep" refers specifically to structural architecture. Instead of a single layer of computation, these models stack dozens or hundreds of processing layers (hidden layers) sequentially.\' <b>A</b>, <b>B</b>, <b>D</b> sab common misconceptions hain — depth ka matlab <b>layers</b> hai, data size / tuning / feature count nahi.' },
+  e:'<b>C.</b> Sheet: \'The term "deep" refers specifically to structural architecture. Instead of a single layer of computation, these models stack dozens or hundreds of processing layers (hidden layers) sequentially.\' <b>A</b>, <b>B</b> and <b>D</b> are all common misconceptions — depth means <b>layers</b>, not data size, tuning effort or feature count.' },
 ];
 </script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>

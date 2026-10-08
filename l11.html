@@ -28,23 +28,23 @@
 
 <div class="box hinglish">
   <div class="box-title">⚡ Ek Line Mein</div>
-  <p style="margin:0">Feature selection poochta hai "kaunse <b>original axes</b> rehne chahiye?". PCA poochta hai "kya hum <b>naye rotated axes</b> bana sakte hain jo saari information kam directions mein pack kar dein?". Procedure: <b>center</b> karo → <b>covariance matrix $S$</b> banao → uske <b>eigenvalues aur eigenvectors</b> nikalo → eigenvalues ko descending sort karo → <b>top $k$</b> rakho → data ko un par <b>project</b> karo. Eigenvalue $\lambda_j$ = us direction par captured variance.</p>
+  <p style="margin:0">Feature selection asks "which <b>original axes</b> should stay?". PCA asks "can we build <b>new rotated axes</b> that pack all the information into fewer directions?". The procedure: <b>center</b> → build the <b>covariance matrix $S$</b> → find its <b>eigenvalues and eigenvectors</b> → sort the eigenvalues descending → keep the <b>top $k$</b> → <b>project</b> the data onto them. The eigenvalue $\lambda_j$ = the variance captured along that direction.</p>
 </div>
 
 <!-- ================================================ -->
 <h2 id="part1" style="border-top:2px solid var(--border-2);padding-top:2rem">PART I · Why Dimensionality Reduction?</h2>
-<p>Jab ek dataset mein bohot saare features hote hain, sab equally useful nahi hote. Kuch important signal carry karte hain jabki doosre <b>noise aur computational cost</b> add karte hain. Hum wo kaise rakhein jo matter karta hai?</p>
+<p>When a dataset has many features, not all of them are equally useful. Some carry important signal while others add <b>noise and computational cost</b>. How do we keep what matters?</p>
 
 <h3 id="s0">Many pixels, little additional signal</h3>
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">Lecture 10 mein humne dekha ki zyada features variance badha sakte hain aur generalization ko harm kar sakte hain. Feature selection ne answer diya: <em>"Kaunse original columns rehne chahiye?"</em> Par agar information <b>kai columns mein bikhri</b> hui ho aur koi ek column use akele capture na karta ho?</p>
+  <p style="margin:0">In Lecture 10 we saw that more features can raise variance and harm generalization. Feature selection answered: <em>"Which original columns should stay?"</em> But what if the information is <b>spread across several columns</b> and no single column captures it on its own?</p>
 </div>
-<p>Maan lo hum ek AI model bana rahe hain jo image mein present object ka shape identify karta hai. Image ka size $m \times m$ pixels hai. Yeh question consider karo:</p>
+<p>Suppose we are building an AI model that identifies the shape of the object present in an image. The image is $m \times m$ pixels. Consider this question:</p>
 <ul>
-  <li>Kya hume model ko complete $m \times m$ image feed karni chahiye?</li>
-  <li>Ya ek tightly cropped $n \times n$ image use karni chahiye?</li>
-  <li>Ya ek perfectly cropped $f \times f$ image jo <b>sirf object</b> contain karta ho?</li>
+  <li>Should we feed the model the complete $m \times m$ image?</li>
+  <li>Or should we use a tightly cropped $n \times n$ image?</li>
+  <li>Or a perfectly cropped $f \times f$ image containing <b>only the object</b>?</li>
 </ul>
 
 <figure>
@@ -88,22 +88,22 @@
     </g>
   </g>
 </svg>
-<figcaption>Model performance <b>saturate</b> ho jaati hai jab object capture ho jaata hai ($f^2$), jabki computational cost <b>explode</b> karta rehta hai jaise uninformative background pixels ($m^2$) include hote hain.</figcaption>
+<figcaption>Model performance <b>saturates</b> once the object is captured ($f^2$), while computational cost keeps <b>exploding</b> as uninformative background pixels ($m^2$) are included.</figcaption>
 </figure>
 
 <div class="box warn">
   <div class="box-title">Classroom question</div>
-  <p style="margin:0">Agar full $m \times m$ image lagbhag utni hi accuracy deti hai jitni $f \times f$ crop, par kahin zyada computation chahiye — to wo <b>additional pixels contribute kya</b> kar rahe hain?<br>
-  <b>Answer:</b> Lagbhag kuch nahi. Wo <b>redundancy aur noise</b> add karte hain (background jo object ke saath nahi badalta), aur cost badhate hain. <b>Yehi</b> dimensionality reduction ki motivation hai — wo dimensions dhoondo jo actually information carry karte hain.</p>
+  <p style="margin:0">If the full $m \times m$ image gives roughly the same accuracy as the $f \times f$ crop, but needs far more computation — then what are those <b>additional pixels contributing</b>?<br>
+  <b>Answer:</b> almost nothing. They add <b>redundancy and noise</b> (background that does not change with the object) and they increase cost. <b>This</b> is the motivation for dimensionality reduction — find the dimensions that actually carry information.</p>
 </div>
 
 <!-- ================================================ -->
 <h3 id="s1"><span class="h2-num">1</span>From selecting features to extracting directions</h3>
 <h4>1.1 Why dimensionality can become a learning problem</h4>
-<p>Jab ek dataset mein bohot features (columns) hote hain, har observation ko ek <b>high-dimensional space mein ek point</b> ki tarah socha ja sakta hai. Zyada features ka matlab model ke liye zyada information — par saare features equally useful nahi hote. Kuch important patterns (<b>signal</b>) carry karte hain, jabki doosre unnecessary complexity ya random <b>noise</b> add karte hain.</p>
+<p>When a dataset has many features (columns), each observation can be thought of as <b>a point in a high-dimensional space</b>. More features mean more information for the model — but not all features are equally useful. Some carry important patterns (<b>signal</b>), while others add unnecessary complexity or random <b>noise</b>.</p>
 <div class="box takeaway">
   <div class="box-title">♦ Takeaway</div>
-  <p style="margin:0">High dimensionality <b>automatically bad nahi</b> hai; difficulty tab aati hai jab <b>representation size stable information se tezi se badhta hai</b>.</p>
+  <p style="margin:0">High dimensionality is <b>not automatically bad</b>; the difficulty arises when <b>the representation size grows faster than the stable information</b>.</p>
 </div>
 
 <h4>1.2 Feature selection vs feature extraction ⭐</h4>
@@ -141,17 +141,17 @@
     <text x="164" y="252" text-anchor="middle" font-size="10" style="fill:var(--text-3)">PC₁ = w₁x₁ + w₂x₂ + w₃x₃</text>
   </g>
 </svg>
-<figcaption>Fig 1: Feature selection <b>entire original features (axes) discard</b> kar deta hai, potentially signal kho kar. PCA <b>naye rotated orthogonal axes construct</b> karta hai jo maximum variance ki true directions ke saath align hote hain.</figcaption>
+<figcaption>Fig 1: Feature selection <b>discards entire original features (axes)</b>, potentially losing signal. PCA <b>constructs new rotated orthogonal axes</b> that align with the true directions of maximum variance.</figcaption>
 </figure>
 
 <h4>1.3 What is PCA?</h4>
-<p><b>What is PCA?</b> Socho tumhare paas bohot features wala dataset hai, par zyadatar useful information <b>sirf kuch directions mein concentrated</b> hai. PCA ek technique hai jo data mein yeh important directions dhoondti hai.</p>
-<p><b>What problem does it solve?</b> Jab bohot features hote hain, models <b>slow</b> ho sakte hain aur real patterns ki jagah <b>noise seekh</b> sakte hain. PCA features ki sankhya reduce karta hai <b>jitni ho sake utni useful information rakhte hue</b>.</p>
-<p><b>What is it actually doing to the data?</b> PCA data ke <b>coordinate axes ko rotate</b> karta hai taaki naye axes un directions ke along point karein jahan data sabse zyada vary karta hai. Phir wo sirf top few directions (jinhe <b>principal components</b> kehte hain) rakhta hai aur baaki discard kar deta hai. Ise aise socho: <b>data ko dekhne ka best angle dhoondna taaki tumhe sabse zyada spread dikhe</b>.</p>
+<p><b>What is PCA?</b> Imagine you have a dataset with many features, but most of the useful information is <b>concentrated in just a few directions</b>. PCA is a technique that finds those important directions in the data.</p>
+<p><b>What problem does it solve?</b> With many features, models can get <b>slow</b> and can <b>learn noise</b> instead of real patterns. PCA reduces the number of features <b>while keeping as much useful information as possible</b>.</p>
+<p><b>What is it actually doing to the data?</b> PCA <b>rotates the coordinate axes</b> of the data so that the new axes point along the directions where the data varies most. It then keeps only the top few directions (called <b>principal components</b>) and discards the rest. Think of it as <b>finding the best angle from which to view the data so you see the most spread</b>.</p>
 
 <div class="box insight">
   <div class="box-title">★ Key Insight — the exam definition</div>
-  <p style="margin:0"><b>Principal Component Analysis (PCA)</b> ek <b>unsupervised linear feature-extraction method</b> hai jo <b>orthogonal axes (principal components)</b> ka ek naya set dhoondta hai jinke along data ka <b>variance maximized</b> hota hai.</p>
+  <p style="margin:0"><b>Principal Component Analysis (PCA)</b> is an <b>unsupervised linear feature-extraction method</b> that finds a new set of <b>orthogonal axes (principal components)</b> along which the <b>variance of the data is maximized</b>.</p>
 </div>
 
 <!-- ================================================ -->
@@ -159,7 +159,7 @@
 
 <h3 id="s2"><span class="h2-num">2</span>Notation and mean centering</h3>
 <h4>2.1 Data matrix and notation ⭐</h4>
-<p>$X$ ki har <b>row</b> ek observation hai. Har <b>column</b> ek measured feature hai. PCA wo <b>coordinate system badalta hai</b> jo same observations describe karne ke liye use hota hai.</p>
+<p>Each <b>row</b> of $X$ is an observation. Each <b>column</b> is a measured feature. PCA <b>changes the coordinate system</b> used to describe those same observations.</p>
 
 <div class="tbl-wrap">
 <table>
@@ -182,7 +182,7 @@
 
 <div class="box danger">
   <div class="box-title">△ WARNING</div>
-  <p style="margin:0"><b>Split first.</b> Means, standard deviations aur PCA directions <b>sirf training set par fit</b> karo. Wahi fitted transformation validation aur test data par apply karo.</p>
+  <p style="margin:0"><b>Split first.</b> Fit the means, standard deviations and PCA directions <b>on the training set only</b>. Apply that same fitted transformation to the validation and test data.</p>
 </div>
 
 <h4>2.2 Step 1: Mean centering and standardization ⭐</h4>
@@ -225,11 +225,11 @@
 
 <div class="box danger">
   <div class="box-title">△ WARNING — MEAN CENTERING IS COMPULSORY</div>
-  <p style="margin:0">PCA <b>maximum variance ki directions</b> dhoondta hai. Agar data centered nahi hai, to <b>mean offset variance calculation ko distort</b> kar deta hai — pehla component data ke spread ki jagah <b>origin se mean tak ki direction</b> par point karne lagta hai. Isliye mean centering PCA se pehle <b>hamesha</b> perform karna chahiye, chahe dataset koi bhi ho.</p>
+  <p style="margin:0">PCA finds the <b>directions of maximum variance</b>. If the data is not centered, the <b>mean offset distorts the variance calculation</b> — the first component ends up pointing along <b>the direction from the origin to the mean</b> instead of along the spread of the data. So mean centering must <b>always</b> be performed before PCA, whatever the dataset.</p>
 </div>
 
 <h4>When is standardization also needed?</h4>
-<p>Mean centering ke baad, hum additionally har feature ko uske <b>standard deviation se divide</b> kar sakte hain:</p>
+<p>After mean centering, we can additionally <b>divide each feature by its standard deviation</b>:</p>
 <div class="formula">$$z_{ij} = \frac{x_{ij} - \mu_j}{s_j}, \qquad\text{where}\qquad s_j = \sqrt{\frac{1}{n-1}\sum_{i=1}^{n}(x_{ij}-\mu_j)^2}$$</div>
 <ul>
   <li>$i$ = <b>observation index</b> (which row), ranging from 1 to $n$.</li>
@@ -247,16 +247,16 @@
     $$z_{31} = \frac{6-4}{2} = 1, \quad z_{32} = \frac{5-3}{2} = 1 \qquad\Longrightarrow\qquad X_{\text{std}} = \begin{bmatrix}-1 & -1\\ 0 & 0\\ 1 & 1\end{bmatrix}$$
     <div class="grid g2" style="margin-top:1rem">
       <div class="box def" style="margin:0"><div class="box-title">Use centering only</div>
-        <p style="margin:0">Jab features <b>comparable units share</b> karte hain aur unki original variances <b>meaningful information</b> carry karti hain.</p></div>
+        <p style="margin:0">When the features <b>share comparable units</b> and their original variances carry <b>meaningful information</b>.</p></div>
       <div class="box def" style="margin:0"><div class="box-title">Use standardization</div>
-        <p style="margin:0">Jab features ke <b>different units ya scales</b> hain (e.g. rupees vs years), taaki koi ek feature purely apne <b>scale ki wajah se variance dominate na</b> kare.</p></div>
+        <p style="margin:0">When the features have <b>different units or scales</b> (e.g. rupees vs years), so that no single feature dominates the variance purely <b>because of its scale</b>.</p></div>
     </div>
   </div>
 </div>
 
 <div class="box insight">
   <div class="box-title">★ Key Insight — Summary</div>
-  <p style="margin:0">Mean centering <b>hamesha required</b> hai for PCA. Standardization ek <b>conditional choice</b> hai — use tab apply karo jab features ke different units hon ya jab tum nahi chahte ki koi feature apne original scale se dominate kare. Humare running example mein dono features same units share karte hain, to <b>centering alone suffices</b>.</p>
+  <p style="margin:0">Mean centering is <b>always required</b> for PCA. Standardization is a <b>conditional choice</b> — apply it when the features have different units, or when you do not want one feature dominating because of its original scale. In our running example both features share the same units, so <b>centering alone suffices</b>.</p>
 </div>
 
 <!-- ================================================ -->
@@ -279,9 +279,9 @@
   <text x="180" y="150" font-size="11" font-weight="700" style="fill:var(--text)">Large Variance along x₁ (Var(x₁) ≈ 4.5)</text>
   <text x="400" y="194" font-size="11.5" font-weight="700" style="fill:var(--text-2)">Number of Rooms (x₁)</text>
 </svg>
-<figcaption>Fig 2: Jab data ka variance ek <b>original feature axis</b> ke saath align hota hai, us feature ko select karna hi lagbhag saari information preserve kar deta hai — PCA ki zaroorat hi nahi.</figcaption>
+<figcaption>Fig 2: when the variance of the data aligns with an <b>original feature axis</b>, simply selecting that feature preserves almost all the information — PCA is not even needed.</figcaption>
 </figure>
-<p>Par tab kya hota hai jab data <b>kisi bhi original axis ke saath neatly align na</b> ho?</p>
+<p>But what happens when the data does <b>not align neatly with any original axis</b>?</p>
 
 <h4 id="s24">2.4 Rotating the axes when data lies diagonally ⭐</h4>
 <figure>
@@ -325,21 +325,21 @@
     </g>
   </g>
 </svg>
-<figcaption>Fig 3: <b>Left:</b> jab features correlated hain, kisi bhi original axis par project karne se valuable variance discard ho jaati hai. <b>Right:</b> PCA axes ko rotate karke $\text{PC}_1$ ko <b>seedha diagonal spread</b> ke saath align kar deta hai — ek hi component se lagbhag saari information capture.</figcaption>
+<figcaption>Fig 3: <b>Left:</b> when the features are correlated, projecting onto any original axis discards valuable variance. <b>Right:</b> PCA rotates the axes so $\text{PC}_1$ aligns <b>directly with the diagonal spread</b> — capturing nearly all the information in a single component.</figcaption>
 </figure>
 
 <div class="box insight">
   <div class="box-title">Important &amp; Geometric interpretation</div>
   <p style="margin:0">The number of principal components is <b>always less than or equal to</b> the number of original features.</p>
   <ul style="margin:.5rem 0 0">
-    <li><b>$\text{PC}_1$</b> ek <b>"overall house size"</b> direction represent kar sakta hai, kyunki bedroom aur washroom area saath-saath badhte hain.</li>
-    <li><b>$\text{PC}_2$</b> perpendicular hai aur us chhote <b>contrast</b> ko represent kar sakta hai ki space do rooms ke beech kaise allocate hui hai.</li>
+    <li><b>$\text{PC}_1$</b> may represent an <b>"overall house size"</b> direction, because bedroom and washroom area grow together.</li>
+    <li><b>$\text{PC}_2$</b> is perpendicular to it and may represent the small <b>contrast</b> in how the space is allocated between the two rooms.</li>
   </ul>
 </div>
 
 <!-- ================================================ -->
 <h4 id="s25">2.5 Problem formulation: projection and variance ⭐</h4>
-<p>Let $\mathbf u$ be any direction in the original $p$-dimensional space. Use ek axis ki tarah use karne ke liye, pehle use ek <b>unit vector</b> banao taaki $\|\mathbf u\| = 1$. The scalar coordinate of centered observation $\mathbf x_i$ along $\mathbf u$ is:</p>
+<p>Let $\mathbf u$ be any direction in the original $p$-dimensional space. To use it as an axis, first make it a <b>unit vector</b> so that $\|\mathbf u\| = 1$. The scalar coordinate of centered observation $\mathbf x_i$ along $\mathbf u$ is:</p>
 <div class="formula">$$z_i = \mathbf u^\top\mathbf x_i$$</div>
 
 <figure>
@@ -365,7 +365,7 @@
   <text x="66" y="230" font-size="10" style="fill:var(--text-3)">O(0,0)</text>
   <text x="180" y="198" font-size="9.5" style="fill:var(--text-3)">‖u‖ = 1</text>
 </svg>
-<figcaption>Fig 4: Dot product $z_i = \mathbf u^\top\mathbf x_i$ observation $\mathbf x_i$ ko unit direction $\mathbf u$ ke along ek <b>1D scalar coordinate</b> assign karta hai. $z_i$ ki variance maximize karna mathematically <b>reconstruction error $\|\mathbf e_i\|^2$ minimize karne ke barabar</b> hai.</figcaption>
+<figcaption>Fig 4: the dot product $z_i = \mathbf u^\top\mathbf x_i$ assigns observation $\mathbf x_i$ a <b>1D scalar coordinate</b> along the unit direction $\mathbf u$. Maximizing the variance of $z_i$ is mathematically <b>equivalent to minimizing the reconstruction error $\|\mathbf e_i\|^2$</b>.</figcaption>
 </figure>
 
 <div class="solved">
@@ -378,12 +378,12 @@
         $$\overline{\mathbf u^\top\mathbf X} = \frac{1}{n}\sum_{i=1}^{n}\mathbf u^\top\mathbf X_i = \mathbf u^\top\!\left(\frac{1}{n}\sum_{i=1}^{n}\mathbf X_i\right) = \mathbf u^\top\bar{\mathbf X}$$</li>
       <li><span class="sh">But we already CENTERED the data, so $\bar{\mathbf X} = \mathbf 0$</span>
         $$\overline{\mathbf u^\top\mathbf X} = \mathbf u^\top\mathbf 0 = 0$$
-        <div class="answer" style="background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.35);color:#fbbf24">Yehi wajah hai ki <b>centering compulsory</b> hai — yeh formula ke mean term ko exactly zero bana deta hai.</div></li>
+        <div class="answer" style="background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.35);color:#fbbf24">This is exactly why <b>centering is compulsory</b> — it makes the mean term in the formula exactly zero.</div></li>
       <li><span class="sh">The variance formula therefore simplifies to</span>
         <div class="formula" style="margin:.5rem 0 0">$$\text{Variance along } \mathbf u = \frac{1}{n-1}\sum_{i=1}^{n}\left(\mathbf u^\top\mathbf X_i\right)^2$$</div></li>
     </ol>
-    <p style="margin-top:1rem">Infinitely many possible unit vectors $\mathbf u$ mein se, humara objective wo dhoondna hai jo is variance ko <b>maximize</b> kare. <b>Yahi core problem hai jo PCA solve karta hai.</b></p>
-    <p style="margin:.5rem 0 0">Is optimization problem ko mathematically solve karna (Lagrange multipliers ke saath) is course ke scope se bahar hai. However, the solution turns out to be remarkably elegant: <b>optimal directions covariance matrix ke eigenvectors hain</b>, aur corresponding <b>eigenvalues</b> batate hain ki har direction kitni variance capture karta hai.</p>
+    <p style="margin-top:1rem">Out of the infinitely many possible unit vectors $\mathbf u$, our objective is to find the one that <b>maximizes</b> this variance. <b>That is the core problem PCA solves.</b></p>
+    <p style="margin:.5rem 0 0">Solving this optimization problem mathematically (with Lagrange multipliers) is outside the scope of this course. However, the solution turns out to be remarkably elegant: <b>the optimal directions are the eigenvectors of the covariance matrix</b>, and the corresponding <b>eigenvalues</b> tell us how much variance each direction captures.</p>
     <div class="box def" style="margin-bottom:0">
       <div class="box-title">Student exercise — prove $z_i = \mathbf u^\top\mathbf x_i$</div>
       <p style="margin:0">Definition of projection onto a unit vector: the projection length of $\mathbf v_1$ on $\mathbf u$ is $|\mathbf v_1|\cos\theta$. From the dot-product identity $\cos\theta = \dfrac{\mathbf v_1 \cdot \mathbf u}{|\mathbf v_1||\mathbf u|}$:</p>
@@ -460,12 +460,12 @@
     <text x="180" y="98" font-size="10" style="fill:var(--text-3)">Scaled by λ</text>
   </g>
 </svg>
-<figcaption>Fig 5: Ek general vector jo matrix transformation ke under rotate ho jaata hai, uske ulta ek <b>eigenvector apni original line par hi rehta</b> hai aur bas apni eigenvalue $\lambda$ se scale hota hai.</figcaption>
+<figcaption>Fig 5: a general vector gets rotated under a matrix transformation; by contrast an <b>eigenvector stays on its own original line</b> and is merely scaled by its eigenvalue $\lambda$.</figcaption>
 </figure>
 
 <div class="box insight">
   <div class="box-title">★ Connection to PCA</div>
-  <p style="margin:0">PCA mein, matrix $A$ <b>covariance matrix $S$</b> hai. $S$ ke <b>eigenvectors</b> hume <b>principal directions</b> dete hain, aur <b>eigenvalues</b> batate hain ki har direction ke along kitni <b>variance captured</b> hui.</p>
+  <p style="margin:0">In PCA, the matrix $A$ is the <b>covariance matrix $S$</b>. The <b>eigenvectors</b> of $S$ give us the <b>principal directions</b>, and the <b>eigenvalues</b> tell us how much <b>variance is captured</b> along each direction.</p>
 </div>
 
 <!-- ================================================ -->
@@ -506,12 +506,12 @@
     <text x="88" y="210" text-anchor="middle" font-size="9.5" style="fill:var(--text-3)">(y = x² pattern)</text>
   </g>
 </svg>
-<figcaption>Fig 6: <b>Panels 1–2:</b> positive aur negative linear covariance. <b>Panel 3:</b> random scatter with zero covariance and no relationship. <b>Panel 4:</b> ek symmetric parabola ka bhi $\operatorname{Cov}(x,y) = 0$ hota hai, <b>despite a perfect deterministic nonlinear relationship</b> — <b>zero covariance independence imply nahi karti</b>.</figcaption>
+<figcaption>Fig 6: <b>Panels 1–2:</b> positive and negative linear covariance. <b>Panel 3:</b> random scatter with zero covariance and no relationship. <b>Panel 4:</b> a symmetric parabola also has $\operatorname{Cov}(x,y) = 0$, <b>despite a perfect deterministic nonlinear relationship</b> — so <b>zero covariance does not imply independence</b>.</figcaption>
 </figure>
-<p>Covariance <b>units par depend</b> karti hai aur $-1$ aur $+1$ ke beech bounded <b>nahi</b> hai. <b>Correlation</b> covariance ko dono standard deviations se divide kar deta hai.</p>
+<p>Covariance <b>depends on units</b> and is <b>not</b> bounded between $-1$ and $+1$. <b>Correlation</b> divides the covariance by both standard deviations.</p>
 <div class="box warn">
   <div class="box-title">Classroom question — Does zero covariance prove two variables are independent?</div>
-  <p style="margin:0"><b>No.</b> Panel 4 <b>counterexample</b> hai: $y = x^2$ ka symmetric scatter, jahan $y$ $x$ se <b>completely determined</b> hai, phir bhi $\operatorname{Cov}(x,y) = 0$. Zero covariance sirf <b>zero LINEAR co-movement</b> imply karti hai. Independence ek kahin <b>stronger condition</b> hai. (Yeh <a href="l10.html#s7">Lecture 10</a> ke Pearson-correlation counterexample ka exactly same point hai.)</p>
+  <p style="margin:0"><b>No.</b> Panel 4 is the <b>counterexample</b>: the symmetric scatter of $y = x^2$, where $y$ is <b>completely determined</b> by $x$, yet $\operatorname{Cov}(x,y) = 0$. Zero covariance implies only <b>zero LINEAR co-movement</b>. Independence is a far <b>stronger condition</b>. (This is exactly the same point as the Pearson-correlation counterexample in <a href="l10.html#s7">Lecture 10</a>.)</p>
 </div>
 
 <!-- ================================================ -->
@@ -534,18 +534,18 @@
 </tbody>
 </table>
 </div>
-<p>The eigenvector with the <b>largest eigenvalue becomes $\text{PC}_1$</b> because it captures the most variance. <b>Note:</b> ordering <b>eigenvalue ki size</b> se decide hoti hai, subscript ke number se nahi.</p>
+<p>The eigenvector with the <b>largest eigenvalue becomes $\text{PC}_1$</b> because it captures the most variance. <b>Note:</b> the ordering is decided by the <b>size of the eigenvalue</b>, not by the subscript number.</p>
 <div class="box insight">
   <div class="box-title">★ Principal components are perpendicular</div>
-  <p style="margin:0">Principal components <b>hamesha ek doosre ke perpendicular (orthogonal)</b> honge. Yeh isliye kyunki $S$ ek <b>symmetric matrix</b> hai, aur ek symmetric matrix ke distinct eigenvalues wale eigenvectors hamesha orthogonal hote hain. Consequence: <b>PC scores uncorrelated</b> hote hain.</p>
+  <p style="margin:0">Principal components will <b>always be perpendicular (orthogonal) to one another</b>. This is because $S$ is a <b>symmetric matrix</b>, and the eigenvectors of a symmetric matrix with distinct eigenvalues are always orthogonal. The consequence: the <b>PC scores are uncorrelated</b>.</p>
 </div>
 
 <h4>4.3 Selecting and projecting</h4>
 <div class="formula">$$z_i = \mathbf u^\top\mathbf X_i$$</div>
-<p>where $\mathbf u$ is the unit eigenvector (principal direction) and $\mathbf X_i$ is the centered observation. Yeh projection <b>har observation</b> ke liye aur <b>har retained principal component</b> ke liye perform hoti hai.</p>
+<p>where $\mathbf u$ is the unit eigenvector (principal direction) and $\mathbf X_i$ is the centered observation. This projection is performed for <b>every observation</b> and for <b>every retained principal component</b>.</p>
 <div class="box insight">
   <div class="box-title">★ Key Insight</div>
-  <p style="margin:0">Covariance matrix ka har eigenvalue <b>exactly</b> batata hai ki uske corresponding principal direction ke along kitni variance captured hui. <b>Larger eigenvalue = more information retained.</b></p>
+  <p style="margin:0">Each eigenvalue of the covariance matrix tells us <b>exactly</b> how much variance is captured along its corresponding principal direction. <b>Larger eigenvalue = more information retained.</b></p>
 </div>
 
 <!-- ================================================ -->
@@ -599,7 +599,7 @@
         $$\text{PC}_1 \text{ captures } \frac{8}{8+0} = 1 = \mathbf{100\%} \text{ of the total variance}$$
         <div class="answer">The two features can be represented by <b>one component with NO reconstruction loss</b>, because all points lie exactly on a <b>line</b>.</div>
         <p style="margin:.5rem 0 0"><b>Classroom question — what real-world phrase could describe $\text{PC}_1$?</b><br>
-        <b>"Overall house size."</b> Bedroom area aur washroom area perfectly saath-saath badhte hain, to $\text{PC}_1$ house ka <b>total scale</b> measure karta hai. $\text{PC}_2$ (eigenvalue 0) us contrast ko measure karta ki space do rooms ke beech kaise allocate hui — par is dataset mein wo contrast <b>kabhi vary hi nahi karta</b>, isliye uski variance zero hai.</p></li>
+        <b>"Overall house size."</b> Bedroom area and washroom area grow perfectly together, so $\text{PC}_1$ measures the <b>total scale</b> of the house. $\text{PC}_2$ (eigenvalue 0) measures the contrast in how space is allocated between the two rooms — but in this dataset that contrast <b>never varies at all</b>, so its variance is zero.</p></li>
     </ol>
   </div>
 </div>
@@ -612,10 +612,10 @@
     <table>
     <thead><tr><th>Scenario</th><th>Decision</th><th>Reason</th></tr></thead>
     <tbody>
-    <tr><td>CGPA_copy exactly duplicates CGPA</td><td><span class="pill b">Feature selection</span></td><td>Ek exact duplicate hai — bas use drop kar do. PCA jaise complex tool ki zaroorat hi nahi.</td></tr>
-    <tr><td>Bedroom area and washroom area are strongly correlated and both reflect overall house size</td><td><span class="pill g">PCA / extraction</span></td><td>Information <b>dono</b> columns mein spread hai. PCA unhe ek "overall size" component mein combine kar deta hai bina kisi ko discard kiye.</td></tr>
-    <tr><td>A rare binary medical flag has low variance but is strongly associated with the target</td><td><span class="pill b">Feature selection</span></td><td><b>PCA use discard kar dega</b> — wo variance maximize karta hai aur target dekhta hi nahi. Ise selection se explicitly keep karo.</td></tr>
-    <tr><td>A 500-dim image embedding must be plotted for human inspection</td><td><span class="pill g">PCA</span></td><td>Visualization ke liye 2–3 dimensions chahiye. Selection 500 mein se 2 original columns pick karega (mostly useless); PCA best 2D <b>view</b> construct karta hai.</td></tr>
+    <tr><td>CGPA_copy exactly duplicates CGPA</td><td><span class="pill b">Feature selection</span></td><td>It is an exact duplicate — just drop it. No need for a complex tool like PCA.</td></tr>
+    <tr><td>Bedroom area and washroom area are strongly correlated and both reflect overall house size</td><td><span class="pill g">PCA / extraction</span></td><td>The information is spread across <b>both</b> columns. PCA combines them into one "overall size" component without discarding either.</td></tr>
+    <tr><td>A rare binary medical flag has low variance but is strongly associated with the target</td><td><span class="pill b">Feature selection</span></td><td><b>PCA would discard it</b> — it maximizes variance and never looks at the target. Keep it explicitly via selection.</td></tr>
+    <tr><td>A 500-dim image embedding must be plotted for human inspection</td><td><span class="pill g">PCA</span></td><td>Visualization needs 2–3 dimensions. Selection would pick 2 original columns out of 500 (mostly useless); PCA constructs the best 2D <b>view</b>.</td></tr>
     </tbody></table></div>
 
     <p style="margin-top:1.2rem"><b>(b) Read covariance from geometry — state the expected sign.</b></p>
@@ -623,9 +623,9 @@
     <table>
     <thead><tr><th>Description</th><th>Expected sign</th><th>Explanation</th></tr></thead>
     <tbody>
-    <tr><td>Study hours ↑ ⇒ practice-test score ↑</td><td><span class="pill g">Positive</span></td><td>Above-average $x$ above-average $y$ ke saath aata hai, to har product term positive hai.</td></tr>
-    <tr><td>Product price ↑ ⇒ units sold ↓</td><td><span class="pill r">Negative</span></td><td>Above-average $x$ below-average $y$ ke saath aata hai: $(+)(-) &lt; 0$.</td></tr>
-    <tr><td>Points form a symmetric U-shape around $x = 0$</td><td><span class="pill a">Zero</span></td><td>Left half ke negative products right half ke positive products ko <b>exactly cancel</b> kar dete hain. Par ek <b>perfect nonlinear relationship</b> phir bhi exist karta hai.</td></tr>
+    <tr><td>Study hours ↑ ⇒ practice-test score ↑</td><td><span class="pill g">Positive</span></td><td>An above-average $x$ comes with an above-average $y$, so every product term is positive.</td></tr>
+    <tr><td>Product price ↑ ⇒ units sold ↓</td><td><span class="pill r">Negative</span></td><td>An above-average $x$ comes with a below-average $y$: $(+)(-) &lt; 0$.</td></tr>
+    <tr><td>Points form a symmetric U-shape around $x = 0$</td><td><span class="pill a">Zero</span></td><td>The negative products of the left half <b>exactly cancel</b> the positive products of the right half. Yet a <b>perfect nonlinear relationship</b> still exists.</td></tr>
     </tbody></table></div>
   </div>
 </div>
@@ -642,9 +642,9 @@
       <li><span class="sh">(iii) Compute the projected point $z\mathbf u$</span>
         $$z\mathbf u = 2\sqrt2 \cdot \tfrac{1}{\sqrt2}\begin{bmatrix}1\\1\end{bmatrix} = 2\begin{bmatrix}1\\1\end{bmatrix} = \begin{bmatrix}\mathbf 2\\ \mathbf 2\end{bmatrix}$$</li>
       <li><span class="sh">(iv) Why does the projected point not have to equal $\mathbf x$?</span>
-        <p style="margin:.2rem 0 0">Kyunki $\mathbf x = [3,1]^\top$ us <b>line par lie hi nahi karta</b> jo $\mathbf u$ span karti hai (wo $y = x$ line hai). Projection us line par <b>closest point</b> hai. Leftover:</p>
+        <p style="margin:.2rem 0 0">Because $\mathbf x = [3,1]^\top$ <b>does not lie on the line</b> spanned by $\mathbf u$ (that is the line $y = x$). The projection is the <b>closest point</b> on that line. The leftover:</p>
         $$\mathbf e = \mathbf x - z\mathbf u = \begin{bmatrix}3\\1\end{bmatrix} - \begin{bmatrix}2\\2\end{bmatrix} = \begin{bmatrix}1\\-1\end{bmatrix}$$
-        <p style="margin:.3rem 0 0">Yeh residual $\mathbf u$ ke <b>perpendicular</b> hai (check: $[1,-1] \cdot [1,1] = 0$ ✓) aur projection ke dauraan <b>discard</b> ho jaata hai. Yahi wo information hai jo <b>kho jaati</b> hai — $\|\mathbf e\|^2 = 2$.</p></li>
+        <p style="margin:.3rem 0 0">This residual is <b>perpendicular</b> to $\mathbf u$ (check: $[1,-1] \cdot [1,1] = 0$ ✓) and is <b>discarded</b> during the projection. That is the information that <b>gets lost</b> — $\|\mathbf e\|^2 = 2$.</p></li>
     </ol>
 
     <p style="margin-top:1.4rem"><b>(b) Complete a miniature PCA.</b> The centered observations are $\mathbf x_1 = [-1,-1]^\top$, $\mathbf x_2 = [0,0]^\top$, $\mathbf x_3 = [1,1]^\top$.</p>
@@ -658,7 +658,7 @@
         $$S\mathbf v_2 = \tfrac{1}{\sqrt2}\begin{bmatrix}1-1\\1-1\end{bmatrix} = \begin{bmatrix}0\\0\end{bmatrix} \quad\Rightarrow\quad \lambda_2 = \mathbf 0$$</li>
       <li><span class="sh">(iv) Explained variance ratio of $\text{PC}_1$? Lossless?</span>
         $$\text{EVR}(\text{PC}_1) = \frac{\lambda_1}{\lambda_1+\lambda_2} = \frac{2}{2+0} = 1 = \mathbf{100\%}$$
-        <div class="answer">Lossless? <b>Yes</b> — saare points exactly line $y = x$ par lie karte hain, to $\text{PC}_2$ ke along koi variation hai hi nahi.</div></li>
+        <div class="answer">Lossless? <b>Yes</b> — all the points lie exactly on the line $y = x$, so there is no variation along $\text{PC}_2$ at all.</div></li>
     </ol>
   </div>
 </div>
@@ -703,7 +703,7 @@
   <text x="340" y="137" text-anchor="middle" font-size="10" font-style="italic" fill="#f87171">NEVER refit PCA or recompute μ on test data!</text>
   <text x="340" y="168" text-anchor="middle" font-size="9.5" font-style="italic" style="fill:var(--text-3)">(1ₜₑₛₜ is a column vector of ones of size nₜₑₛₜ × 1)</text>
 </svg>
-<figcaption>Fig 7: Complete end-to-end PCA machine-learning pipeline. Saari statistics $(\boldsymbol\mu, \mathbf s)$ aur projection directions $(W_k)$ <b>exclusively training set par</b> learn hoti hain aur test/production data par <b>unchanged</b> apply hoti hain.</figcaption>
+<figcaption>Fig 7: the complete end-to-end PCA machine-learning pipeline. All statistics $(\boldsymbol\mu, \mathbf s)$ and projection directions $(W_k)$ are learned <b>exclusively on the training set</b> and applied <b>unchanged</b> to test/production data.</figcaption>
 </figure>
 
 <ol>
@@ -773,7 +773,7 @@ $$\text{EVR of PC}_j = \frac{\lambda_j}{\sum_{\ell=1}^{p}\lambda_\ell}, \qquad\q
     <text x="180" y="236" text-anchor="middle" font-size="10.5" style="fill:var(--text-2)">Principal Component (j)</text>
   </g>
 </svg>
-<figcaption>Fig 8: Ek scree plot individual eigenvalues (bars) aur cumulative explained variance (line) display karta hai. <b>"Elbow"</b> wo point indicate karta hai jiske baad additional components <b>diminishing returns</b> dete hain.</figcaption>
+<figcaption>Fig 8: a scree plot displays the individual eigenvalues (bars) and the cumulative explained variance (line). The <b>"elbow"</b> indicates the point beyond which additional components give <b>diminishing returns</b>.</figcaption>
 </figure>
 
 <h4>Rules for choosing $k$</h4>
@@ -785,8 +785,8 @@ $$\text{EVR of PC}_j = \frac{\lambda_j}{\sum_{\ell=1}^{p}\lambda_\ell}, \qquad\q
 </ul>
 <div class="box warn">
   <div class="box-title">Classroom question</div>
-  <p style="margin:0">Agar first two components total variance ka 76% capture karte hain, to kya $k = 2$ <b>automatically</b> correct choice hai?<br>
-  <b>Nahi.</b> Teen wajah se: (i) 76% aksar common 90%/95% thresholds se <b>neeche</b> hai — is scree plot mein 90% tak pahuchne ke liye $k = 4$ (96%) chahiye; (ii) EVR ek <b>unsupervised</b> criterion hai — wo target ke baare mein kuch nahi jaanta, to discarded 24% mein wo hi direction ho sakti hai jo $y$ ki sabse zyada predictive hai; (iii) ek predictive pipeline ke liye $k$ ko <b>cross-validation ke andar hyperparameter</b> ki tarah treat karke downstream performance par validate karna chahiye.</p>
+  <p style="margin:0">If the first two components capture 76% of the total variance, is $k = 2$ <b>automatically</b> the right choice?<br>
+  <b>No</b>, for three reasons: (i) 76% is often <b>below</b> the common 90%/95% thresholds — in this scree plot reaching 90% needs $k = 4$ (96%); (ii) EVR is an <b>unsupervised</b> criterion — it knows nothing about the target, so the discarded 24% may contain the very direction that is most predictive of $y$; (iii) for a predictive pipeline, $k$ should be treated as a <b>hyperparameter inside cross-validation</b> and validated on downstream performance.</p>
 </div>
 
 <!-- ================================================ -->
@@ -839,7 +839,7 @@ $$\text{EVR of PC}_j = \frac{\lambda_j}{\sum_{\ell=1}^{p}\lambda_\ell}, \qquad\q
     <text x="110" y="230" text-anchor="middle" font-size="9.5" style="fill:var(--text-3)">Linear PCA cannot unroll manifolds.</text>
   </g>
 </svg>
-<figcaption>Fig 9: <b>Left:</b> isotropic spread arbitrary components deta hai. <b>Middle:</b> unsupervised variance maximization <b>class separability destroy</b> kar sakti hai. <b>Right:</b> linear projections curved nonlinear manifolds capture nahi kar sakte.</figcaption>
+<figcaption>Fig 9: <b>Left:</b> isotropic spread gives arbitrary components. <b>Middle:</b> unsupervised variance maximization can <b>destroy class separability</b>. <b>Right:</b> linear projections cannot capture curved nonlinear manifolds.</figcaption>
 </figure>
 
 <h4>5.4 What PCA changes — and what it can fail to preserve ⭐</h4>
@@ -860,7 +860,7 @@ $$\text{EVR of PC}_j = \frac{\lambda_j}{\sum_{\ell=1}^{p}\lambda_\ell}, \qquad\q
 </div>
 <div class="box danger">
   <div class="box-title">△ WARNING</div>
-  <p style="margin:0">Cross-validation se <b>pehle</b> scaling ya PCA fit karke phir downstream model ko cross-validate <b>mat</b> karo. PCA ko <b>har fold ke andar, sirf training portion par</b> fit karo.</p>
+  <p style="margin:0">Do <b>not</b> fit the scaling or PCA <b>before</b> cross-validation and then cross-validate the downstream model. Fit PCA <b>inside each fold, on the training portion only</b>.</p>
 </div>
 
 <h4>5.5 Comparison with feature selection ⭐</h4>
@@ -878,7 +878,7 @@ $$\text{EVR of PC}_j = \frac{\lambda_j}{\sum_{\ell=1}^{p}\lambda_\ell}, \qquad\q
 </div>
 <div class="box takeaway">
   <div class="box-title">♦ Takeaway</div>
-  <p style="margin:0">Feature selection poochta hai ki <b>kaunse original axes rehne ke laayak</b> hain. PCA poochta hai ki kya feature space ki apparent complexity ko <b>rotated axes ke ek chhote set</b> se summarize kiya ja sakta hai jo relevant structure abhi bhi capture kare.</p>
+  <p style="margin:0">Feature selection asks <b>which original axes deserve to stay</b>. PCA asks whether the apparent complexity of the feature space can be summarised by <b>a small set of rotated axes</b> that still capture the relevant structure.</p>
 </div>
 
 <!-- ================================================ -->
@@ -903,8 +903,8 @@ $$\text{EVR of PC}_j = \frac{\lambda_j}{\sum_{\ell=1}^{p}\lambda_\ell}, \qquad\q
       <li><span class="sh">(iii) Smallest $k$ that retains at least 90%</span>
         <div class="answer">$k = \mathbf 3$ &nbsp;(94.7%)</div></li>
       <li><span class="sh">(iv) Why is that $k$ still only a CANDIDATE for a predictive pipeline?</span>
-        <p style="margin:.2rem 0 0">Kyunki 90%-variance rule ek <b>purely unsupervised</b> criterion hai — wo <b>target $y$ ko dekhta hi nahi</b>. Discarded 5.3% variance mein wo direction ho sakti hai jo $y$ ki sabse zyada predictive hai (yaad karo: PCA ek low-variance but highly predictive feature ko happily discard kar deta hai).</p>
-        <p style="margin:.4rem 0 0">Isliye $k = 3$ ko ek <b>hyperparameter</b> ki tarah treat karna chahiye aur <b>cross-validation ke andar</b> downstream model performance par validate karna chahiye — $k = 1, 2, 3, 4$ sab try karke dekho kaunsa best validation score deta hai.</p></li>
+        <p style="margin:.2rem 0 0">Because the 90%-variance rule is a <b>purely unsupervised</b> criterion — it <b>never looks at the target $y$</b>. The discarded 5.3% of variance may contain the direction that is most predictive of $y$ (recall: PCA will happily discard a low-variance but highly predictive feature).</p>
+        <p style="margin:.4rem 0 0">So $k = 3$ should be treated as a <b>hyperparameter</b> and validated <b>inside cross-validation</b> on downstream model performance — try $k = 1, 2, 3, 4$ and see which gives the best validation score.</p></li>
     </ol>
   </div>
 </div>
@@ -919,10 +919,10 @@ $$\text{EVR of PC}_j = \frac{\lambda_j}{\sum_{\ell=1}^{p}\lambda_\ell}, \qquad\q
       <li><span class="sh">(ii) Which steps have seen the validation folds?</span>
         <p style="margin:.2rem 0 0"><b>Both preprocessing steps:</b></p>
         <ul style="margin:.4rem 0 0">
-          <li><b>Standardization</b> — $\boldsymbol\mu$ aur $\mathbf s$ <b>saari rows</b> se compute hue, including wo jo baad mein validation folds banengi.</li>
-          <li><b>PCA fitting</b> — covariance matrix $S$ aur uske eigenvectors bhi <b>saari rows</b> se compute hue. Projection directions $W_k$ literally validation data ki structure se shaped hain.</li>
+          <li><b>Standardization</b> — $\boldsymbol\mu$ and $\mathbf s$ were computed from <b>all the rows</b>, including those that later become validation folds.</li>
+          <li><b>PCA fitting</b> — the covariance matrix $S$ and its eigenvectors were also computed from <b>all the rows</b>. The projection directions $W_k$ are literally shaped by the structure of the validation data.</li>
         </ul>
-        <p style="margin:.4rem 0 0">Sirf <b>model fitting</b> step ne validation folds nahi dekhi — par tab tak nuksaan ho chuka hai. Reported CV accuracy <b>optimistically biased</b> hai.</p></li>
+        <p style="margin:.4rem 0 0">Only the <b>model fitting</b> step never saw the validation folds — but the damage is already done by then. The reported CV accuracy is <b>optimistically biased</b>.</p></li>
       <li><span class="sh">(iii) Describe the correct fold-by-fold procedure</span>
         <div class="tbl-wrap" style="margin:.5rem 0 0">
         <table class="compact">
@@ -949,13 +949,13 @@ $$\text{EVR of PC}_j = \frac{\lambda_j}{\sum_{\ell=1}^{p}\lambda_\ell}, \qquad\q
     <table>
     <thead><tr><th>Term</th><th>Definition</th></tr></thead>
     <tbody>
-    <tr><td><b>Centering</b></td><td>Har feature ki mean subtract karna taaki har column ka mean zero ho jaaye: $X_c = X - \mathbf 1\boldsymbol\mu^\top$. PCA ke liye <b>compulsory</b>.</td></tr>
-    <tr><td><b>Covariance matrix</b></td><td>Ek $p\times p$ symmetric matrix $S = \frac{1}{n-1}X_c^\top X_c$; diagonal mein feature variances aur off-diagonal mein pairwise covariances.</td></tr>
-    <tr><td><b>Eigenvector</b></td><td>Ek non-zero vector $\mathbf v$ jiski direction transformation ke under <b>preserved</b> rehti hai: $S\mathbf v = \lambda\mathbf v$. PCA mein yeh ek principal direction hai.</td></tr>
-    <tr><td><b>Eigenvalue</b></td><td>Scalar $\lambda$ jo batata hai ki uske eigenvector ki direction ke along matrix kitna stretch karta hai. PCA mein yeh us direction par <b>captured variance</b> hai.</td></tr>
-    <tr><td><b>Principal component</b></td><td>Covariance matrix ka ek eigenvector, eigenvalue ke descending order mein ranked. PC$_1$ maximum variance capture karta hai.</td></tr>
-    <tr><td><b>Explained variance</b></td><td>Total variance ka wo fraction jo ek component capture karta hai: $\lambda_j / \sum_\ell \lambda_\ell$.</td></tr>
-    <tr><td><b>Scree plot</b></td><td>Component index ke against eigenvalues (ya EVR) ka plot, jo <b>elbow</b> identify karne mein help karta hai jiske baad additional components diminishing returns dete hain.</td></tr>
+    <tr><td><b>Centering</b></td><td>Subtracting each feature's mean so that every column has mean zero: $X_c = X - \mathbf 1\boldsymbol\mu^\top$. <b>Compulsory</b> for PCA.</td></tr>
+    <tr><td><b>Covariance matrix</b></td><td>A $p\times p$ symmetric matrix $S = \frac{1}{n-1}X_c^\top X_c$; feature variances on the diagonal and pairwise covariances off-diagonal.</td></tr>
+    <tr><td><b>Eigenvector</b></td><td>A non-zero vector $\mathbf v$ whose direction is <b>preserved</b> under the transformation: $S\mathbf v = \lambda\mathbf v$. In PCA it is a principal direction.</td></tr>
+    <tr><td><b>Eigenvalue</b></td><td>The scalar $\lambda$ saying how much the matrix stretches along its eigenvector's direction. In PCA it is the <b>variance captured</b> along that direction.</td></tr>
+    <tr><td><b>Principal component</b></td><td>An eigenvector of the covariance matrix, ranked in descending order of eigenvalue. PC$_1$ captures the maximum variance.</td></tr>
+    <tr><td><b>Explained variance</b></td><td>The fraction of total variance a component captures: $\lambda_j / \sum_\ell \lambda_\ell$.</td></tr>
+    <tr><td><b>Scree plot</b></td><td>A plot of eigenvalues (or EVR) against component index, which helps identify the <b>elbow</b> beyond which additional components give diminishing returns.</td></tr>
     </tbody></table></div>
 
     <p style="margin-top:1.4rem"><b>(b) True or False</b></p>
@@ -963,29 +963,29 @@ $$\text{EVR of PC}_j = \frac{\lambda_j}{\sum_{\ell=1}^{p}\lambda_\ell}, \qquad\q
     <table>
     <thead><tr><th>Statement</th><th>T/F</th><th>Justification</th></tr></thead>
     <tbody>
-    <tr><td>PCA uses the target variable $y$ to find directions</td><td><span class="pill r">F</span></td><td>PCA <b>unsupervised</b> hai — wo sirf $X$ ki covariance structure use karta hai. $y$ formula mein kahin nahi aata.</td></tr>
-    <tr><td>Principal components are always uncorrelated</td><td><span class="pill g">T</span></td><td>$S$ symmetric hai, to uske eigenvectors <b>orthogonal</b> hain; isliye PC scores ki covariance zero hoti hai.</td></tr>
-    <tr><td>Standardization is always necessary before PCA</td><td><span class="pill r">F</span></td><td><b>Centering</b> hamesha zaroori hai; <b>standardization conditional</b> hai — tab jab features ke different units/scales hon.</td></tr>
-    <tr><td>The eigenvalue of a PC equals the variance of the scores along that direction</td><td><span class="pill g">T</span></td><td>Yeh eigen-decomposition ka exact interpretation hai — isiliye EVR $= \lambda_j/\sum\lambda$.</td></tr>
-    <tr><td>PCA can unfold a curved manifold</td><td><span class="pill r">F</span></td><td>PCA ek <b>linear</b> method hai (Fig 9, Case 3). Curved structures ke liye kernel PCA ya manifold methods chahiye.</td></tr>
+    <tr><td>PCA uses the target variable $y$ to find directions</td><td><span class="pill r">F</span></td><td>PCA is <b>unsupervised</b> — it uses only the covariance structure of $X$. $y$ never appears in the formula.</td></tr>
+    <tr><td>Principal components are always uncorrelated</td><td><span class="pill g">T</span></td><td>$S$ is symmetric, so its eigenvectors are <b>orthogonal</b>; therefore the covariance of the PC scores is zero.</td></tr>
+    <tr><td>Standardization is always necessary before PCA</td><td><span class="pill r">F</span></td><td><b>Centering</b> is always necessary; <b>standardization is conditional</b> — needed when the features have different units/scales.</td></tr>
+    <tr><td>The eigenvalue of a PC equals the variance of the scores along that direction</td><td><span class="pill g">T</span></td><td>This is the exact interpretation of the eigen-decomposition — which is why EVR $= \lambda_j/\sum\lambda$.</td></tr>
+    <tr><td>PCA can unfold a curved manifold</td><td><span class="pill r">F</span></td><td>PCA is a <b>linear</b> method (Fig 9, Case 3). Curved structures need kernel PCA or manifold methods.</td></tr>
     </tbody></table></div>
 
     <p style="margin-top:1.4rem"><b>(c) Synthesis questions</b></p>
     <ol class="steps">
       <li><span class="sh">(i) Why is centering essential before computing the covariance matrix?</span>
-        <p style="margin:.2rem 0 0">Kyunki variance-along-$\mathbf u$ formula mein mean term $\overline{\mathbf u^\top\mathbf X} = \mathbf u^\top\bar{\mathbf X}$ appear karta hai. Centering isse <b>exactly zero</b> bana deta hai, jisse formula $\frac{1}{n-1}\sum(\mathbf u^\top\mathbf X_i)^2$ ban jaata hai. Centering ke bina, PC$_1$ origin se data-cloud ke mean tak ki direction ko pick karne lagta hai — spread ki direction ko nahi.</p></li>
+        <p style="margin:.2rem 0 0">Because the mean term $\overline{\mathbf u^\top\mathbf X} = \mathbf u^\top\bar{\mathbf X}$ appears in the variance-along-$\mathbf u$ formula. Centering makes it <b>exactly zero</b>, which reduces the formula to $\frac{1}{n-1}\sum(\mathbf u^\top\mathbf X_i)^2$. Without centering, PC$_1$ starts picking the direction from the origin to the data cloud's mean — not the direction of the spread.</p></li>
       <li><span class="sh">(ii) What does an eigenvalue mean geometrically in PCA?</span>
-        <p style="margin:.2rem 0 0">Wo us principal direction ke along projected data ki <b>variance (spread)</b> hai. Bada eigenvalue = data us direction mein zyada faila hua hai = wo direction zyada information carry karti hai. Ek zero eigenvalue ka matlab us direction mein <b>bilkul koi variation nahi</b> — use bina kisi loss ke discard kiya ja sakta hai.</p></li>
+        <p style="margin:.2rem 0 0">It is the <b>variance (spread)</b> of the projected data along that principal direction. A larger eigenvalue = the data is more spread out in that direction = that direction carries more information. A zero eigenvalue means there is <b>no variation at all</b> in that direction — it can be discarded with no loss.</p></li>
       <li><span class="sh">(iii) Why are principal-component scores uncorrelated?</span>
-        <p style="margin:.2rem 0 0">Kyunki $S$ ek <b>real symmetric</b> matrix hai, aur spectral theorem guarantee karta hai ki uske eigenvectors <b>mutually orthogonal</b> chune ja sakte hain. Jab centered data orthogonal directions par project hota hai, resulting score vectors ki <b>covariance zero</b> hoti hai.</p></li>
+        <p style="margin:.2rem 0 0">Because $S$ is a <b>real symmetric</b> matrix, and the spectral theorem guarantees its eigenvectors can be chosen <b>mutually orthogonal</b>. When centered data is projected onto orthogonal directions, the resulting score vectors have <b>zero covariance</b>.</p></li>
       <li><span class="sh">(iv) When can standardization change the first principal component dramatically?</span>
-        <p style="margin:.2rem 0 0">Jab features ke <b>wildly different scales</b> hon. Maan lo income rupees mein hai (variance $\sim 10^{10}$) aur age years mein (variance $\sim 100$). Bina standardization ke, covariance matrix par income poori tarah haavi ho jaayega aur PC$_1$ essentially "income" ban jaayega. Standardization ke baad dono features ki variance 1 ho jaati hai, to PC$_1$ <b>genuine shared structure</b> reflect karta hai — sirf units ka accident nahi.</p></li>
+        <p style="margin:.2rem 0 0">When the features have <b>wildly different scales</b>. Suppose income is in rupees (variance $\sim 10^{10}$) and age is in years (variance $\sim 100$). Without standardization, income would completely dominate the covariance matrix and PC$_1$ would essentially become "income". After standardization both features have variance 1, so PC$_1$ reflects <b>genuine shared structure</b> — not an accident of units.</p></li>
       <li><span class="sh">(v) Why can PCA improve a model on one dataset and harm it on another?</span>
-        <p style="margin:.2rem 0 0">Kyunki PCA <b>variance</b> par optimize karta hai, <b>predictive value</b> par nahi. Agar high-variance directions hi wo directions hain jo $y$ carry karti hain (common case), to PCA noise hata ke help karta hai. Par agar signal ek <b>low-variance</b> direction mein baitha hai (Fig 9 ka Case 2, ya rare medical flag), to PCA use <b>discard</b> kar dega aur performance <b>kharab</b> kar dega.</p></li>
+        <p style="margin:.2rem 0 0">Because PCA optimizes for <b>variance</b>, not for <b>predictive value</b>. If the high-variance directions happen to be the directions carrying $y$ (the common case), PCA helps by removing noise. But if the signal sits in a <b>low-variance</b> direction (Case 2 of Fig 9, or the rare medical flag), PCA will <b>discard</b> it and make performance <b>worse</b>.</p></li>
       <li><span class="sh">(vi) How does PCA connect back to the bias–variance tradeoff and feature selection?</span>
-        <p style="margin:.2rem 0 0">Teeno ek hi tension address karte hain. <b>Bias–variance</b> (<a href="l09.html">L9</a>): zyada flexibility variance badhati hai. <b>Feature selection</b> (<a href="l10.html">L10</a>): columns hatao taaki variance kam ho. <b>PCA</b> (L11): dimensions hatao taaki variance kam ho — par <b>rotating</b> karke, na ki original columns discard karke, to shared signal preserve rehta hai. Teeno "hamesha better generalization" nahi dete; teeno ko <b>validation</b> chahiye.</p></li>
+        <p style="margin:.2rem 0 0">All three address the same tension. <b>Bias–variance</b> (<a href="l09.html">L9</a>): more flexibility raises variance. <b>Feature selection</b> (<a href="l10.html">L10</a>): remove columns to reduce variance. <b>PCA</b> (L11): remove dimensions to reduce variance — but by <b>rotating</b> rather than discarding original columns, so the shared signal is preserved. None of the three gives "always better generalization"; all three need <b>validation</b>.</p></li>
       <li><span class="sh">(vii) Give an example of a dataset where PCA would fail to capture the true structure.</span>
-        <p style="margin:.2rem 0 0">Do concentric circles (ya Fig 9 ka $y = x^2$ parabola). Do classes hain — inner ring aur outer ring — par unka <b>mean same</b> hai aur variance <b>har direction mein equal</b> hai. Koi bhi linear projection dono classes ko <b>merge</b> kar degi. Sahi structure <b>radius</b> hai, jo koi bhi linear combination of $x_1, x_2$ nahi hai. Yahan <b>kernel PCA</b> ya ek nonlinear manifold method chahiye.</p></li>
+        <p style="margin:.2rem 0 0">Two concentric circles (or the $y = x^2$ parabola of Fig 9). There are two classes — the inner ring and the outer ring — but they have <b>the same mean</b> and equal variance <b>in every direction</b>. Any linear projection will <b>merge</b> the two classes. The real structure is the <b>radius</b>, which is not any linear combination of $x_1, x_2$. This needs <b>kernel PCA</b> or a nonlinear manifold method.</p></li>
     </ol>
   </div>
 </div>
@@ -996,16 +996,16 @@ $$\text{EVR of PC}_j = \frac{\lambda_j}{\sum_{\ell=1}^{p}\lambda_\ell}, \qquad\q
 <table>
 <thead><tr><th>Galti</th><th>Sahi Baat</th></tr></thead>
 <tbody>
-<tr><td>Centering skip kar dena</td><td>Bina centering ke PC$_1$ <b>mean ki direction</b> pick karta hai, spread ki nahi. Centering <b>compulsory</b> hai.</td></tr>
-<tr><td>"Standardization bhi hamesha zaroori hai"</td><td>Nahi — <b>conditional</b> hai. Same units par centering alone kaafi hai.</td></tr>
-<tr><td>"PCA supervised hai kyunki wo best features dhoondta hai"</td><td>PCA <b>unsupervised</b> hai — $y$ formula mein kahin aata hi nahi.</td></tr>
-<tr><td>PCs ko subscript number se order karna</td><td>Ordering <b>eigenvalue size</b> se hoti hai. Agar $\lambda_3 &gt; \lambda_2$, to $\mathbf v_3$ PC$_2$ banta hai.</td></tr>
-<tr><td>Poore dataset par PCA fit karke phir CV karna</td><td><b>Leakage.</b> PCA <b>har fold ke andar</b>, sirf training portion par fit karo.</td></tr>
-<tr><td>"90% variance = best $k$"</td><td>EVR <b>unsupervised</b> criterion hai. $k$ ko CV ke andar hyperparameter ki tarah validate karo.</td></tr>
-<tr><td>"PCA hamesha model improve karta hai"</td><td>Agar signal ek low-variance direction mein hai, PCA use <b>discard</b> kar dega.</td></tr>
-<tr><td>"Zero covariance = independent"</td><td>$y = x^2$ counterexample hai. Zero covariance sirf zero <b>linear</b> co-movement hai.</td></tr>
-<tr><td>Test set par PCA refit karna</td><td>Stored training $\boldsymbol\mu$, $\mathbf s$ aur $W_k$ use karo. <b>Kabhi</b> test par refit mat karo.</td></tr>
-<tr><td>$W_k$ ke dimensions $k \times p$ likhna</td><td>$W_k$ is $p \times k$ (columns are the $k$ eigenvectors, each of length $p$).</td></tr>
+<tr><td>Skipping the centering step</td><td>Without centering, PC$_1$ picks <b>the direction of the mean</b>, not of the spread. Centering is <b>compulsory</b>.</td></tr>
+<tr><td>"Standardization is always necessary too"</td><td>No — it is <b>conditional</b>. With shared units, centering alone is enough.</td></tr>
+<tr><td>"PCA is supervised because it finds the best features"</td><td>PCA is <b>unsupervised</b> — $y$ never appears in the formula.</td></tr>
+<tr><td>Ordering PCs by subscript number</td><td>The ordering comes from <b>eigenvalue size</b>. If $\lambda_3 &gt; \lambda_2$, then $\mathbf v_3$ becomes PC$_2$.</td></tr>
+<tr><td>Fitting PCA on the whole dataset and then cross-validating</td><td><b>Leakage.</b> Fit PCA <b>inside each fold</b>, on the training portion only.</td></tr>
+<tr><td>"90% variance = the best $k$"</td><td>EVR is an <b>unsupervised</b> criterion. Validate $k$ as a hyperparameter inside CV.</td></tr>
+<tr><td>"PCA always improves the model"</td><td>If the signal lies in a low-variance direction, PCA will <b>discard</b> it.</td></tr>
+<tr><td>"Zero covariance = independent"</td><td>$y = x^2$ is the counterexample. Zero covariance is only zero <b>linear</b> co-movement.</td></tr>
+<tr><td>Refitting PCA on the test set</td><td>Use the stored training $\boldsymbol\mu$, $\mathbf s$ and $W_k$. <b>Never</b> refit on test.</td></tr>
+<tr><td>Writing the dimensions of $W_k$ as $k \times p$</td><td>$W_k$ is $p \times k$ (columns are the $k$ eigenvectors, each of length $p$).</td></tr>
 </tbody>
 </table>
 </div>
@@ -1027,17 +1027,17 @@ $$\text{EVR of PC}_j = \frac{\lambda_j}{\sum_{\ell=1}^{p}\lambda_\ell}, \qquad\q
 <div class="box takeaway">
   <div class="box-title">♦ By the end of this sheet you can…</div>
   <ul style="margin:0">
-    <li>Feature selection ko feature extraction se distinguish karna aur batana ki PCA kab appropriate hai.</li>
-    <li>Centering formula likhna aur explain karna ki standardization kab chahiye.</li>
-    <li>Explain karna ki covariance matrix kya record karta hai aur uske diagonal/off-diagonal entries identify karna.</li>
-    <li>Explain karna ki covariance matrix ke eigenvalues aur eigenvectors principal components kaise dete hain.</li>
-    <li>State karna ki principal directions covariance matrix ke eigenvectors kyun hain aur har eigenvalue captured variance kyun represent karta hai.</li>
-    <li>Data ko ek unit direction par project karna aur score ko geometrically interpret karna.</li>
-    <li>Ek miniature PCA calculation <b>by hand</b> complete karna.</li>
-    <li>Explained variance ratios aur ek scree plot se $k$ choose karna.</li>
-    <li>Un situations ko identify karna jahan PCA accha perform nahi karta.</li>
-    <li>Explain karna ki PCA cross-validation folds ke andar kyun hona chahiye.</li>
-    <li>PCA ko feature selection se purpose, supervision aur validation discipline par compare karna.</li>
+    <li>Distinguish feature selection from feature extraction and say when PCA is appropriate.</li>
+    <li>Write the centering formula and explain when standardization is needed.</li>
+    <li>Explain what the covariance matrix records and identify its diagonal/off-diagonal entries.</li>
+    <li>Explain how the eigenvalues and eigenvectors of the covariance matrix give the principal components.</li>
+    <li>State why the principal directions are the eigenvectors of the covariance matrix and why each eigenvalue represents captured variance.</li>
+    <li>Project data onto a unit direction and interpret the score geometrically.</li>
+    <li>Complete a miniature PCA calculation <b>by hand</b>.</li>
+    <li>Choose $k$ from explained variance ratios and a scree plot.</li>
+    <li>Identify the situations where PCA does not perform well.</li>
+    <li>Explain why PCA must sit inside the cross-validation folds.</li>
+    <li>Compare PCA with feature selection on purpose, supervision and validation discipline.</li>
   </ul>
 </div>
 
@@ -1063,7 +1063,7 @@ const MCQS = [
      'Because eigenvalues must be positive',
      'Because standardization requires it'],
   a:1,
-  e:'<b>B.</b> Bina centering ke, variance calculation mean offset se distort ho jaati hai aur first component <b>origin se data cloud tak</b> ki direction pick karta hai — spread ki direction nahi. <b>A</b> is a side effect, not the reason. <b>C</b> false — a covariance matrix already has non-negative eigenvalues. <b>D</b> reverses the dependency.' },
+  e:'<b>B.</b> Without centering, the variance calculation is distorted by the mean offset and the first component picks the direction <b>from the origin to the data cloud</b> — not the direction of the spread. <b>A</b> is a side effect, not the reason. <b>C</b> is false — a covariance matrix already has non-negative eigenvalues. <b>D</b> reverses the dependency.' },
 
 { d:'hard',
   q:'A rare binary medical flag has low variance but is strongly associated with the target. What will PCA do with it?',
@@ -1087,7 +1087,7 @@ const MCQS = [
      'None — cross-validation protects the pipeline',
      'Only PCA, since standardisation is harmless'],
   a:1,
-  e:'<b>B.</b> Dono preprocessing steps saari rows se learn hue. $W_k$ literally validation data ki covariance structure se shaped hai. Sirf model fitting fold-local raha — par leakage pehle hi ho chuka. <b>A</b> is exactly backwards. <b>C</b> is the dangerous belief that CV is a universal safety net. <b>D</b> understates — standardisation leaks $\\mu$ and $s$ too.' },
+  e:'<b>B.</b> Both preprocessing steps were learned from all the rows. $W_k$ is literally shaped by the covariance structure of the validation data. Only the model fitting stayed fold-local — but the leakage had already happened. <b>A</b> is exactly backwards. <b>C</b> is the dangerous belief that CV is a universal safety net. <b>D</b> understates it — standardisation leaks $\\mu$ and $s$ too.' },
 
 { d:'hard',
   q:'Why are principal-component scores always uncorrelated?',
@@ -1096,7 +1096,7 @@ const MCQS = [
      'Because the target variable forces them apart',
      'They are not always uncorrelated'],
   a:1,
-  e:'<b>B.</b> Spectral theorem: ek real symmetric matrix ke orthogonal eigenvectors hote hain. Orthogonal directions par centered data project karne se scores ki covariance zero ho jaati hai. <b>A</b> confuses centring with decorrelation (scores are centred but <b>not</b> unit-variance — their variances are the $\\lambda_j$). <b>C</b> false — PCA never uses $y$. <b>D</b> contradicts the standard result.' },
+  e:'<b>B.</b> Spectral theorem: a real symmetric matrix has orthogonal eigenvectors. Projecting centered data onto orthogonal directions makes the covariance of the scores zero. <b>A</b> confuses centring with decorrelation (the scores are centred but <b>not</b> unit-variance — their variances are the $\\lambda_j$). <b>C</b> is false — PCA never uses $y$. <b>D</b> contradicts the standard result.' },
 
 { d:'hard',
   q:'Let $\\mathbf x = [3,1]^\\top$ and $\\mathbf u = \\frac{1}{\\sqrt2}[1,1]^\\top$. What is the projected point $z\\mathbf u$, and why does it not equal $\\mathbf x$?',
@@ -1114,14 +1114,14 @@ const MCQS = [
      'PCA will automatically rotate to PC₂ to preserve the classes',
      'The eigenvalues become negative'],
   a:1,
-  e:'<b>B.</b> Yeh Fig 9 ka Case 2 hai. Spread $x_1$ ke along sabse zyada hai, to PC₁ wahi pick karta hai — par class information $x_2$ mein baithi hai. Unsupervised variance maximisation ne <b>class separability destroy</b> kar di. <b>A</b> is exactly the opposite. <b>C</b> — PCA has no mechanism to prefer a class-separating direction. <b>D</b> is impossible for a covariance matrix.' },
+  e:'<b>B.</b> This is Case 2 of Fig 9. The spread is largest along $x_1$, so PC₁ picks that — but the class information sits in $x_2$. Unsupervised variance maximisation has <b>destroyed class separability</b>. <b>A</b> is exactly the opposite. <b>C</b> — PCA has no mechanism to prefer a class-separating direction. <b>D</b> is impossible for a covariance matrix.' },
 
 { d:'med',
   q:'Which pairing is correct for the matrix $W_k$?',
   o:['$W_k$ is $k \\times p$; $Z = W_kX_c$', '$W_k$ is $p \\times k$; $Z = X_cW_k$ with $Z$ of size $n \\times k$',
      '$W_k$ is $n \\times k$; $Z = X_c^\\top W_k$', '$W_k$ is $p \\times p$; $Z = X_cW_k$'],
   a:1,
-  e:'<b>B.</b> $W_k$ ke columns pehle $k$ eigenvectors hain, har ek length $p$ ka ⟹ $p \\times k$. Then $Z = X_cW_k$ is $(n\\times p)(p\\times k) = n\\times k$ ✓. <b>A</b> transposes $W_k$ so the multiplication does not conform. <b>C</b> confuses observations with features. <b>D</b> keeps all $p$ components, i.e. no reduction.' },
+  e:'<b>B.</b> The columns of $W_k$ are the first $k$ eigenvectors, each of length $p$ ⟹ $p \\times k$. Then $Z = X_cW_k$ is $(n\\times p)(p\\times k) = n\\times k$ ✓. <b>A</b> transposes $W_k$ so the multiplication does not conform. <b>C</b> confuses observations with features. <b>D</b> keeps all $p$ components, i.e. no reduction.' },
 
 { d:'hard',
   q:'Maximising the variance of the projections $z_i = \\mathbf u^\\top\\mathbf x_i$ is mathematically equivalent to:',
@@ -1130,7 +1130,7 @@ const MCQS = [
      'Minimising the number of components $k$',
      'Maximising the correlation with the target $y$'],
   a:1,
-  e:'<b>B.</b> Pythagorean orthogonal decomposition: $\\|\\mathbf x_i\\|^2 = z_i^2 + \\|\\mathbf e_i\\|^2$. Since $\\|\\mathbf x_i\\|^2$ $\\mathbf u$ par depend hi nahi karta, $\\sum z_i^2$ maximise karna aur $\\sum\\|\\mathbf e_i\\|^2$ minimise karna <b>same optimisation</b> hai. <b>A</b> reverses it. <b>C</b> is a separate decision. <b>D</b> would make PCA supervised, which it is not.' },
+  e:'<b>B.</b> Pythagorean orthogonal decomposition: $\\|\\mathbf x_i\\|^2 = z_i^2 + \\|\\mathbf e_i\\|^2$. Since $\\|\\mathbf x_i\\|^2$ does not depend on $\\mathbf u$ at all, maximising $\\sum z_i^2$ and minimising $\\sum\\|\\mathbf e_i\\|^2$ are the <b>same optimisation</b>. <b>A</b> reverses it. <b>C</b> is a separate decision. <b>D</b> would make PCA supervised, which it is not.' },
 ];
 </script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>

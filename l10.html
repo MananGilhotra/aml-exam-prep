@@ -28,7 +28,7 @@
 
 <div class="box hinglish">
   <div class="box-title">⚡ Ek Line Mein</div>
-  <p style="margin:0">Zyada columns ka matlab zyada information nahi. <b>Filter methods</b> sasti statistical checks se features ko model train karne se <b>pehle</b> screen karte hain (duplicates, variance, correlation) — par interactions miss kar dete hain. <b>Wrapper methods</b> actual model ko alag-alag <b>subsets</b> par train karke dekhte hain — accurate par mehnga aur greedy. Aur sabse important rule: <b>selection cross-validation ke ANDAR hona chahiye</b>, warna leakage.</p>
+  <p style="margin:0">More columns do not mean more information. <b>Filter methods</b> screen features with cheap statistical checks <b>before</b> any model is trained (duplicates, variance, correlation) — but they miss interactions. <b>Wrapper methods</b> train the actual model on different <b>subsets</b> and compare — accurate but expensive and greedy. And the most important rule of all: <b>selection must happen INSIDE cross-validation</b>, otherwise you get leakage.</p>
 </div>
 
 <!-- =========================================== -->
@@ -37,11 +37,11 @@
 <h3 id="s1"><span class="h2-num">1</span>More columns do not always mean more information</h3>
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">Lecture 8 mein humne deliberately $x^2$ jaise features banaye taaki model ek curved pattern represent kar sake. Lecture 9 mein humne dekha ki extra flexibility bias kam kar sakti hai par variance badha bhi sakti hai. Ab hum complementary question poochte hain:</p>
-  <p style="margin:.6rem 0 0;font-weight:700">Jab ek dataset mein pehle se hi bohot saare columns hain, to <b>kaunse columns rehne ke laayak hain</b>?</p>
+  <p style="margin:0">In Lecture 8 we deliberately built features such as $x^2$ so the model could represent a curved pattern. In Lecture 9 we saw that extra flexibility can reduce bias but can also increase variance. Now we ask the complementary question:</p>
+  <p style="margin:.6rem 0 0;font-weight:700">When a dataset already has many columns, <b>which columns deserve to stay</b>?</p>
 </div>
 
-<p>Internship-stipend problem par wapas. Target ek student ka stipend hai, aur available candidate inputs yeh hain:</p>
+<p>Back to the internship-stipend problem. The target is a student's stipend, and the available candidate inputs are:</p>
 <div class="tbl-wrap">
 <table>
 <thead><tr><th>Feature</th><th>Why it may appear useful</th><th>Question to ask</th></tr></thead>
@@ -84,7 +84,7 @@
   <text x="380" y="158" text-anchor="middle" font-size="10.5" font-style="italic" style="fill:var(--text-3)">The model receives columns,</text>
   <text x="380" y="172" text-anchor="middle" font-size="10.5" font-style="italic" style="fill:var(--text-3)">but only some carry stable signal.</text>
 </svg>
-<figcaption><b>Classroom question:</b> Kya model necessarily better ho jaayega agar hum saare saat columns rakh lein? <b>Nahi.</b> CGPA_copy koi nayi information nahi deta; Student_ID aur Random_number pure noise hain jinpar model spurious patterns fit kar sakta hai.</figcaption>
+<figcaption><b>Classroom question:</b> will the model necessarily get better if we keep all seven columns? <b>No.</b> CGPA_copy adds no new information; Student_ID and Random_number are pure noise on which the model can fit spurious patterns.</figcaption>
 </figure>
 
 <!-- =========================================== -->
@@ -96,7 +96,7 @@
 
 <div class="box insight">
   <div class="box-title">★ Key Insight</div>
-  <p style="margin:0">"Most important" ek <b>absolute label nahi</b> hai. Yeh depend karta hai: <b>target</b>, <b>model</b>, <b>evaluation metric</b>, <b>sample</b>, aur <b>wo baaki features jo pehle se present hain</b>.</p>
+  <p style="margin:0">"Most important" is <b>not an absolute label</b>. It depends on the <b>target</b>, the <b>model</b>, the <b>evaluation metric</b>, the <b>sample</b>, and <b>which other features are already present</b>.</p>
 </div>
 
 <h4>2.1 Three kinds of feature behaviour ⭐</h4>
@@ -112,7 +112,7 @@
 </div>
 <div class="box takeaway">
   <div class="box-title">♦ Takeaway</div>
-  <p style="margin:0">Feature selection <b>redundant</b> aur <b>irrelevant</b> inputs hataane ki koshish karta hai — bina genuinely useful signal discard kiye.</p>
+  <p style="margin:0">Feature selection tries to remove <b>redundant</b> and <b>irrelevant</b> inputs — without discarding genuinely useful signal.</p>
 </div>
 
 <h4>2.2 Feature selection is NOT feature transformation</h4>
@@ -120,9 +120,9 @@
 <table>
 <thead><tr><th></th><th>Feature transformation</th><th>Feature selection</th></tr></thead>
 <tbody>
-<tr><td><b>Core action</b></td><td>Ek <b>naya representation</b> banao, jaise $x$ se $x^2$.</td><td>Sirf kuch <b>existing candidate columns</b> retain karo.</td></tr>
-<tr><td><b>Effect on candidate space</b></td><td><b>Expands</b> ya badalta hai representation.</td><td><b>Reduces</b> the representation.</td></tr>
-<tr><td><b>Can both appear in one pipeline?</b></td><td colspan="2"><b>Yes.</b> Pehle meaningful candidates banao, phir unme se select karo.</td></tr>
+<tr><td><b>Core action</b></td><td>Build a <b>new representation</b>, such as $x^2$ from $x$.</td><td>Retain only some of the <b>existing candidate columns</b>.</td></tr>
+<tr><td><b>Effect on candidate space</b></td><td><b>Expands</b> or changes the representation.</td><td><b>Reduces</b> the representation.</td></tr>
+<tr><td><b>Can both appear in one pipeline?</b></td><td colspan="2"><b>Yes.</b> First build meaningful candidates, then select among them.</td></tr>
 </tbody>
 </table>
 </div>
@@ -130,32 +130,32 @@
 <!-- =========================================== -->
 <h3 id="s3"><span class="h2-num">3</span>Why feature selection can improve learning</h3>
 <h4>3.1 Generalization and the bias–variance connection</h4>
-<p>Zyada features model ki flexibility badhate hain. Jahan useful features <b>bias kam</b> karte hain, wahan <b>irrelevant features</b> model ko random noise fit karne par majboor karte hain — jisse <b>variance badhta</b> hai aur validation performance <b>bigadti</b> hai.</p>
+<p>More features increase the model's flexibility. Where useful features <b>reduce bias</b>, <b>irrelevant features</b> force the model to fit random noise — which <b>raises variance</b> and <b>degrades</b> validation performance.</p>
 <div class="box warn">
   <div class="box-title">Classroom question</div>
-  <p style="margin:0">Das features add karne ke baad training error ghat gaya, par validation error <b>badh gaya</b>. Kya naye features ne model ko stable pattern seekhne mein help ki?<br>
-  <b>Nahi.</b> Training error hamesha girta hai jab features add hote hain (👉 <a href="l04.html#hw11">Lecture 4</a>). Validation error ka <b>badhna</b> classic <b>high-variance / overfitting</b> signature hai — naye features ne signal nahi, <b>noise</b> add kiya. 👉 <a href="l09.html">Lecture 9</a></p>
+  <p style="margin:0">After adding ten features the training error fell, but the validation error <b>rose</b>. Did the new features help the model learn a stable pattern?<br>
+  <b>No.</b> Training error always falls when features are added (👉 <a href="l04.html#hw11">Lecture 4</a>). A <b>rise</b> in validation error is the classic <b>high-variance / overfitting</b> signature — the new features added <b>noise</b>, not signal. 👉 <a href="l09.html">Lecture 9</a></p>
 </div>
 
 <h4>3.2 Computation, memory, and interpretability</h4>
 <ul>
   <li><b>Efficiency:</b> Smaller matrices, faster training/prediction, lower memory use.</li>
-  <li><b>Explainability:</b> Kam features wala model explain karna easier hai.</li>
-  <li><b>Stability:</b> Redundant inputs hataane se <b>multicollinearity kam</b> hoti hai, jisse linear coefficients zyada stable bante hain (👉 <a href="l08.html#s9">Lecture 8</a>).</li>
-  <li>Multicollinearity pure prediction ke liye coefficient interpretation se <b>kam damaging</b> ho sakti hai, par wo phir bhi redundancy aur instability represent karti hai.</li>
+  <li><b>Explainability:</b> a model with fewer features is easier to explain.</li>
+  <li><b>Stability:</b> removing redundant inputs <b>reduces multicollinearity</b>, which makes linear coefficients more stable (👉 <a href="l08.html#s9">Lecture 8</a>).</li>
+  <li>Multicollinearity can be <b>less damaging</b> for pure prediction than for coefficient interpretation, but it still represents redundancy and instability.</li>
 </ul>
 
 <!-- =========================================== -->
 <h3 id="s4"><span class="h2-num">4</span>The two feature-selection families</h3>
 <div class="grid g2">
   <div class="box def" style="margin:0"><div class="box-title">Filter methods</div>
-    <p style="margin:0">Simple <b>statistical checks</b> (jaise correlation) use karke features ko <b>kisi bhi model ke train hone se pehle</b> screen karte hain.</p></div>
+    <p style="margin:0">Use simple <b>statistical checks</b> (such as correlation) to screen features <b>before any model is trained</b>.</p></div>
   <div class="box def" style="margin:0"><div class="box-title">Wrapper methods</div>
-    <p style="margin:0"><b>Actual predictive model</b> ko alag-alag feature <b>subsets</b> par train karke dekhte hain ki kaunsa subset best perform karta hai.</p></div>
+    <p style="margin:0">Train the <b>actual predictive model</b> on different feature <b>subsets</b> and see which subset performs best.</p></div>
 </div>
 <div class="box insight">
   <div class="box-title">★ A third family (worth knowing)</div>
-  <p style="margin:0"><b>Embedded methods</b> — selection <b>training ke dauraan automatically</b> hoti hai. Sabse common example <b>L1 (Lasso) Regularization</b> hai, jo useless features ke coefficients ko exactly zero par push kar deta hai. Tree-based models ke <b>Feature Importance Scores</b> bhi embedded hain. (👉 <a href="l02.html#p6">Lecture 2, Phase 6</a>)</p>
+  <p style="margin:0"><b>Embedded methods</b> — selection happens <b>automatically during training</b>. The most common example is <b>L1 (Lasso) Regularization</b>, which pushes the coefficients of useless features to exactly zero. The <b>Feature Importance Scores</b> of tree-based models are embedded too. (👉 <a href="l02.html#p6">Lecture 2, Phase 6</a>)</p>
 </div>
 
 <div class="solved">
@@ -166,11 +166,11 @@
     <table>
     <thead><tr><th>Feature</th><th>Observed property</th><th>Decision</th><th>Reason</th></tr></thead>
     <tbody>
-    <tr><td><b>CGPA_copy</b></td><td>Exactly equals CGPA in every row</td><td><span class="pill r">R</span></td><td>Exact duplicate — koi nayi information nahi. Linear model ke liye yeh <b>perfect multicollinearity</b> bhi create karta hai.</td></tr>
-    <tr><td><b>Student_ID</b></td><td>Every value is unique; variance is high</td><td><span class="pill r">R</span></td><td>Pure identifier. High variance <b>relevance imply nahi karta</b>. Ise rakhna model ko row-level noise memorise karne deta hai.</td></tr>
-    <tr><td><b>Scholarship_flag</b></td><td>Only 3% of students have value 1</td><td><span class="pill a">F / K</span></td><td>Low variance, par ek <b>rare event strongly predictive</b> ho sakta hai. Blindly drop mat karo — validate karo.</td></tr>
-    <tr><td><b>Random_number</b></td><td>High variance and near-zero target correlation</td><td><span class="pill r">R</span></td><td>Varies par target ke saath koi stable relationship nahi — <b>irrelevant</b> ki textbook definition.</td></tr>
-    <tr><td><b>Project_depth²</b></td><td>Highly correlated with project depth</td><td><span class="pill a">F</span></td><td>Yeh ek <b>intentionally engineered</b> term hai jo curvature capture karta hai. High correlation se automatically remove mat karo.</td></tr>
+    <tr><td><b>CGPA_copy</b></td><td>Exactly equals CGPA in every row</td><td><span class="pill r">R</span></td><td>An exact duplicate — no new information. For a linear model it also creates <b>perfect multicollinearity</b>.</td></tr>
+    <tr><td><b>Student_ID</b></td><td>Every value is unique; variance is high</td><td><span class="pill r">R</span></td><td>A pure identifier. High variance <b>does not imply relevance</b>. Keeping it lets the model memorise row-level noise.</td></tr>
+    <tr><td><b>Scholarship_flag</b></td><td>Only 3% of students have value 1</td><td><span class="pill a">F / K</span></td><td>Low variance, but a <b>rare event can be strongly predictive</b>. Do not drop it blindly — validate first.</td></tr>
+    <tr><td><b>Random_number</b></td><td>High variance and near-zero target correlation</td><td><span class="pill r">R</span></td><td>It varies but has no stable relationship with the target — the textbook definition of <b>irrelevant</b>.</td></tr>
+    <tr><td><b>Project_depth²</b></td><td>Highly correlated with project depth</td><td><span class="pill a">F</span></td><td>This is an <b>intentionally engineered</b> term that captures curvature. Do not remove it automatically just because the correlation is high.</td></tr>
     </tbody></table></div>
 
     <p style="margin-top:1.2rem"><b>(b) Choose all correct options.</b></p>
@@ -178,11 +178,11 @@
     <table class="compact">
     <thead><tr><th>Statement</th><th>T/F</th><th>Why</th></tr></thead>
     <tbody>
-    <tr><td>(i) A feature's usefulness can change when the target or model changes</td><td><span class="pill g">T</span></td><td>Relevance <b>conditional</b> hai — Section 15 ka core point.</td></tr>
-    <tr><td>(ii) A high-variance column must be predictive</td><td><span class="pill r">F</span></td><td>Student_ID counterexample hai: huge variance, zero relevance.</td></tr>
-    <tr><td>(iii) Feature transformation and feature selection can both appear in one pipeline</td><td><span class="pill g">T</span></td><td>Pehle candidates banao ($x^2$), phir unme se select karo.</td></tr>
-    <tr><td>(iv) The smallest possible subset is always the best subset</td><td><span class="pill r">F</span></td><td>Chhota tabhi better hai jab performance <b>maintained ya improved</b> ho. Useful signal discard karna bad hai.</td></tr>
-    <tr><td>(v) If two subsets have nearly equal cross-validated performance, the smaller subset is usually preferred</td><td><span class="pill g">T</span></td><td>Simpler, sasta, zyada stable, easier to explain — <b>ties par</b> simplicity jeetti hai.</td></tr>
+    <tr><td>(i) A feature's usefulness can change when the target or model changes</td><td><span class="pill g">T</span></td><td>Relevance is <b>conditional</b> — this is the central claim of Section 15.</td></tr>
+    <tr><td>(ii) A high-variance column must be predictive</td><td><span class="pill r">F</span></td><td>Student_ID is the counterexample: huge variance, zero relevance.</td></tr>
+    <tr><td>(iii) Feature transformation and feature selection can both appear in one pipeline</td><td><span class="pill g">T</span></td><td>First build candidates ($x^2$), then select among them.</td></tr>
+    <tr><td>(iv) The smallest possible subset is always the best subset</td><td><span class="pill r">F</span></td><td>Smaller is better only when performance is <b>maintained or improved</b>. Discarding useful signal is bad.</td></tr>
+    <tr><td>(v) If two subsets have nearly equal cross-validated performance, the smaller subset is usually preferred</td><td><span class="pill g">T</span></td><td>Simpler, cheaper, more stable, easier to explain — on <b>ties</b>, simplicity wins.</td></tr>
     </tbody></table></div>
   </div>
 </div>
@@ -193,32 +193,32 @@
 <h3 id="s5"><span class="h2-num">5</span>Filter intuition and Duplicate Removal</h3>
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">Ek filter method ek <b>admission gate</b> ki tarah act karta hai. Wo ek feature ko ek simple structural ya statistical rule se evaluate karta hai aur decide karta hai ki wo modeling stage mein enter karne ka haqdaar hai ya nahi. <b>Final predictive model is screening step ke dauraan repeatedly train nahi hota.</b></p>
+  <p style="margin:0">A filter method acts like an <b>admission gate</b>. It evaluates a feature against a simple structural or statistical rule and decides whether it deserves to enter the modeling stage. <b>The final predictive model is not trained repeatedly during this screening step.</b></p>
 </div>
-<p>Kuch filters target use nahi karte; doosre ek feature ko target se compare karte hain.</p>
-<p>Agar do columns <b>har row mein exactly same value</b> contain karte hain, to wo same information provide karte hain:</p>
+<p>Some filters do not use the target at all; others compare a feature against the target.</p>
+<p>If two columns contain <b>exactly the same value in every row</b>, they provide the same information:</p>
 <div class="formula tight">$$f_a = f_b \qquad \text{for every observation}$$</div>
-<p>Dono rakhne se evidence ka <b>doosra independent source nahi</b> banta. Stipend example mein, CGPA aur CGPA_copy exact duplicates hain. Ek linear model ke liye, dono retain karna <b>perfect multicollinearity</b> bhi create karta hai, to unke individual contributions <b>uniquely separate nahi</b> kiye ja sakte.</p>
+<p>Keeping both does <b>not</b> create a second independent source of evidence. In the stipend example, CGPA and CGPA_copy are exact duplicates. For a linear model, retaining both also creates <b>perfect multicollinearity</b>, so their individual contributions <b>cannot be uniquely separated</b>.</p>
 
 <div class="box def">
   <div class="box-title">Which copy should be kept?</div>
   <ul style="margin:0">
-    <li>Wo column rakho jiska naam <b>clearer aur zyada meaningful</b> hai.</li>
-    <li>Wo column prefer karo jisme <b>kam missing ya corrupted values</b> hain.</li>
-    <li>Wo feature prefer karo jise <b>prediction time par collect karna easier aur cheaper</b> hai.</li>
-    <li>Check karo ki apparent duplicate koi <b>data-leakage column</b> to nahi hai jo target known hone ke <b>baad</b> banaya gaya ho.</li>
+    <li>Keep the column whose name is <b>clearer and more meaningful</b>.</li>
+    <li>Prefer the column with <b>fewer missing or corrupted values</b>.</li>
+    <li>Prefer the feature that is <b>easier and cheaper to collect at prediction time</b>.</li>
+    <li>Check whether the apparent duplicate is actually a <b>data-leakage column</b> created <b>after</b> the target became known.</li>
   </ul>
 </div>
 <div class="box takeaway">
   <div class="box-title">♦ Takeaway</div>
-  <p style="margin:0">Duplicate removal <b>safe</b> hai kyunki wo <b>repeated information</b> hataata hai, unique information nahi.</p>
+  <p style="margin:0">Duplicate removal is <b>safe</b> because it removes <b>repeated information</b>, not unique information.</p>
 </div>
 
 <!-- =========================================== -->
 <h3 id="s6"><span class="h2-num">6</span>Variance Threshold</h3>
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">Ek feature jo observations ke across barely badalta hai, wo ek observation ko doosre se <b>distinguish nahi kar sakta</b>. Simplest case ek <b>constant column</b> hai: agar har student ki same value hai, to wo feature explain hi nahi kar sakta ki stipends alag kyun hain.</p>
+  <p style="margin:0">A feature that barely changes across observations <b>cannot distinguish</b> one observation from another. The simplest case is a <b>constant column</b>: if every student has the same value, that feature cannot possibly explain why the stipends differ.</p>
 </div>
 <div class="formula"><span class="flabel">Variance of feature $f_j$</span>$$\operatorname{Var}(f_j) = \frac{1}{n}\sum_{i=1}^{n}(x_{ij} - \bar x_j)^2$$</div>
 <p>Choose a threshold $\tau$. Remove the feature when:</p>
@@ -261,7 +261,7 @@
 <h3 id="s7"><span class="h2-num">7</span>Pearson Correlation Between Each Feature and the Target</h3>
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">Variance batati hai ki ek feature <b>badalta hai ya nahi</b>. Wo yeh nahi batati ki feature <b>target ke saath-saath badalta hai ya nahi</b>. Numerical feature aur numerical target ke liye, <b>Pearson correlation</b> ek <b>linear</b> relationship ki strength aur direction measure karta hai.</p>
+  <p style="margin:0">Variance tells us <b>whether</b> a feature changes. It does not tell us whether the feature <b>changes together with the target</b>. For a numerical feature and a numerical target, <b>Pearson correlation</b> measures the strength and direction of a <b>linear</b> relationship.</p>
 </div>
 
 <div class="formula"><span class="flabel">Pearson correlation</span>$$r_{jY} = \frac{\sum_i (x_{ij} - \bar x_j)(y_i - \bar y)}{\sqrt{\sum_i (x_{ij} - \bar x_j)^2\ \sum_i (y_i - \bar y)^2}}$$</div>
@@ -335,7 +335,7 @@
     </ol>
     <div class="box insight" style="margin-bottom:0">
       <div class="box-title">★ Key Insight</div>
-      <p style="margin:0">Ek feature ki Pearson correlation <b>zero ho sakti hai aur phir bhi wo ek nonlinear relationship ke through perfectly predictive</b> ho sakta hai. Pearson correlation <b>sirf linear association</b> measure karta hai.</p>
+      <p style="margin:0">A feature can have <b>zero Pearson correlation and still be perfectly predictive</b> through a nonlinear relationship. Pearson correlation measures <b>only linear association</b>.</p>
     </div>
   </div>
 </div>
@@ -353,8 +353,8 @@
 
 <!-- =========================================== -->
 <h3 id="s8"><span class="h2-num">8</span>Correlation Among Input Features</h3>
-<p>Pichla calculation har feature ko <b>$y$ se</b> compare karta tha. Correlation input features ko <b>ek dusre se</b> bhi compare kar sakti hai taaki <b>redundancy detect</b> ho aur multicollinearity kam ho.</p>
-<p>Maan lo $f_1$ aur $f_2$ ki correlation $0.95$ hai. Wo bohot similar linear information carry karte hain. Practical rule: <b>ek representative feature rakho</b>, par choice deliberate honi chahiye.</p>
+<p>The previous calculation compared each feature <b>against $y$</b>. Correlation can also compare input features <b>against one another</b>, to <b>detect redundancy</b> and reduce multicollinearity.</p>
+<p>Suppose $f_1$ and $f_2$ have a correlation of $0.95$. They carry very similar linear information. Practical rule: <b>keep one representative feature</b>, but make the choice deliberately.</p>
 <div class="box def">
   <div class="box-title">How to choose which correlated feature to keep</div>
   <ul style="margin:0">
@@ -366,7 +366,7 @@
 </div>
 <div class="box danger">
   <div class="box-title">△ WARNING — DO NOT APPLY PAIRWISE RULES BLINDLY</div>
-  <p style="margin:0">Features $x$ aur $x^2$ correlated ho sakte hain, par <b>dono ki zaroorat ho sakti hai</b> curvature represent karne ke liye. Ek high input correlation automatically <b>prove nahi karti</b> ki ek engineered feature remove kar dena chahiye. Final decision ko <b>validation performance</b> se check karo.</p>
+  <p style="margin:0">The features $x$ and $x^2$ may be correlated, but <b>both may be needed</b> in order to represent curvature. A high input correlation does <b>not automatically prove</b> that an engineered feature should be removed. Check the final decision against <b>validation performance</b>.</p>
 </div>
 
 <h4>8.1 Filter-method summary</h4>
@@ -383,7 +383,7 @@
 </div>
 <div class="box takeaway">
   <div class="box-title">♦ Takeaway</div>
-  <p style="margin:0">Filter methods efficient hain, par wo directly yeh poochte hi nahi ki <b>chosen model features ke kisi particular combination</b> ke saath better perform karta hai ya nahi.</p>
+  <p style="margin:0">Filter methods are efficient, but they never directly ask whether the chosen model performs better with some <b>particular combination</b> of features.</p>
 </div>
 
 <div class="solved">
@@ -403,13 +403,13 @@
     <ol class="steps" style="margin-top:1.2rem">
       <li><span class="sh">(b) Find the mistake: "Student_ID has very high variance, so a variance filter proves that it is useful for predicting stipend."</span>
         <div class="answer">False — high variance does <b>not</b> imply relevance.</div>
-        <p style="margin:.3rem 0 0">Variance filter ek <b>necessary-but-not-sufficient</b> screen hai: wo columns ko <b>reject</b> karta hai jo vary nahi karte, par wo kisi column ko <b>useful prove nahi kar sakta</b>. Student_ID ka target ke saath $r = -0.02$ hai. Ek feature ko <b>vary karna aur target ke saath co-vary karna</b>, dono zaroori hai.</p></li>
+        <p style="margin:.3rem 0 0">The variance filter is a <b>necessary-but-not-sufficient</b> screen: it can <b>reject</b> columns that do not vary, but it can <b>never prove</b> a column is useful. Student_ID has $r = -0.02$ with the target. A feature must <b>both vary and co-vary with the target</b>.</p></li>
       <li><span class="sh">(c) Scholarship_flag equals 1 for only 3% of students. Should it be removed solely because its variance is low?</span>
         <div class="answer">No.</div>
-        <p style="margin:.3rem 0 0">Kyunki <b>"A low-variance feature may be highly predictive, especially for a rare but important condition."</b> Agar wo 3% students ko consistently much higher stipends milti hain, to yeh feature un cases ke liye sabse strong signal hai. <b>Sahi tareeka:</b> use validation mein test karo — variance par blanket rule mat lagao.</p></li>
+        <p style="margin:.3rem 0 0">Because <b>"A low-variance feature may be highly predictive, especially for a rare but important condition."</b> If those 3% of students consistently receive much higher stipends, this feature is the strongest signal available for those cases. <b>The right approach:</b> test it in validation — do not apply a blanket rule based on variance.</p></li>
       <li><span class="sh">(d) Project_depth and Project_depth² are highly correlated. A student immediately removes the squared term. Is this justified?</span>
         <div class="answer">No, not without validating.</div>
-        <p style="margin:.3rem 0 0">$x$ aur $x^2$ <b>hamesha</b> correlated hote hain (especially agar $x$ ki values mostly positive hain) — yeh ek <b>mathematical artefact</b> hai, redundancy ka evidence nahi. Squared term specifically <b>curvature</b> capture karne ke liye add kiya gaya tha (👉 <a href="l08.html">Lecture 8</a>). Use remove karne se wo curvature ki poori ability chali jaati hai. Decision <b>validation performance</b> se leni chahiye, correlation number se nahi.</p></li>
+        <p style="margin:.3rem 0 0">$x$ and $x^2$ are <b>always</b> correlated (especially when the values of $x$ are mostly positive) — that is a <b>mathematical artefact</b>, not evidence of redundancy. The squared term was added specifically to capture <b>curvature</b> (👉 <a href="l08.html">Lecture 8</a>). Removing it removes that ability entirely. The decision should come from <b>validation performance</b>, not from a correlation number.</p></li>
     </ol>
   </div>
 </div>
@@ -420,16 +420,16 @@
 <h3 id="s9"><span class="h2-num">9</span>The wrapper idea and the wrapper loop</h3>
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">Ek feature <b>akele weak lag sakta hai</b> aur doosre ke saath pair hone par <b>useful ban sakta hai</b>. Conversely, do individually useful features <b>saath use hone par redundant</b> ho sakte hain. Wrapper methods <b>whole subsets</b> ko us predictive model ke saath evaluate karte hain jo hum actually use karne wale hain.</p>
+  <p style="margin:0">A feature can <b>look weak on its own</b> and <b>become useful</b> when paired with another. Conversely, two individually useful features can be <b>redundant when used together</b>. Wrapper methods evaluate <b>whole subsets</b> with the predictive model we actually intend to use.</p>
 </div>
 <ul>
-  <li>Filters features ko <b>ek-ek karke</b> evaluate karte hain, ignore karte hue ki wo saath kaise kaam karte hain.</li>
-  <li>Filters features ke beech <b>useful interactions</b> miss kar sakte hain.</li>
-  <li>Ek simple statistical score tumhare complex model ke seekhne ke tareeke se <b>align nahi</b> kar sakta.</li>
+  <li>Filters evaluate features <b>one at a time</b>, ignoring how they work together.</li>
+  <li>Filters can miss <b>useful interactions</b> between features.</li>
+  <li>A simple statistical score may <b>not align</b> with how your complex model actually learns.</li>
 </ul>
 <div class="box insight">
   <div class="box-title">★ Key Insight</div>
-  <p style="margin:0">Ek wrapper method model training aur validation ko feature-selection process ke <b>"around" wrap</b> kar deta hai.</p>
+  <p style="margin:0">A wrapper method <b>wraps</b> model training and validation <b>around</b> the feature-selection process.</p>
 </div>
 
 <h4>9.1 The wrapper loop</h4>
@@ -464,12 +464,12 @@
 
 <div class="box danger">
   <div class="box-title">△ WARNING — USE CROSS-VALIDATED SCORES</div>
-  <p style="margin:0">Jab features add kiye jaate hain, <b>training data par</b> model ki performance <b>almost hamesha better</b> lagegi, chahe naye features useless hon. Ek subset ko truly evaluate karne ke liye tumhe ek <b>cross-validated score</b> use karna <b>hi</b> padega. Cross-validation model ko us data par test karta hai jo usne training ke dauraan nahi dekha, jisse bohot zyada honest estimate milta hai.</p>
+  <p style="margin:0">When features are added, the model's performance <b>on the training data</b> will <b>almost always</b> look better, even if the new features are useless. To truly evaluate a subset you <b>must</b> use a <b>cross-validated score</b>. Cross-validation tests the model on data it did not see during training, which gives a far more honest estimate.</p>
 </div>
 
 <!-- =========================================== -->
 <h3 id="s10"><span class="h2-num">10</span>Exhaustive Feature Selection</h3>
-<p>Exhaustive search <b>har nonempty subset</b> evaluate karta hai aur best validation score wala subset choose karta hai. $p$ features mein se har ek ke <b>do states</b> hain: included ya excluded. Therefore:</p>
+<p>Exhaustive search evaluates <b>every nonempty subset</b> and chooses the one with the best validation score. Each of the $p$ features has <b>two states</b>: included or excluded. Therefore:</p>
 <div class="formula"><span class="flabel">Number of nonempty subsets</span>$$2^p - 1$$</div>
 <div class="tbl-wrap" style="max-width:460px">
 <table class="compact">
@@ -484,12 +484,12 @@
 
 <div class="grid g2">
   <div class="box takeaway" style="margin:0"><div class="box-title">Advantage</div>
-    <p style="margin:0">Agar har subset correctly evaluate ho, to <b>search space ka best subset mil sakta hai</b>.</p></div>
+    <p style="margin:0">If every subset is evaluated correctly, it <b>can find the best subset in the search space</b>.</p></div>
   <div class="box danger" style="margin:0"><div class="box-title">Disadvantages</div>
     <ul style="margin:0">
       <li>Computational cost grows <b>exponentially</b>.</li>
-      <li>Itne saare subsets test karna <b>validation procedure ko overfit</b> kar sakta hai aur ek chance winner select kar sakta hai.</li>
-      <li>Result chosen model aur evaluation metric par <b>depend</b> karta hai.</li>
+      <li>Testing so many subsets can <b>overfit the validation procedure</b> and select a chance winner.</li>
+      <li>The result <b>depends</b> on the chosen model and the evaluation metric.</li>
     </ul></div>
 </div>
 
@@ -497,7 +497,7 @@
 <h3 id="s11"><span class="h2-num">11</span>Backward Elimination — fully traced ⭐</h3>
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">Backward elimination <b>saare features</b> se start karta hai. Har stage par, har remaining feature ko <b>ek-ek karke remove</b> karo, resulting subsets evaluate karo, aur <b>best candidate</b> ko agle stage ke liye rakho.</p>
+  <p style="margin:0">Backward elimination starts with <b>all the features</b>. At each stage, <b>remove each remaining feature one at a time</b>, evaluate the resulting subsets, and keep the <b>best candidate</b> for the next stage.</p>
 </div>
 <p><small>Treat every score below as a <b>cross-validated $R^2$</b>.</small></p>
 
@@ -559,7 +559,7 @@
     <p>This grows <b>quadratically</b> rather than exponentially, although every score may still require several cross-validation fits.</p>
     <div class="box danger" style="margin-bottom:0">
       <div class="box-title">△ WARNING — GREEDY SEARCH</div>
-      <p style="margin:0">Backward elimination har stage par ek <b>locally best</b> decision leta hai. Ek baar feature remove ho gaya, to use <b>kabhi reconsider nahi</b> kiya jaata. Isliye yeh method ek <b>globally best combination miss kar sakta hai</b> jisme koi pehle discard kiya gaya feature ho.</p>
+      <p style="margin:0">Backward elimination makes a <b>locally best</b> decision at each stage. Once a feature has been removed, it is <b>never reconsidered</b>. So this method <b>can miss a globally best combination</b> that includes a feature discarded earlier.</p>
     </div>
   </div>
 </div>
@@ -568,7 +568,7 @@
 <h3 id="s12"><span class="h2-num">12</span>Sequential Forward Selection — fully traced ⭐</h3>
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">Forward selection <b>koi input feature nahi</b> se start hoti hai. Regression ke liye, baseline model mean target $\bar y$ predict karta hai. Method wo feature add karta hai jo <b>largest validation improvement</b> deta hai, us choice ko fix karta hai, aur repeat karta hai.</p>
+  <p style="margin:0">Forward selection starts with <b>no input features at all</b>. For regression, the baseline model predicts the mean target $\bar y$. The method adds the feature that gives the <b>largest validation improvement</b>, fixes that choice, and repeats.</p>
 </div>
 
 <div class="solved">
@@ -615,12 +615,12 @@
 
     <div class="box takeaway" style="margin-bottom:0">
       <div class="box-title">♦ Takeaway</div>
-      <p style="margin:0">Forward selection <b>automatically features add karte hi nahi rehti</b> jab tak sab use na ho jaayein. <b>Stop karo</b> jab ek additional feature meaningful validation improvement na de, ya poore forward path ka <b>best subset choose karo</b>.</p>
+      <p style="margin:0">Forward selection does <b>not</b> simply keep adding features until all of them are used. <b>Stop</b> when an additional feature gives no meaningful validation improvement, or <b>choose the best subset</b> along the whole forward path.</p>
     </div>
 
     <div class="box insight" style="margin-bottom:0">
       <div class="box-title">Note — backward and forward disagreed!</div>
-      <p style="margin:0">Backward elimination ne $\{f_1, f_2, f_4\}$ pick kiya (0.91). Forward selection ne $\{f_1, f_4, f_3\}$ pick kiya (0.85). <b>Dono greedy hain</b> aur alag paths explore karte hain — isliye wo legitimately <b>different subsets</b> select kar sakte hain. Yeh bug nahi hai; yeh greedy search ki expected property hai.</p>
+      <p style="margin:0">Backward elimination picked $\{f_1, f_2, f_4\}$ (0.91). Forward selection picked $\{f_1, f_4, f_3\}$ (0.85). <b>Both are greedy</b> and explore different paths — so they can legitimately select <b>different subsets</b>. This is not a bug; it is an expected property of greedy search.</p>
     </div>
   </div>
 </div>
@@ -657,7 +657,7 @@
       <li><span class="sh">(i) Which subset continues?</span><div class="answer">$\{f_1, f_2\}$ — highest CV $R^2$ (0.83)</div></li>
       <li><span class="sh">(ii) Which feature is removed?</span><div class="answer">$f_4$</div></li>
       <li><span class="sh">(iii) Why can the procedure still miss the globally best subset?</span>
-        <p style="margin:.2rem 0 0">Kyunki yeh <b>greedy</b> hai. Har stage par sirf <b>locally best</b> single removal choose hoti hai, aur ek baar feature remove ho gaya to wo <b>kabhi reconsider nahi</b> hota. Ho sakta hai $\{f_3, f_4\}$ ek saath brilliant perform karte, par $f_3$ pehle stage mein hi drop ho gaya tha — to wo combination kabhi test hi nahi hua.</p></li>
+        <p style="margin:.2rem 0 0">Because it is <b>greedy</b>. At each stage only the <b>locally best</b> single removal is chosen, and once a feature is removed it is <b>never reconsidered</b>. Perhaps $\{f_3, f_4\}$ would have performed brilliantly together, but $f_3$ was dropped in the first stage — so that combination was never tested at all.</p></li>
     </ol>
 
     <ol class="steps" style="margin-top:1rem">
@@ -746,13 +746,13 @@
 <h3 id="s14"><span class="h2-num">14</span>Validation Discipline: Avoid the Leakage Trap ⭐</h3>
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">Feature selection <b>tumhare model ko sikhaane ka hissa</b> hai. Yeh ek harmless step <b>NAHI</b> hai jo tum data properly split karne se pehle kar sakte ho.</p>
+  <p style="margin:0">Feature selection is <b>part of teaching your model</b>. It is <b>NOT</b> a harmless step you can do before splitting the data properly.</p>
 </div>
 
 <div class="box danger">
   <div class="box-title">△ WARNING — THE LEAKAGE TRAP</div>
-  <p style="margin:0"><b>Wrong:</b> Poore dataset use karke apne features select karna, aur <b>phir</b> data ko training aur validation sets mein split karna. Agar tum aisa karte ho, to tumhara model feature selection step ke dauraan validation data par <b>"peek" kar chuka</b> hai. Ise <b>data leakage</b> kehte hain, aur isse tumhari performance <b>falsely optimistic</b> dikhegi.</p>
-  <p style="margin:.6rem 0 0"><b>Right:</b> <b>Har cross-validation fold ke andar</b>, feature selection <b>sirf us fold ke training portion</b> se perform karo. Phir untouched validation portion par evaluate karo.</p>
+  <p style="margin:0"><b>Wrong:</b> selecting your features using the whole dataset, and <b>then</b> splitting the data into training and validation sets. If you do that, your model has already <b>"peeked" at</b> the validation data during the feature-selection step. This is called <b>data leakage</b>, and it makes your performance look <b>falsely optimistic</b>.</p>
+  <p style="margin:.6rem 0 0"><b>Right:</b> <b>inside each cross-validation fold</b>, perform feature selection using <b>only the training portion of that fold</b>. Then evaluate on the untouched validation portion.</p>
 </div>
 
 <figure>
@@ -784,7 +784,7 @@
 
 <!-- =========================================== -->
 <h3 id="s15"><span class="h2-num">15</span>The Selected Subset Is Not Universal</h3>
-<p>Ek selected feature set ek <b>particular experimental design</b> se supported hota hai; wo ek <b>permanent truth nahi</b> hai.</p>
+<p>A selected feature set is supported by a <b>particular experimental design</b>; it is <b>not a permanent truth</b>.</p>
 <ul>
   <li>Change the <b>target</b>, and relevant features can change.</li>
   <li>Change the <b>model</b>, and the useful subset can change.</li>
@@ -836,7 +836,7 @@
 
 <div class="box takeaway">
   <div class="box-title">♦ Takeaway</div>
-  <p style="margin:0">Feature selection tabhi successful hai jab smaller representation <b>useful signal preserve</b> kare aur complete predictive pipeline ki <b>reliability, efficiency ya interpretability improve</b> kare.</p>
+  <p style="margin:0">Feature selection is successful only when the smaller representation <b>preserves the useful signal</b> and <b>improves the reliability, efficiency or interpretability</b> of the complete predictive pipeline.</p>
 </div>
 
 <h4>16.1 Closing synthesis</h4>
@@ -853,8 +853,8 @@
     <ol class="steps">
       <li><span class="sh">(a) Diagnose the pipeline. A student: (1) computes correlations using the entire dataset; (2) keeps the top five features; (3) runs five-fold cross-validation using those five columns; (4) reports the mean validation score. Is the reported score trustworthy?</span>
         <div class="answer">No.</div>
-        <p style="margin:.3rem 0 0"><b>The problem:</b> Step 1 mein correlations <b>poore dataset</b> se compute hui — including har wo row jo baad mein CV validation folds mein jaayegi. Isliye feature-selection decision <b>already un rows ko dekh chuki hai</b>. CV ka "unseen data" ab genuinely unseen nahi hai. Yeh <b>data leakage</b> hai aur reported score <b>optimistically biased</b> hai.</p>
-        <p style="margin:.4rem 0 0"><b>Corrected procedure:</b> selection ko CV loop ke <b>andar</b> move karo. Har fold ke liye: (i) us fold ka training portion lo; (ii) <b>sirf us portion</b> se correlations compute karo; (iii) top five features select karo; (iv) us training portion par model fit karo; (v) untouched validation portion par evaluate karo. Phir paanch fold scores average karo. Alag folds <b>alag features</b> select kar sakte hain — yeh bilkul theek hai, aur yeh khud procedure ki stability ka ek useful signal hai.</p></li>
+        <p style="margin:.3rem 0 0"><b>The problem:</b> in Step 1 the correlations were computed from the <b>whole dataset</b> — including every row that later lands in a CV validation fold. So the feature-selection decision <b>has already seen those rows</b>. The CV's "unseen data" is no longer genuinely unseen. This is <b>data leakage</b>, and the reported score is <b>optimistically biased</b>.</p>
+        <p style="margin:.4rem 0 0"><b>Corrected procedure:</b> move the selection <b>inside</b> the CV loop. For each fold: (i) take that fold's training portion; (ii) compute the correlations from <b>that portion only</b>; (iii) select the top five features; (iv) fit the model on that training portion; (v) evaluate on the untouched validation portion. Then average the five fold scores. Different folds may select <b>different features</b> — that is perfectly fine, and it is itself a useful signal about the stability of the procedure.</p></li>
 
       <li><span class="sh">(b) Choose the most appropriate starting strategy</span>
         <div class="tbl-wrap" style="margin:.4rem 0 0">
@@ -871,11 +871,11 @@
         <table class="compact">
         <thead><tr><th>Statement</th><th>T/F</th><th>Justification</th></tr></thead>
         <tbody>
-        <tr><td>The smallest possible feature set is always best</td><td><span class="pill r">F</span></td><td>Chhota tabhi better hai jab generalization maintained ho. Genuinely useful signal discard karna performance kharab karta hai.</td></tr>
-        <tr><td>A low-variance feature is always useless</td><td><span class="pill r">F</span></td><td>Ek rare-but-important condition (Scholarship_flag) strongly predictive ho sakti hai.</td></tr>
-        <tr><td>Wrapper methods usually cost more because they repeatedly fit and evaluate models</td><td><span class="pill g">T</span></td><td>Har candidate subset ke liye full training + cross-validation chahiye.</td></tr>
-        <tr><td>Two different models can legitimately select different features from the same dataset</td><td><span class="pill g">T</span></td><td>Relevance model-conditional hai. Linear model ko interaction term chahiye; tree use khud construct kar leta hai.</td></tr>
-        <tr><td>The test set may be used to choose the correlation threshold</td><td><span class="pill r">F</span></td><td>Test set <b>kabhi</b> kisi bhi decision mein participate nahi karta. Ek baar, aakhir mein.</td></tr>
+        <tr><td>The smallest possible feature set is always best</td><td><span class="pill r">F</span></td><td>Smaller is better only when generalization is maintained. Discarding genuinely useful signal hurts performance.</td></tr>
+        <tr><td>A low-variance feature is always useless</td><td><span class="pill r">F</span></td><td>A rare-but-important condition (Scholarship_flag) can be strongly predictive. Validate before dropping.</td></tr>
+        <tr><td>Wrapper methods usually cost more because they repeatedly fit and evaluate models</td><td><span class="pill g">T</span></td><td>Every candidate subset needs a full training run plus cross-validation.</td></tr>
+        <tr><td>Two different models can legitimately select different features from the same dataset</td><td><span class="pill g">T</span></td><td>Relevance is model-conditional. A linear model needs the interaction term; a tree constructs it by itself.</td></tr>
+        <tr><td>The test set may be used to choose the correlation threshold</td><td><span class="pill r">F</span></td><td>The test set <b>never</b> participates in any decision. Once, at the very end.</td></tr>
         </tbody></table></div></li>
 
       <li><span class="sh">(d) Arrange the following stages into a trustworthy sequence</span>
@@ -892,16 +892,16 @@
 
       <li><span class="sh">(e) Two subsets have nearly the same cross-validated performance. One uses 18 features and the other uses 7. Which would you normally prefer, and what could justify the larger subset?</span>
         <div class="answer">Normally prefer the <b>7-feature subset</b>.</div>
-        <p style="margin:.3rem 0 0"><b>Why:</b> Equal performance par, simpler model <b>jeetta</b> hai — faster training and inference, lower memory, less multicollinearity, easier to explain, fewer columns to collect and monitor in production, aur lower variance.</p>
-        <p style="margin:.4rem 0 0"><b>What could justify the 18-feature set:</b> (i) agar wo extra features <b>distribution shift</b> ke against robustness dete hain (7-feature model ek narrow signal par over-reliant ho sakta hai); (ii) agar folds ke across uska performance <b>zyada stable</b> hai (kam std deviation), jo suggest karta hai ki 7-feature ka result ek lucky split tha; (iii) agar kuch extra features <b>regulatory ya monitoring</b> reasons se retain karne hote hain.</p></li>
+        <p style="margin:.3rem 0 0"><b>Why:</b> at equal performance, the simpler model <b>wins</b> — faster training and inference, lower memory, less multicollinearity, easier to explain, fewer columns to collect and monitor in production, and lower variance.</p>
+        <p style="margin:.4rem 0 0"><b>What could justify the 18-feature set:</b> (i) if those extra features provide robustness against <b>distribution shift</b> (the 7-feature model may be over-reliant on one narrow signal); (ii) if its performance is <b>more stable</b> across folds (a smaller standard deviation), suggesting the 7-feature result was a lucky split; (iii) if some extra features must be retained for <b>regulatory or monitoring</b> reasons.</p></li>
 
       <li><span class="sh">(f) Why can the selected features change when the target, model, metric, or sample changes?</span>
-        <p style="margin:.2rem 0 0">Kyunki "relevance" koi feature ki <b>intrinsic property nahi</b> hai — wo ek <b>relationship</b> hai.</p>
+        <p style="margin:.2rem 0 0">Because "relevance" is <b>not an intrinsic property</b> of a feature — it is a <b>relationship</b>.</p>
         <ul style="margin:.4rem 0 0">
-          <li><b>Target badla:</b> feature ka jis cheez se relate karna tha, wo hi badal gayi.</li>
-          <li><b>Model badla:</b> linear model ko explicit interaction terms chahiye; ek tree unhe khud construct kar leta hai, to alag columns mangega.</li>
-          <li><b>Metric badla:</b> RMSE ke liye optimal subset recall ke liye optimal subset se alag ho sakta hai.</li>
-          <li><b>Sample badla:</b> greedy search paths chhote data changes par sensitive hote hain — ek stage par 0.81 vs 0.83 flip hone se poora baaki path badal jaata hai.</li>
+          <li><b>The target changed:</b> the very thing the feature had to relate to is now different.</li>
+          <li><b>The model changed:</b> a linear model needs explicit interaction terms; a tree constructs them itself, so it will want different columns.</li>
+          <li><b>The metric changed:</b> the subset that is optimal for RMSE may differ from the subset that is optimal for recall.</li>
+          <li><b>The sample changed:</b> greedy search paths are sensitive to small data changes — a 0.81 vs 0.83 flip at one stage changes the entire rest of the path.</li>
         </ul></li>
     </ol>
   </div>
@@ -913,14 +913,14 @@
 <table>
 <thead><tr><th>Galti</th><th>Sahi Baat</th></tr></thead>
 <tbody>
-<tr><td>Poore dataset par features select karke phir split karna</td><td><b>Data leakage.</b> Selection CV ke <b>andar</b>, sirf training fold se.</td></tr>
-<tr><td>"High variance = useful feature"</td><td>Student_ID ki variance huge hai par $r = -0.02$. Variance necessary hai, sufficient nahi.</td></tr>
-<tr><td>"$r = 0$ means no relationship"</td><td>$y = x^2$ par $r = 0$ hota hai jabki $y$ $x$ se <b>completely determined</b> hai. Pearson sirf <b>linear</b> measure karta hai.</td></tr>
-<tr><td>"Smallest subset is always best"</td><td>Sirf tab jab performance maintained ho. Ties par simplicity jeetti hai — losses par nahi.</td></tr>
-<tr><td>Training scores par subsets compare karna</td><td>Features add karne par training score hamesha better lagta hai. <b>Cross-validated</b> scores use karo.</td></tr>
-<tr><td>$x$ aur $x^2$ correlated dekh ke squared term drop karna</td><td>Wo mathematically correlated <b>honge hi</b>. Curvature ki ability chali jaayegi. Validate karo.</td></tr>
-<tr><td>Forward aur backward ka same answer expect karna</td><td>Dono <b>greedy</b> hain aur alag paths explore karte hain — different subsets normal hai.</td></tr>
-<tr><td>Correlation threshold test set se tune karna</td><td>Test set <b>kabhi</b> kisi decision mein nahi. Ek baar, aakhir mein.</td></tr>
+<tr><td>Selecting features on the whole dataset and then splitting</td><td><b>Data leakage.</b> Selection goes <b>inside</b> CV, using the training fold only.</td></tr>
+<tr><td>"High variance = useful feature"</td><td>Student_ID has huge variance but $r = -0.02$. Variance is necessary, not sufficient.</td></tr>
+<tr><td>"$r = 0$ means no relationship"</td><td>For $y = x^2$, $r = 0$ even though $y$ is <b>completely determined</b> by $x$. Pearson measures only <b>linear</b> association.</td></tr>
+<tr><td>"Smallest subset is always best"</td><td>Only when performance is maintained. On ties, simplicity wins — not on losses.</td></tr>
+<tr><td>Comparing subsets on training scores</td><td>Adding features always makes the training score look better. Use <b>cross-validated</b> scores.</td></tr>
+<tr><td>Dropping the squared term because $x$ and $x^2$ look correlated</td><td>They are <b>bound</b> to be mathematically correlated. You would lose the ability to model curvature. Validate instead.</td></tr>
+<tr><td>Expecting forward and backward search to give the same answer</td><td>Both are <b>greedy</b> and explore different paths — different subsets are normal.</td></tr>
+<tr><td>Tuning the correlation threshold on the test set</td><td>The test set is <b>never</b> part of a decision. Once, at the very end.</td></tr>
 </tbody>
 </table>
 </div>
@@ -940,16 +940,16 @@
 <div class="box takeaway">
   <div class="box-title">♦ By the end of this sheet you can…</div>
   <ul style="margin:0">
-    <li>Feature selection ko existing inputs ka subset choose karna explain karna.</li>
-    <li>Relevant, redundant aur irrelevant features distinguish karna.</li>
-    <li>Unnecessary features ko variance, sparse high-dimensional coverage, computation aur interpretability se connect karna.</li>
-    <li>Feature selection ko feature transformation se distinguish karna.</li>
-    <li>Duplicate removal, variance threshold, target correlation aur input-correlation screens apply karna — unke cautions ke saath.</li>
-    <li>Explain karna ki zero Pearson correlation zero predictive value imply kyun nahi karta.</li>
-    <li>Exhaustive subsets ki sankhya calculate karna aur backward/forward sequential searches trace karna.</li>
-    <li>Filter aur wrapper methods ko cost, interaction-awareness aur model dependence se compare karna.</li>
-    <li>Selection ko cross-validation ke andar correctly place karna aur final test set protect karna.</li>
-    <li>Ek selected subset ko target, model, metric, sample aur validation design par <b>conditional</b> report karna.</li>
+    <li>Explain feature selection as choosing a subset of the existing inputs.</li>
+    <li>Distinguish relevant, redundant and irrelevant features.</li>
+    <li>Connect unnecessary features to variance, sparse high-dimensional coverage, computation and interpretability.</li>
+    <li>Distinguish feature selection from feature transformation.</li>
+    <li>Apply duplicate removal, variance thresholds, target correlation and input-correlation screens — along with their cautions.</li>
+    <li>Explain why zero Pearson correlation does not imply zero predictive value.</li>
+    <li>Calculate the number of exhaustive subsets and trace backward/forward sequential searches.</li>
+    <li>Compare filter and wrapper methods on cost, interaction-awareness and model dependence.</li>
+    <li>Place selection correctly inside cross-validation and protect the final test set.</li>
+    <li>Report a selected subset as <b>conditional</b> on the target, model, metric, sample and validation design.</li>
   </ul>
 </div>
 
@@ -969,7 +969,7 @@ const MCQS = [
      '$r = 0.5$; the filter keeps $x$',
      '$r$ is undefined because $\\bar x = 0$'],
   a:1,
-  e:'<b>B.</b> $\\bar x = 0$, $\\bar y = 2$; numerator $= (-2)(2)+(-1)(-1)+0+(1)(-1)+(2)(2) = -4+1+0-1+4 = 0$, so $r = 0$. The filter removes a <b>perfectly predictive</b> feature. Yeh Pearson ki central limitation hai — wo sirf <b>linear</b> association measure karta hai. <b>D</b> is a tempting trap: $\\bar x = 0$ denominator ko zero nahi karta (deviations still nonzero hain).' },
+  e:'<b>B.</b> $\\bar x = 0$, $\\bar y = 2$; numerator $= (-2)(2)+(-1)(-1)+0+(1)(-1)+(2)(2) = -4+1+0-1+4 = 0$, so $r = 0$. The filter removes a <b>perfectly predictive</b> feature. This is Pearson\'s central limitation — it measures only <b>linear</b> association. <b>D</b> is a tempting trap: $\\bar x = 0$ does not make the denominator zero (the deviations are still nonzero).' },
 
 { d:'med',
   q:'Backward elimination produced: $\\{f_1,f_2,f_3,f_4\\} = 0.89$, $\\{f_1,f_2,f_4\\} = 0.91$, $\\{f_1,f_2\\} = 0.83$, $\\{f_2\\} = 0.63$. Which subset is selected and why?',
@@ -978,7 +978,7 @@ const MCQS = [
      '$\\{f_1,f_2,f_3,f_4\\}$, because more features are better',
      '$\\{f_1,f_2\\}$, because it is the last subset before a large drop'],
   a:1,
-  e:'<b>B.</b> Selection criterion <b>best CV score</b> hai — 0.91. <b>A</b> is the "smallest is best" misconception the worksheet explicitly rejects. <b>C</b> ignores that removing $f_3$ actually <b>improved</b> the score. <b>D</b> invents a rule that does not exist.' },
+  e:'<b>B.</b> The selection criterion is the <b>best CV score</b> — 0.91. <b>A</b> is the "smallest is best" misconception the worksheet explicitly rejects. <b>C</b> ignores that removing $f_3$ actually <b>improved</b> the score. <b>D</b> invents a rule that does not exist.' },
 
 { d:'hard',
   q:'A student computes correlations on the ENTIRE dataset, keeps the top 5 features, then runs 5-fold CV on those columns. Is the reported score trustworthy?',
@@ -987,7 +987,7 @@ const MCQS = [
      'Yes, provided the correlation threshold was reasonable',
      'No, but only because 5 folds is too few'],
   a:1,
-  e:'<b>B.</b> Leakage <b>selection step</b> mein hui, model-fitting step mein nahi. CV uske baad "honest" lagta hai, par columns already validation rows se chosen the. Fix: har fold ke <b>training portion se hi</b> correlations compute karo. <b>A</b> is the dangerous belief that CV is a universal safety net. <b>C</b> and <b>D</b> miss the actual mechanism.' },
+  e:'<b>B.</b> The leakage happened in the <b>selection step</b>, not in the model-fitting step. The CV afterwards looks "honest", but the columns were already chosen using the validation rows. Fix: compute the correlations <b>from each fold\'s training portion only</b>. <b>A</b> is the dangerous belief that CV is a universal safety net. <b>C</b> and <b>D</b> miss the actual mechanism.' },
 
 { d:'hard',
   q:'For $p = 6$ features, how many models does exhaustive search evaluate versus a backward sequential path?',
@@ -1002,7 +1002,7 @@ const MCQS = [
      'That it should be scaled before use',
      'That it is redundant with another column'],
   a:1,
-  e:'<b>B.</b> Variance ek <b>necessary-but-not-sufficient</b> condition hai. Ek feature ko vary karna <b>aur</b> target ke saath co-vary karna, dono chahiye. Student_ID sirf pehla satisfy karta hai. <b>A</b> is the exact mistake P2(b) asks you to find. <b>C</b> and <b>D</b> describe different issues.' },
+  e:'<b>B.</b> Variance is a <b>necessary-but-not-sufficient</b> condition. A feature must both vary <b>and</b> co-vary with the target. Student_ID satisfies only the first. <b>A</b> is the exact mistake P2(b) asks you to find. <b>C</b> and <b>D</b> describe different issues.' },
 
 { d:'med',
   q:'Scholarship_flag equals 1 for only 3% of students. Should it be removed solely because its variance is low?',
@@ -1011,7 +1011,7 @@ const MCQS = [
      'Yes, but only if $p$ is large',
      'No, because low-variance features never affect a model'],
   a:1,
-  e:'<b>B.</b> Sheet explicitly: "A low-variance feature may be highly predictive, especially for a rare but important condition." Agar wo 3% consistently different outcomes rakhte hain, to yeh unke liye sabse strong signal hai. <b>A</b> and <b>C</b> apply a blanket rule. <b>D</b> is the opposite overstatement — rare features <b>can</b> matter a lot.' },
+  e:'<b>B.</b> Sheet explicitly: "A low-variance feature may be highly predictive, especially for a rare but important condition." If that 3% consistently have different outcomes, this is the strongest signal available for them. <b>A</b> and <b>C</b> apply a blanket rule. <b>D</b> is the opposite overstatement — rare features <b>can</b> matter a lot.' },
 
 { d:'hard',
   q:'Forward selection chose $\\{f_1,f_4,f_3\\}$ (0.85) while backward elimination chose $\\{f_1,f_2,f_4\\}$ (0.91) on the same data. What does this indicate?',
@@ -1020,7 +1020,7 @@ const MCQS = [
      'Forward selection is always inferior to backward elimination',
      'The dataset must have multicollinearity'],
   a:1,
-  e:'<b>B.</b> Dono methods har stage par <b>locally best</b> decision lete hain aur removed/skipped features ko kabhi reconsider nahi karte. Alag starting points ⟹ alag paths ⟹ alag endpoints. Sheet: "Both are greedy and model-specific, so they can select different subsets." <b>A</b> and <b>C</b> misread expected behaviour as failure. <b>D</b> is unrelated.' },
+  e:'<b>B.</b> Both methods make a <b>locally best</b> decision at each stage and never reconsider a removed or skipped feature. Different starting points ⟹ different paths ⟹ different endpoints. Sheet: "Both are greedy and model-specific, so they can select different subsets." <b>A</b> and <b>C</b> misread expected behaviour as failure. <b>D</b> is unrelated.' },
 
 { d:'hard',
   q:'When is FORWARD selection more natural than backward elimination?',
@@ -1029,7 +1029,7 @@ const MCQS = [
      'Always, because it is faster',
      'When the model cannot handle missing values'],
   a:1,
-  e:'<b>B.</b> Forward chhote subsets tak <b>kam steps</b> mein pahuchta hai aur kabhi full-$p$ model fit nahi karta (jo $p \\gg n$ par impossible bhi ho sakta hai). <b>A</b> is exactly the <b>backward</b> case. <b>C</b> is false — 90 of 100 rakhne par backward kahin faster hai. <b>D</b> is unrelated.' },
+  e:'<b>B.</b> Forward reaches small subsets in <b>fewer steps</b> and never fits the full-$p$ model (which may be impossible when $p \\gg n$). <b>A</b> is exactly the <b>backward</b> case. <b>C</b> is false — when keeping 90 of 100, backward is far faster. <b>D</b> is unrelated.' },
 
 { d:'hard',
   q:'Project_depth and Project_depth² are highly correlated. A student immediately removes the squared term. Is this justified?',
@@ -1038,7 +1038,7 @@ const MCQS = [
      'Yes, because polynomial features always overfit',
      'No, because correlation cannot be computed for squared terms'],
   a:1,
-  e:'<b>B.</b> Sheet ki explicit warning: "$x$ and $x^2$ can be correlated, but both may be needed to represent curvature." Squared term hataane se model ki bend karne ki poori ability chali jaati hai (👉 Lecture 8). Decision <b>validation performance</b> se leni chahiye. <b>A</b> is the blind pairwise rule being warned against. <b>C</b> overgeneralises. <b>D</b> is false.' },
+  e:'<b>B.</b> The sheet\'s explicit warning: "$x$ and $x^2$ can be correlated, but both may be needed to represent curvature." Removing the squared term removes the model\'s entire ability to bend (👉 Lecture 8). The decision should come from <b>validation performance</b>. <b>A</b> is the blind pairwise rule being warned against. <b>C</b> overgeneralises. <b>D</b> is false.' },
 
 { d:'med',
   q:'Two subsets have nearly identical cross-validated performance: one uses 18 features, one uses 7. Which is normally preferred?',
@@ -1047,7 +1047,7 @@ const MCQS = [
      'Neither — you must always use all available features',
      'Whichever has the higher training score'],
   a:1,
-  e:'<b>B.</b> Performance <b>ties</b> par simplicity jeetti hai: faster, less multicollinearity, fewer columns to collect and monitor, lower variance. Yeh "smallest is always best" se alag hai — yahan performance <b>equal</b> hai. <b>A</b> and <b>C</b> ignore the cost of complexity. <b>D</b> uses exactly the score that adding features always inflates.' },
+  e:'<b>B.</b> On performance <b>ties</b>, simplicity wins: faster, less multicollinearity, fewer columns to collect and monitor, lower variance. This is different from "smallest is always best" — here the performance is <b>equal</b>. <b>A</b> and <b>C</b> ignore the cost of complexity. <b>D</b> uses exactly the score that adding features always inflates.' },
 ];
 </script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>

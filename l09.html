@@ -28,12 +28,12 @@
 
 <div class="box warn">
   <div class="box-title">📌 A note on this page's source</div>
-  <p style="margin:0">Jo <b>AML_combined.pdf</b> diya gaya tha usme <b>Worksheet 09 shamil nahi tha</b> (wo Worksheet 08 se seedha Worksheet 10 par jaata hai). Lekin Bias &amp; Variance course ke official content list mein hai, aur <b>Worksheet 10 explicitly ise reference karti hai</b>: <em>"In Lecture 9, we saw that extra flexibility can reduce bias but can also increase variance."</em> Isliye yeh page course ke apne <b>Lab 9 (<code>Lab_9_Bias_Variance.ipynb</code> + <code>bias_variance_tools.py</code>)</b> par banaya gaya hai — jo apne header mein kehta hai <em>"This lab follows the ideas and sequence of AML Lecture 9"</em> — aur Worksheets 8 &amp; 10 ke cross-references par. Formulas, numbers aur diagnosis rules sab lab se hi liye gaye hain.</p>
+  <p style="margin:0">The <b>AML_combined.pdf</b> that was provided <b>did not include Worksheet 09</b> (it jumps straight from Worksheet 08 to Worksheet 10). Bias &amp; Variance is, however, part of the course's official content list, and <b>Worksheet 10 explicitly references it</b>: <em>"In Lecture 9, we saw that extra flexibility can reduce bias but can also increase variance."</em> So this page is built on the course's own <b>Lab 9 (<code>Lab_9_Bias_Variance.ipynb</code> + <code>bias_variance_tools.py</code>)</b> — whose header states <em>"This lab follows the ideas and sequence of AML Lecture 9"</em> — together with the cross-references in Worksheets 8 &amp; 10. Every formula, number and diagnosis rule here comes from that lab.</p>
 </div>
 
 <div class="box hinglish">
   <div class="box-title">⚡ Ek Line Mein</div>
-  <p style="margin:0">Har training sample thoda alag model deta hai. <b>Bias</b> = average prediction truth se kitni door hai. <b>Variance</b> = samples badalne par predictions kitni hilti hain. Simple model → high bias, low variance (<b>underfit</b>). Bohot flexible model → low bias, high variance (<b>overfit</b>). Aur:<br>$\text{MSE} = \text{Bias}^2 + \text{Variance} + \text{Irreducible Error}$</p>
+  <p style="margin:0">Each training sample gives a slightly different model. <b>Bias</b> = how far the average prediction sits from the truth. <b>Variance</b> = how much the predictions move when the sample changes. A simple model → high bias, low variance (<b>underfit</b>). A very flexible model → low bias, high variance (<b>overfit</b>). And:<br>$\text{MSE} = \text{Bias}^2 + \text{Variance} + \text{Irreducible Error}$</p>
 </div>
 
 <h3>Learning outcomes</h3>
@@ -59,8 +59,8 @@
 
 <div class="box def">
   <div class="box-title">The lab's controlled setting</div>
-  <p style="margin:0">Lab mein <b>$f(x) = x^2$</b> use kiya gaya. Population mein $-15$ se $10$ ke beech 100 evenly spaced input values hain. Har point par normally distributed noise add kiya gaya: mean $0$, standard deviation $20$.</p>
-  <p style="margin:.5rem 0 0"><b>Yeh deliberately artificial hai.</b> Hum true function <b>jaante</b> hain kyunki humne khud data banaya hai. Real data mein $f(x)$ hume <b>kabhi pata nahi hota</b> — isliye Part B mein hume alag diagnostic tools chahiye.</p>
+  <p style="margin:0">The lab uses <b>$f(x) = x^2$</b>. The population has 100 evenly spaced input values between $-15$ and $10$. At each point, normally distributed noise is added: mean $0$, standard deviation $20$.</p>
+  <p style="margin:.5rem 0 0"><b>This is deliberately artificial.</b> We <b>know</b> the true function because we generated the data ourselves. With real data we <b>never know</b> $f(x)$ — which is exactly why Part B needs a different set of diagnostic tools.</p>
 </div>
 
 <figure>
@@ -81,12 +81,12 @@
   <text x="300" y="44" font-size="12" font-weight="800" style="fill:var(--text)">true f(x) = x²</text>
   <text x="300" y="60" font-size="11" fill="#38bdf8">observed Y = f(X) + ε</text>
 </svg>
-<figcaption>Black curve sirf isliye available hai kyunki humne khud data banaya. Real data mein sirf blue dots dikhte hain.</figcaption>
+<figcaption>The black curve is available only because we generated the data ourselves. With real data you would see only the blue dots.</figcaption>
 </figure>
 
 <!-- ============================================ -->
 <h3 id="s2"><span class="h2-num">2</span>One estimator, different training samples</h3>
-<p>Ek <b>estimator</b> ek learning rule hai (jaise "degree-2 polynomial fit karo"). Fitted result, $\hat f(x)$, <b>badal jaata hai jab training sample badalta hai</b>. Lab mein isko same population se <b>teen independent samples</b> draw karke demonstrate kiya gaya.</p>
+<p>An <b>estimator</b> is a learning rule (such as "fit a degree-2 polynomial"). The fitted result, $\hat f(x)$, <b>changes when the training sample changes</b>. The lab demonstrates this by drawing <b>three independent samples</b> from the same population.</p>
 
 <div class="grid g2">
 <figure style="margin:0">
@@ -118,11 +118,11 @@
 <div class="grid g2">
   <div class="box warn" style="margin:0">
     <div class="box-title">Degree 1 — interpretation</div>
-    <p style="margin:0">Teeno lines <b>ek dusre se kaafi similar</b> hain, par koi bhi curved true function reproduce nahi kar sakti. Yeh expected <b>high-bias, low-variance</b> pattern hai. Model <b>underfits</b>.</p>
+    <p style="margin:0">All three lines are <b>quite similar to each other</b>, yet none of them can reproduce the curved true function. This is the expected <b>high-bias, low-variance</b> pattern. The model <b>underfits</b>.</p>
   </div>
   <div class="box danger" style="margin:0">
     <div class="box-title">Degree 5 — interpretation</div>
-    <p style="margin:0">Flexible curves quadratic shape follow kar sakti hain, to unki <b>bias kam</b> ho sakti hai. Lekin unke shapes samples ke across <b>sharply badalte</b> hain kyunki wo noise par bhi react karti hain. Yeh expected <b>low-bias, high-variance</b> pattern hai. Model <b>overfits</b>.</p>
+    <p style="margin:0">Flexible curves can follow the quadratic shape, so their <b>bias can be low</b>. But their shapes <b>change sharply</b> across samples because they also react to the noise. This is the expected <b>low-bias, high-variance</b> pattern. The model <b>overfits</b>.</p>
   </div>
 </div>
 
@@ -141,14 +141,14 @@
 <h3 id="s3"><span class="h2-num">3</span>Bias and variance at one input value ⭐</h3>
 <p>At a fixed input $x$:</p>
 <div class="formula"><span class="flabel">Bias</span>$$\text{Bias}(x) = E\!\left[\hat f(x)\right] - f(x)$$</div>
-<p><b>Bias</b> measure karta hai ki <b>average prediction truth se kitni door</b> hai.</p>
+<p><b>Bias</b> measures <b>how far the average prediction is from the truth</b>.</p>
 <div class="formula"><span class="flabel">Variance</span>$$\text{Variance}(x) = E\!\left[\left(\hat f(x) - E[\hat f(x)]\right)^2\right]$$</div>
-<p><b>Variance</b> measure karta hai ki <b>alag training samples par predictions kitni badalti</b> hain.</p>
+<p><b>Variance</b> measures <b>how much the predictions change across different training samples</b>.</p>
 
 <div class="box insight">
   <div class="box-title">★ How the lab estimates these</div>
-  <p style="margin:0">Lab har degree ke liye <b>100 models</b> train karta hai (100 alag simulated training datasets se) aur $x = 5$ par unki predictions compare karta hai. Kyunki $f(5) = 5^2 = 25$, true value <b>known</b> hai — to hum literally $E[\hat f(5)]$ aur $\operatorname{Var}(\hat f(5))$ approximate kar sakte hain.</p>
-  <p style="margin:.5rem 0 0">Real problems mein yeh possible <b>nahi</b> hai (na hum population se repeatedly sample kar sakte hain, na hume $f$ pata hai). Isliye Part B mein proxies use hote hain.</p>
+  <p style="margin:0">For each degree, the lab trains <b>100 models</b> (from 100 different simulated training datasets) and compares their predictions at $x = 5$. Because $f(5) = 5^2 = 25$, the true value is <b>known</b> — so we can literally approximate $E[\hat f(5)]$ and $\operatorname{Var}(\hat f(5))$.</p>
+  <p style="margin:.5rem 0 0">In real problems this is <b>not</b> possible (we can neither sample repeatedly from the population, nor do we know $f$). So Part B uses proxies instead.</p>
 </div>
 
 <figure>
@@ -182,14 +182,14 @@
     <text x="90" y="226" text-anchor="middle" font-size="10.5" style="fill:var(--text-3)">worst case</text>
   </g>
 </svg>
-<figcaption>Bullseye = truth $f(x)$. Har blue dot ek alag training sample par fit kiya gaya model hai.</figcaption>
+<figcaption>Bullseye = the truth $f(x)$. Each blue dot is a model fitted on a different training sample.</figcaption>
 </figure>
 
 <!-- ============================================ -->
 <h3 id="s4"><span class="h2-num">4</span>MSE decomposition ⭐</h3>
-<p>Squared-error regression ke liye, expected prediction error ko aise likha ja sakta hai:</p>
+<p>For squared-error regression, the expected prediction error can be written as:</p>
 <div class="formula"><span class="flabel">The bias–variance decomposition</span>$$\boxed{\;\text{MSE} = \text{Bias}^2 + \text{Variance} + \operatorname{Var}(\varepsilon)\;}$$</div>
-<p>Last term <b>irreducible error</b> hai. <b>Zyada flexible modelling us randomness ko hata nahi sakti</b> jo data mein already maujood hai.</p>
+<p>The last term is the <b>irreducible error</b>. <b>More flexible modelling cannot remove the randomness</b> that is already present in the data.</p>
 
 <div class="solved">
   <header><span class="qtag">Worked check</span><h4>Two-line computation straight from the lecture</h4></header>
@@ -199,17 +199,17 @@
         $$\text{Bias} = E[\hat f(x)] - f(x) = 12 - 10 = \mathbf{2}$$</li>
       <li><span class="sh">If bias is 2, variance is 3, and noise variance is 1, what is the expected MSE?</span>
         $$\text{MSE} = \text{Bias}^2 + \text{Variance} + \operatorname{Var}(\varepsilon) = 2^2 + 3 + 1 = 4 + 3 + 1 = \mathbf{8}$$
-        <div class="answer">Note: bias <b>squared</b> hoti hai. $2 + 3 + 1 = 6$ likhna sabse common error hai.</div></li>
+        <div class="answer">Note: the bias is <b>squared</b>. Writing $2 + 3 + 1 = 6$ is the most common error here.</div></li>
       <li><span class="sh">If irreducible error increases while bias and variance stay fixed, what happens to MSE?</span>
         <div class="answer">It <b>increases by exactly the same amount</b>.</div>
-        <p style="margin:.3rem 0 0">Teeno terms <b>additive</b> hain. Agar $\operatorname{Var}(\varepsilon)$ $1 \to 4$ ho jaye, to MSE $8 \to 11$ ho jaayegi. Aur yeh wo hissa hai jise <b>koi bhi model kam nahi kar sakta</b> — ise kam karne ke liye tumhe <b>better data</b> chahiye (kam measurement noise, better features), better algorithm nahi.</p></li>
+        <p style="margin:.3rem 0 0">All three terms are <b>additive</b>. If $\operatorname{Var}(\varepsilon)$ goes $1 \to 4$, then MSE goes $8 \to 11$. And this is the part <b>no model can reduce</b> — lowering it needs <b>better data</b> (less measurement noise, better features), not a better algorithm.</p></li>
     </ol>
   </div>
 </div>
 
 <!-- ============================================ -->
 <h3 id="s5"><span class="h2-num">5</span>Observing the tradeoff</h3>
-<p>Lab ki simulation poore input range par results average karti hai aur har degree ke liye bias², variance, irreducible noise aur total error plot karti hai.</p>
+<p>The lab's simulation averages results over the whole input range and plots bias², variance, irreducible noise and total error for each degree.</p>
 
 <figure>
 <svg viewBox="0 0 620 300" role="img" aria-label="Bias squared falls and variance rises with model complexity, total error is U-shaped">
@@ -238,13 +238,13 @@
     <line x1="356" y1="106" x2="376" y2="106" stroke="#06b6d4" stroke-width="3.5"/><text x="384" y="110" style="fill:var(--text-2)">Total MSE (U-shaped)</text>
   </g>
 </svg>
-<figcaption>Classic tradeoff. Total error <b>U-shaped</b> hai — minimum us complexity par jahan bias² aur variance balance karte hain.</figcaption>
+<figcaption>The classic tradeoff. Total error is <b>U-shaped</b> — the minimum sits at the complexity where bias² and variance balance.</figcaption>
 </figure>
 
 <div class="box insight">
   <div class="box-title">★ Interpretation (from the lab)</div>
-  <p style="margin:0">Degree 1 quadratic pattern represent nahi kar sakta, to uski <b>bias high</b> hai. Degree 2 true family se match karta hai aur normally yahan <b>best balance</b> deta hai. Bohot high degrees training sample par strongly react karti hain, to <b>variance badh jaati</b> hai.</p>
-  <p style="margin:.5rem 0 0"><small>Lab mein y-axis <b>logarithmic</b> hai kyunki sabse flexible models baaki sab se kahin bade errors produce kar sakte hain.</small></p>
+  <p style="margin:0">Degree 1 cannot represent a quadratic pattern, so its <b>bias is high</b>. Degree 2 matches the true family and normally gives the <b>best balance</b> here. Very high degrees react strongly to the training sample, so <b>variance rises</b>.</p>
+  <p style="margin:.5rem 0 0"><small>The lab uses a <b>logarithmic</b> y-axis because the most flexible models can produce errors far larger than everything else.</small></p>
 </div>
 
 <!-- ============================================ -->
@@ -253,33 +253,33 @@
 <h3 id="s6"><span class="h2-num">6</span>From theory to diagnosis</h3>
 <div class="box danger">
   <div class="box-title">△ The core practical problem</div>
-  <p style="margin:0">Ek real problem mein humare paas <b>ek dataset hota hai</b>, population se har possible sample nahi. Aur hume <b>true $f(x)$ pata nahi</b> hota. Isliye hum normally <b>exact mathematical bias aur variance calculate nahi kar sakte</b>.</p>
+  <p style="margin:0">In a real problem we have <b>one dataset</b>, not every possible sample from the population. And we <b>do not know the true $f(x)$</b>. So we normally <b>cannot compute exact mathematical bias and variance</b>.</p>
 </div>
-<p>Instead, hum model behaviour ko in tools se <b>diagnose</b> karte hain:</p>
+<p>Instead, we <b>diagnose</b> model behaviour using these tools:</p>
 <ul>
   <li>Training aur validation error</li>
   <li>Ek train / validation / test split</li>
   <li>Cross-validation</li>
   <li>Learning curves</li>
 </ul>
-<p><small>Lab ke applied section mein <code>Study_Hours</code> se <code>Exam_Score</code> predict kiya jaata hai — ek one-input regression example taaki model complexity plot karna easy rahe.</small></p>
+<p><small>The lab's applied section predicts <code>Exam_Score</code> from <code>Study_Hours</code> — a one-input regression example, so that model complexity is easy to plot.</small></p>
 
 <h3 id="s7"><span class="h2-num">7</span>Training, validation, and test data</h3>
 <div class="tbl-wrap">
 <table>
 <thead><tr><th>Split</th><th>Purpose</th></tr></thead>
 <tbody>
-<tr><td><b>Training set</b></td><td>Model <b>parameters</b> fit karta hai</td></tr>
-<tr><td><b>Validation set</b></td><td>Model <b>degrees compare</b> karta hai aur ek choose karne mein help karta hai</td></tr>
-<tr><td><b>Test set</b></td><td>Saari choices complete hone ke baad <b>ek final estimate</b> deta hai</td></tr>
+<tr><td><b>Training set</b></td><td>The model fits its <b>parameters</b></td></tr>
+<tr><td><b>Validation set</b></td><td>Lets us <b>compare degrees</b> and helps us choose one</td></tr>
+<tr><td><b>Test set</b></td><td>Gives <b>one final estimate</b> once all the choices are complete</td></tr>
 </tbody>
 </table>
 </div>
-<p>Lab ek reproducible <b>60% / 20% / 20%</b> split banata hai. <b>Degree choose karte waqt hum test error ko dekhte hi nahi.</b></p>
+<p>The lab builds a reproducible <b>60% / 20% / 20%</b> split. <b>While choosing the degree we never look at the test error.</b></p>
 
 <!-- ============================================ -->
 <h3 id="s8"><span class="h2-num">8</span>Compare model complexity — reading the error pattern ⭐</h3>
-<p>Training MSE complexity badhne par <b>almost hamesha girta</b> hai (ya same rehta hai). <b>Validation MSE</b> batata hai ki extra flexibility unseen data par <b>help kar rahi hai ya nahi</b>.</p>
+<p>Training MSE <b>almost always falls</b> (or stays the same) as complexity rises. <b>Validation MSE</b> tells us <b>whether the extra flexibility actually helps</b> on unseen data.</p>
 
 <figure>
 <svg viewBox="0 0 620 280" role="img" aria-label="Training MSE always falls while validation MSE is U-shaped">
@@ -303,31 +303,31 @@
   <text x="492" y="160" font-size="10.5" font-weight="700" fill="#a855f7">large gap</text>
   <text x="492" y="174" font-size="10.5" font-weight="700" fill="#a855f7">= high variance</text>
 </svg>
-<figcaption>Training error monotonically girta hai; validation error U-shape banata hai. Minimum validation error par degree choose karo.</figcaption>
+<figcaption>Training error falls monotonically; validation error forms a U-shape. Choose the degree at the minimum validation error.</figcaption>
 </figure>
 
 <div class="tbl-wrap">
 <table>
 <thead><tr><th>Pattern</th><th>Training error</th><th>Validation error</th><th>Diagnosis</th></tr></thead>
 <tbody>
-<tr><td><b>High bias</b></td><td>High</td><td>High</td><td>Dono <b>high aur ek dusre ke paas</b> → <span class="pill a">underfitting</span></td></tr>
-<tr><td><b>High variance</b></td><td>Low</td><td>Much higher</td><td>Bada <b>gap</b> → <span class="pill r">overfitting</span></td></tr>
-<tr><td><b>Better balance</b></td><td>Moderate</td><td>Low</td><td>Validation error low aur train–validation gap excessive nahi → <span class="pill g">good</span></td></tr>
+<tr><td><b>High bias</b></td><td>High</td><td>High</td><td>Both <b>high and close to each other</b> → <span class="pill a">underfitting</span></td></tr>
+<tr><td><b>High variance</b></td><td>Low</td><td>Much higher</td><td>A large <b>gap</b> → <span class="pill r">overfitting</span></td></tr>
+<tr><td><b>Better balance</b></td><td>Moderate</td><td>Low</td><td>Validation error is low and the train–validation gap is not excessive → <span class="pill g">good</span></td></tr>
 </tbody>
 </table>
 </div>
 
 <div class="box warn">
   <div class="box-title">△ Instructor note</div>
-  <p style="margin:0">"High" aur "low" jaise exact words <b>task ke relative</b> hain. Models ko <b>same dataset aur same metric</b> par compare karo — koi universal MSE cutoff invent mat karo.</p>
+  <p style="margin:0">Words like "high" and "low" are <b>relative to the task</b>. Compare models on the <b>same dataset and the same metric</b> — never invent a universal MSE cutoff.</p>
 </div>
 
 <!-- ============================================ -->
 <h3 id="s9"><span class="h2-num">9</span>Cross-validation checks stability</h3>
-<p>Ek validation result <b>ek</b> split par depend karta hai. <b>Five-fold cross-validation</b> train/validation process ko paanch folds ke across repeat karta hai.</p>
+<p>A single validation result depends on <b>one</b> split. <b>Five-fold cross-validation</b> repeats the train/validation process across five folds.</p>
 <ul>
-  <li><b>Mean CV MSE</b> — average error measure karta hai.</li>
-  <li><b>Standard deviation of CV MSE</b> — dikhata hai ki wo error folds ke across kitna badalta hai (<b>stability</b>).</li>
+  <li><b>Mean CV MSE</b> — measures the average error.</li>
+  <li><b>Standard deviation of CV MSE</b> — shows how much that error varies across folds (<b>stability</b>).</li>
 </ul>
 
 <figure>
@@ -367,12 +367,12 @@
     <text x="420" y="208" style="fill:var(--text-3)">→ report mean ± std of the 5 MSEs</text>
   </g>
 </svg>
-<figcaption>Har fold ek baar validation set banta hai. Isse ek <b>zyada stable</b> estimate milta hai, aur uska spread bhi.</figcaption>
+<figcaption>Each fold becomes the validation set once. This gives a <b>more stable</b> estimate, along with its spread.</figcaption>
 </figure>
 
 <!-- ============================================ -->
 <h3 id="s10"><span class="h2-num">10</span>Learning curves ⭐</h3>
-<p>Ek <b>learning curve</b> dikhata hai ki jaise-jaise <b>training data ki quantity badhti</b> hai, training aur validation error kaise badalte hain.</p>
+<p>A <b>learning curve</b> shows how training and validation error change as the <b>quantity of training data grows</b>.</p>
 
 <div class="grid g2">
 <figure style="margin:0">
@@ -407,22 +407,22 @@
 <div class="grid g2">
   <div class="box warn" style="margin:0">
     <div class="box-title">High-bias pattern</div>
-    <p style="margin:0">Dono errors <b>high rehte hain aur ek dusre ke paas</b> hote hain. Zyada data add karne se help <b>nahi</b> milegi — model apni structural limitation se bandha hua hai. <b>Fix:</b> model complexity badhao (features add karo, higher degree, kam regularization).</p>
+    <p style="margin:0">Both errors <b>stay high and close to each other</b>. Adding more data will <b>not</b> help — the model is bound by its own structural limitation. <b>Fix:</b> increase model complexity (add features, raise the degree, reduce regularization).</p>
   </div>
   <div class="box danger" style="margin:0">
     <div class="box-title">High-variance pattern</div>
-    <p style="margin:0">Training error validation error se <b>bohot kam</b> hai. Zyada representative data <b>gap kam kar sakta</b> hai. <b>Fix:</b> zyada data lao, complexity kam karo, regularization add karo, ya features kam karo.</p>
+    <p style="margin:0">Training error is <b>much lower</b> than validation error. More representative data <b>can close the gap</b>. <b>Fix:</b> get more data, reduce complexity, add regularization, or use fewer features.</p>
   </div>
 </div>
 
 <div class="box insight">
   <div class="box-title">★ Instructor discussion</div>
-  <p style="margin:0">Problem ka naam lene se <b>pehle</b> dono curves ke beech ka <b>gap describe karo</b>. Ek bada persistent gap <b>high-variance</b> diagnosis support karta hai. Do relatively high curves jo milti hain, wo <b>high-bias</b> diagnosis support karti hain. <b>Data add karna tab sabse zyada help karta hai jab variance main problem ho.</b></p>
+  <p style="margin:0"><b>Describe the gap</b> between the two curves <b>before</b> naming the problem. A large persistent gap supports a <b>high-variance</b> diagnosis. Two relatively high curves that meet support a <b>high-bias</b> diagnosis. <b>Adding data helps most when variance is the main problem.</b></p>
 </div>
 
 <!-- ============================================ -->
 <h3 id="s11"><span class="h2-num">11</span>Final test evaluation</h3>
-<p>Degree ab <b>test set use kiye bina</b> select ho chuki hai. Hum us degree ko <b>training + validation rows combined</b> par refit karte hain, aur phir test set <b>ek baar</b> use karte hain. Degree 1 ko ek simple reference model ki tarah bhi report kiya jaata hai.</p>
+<p>The degree has now been selected <b>without using the test set</b>. We refit that degree on the <b>training + validation rows combined</b>, and then use the test set <b>once</b>. Degree 1 is also reported as a simple reference model.</p>
 
 <figure>
 <svg viewBox="0 0 660 130" role="img" aria-label="Correct evaluation order">
@@ -502,14 +502,14 @@
 <table>
 <thead><tr><th>Galti</th><th>Sahi Baat</th></tr></thead>
 <tbody>
-<tr><td>$\text{MSE} = \text{Bias} + \text{Variance} + \text{Noise}$</td><td>Bias <b>squared</b> hoti hai: $\text{MSE} = \text{Bias}^2 + \text{Variance} + \operatorname{Var}(\varepsilon)$.</td></tr>
-<tr><td>"Better model se irreducible error bhi kam ho jaayega"</td><td>Irreducible error <b>data ki property</b> hai, model ki nahi. Koi algorithm use nahi hata sakta.</td></tr>
-<tr><td>"Overfitting par zyada data hamesha help karega"</td><td>Overfitting (high variance) par <b>haan</b>. Underfitting (high bias) par <b>nahi</b> — model structurally limited hai.</td></tr>
-<tr><td>"Low training error = good model"</td><td>Training error complexity ke saath hamesha girta hai. <b>Validation error</b> aur train–val <b>gap</b> dekho.</td></tr>
-<tr><td>High bias aur high variance ko mutually exclusive samajhna</td><td>Ek model <b>dono</b> mein high ho sakta hai (worst case) — misspecified <em>aur</em> unstable.</td></tr>
-<tr><td>Degree select karne ke liye test error dekhna</td><td>Test set <b>ek baar</b>, sab choices ke baad. Selection <b>validation</b> par.</td></tr>
-<tr><td>"Ek validation split enough hai"</td><td>Ek split noisy ho sakta hai. <b>Cross-validation</b> mean <b>aur</b> stability (std) deta hai.</td></tr>
-<tr><td>Bias ko "model galat hai" aur variance ko "data galat hai" samajhna</td><td>Dono <b>estimator</b> ki properties hain. Bias = systematic offset. Variance = sample-to-sample instability.</td></tr>
+<tr><td>$\text{MSE} = \text{Bias} + \text{Variance} + \text{Noise}$</td><td>The bias is <b>squared</b>: $\text{MSE} = \text{Bias}^2 + \text{Variance} + \operatorname{Var}(\varepsilon)$.</td></tr>
+<tr><td>"A better model will also reduce the irreducible error"</td><td>Irreducible error is a <b>property of the data</b>, not of the model. No algorithm can remove it.</td></tr>
+<tr><td>"More data always helps with overfitting"</td><td>For overfitting (high variance), <b>yes</b>. For underfitting (high bias), <b>no</b> — the model is structurally limited.</td></tr>
+<tr><td>"Low training error = good model"</td><td>Training error always falls with complexity. Look at <b>validation error</b> and the train–val <b>gap</b>.</td></tr>
+<tr><td>Treating high bias and high variance as mutually exclusive</td><td>A model can be high in <b>both</b> (the worst case) — misspecified <em>and</em> unstable.</td></tr>
+<tr><td>Looking at test error in order to select the degree</td><td>Use the test set <b>once</b>, after all the choices. Selection happens on <b>validation</b>.</td></tr>
+<tr><td>"One validation split is enough"</td><td>A single split can be noisy. <b>Cross-validation</b> gives both a mean <b>and</b> a measure of stability (std).</td></tr>
+<tr><td>Reading bias as "the model is wrong" and variance as "the data is wrong"</td><td>Both are properties of the <b>estimator</b>. Bias = systematic offset. Variance = sample-to-sample instability.</td></tr>
 </tbody>
 </table>
 </div>
@@ -562,7 +562,7 @@ const MCQS = [
      'High bias, high variance',
      'Low bias, low variance — the ideal model'],
   a:1,
-  e:'<b>B.</b> "Similar to one another" = <b>low variance</b> (sample badalne se prediction barely badalti). "None reproduces the curve" = <b>high bias</b> (average prediction systematically truth se door). Yeh textbook <b>underfitting</b> hai. <b>A</b> exactly reverses both readings. <b>C</b> contradicts the observed similarity. <b>D</b> ignores the systematic miss.' },
+  e:'<b>B.</b> "Similar to one another" = <b>low variance</b> (the prediction barely changes when the sample changes). "None reproduces the curve" = <b>high bias</b> (the average prediction is systematically far from the truth). This is textbook <b>underfitting</b>. <b>A</b> exactly reverses both readings. <b>C</b> contradicts the observed similarity. <b>D</b> ignores the systematic miss.' },
 
 { d:'hard',
   q:'A model has low training error but much higher validation error. Which action is most likely to help?',
@@ -571,7 +571,7 @@ const MCQS = [
      'Nothing — this is irreducible error',
      'Report the test error to confirm'],
   a:1,
-  e:'<b>B.</b> Bada train–validation gap <b>high variance / overfitting</b> ka signature hai. Fixes: more data, less complexity, regularization, fewer features. <b>A</b> problem ko badha dega. <b>C</b> false — irreducible error train aur val <b>dono</b> ko equally affect karta hai, gap nahi banata. <b>D</b> test set ko peek karna hai — selection ke liye kabhi nahi.' },
+  e:'<b>B.</b> A large train–validation gap is the signature of <b>high variance / overfitting</b>. Fixes: more data, less complexity, regularization, fewer features. <b>A</b> would make the problem worse. <b>C</b> is false — irreducible error affects <b>both</b> train and validation equally and creates no gap. <b>D</b> means peeking at the test set — never acceptable for selection.' },
 
 { d:'hard',
   q:'Learning curves for a model show both training and validation error plateauing high and close together. Will collecting 10× more data help?',
@@ -580,7 +580,7 @@ const MCQS = [
      'Yes, but only if the data is from a different distribution',
      'Only if you also reduce the learning rate'],
   a:1,
-  e:'<b>B.</b> Lab explicitly: "High-bias pattern: both errors remain high and close together." Gap already band hai, to zyada data use band karne ke liye kuch nahi hai. Model ki <b>structural capacity</b> bottleneck hai. <b>A</b> is the blanket misconception the lab is designed to break. <b>C</b> and <b>D</b> are irrelevant distractors.' },
+  e:'<b>B.</b> Lab explicitly: "High-bias pattern: both errors remain high and close together." The gap is already closed, so more data has nothing left to close. The bottleneck is the model\'s <b>structural capacity</b>. <b>A</b> is the blanket misconception the lab is designed to break. <b>C</b> and <b>D</b> are irrelevant distractors.' },
 
 { d:'med',
   q:'What is the irreducible error, and can a better algorithm remove it?',
@@ -589,7 +589,7 @@ const MCQS = [
      'It is the gap between training and validation error',
      'It is the bias of the best possible model'],
   a:1,
-  e:'<b>B.</b> Lab: "More flexible modelling cannot remove randomness already present in the data." Yeh <b>data ki property</b> hai, model ki nahi — ise kam karne ke liye better measurements ya better features chahiye. <b>C</b> describes the variance symptom. <b>D</b> confuses it with bias. <b>A</b> is simply wrong.' },
+  e:'<b>B.</b> Lab: "More flexible modelling cannot remove randomness already present in the data." This is a <b>property of the data</b>, not of the model — reducing it needs better measurements or better features. <b>C</b> describes the variance symptom. <b>D</b> confuses it with bias. <b>A</b> is simply wrong.' },
 
 { d:'hard',
   q:'Why does the lab train 100 models per degree and compare their predictions at $x = 5$?',
@@ -598,7 +598,7 @@ const MCQS = [
      'To perform 100-fold cross-validation',
      'To average away the irreducible error'],
   a:1,
-  e:'<b>B.</b> $\\text{Bias} = E[\\hat f(x)] - f(x)$ aur $\\text{Variance} = E[(\\hat f(x) - E[\\hat f(x)])^2]$ — dono <b>expectations over training samples</b> hain. Unhe estimate karne ke liye <b>bohot saare</b> training samples chahiye, jo sirf controlled simulation mein possible hai. <b>C</b> confuses repeated sampling with CV (different procedure, different purpose). <b>A</b> and <b>D</b> are nonsense.' },
+  e:'<b>B.</b> $\\text{Bias} = E[\\hat f(x)] - f(x)$ and $\\text{Variance} = E[(\\hat f(x) - E[\\hat f(x)])^2]$ — both are <b>expectations over training samples</b>. Estimating them needs <b>many</b> training samples, which is only possible in a controlled simulation. <b>C</b> confuses repeated sampling with CV (a different procedure for a different purpose). <b>A</b> and <b>D</b> are nonsense.' },
 
 { d:'hard',
   q:'Why is cross-validation preferred over a single validation split for choosing model complexity?',
@@ -607,7 +607,7 @@ const MCQS = [
      'It eliminates the need for a test set',
      'It reduces bias to zero'],
   a:1,
-  e:'<b>B.</b> Ek split lucky ya unlucky ho sakta hai. 5-fold CV mean CV MSE (average error) <b>aur</b> standard deviation (stability) dono deta hai. <b>C</b> is dangerous — test set abhi bhi zaroori hai, kyunki CV bhi selection mein use hui. <b>A</b> is incidental. <b>D</b> false — CV bias nahi hataata, wo sirf validation error ka better <b>estimate</b> deta hai.' },
+  e:'<b>B.</b> A single split can be lucky or unlucky. 5-fold CV gives both the mean CV MSE (average error) <b>and</b> the standard deviation (stability). <b>C</b> is dangerous — a test set is still required, because CV was itself used for selection. <b>A</b> is incidental. <b>D</b> is false — CV does not remove bias, it just gives a better <b>estimate</b> of validation error.' },
 
 { d:'med',
   q:'In the bias–variance plot against model complexity, which curves behave how?',
@@ -616,7 +616,7 @@ const MCQS = [
      'All three curves fall together',
      'Variance is constant while bias² determines everything'],
   a:1,
-  e:'<b>B.</b> Complexity badhane se model true pattern ke paas jaa sakta hai (bias² ↓) par wo sample-specific noise bhi fit karne lagta hai (variance ↑). Noise term model par depend hi nahi karta (flat). Sum <b>U-shaped</b> hota hai — minimum optimal complexity par. <b>A</b> reverses the first two. <b>C</b> and <b>D</b> deny the tradeoff entirely.' },
+  e:'<b>B.</b> Raising complexity lets the model get closer to the true pattern (bias² ↓) but it also starts fitting sample-specific noise (variance ↑). The noise term does not depend on the model at all (flat). The sum is <b>U-shaped</b> — minimum at the optimal complexity. <b>A</b> reverses the first two. <b>C</b> and <b>D</b> deny the tradeoff entirely.' },
 
 { d:'hard',
   q:'After choosing the polynomial degree using validation error, what is the correct final step?',
@@ -625,13 +625,13 @@ const MCQS = [
      'Refit on the test set to get the best possible model',
      'Re-run cross-validation on the test set'],
   a:1,
-  e:'<b>B.</b> Validation set selection mein use ho chuka hai, to uska error ab <b>optimistically biased</b> hai. Sahi procedure: chosen degree ko train+val par refit karo (zyada data = better fit), phir test <b>ek baar</b>. <b>A</b> reports a biased number. <b>C</b> and <b>D</b> both contaminate the test set, destroying the only unbiased estimate you have.' },
+  e:'<b>B.</b> The validation set has already been used for selection, so its error is now <b>optimistically biased</b>. The right procedure: refit the chosen degree on train+val (more data = a better fit), then use the test set <b>once</b>. <b>A</b> reports a biased number. <b>C</b> and <b>D</b> both contaminate the test set, destroying the only unbiased estimate you have.' },
 
 { d:'hard',
   q:'A degree-5 model is fitted to three different samples from the same population. The curves have low average error but wildly different shapes. Which term describes the shape instability?',
   o:['Bias', 'Variance', 'Irreducible error', 'Training loss'],
   a:1,
-  e:'<b>B.</b> "Wildly different shapes across samples" literally $\\operatorname{Var}(\\hat f(x)) = E[(\\hat f(x) - E[\\hat f(x)])^2]$ ki definition hai. "Low average error" batata hai ki <b>bias low</b> hai. <b>A</b> average offset measure karta hai, spread nahi. <b>C</b> data ki property hai — model badalne se nahi badalta. <b>D</b> ek single fit ka number hai, samples ke across variability nahi.' },
+  e:'<b>B.</b> "Wildly different shapes across samples" is literally the definition of $\\operatorname{Var}(\\hat f(x)) = E[(\\hat f(x) - E[\\hat f(x)])^2]$. "Low average error" tells us the <b>bias is low</b>. <b>A</b> measures the average offset, not the spread. <b>C</b> is a property of the data — it does not change when the model changes. <b>D</b> is a number for a single fit, not variability across samples.' },
 ];
 </script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>

@@ -28,27 +28,27 @@
 
 <div class="box hook">
   <div class="box-title">▷ Central Question</div>
-  <p style="margin:0">Hum kaise jaanein ki ek trained model actually accha hai? Ek useful metric ko us <b>kind and cost of error</b> se match karna chahiye jo us decision ke liye matter karta hai.</p>
+  <p style="margin:0">How do we know whether a trained model is actually good? A useful metric has to match the <b>kind and cost of error</b> that matters for the decision being made.</p>
 </div>
 
 <div class="box hinglish">
   <div class="box-title">⚡ Ek Line Mein</div>
-  <p style="margin:0"><b>Regression</b> mein errors ka <b>size</b> hota hai: MAE (linear, original units), MAPE (relative %), MSE/RMSE (large errors ko punish), $R^2$ (mean baseline se kitna behtar), Adjusted $R^2$ (extra predictors ko charge karta hai). <b>Classification</b> mein errors ki <b>identity</b> hoti hai: confusion matrix batata hai <em>kaunsi class kisse confuse hui</em>, precision/recall/F1 ek specific class par focus karte hain.</p>
+  <p style="margin:0">In <b>regression</b> errors have a <b>size</b>: MAE (linear, original units), MAPE (relative %), MSE/RMSE (punish large errors), $R^2$ (how much better than the mean baseline), Adjusted $R^2$ (charges you for extra predictors). In <b>classification</b> errors have an <b>identity</b>: the confusion matrix shows <em>which class got confused with which</em>, and precision/recall/F1 focus on one specific class.</p>
 </div>
 
 <!-- ===================================== -->
 <h2 id="s1"><span class="h2-num">1</span>Training Has Ended; Evaluation Begins</h2>
 <div class="box hook">
   <div class="box-title">▷ Central Question</div>
-  <p style="margin:0">Model apne parameters already choose kar chuka hai. Kya hum measure kar rahe hain ki wo <em>kaise seekhta</em> hai, ya judge kar rahe hain ki finished model <em>kitna perform</em> karta hai?</p>
+  <p style="margin:0">The model has already chosen its parameters. Are we measuring <em>how it learns</em>, or judging <em>how well the finished model performs</em>?</p>
 </div>
 
 <div class="tbl-wrap">
 <table>
 <thead><tr><th></th><th>Training loss</th><th>Evaluation metric</th></tr></thead>
 <tbody>
-<tr><td><b>Main role</b></td><td>Training ke dauraan parameter updates guide karti hai</td><td>Training ke baad ek <b>fixed</b> model ko judge karti hai</td></tr>
-<tr><td><b>Typical data</b></td><td>Training data</td><td>Validation ya test data (generalisation ke liye)</td></tr>
+<tr><td><b>Main role</b></td><td>Guides parameter updates during training</td><td>Judges a <b>fixed</b> model after training</td></tr>
+<tr><td><b>Typical data</b></td><td>Training data</td><td>Validation or test data (for generalisation)</td></tr>
 <tr><td><b>Example</b></td><td>MSE used by an optimiser</td><td>MSE, MAE, $R^2$, F1 etc. reported after fitting</td></tr>
 </tbody>
 </table>
@@ -56,7 +56,7 @@
 
 <div class="box insight">
   <div class="box-title">★ Key Insight</div>
-  <p style="margin:0">Ek hi expression <b>dono roles</b> play kar sakta hai. MSE ek <b>loss</b> hai jab wo learning guide karta hai, aur ek <b>evaluation metric</b> jab wo ek finished model ko judge karta hai. <b>Context role decide karta hai.</b></p>
+  <p style="margin:0">The same expression can play <b>both roles</b>. MSE is a <b>loss</b> when it guides learning, and an <b>evaluation metric</b> when it judges a finished model. <b>Context decides the role.</b></p>
 </div>
 
 <div class="solved">
@@ -70,7 +70,7 @@
     <tr><td>(b) The optimiser uses it to update coefficients</td><td><span class="pill a">L</span></td></tr>
     <tr><td>(c) It answers whether the finished model is acceptable for a decision</td><td><span class="pill b">E</span></td></tr>
     </tbody></table></div>
-    <p style="margin-bottom:0"><b>Can one number tell us everything about a model? No.</b> Ek single number hamesha kuchh aggregate kar deta hai. 66.7% accuracy chhupa sakti hai ki ek poori minority class barely detect ho rahi hai. $R^2 = 0.93$ error ki actual size nahi batata. Isliye hamesha <b>complementary metrics ka set</b> report karo.</p>
+    <p style="margin-bottom:0"><b>Can one number tell us everything about a model? No.</b> A single number always aggregates something away. 66.7% accuracy can hide the fact that an entire minority class is barely being detected. $R^2 = 0.93$ says nothing about the actual size of the error. So always report a <b>set of complementary metrics</b>.</p>
   </div>
 </div>
 
@@ -78,7 +78,7 @@
 <h2 id="part1" style="border-top:2px solid var(--border-2);padding-top:2rem">PART 1 · Regression Evaluation Metrics</h2>
 
 <h3 id="s2">Master Test Data R — use this one table throughout Part 1</h3>
-<p>Model A monthly internship stipend predict karta hai <b>thousands of INR</b> mein. Ek positive residual ka matlab model ne <b>bohot kam</b> predict kiya; negative ka matlab <b>bohot zyada</b>. Residual direction preserve karta hai.</p>
+<p>Model A predicts monthly internship stipend in <b>thousands of INR</b>. A positive residual means the model predicted <b>too low</b>; negative means it predicted <b>too high</b>. The residual preserves direction.</p>
 <div class="formula tight"><span class="flabel">Signed residual</span>$$e_{A,i} = y_i - \hat y_{A,i}$$</div>
 
 <div class="tbl-wrap">
@@ -104,25 +104,25 @@
 <div class="box def">
   <div class="box-title">Column guide</div>
   <p style="margin:0">$|e_{A,i}| = |y_i - \hat y_{A,i}|$, &nbsp; $\text{APE}_{A,i} = 100\left|\dfrac{e_{A,i}}{y_i}\right|$, &nbsp; $e_{B,i}^2 = (y_i - \hat y_{B,i})^2$.</p>
-  <p style="margin:.5rem 0 0"><b>Worked row S1:</b> $e_{A,1} = 30 - 32 = -2$. Model A ne S1 ka stipend <b>2 thousand INR se over-predict</b> kiya. $|e| = 2$, $e^2 = 4$, $\text{APE} = 100 \times \frac{2}{30} = 6.67\%$.</p>
-  <p style="margin:.5rem 0 0"><small><em>Rounding note:</em> APE total unrounded fractions se compute hua hai; displayed row percentages rounded hain.</small></p>
+  <p style="margin:.5rem 0 0"><b>Worked row S1:</b> $e_{A,1} = 30 - 32 = -2$. Model A <b>over-predicted</b> S1's stipend by <b>2 thousand INR</b>. So $|e| = 2$, $e^2 = 4$, $\text{APE} = 100 \times \frac{2}{30} = 6.67\%$.</p>
+  <p style="margin:.5rem 0 0"><small><em>Rounding note:</em> the APE total is computed from unrounded fractions; the row percentages shown are rounded.</small></p>
 </div>
 
 <!-- ===================================== -->
 <h2 id="s3"><span class="h2-num">3</span>Regression Error Metrics</h2>
 <div class="box hook">
   <div class="box-title">▷ Central Question</div>
-  <p style="margin:0">Signed residuals direction dikhate hain, par positive aur negative values <b>cancel</b> ho jaate hain (upar dekho: signed total sirf $-4$ hai jabki individual errors 5 tak ja rahe hain). Saare aath errors ke <b>size</b> ko kaise summarise karein?</p>
+  <p style="margin:0">Signed residuals show direction, but positive and negative values <b>cancel</b> each other out (see above: the signed total is only $-4$ even though individual errors reach 5). So how do we summarise the <b>size</b> of all eight errors?</p>
 </div>
 
 <h3>3.1 Mean Absolute Error (MAE)</h3>
 <div class="tbl-wrap">
 <table>
 <tbody>
-<tr><td style="width:150px"><b>Question</b></td><td>Original target unit mein typical absolute miss kitna hai?</td></tr>
+<tr><td style="width:150px"><b>Question</b></td><td>How large is the typical absolute miss, in the original target unit?</td></tr>
 <tr><td><b>Formula &amp; result</b></td><td>$\text{MAE} = \dfrac{1}{n}\sum_{i=1}^{n}|e_{A,i}| = \dfrac{22}{8} = \mathbf{2.75}$ thousand INR</td></tr>
-<tr><td><b>Advantage</b></td><td>Interpret karna easy; har extra unit of error ko <b>equal linear weight</b> milta hai.</td></tr>
-<tr><td><b>Disadvantages</b></td><td>Direction hide karta hai, target scale par depend karta hai, aur ek <b>rare large miss</b> ko emphasise nahi karta.</td></tr>
+<tr><td><b>Advantage</b></td><td>Easy to interpret; every extra unit of error gets <b>equal linear weight</b>.</td></tr>
+<tr><td><b>Disadvantages</b></td><td>Hides direction, depends on the target scale, and does not emphasise a <b>rare large miss</b>.</td></tr>
 </tbody>
 </table>
 </div>
@@ -131,10 +131,10 @@
 <div class="tbl-wrap">
 <table>
 <tbody>
-<tr><td style="width:150px"><b>Question</b></td><td>Actual value ke <b>relative</b> typical error kitna bada hai?</td></tr>
+<tr><td style="width:150px"><b>Question</b></td><td>How large is the typical error <b>relative</b> to the actual value?</td></tr>
 <tr><td><b>Formula &amp; result</b></td><td>$\text{MAPE} = \dfrac{100}{n}\sum_{i=1}^{n}\left|\dfrac{e_{A,i}}{y_i}\right| = \dfrac{45.50\%}{8} \approx \mathbf{5.69\%}$</td></tr>
-<tr><td><b>Advantage</b></td><td>Ek <b>scale-free percentage</b> jo tab convenient hai jab relative error matter karta hai.</td></tr>
-<tr><td><b>Disadvantages</b></td><td>$y_i = 0$ par <b>undefined</b>, zero ke paas unstable, aur chhoti actual values ko over-emphasise kar sakta hai.</td></tr>
+<tr><td><b>Advantage</b></td><td>A <b>scale-free percentage</b>, convenient when relative error is what matters.</td></tr>
+<tr><td><b>Disadvantages</b></td><td><b>Undefined</b> at $y_i = 0$, unstable near zero, and can over-emphasise small actual values.</td></tr>
 </tbody>
 </table>
 </div>
@@ -147,14 +147,14 @@
 <tr>
   <td><b>MSE</b></td>
   <td>$\dfrac{1}{n}\sum_{i=1}^{n}e_{A,i}^2 = \dfrac{74}{8} = \mathbf{9.25}$<br><small>(thousand INR)$^2$</small></td>
-  <td>Large misses ko <b>strongly penalise</b> karta hai; optimisation mein useful.</td>
-  <td><b>Squared units</b>; unusual large errors ke prati sensitive.</td>
+  <td><b>Strongly penalises</b> large misses; useful during optimisation.</td>
+  <td><b>Squared units</b>; sensitive to unusually large errors.</td>
 </tr>
 <tr>
   <td><b>RMSE</b></td>
   <td>$\sqrt{\text{MSE}} = \sqrt{9.25} \approx \mathbf{3.04}$<br><small>thousand INR</small></td>
-  <td>Large-error penalty rakhta hai par <b>target unit</b> mein wapas le aata hai.</td>
-  <td>Abhi bhi scale-dependent aur MAE se zyada outlier-sensitive.</td>
+  <td>Keeps the large-error penalty but brings it back into the <b>target unit</b>.</td>
+  <td>Still scale-dependent and more outlier-sensitive than MAE.</td>
 </tr>
 </tbody>
 </table>
@@ -180,7 +180,7 @@
         <div class="answer">The <b>squared family (MSE / RMSE)</b> reacts far more strongly — 6× the increase for the same change in residual.</div></li>
       <li><span class="sh">True or false: "MSE = 9.25 means a typical miss of 9.25 thousand INR."</span>
         <div class="answer">False.</div>
-        <p style="margin:.3rem 0 0">MSE ke units <b>squared</b> hain — (thousand INR)$^2$. Typical miss <b>RMSE $= \sqrt{9.25} \approx 3.04$</b> thousand INR hai. Yeh sabse common interpretation error hai.</p></li>
+        <p style="margin:.3rem 0 0">MSE units are <b>squared</b> — (thousand INR)$^2$. The typical miss is <b>RMSE $= \sqrt{9.25} \approx 3.04$</b> thousand INR. This is the single most common interpretation error.</p></li>
     </ol>
   </div>
 </div>
@@ -197,12 +197,12 @@
         $$6.667+2.857+7.500+6.667+2.000+5.455+6.667+7.692 = 45.504\ \checkmark \Rightarrow \text{MAPE} = 5.69\%$$</li>
       <li><span class="sh">$\sum e_B^2 = 60$</span>
         $$4+1+9+4+1+9+16+16 = 60\ \checkmark$$
-        <p style="margin:.3rem 0 0"><small>Model B sirf S4 ($42 \to 43$) aur S8 ($70 \to 69$) par alag hai; dono cases mein wo closer hai, isliye $74 \to 60$.</small></p></li>
+        <p style="margin:.3rem 0 0"><small>Model B differs only on S4 ($42 \to 43$) and S8 ($70 \to 69$); in both cases it is closer, hence $74 \to 60$.</small></p></li>
       <li><span class="sh">(c) When would you report MAE, MAPE, or RMSE? And what is MAPE's zero-value limitation?</span>
-        <p style="margin:.2rem 0 0"><b>MAE</b> — jab har unit of error same cost rakhta ho, aur jab tumhe non-technical stakeholders ko ek interpretable number dena ho ("on average we are off by 2.75k").<br>
-        <b>MAPE</b> — jab relative error matter kare aur alag scales ke models compare karne hon (₹30k stipend par ₹3k error ka matlab ₹6 lakh salary par ₹3k error se bohot alag hai).<br>
-        <b>RMSE</b> — jab ek bada miss bohot saare chhote misses se zyada costly ho.<br>
-        <b>MAPE's zero limitation:</b> formula mein $y_i$ denominator mein hai. Agar koi actual value <b>$0$</b> hai, to APE <b>undefined</b> ho jaata hai (division by zero); aur agar $y_i$ zero ke bohot paas hai to APE explode kar jaata hai aur poora average dominate kar leta hai.</p></li>
+        <p style="margin:.2rem 0 0"><b>MAE</b> — when every unit of error carries the same cost, and when you need one interpretable number for non-technical stakeholders ("on average we are off by 2.75k").<br>
+        <b>MAPE</b> — when relative error matters and you are comparing models on different scales (a ₹3k error on a ₹30k stipend means something very different from a ₹3k error on a ₹6 lakh salary).<br>
+        <b>RMSE</b> — when one big miss is costlier than many small misses.<br>
+        <b>MAPE's zero limitation:</b> $y_i$ sits in the denominator. If any actual value is <b>$0$</b>, the APE becomes <b>undefined</b> (division by zero); and if $y_i$ is very close to zero the APE explodes and dominates the whole average.</p></li>
     </ol>
   </div>
 </div>
@@ -211,7 +211,7 @@
 <h2 id="s4"><span class="h2-num">4</span>$R^2$ from the Mean-Only Baseline ⭐</h2>
 <div class="box hook">
   <div class="box-title">▷ Central Question</div>
-  <p style="margin:0">Pichle chaar metrics batate hain ki residuals <b>kitne bade</b> hain. Par kya Model A us model se <b>meaningfully behtar</b> hai jo har student ko same stipend predict kar deta?</p>
+  <p style="margin:0">The previous four metrics tell us <b>how big</b> the residuals are. But is Model A <b>meaningfully better</b> than a model that just predicts the same stipend for every student?</p>
 </div>
 
 <div class="solved">
@@ -235,7 +235,7 @@
 
       <li><span class="sh">Step 3 — Measure the variation left after using Model A (RSS)</span>
         $$\text{RSS} = \sum_{i=1}^{n}(y_i - \hat y_i)^2 = \mathbf{74}$$
-        <p style="margin:.3rem 0 0">RSS <b>residual sum of squares</b> hai: wo squared variation jo Model A ke baad bhi <b>unexplained</b> bachi hai.</p></li>
+        <p style="margin:.3rem 0 0">RSS is the <b>residual sum of squares</b>: the squared variation that remains <b>unexplained</b> even after Model A.</p></li>
 
       <li><span class="sh">Step 4 — Compare leftover variation with original variation</span>
         $$R^2 = 1 - \frac{\text{RSS}}{\text{TSS}} = 1 - \frac{74}{1050} = 1 - 0.07048 = \mathbf{0.9295}$$
@@ -244,8 +244,8 @@
     </ol>
     <div class="box insight" style="margin-bottom:0">
       <div class="box-title">★ Key Insight</div>
-      <p style="margin:0">TSS actual stipends ka unke mean ke around <b>total squared variation</b> hai. Yeh wo variation hai jise trained model account karne ka <b>mauka</b> rakhta hai. Agar hum sirf mean predict karein, to poori 1050 unexplained reh jaati hai.</p>
-      <p style="margin:.5rem 0 0">In students par, Model A mean-only baseline ke around maujood squared variation ka lagbhag <b>92.95%</b> account karta hai. Lagbhag <b>7.05% unexplained</b> reh jaata hai.</p>
+      <p style="margin:0">TSS is the <b>total squared variation</b> of the actual stipends around their mean. This is the variation the trained model gets a <b>chance</b> to account for. If we only predict the mean, all 1050 of it stays unexplained.</p>
+      <p style="margin:.5rem 0 0">On these students, Model A accounts for roughly <b>92.95%</b> of the squared variation present around the mean-only baseline. About <b>7.05% stays unexplained</b>.</p>
     </div>
   </div>
 </div>
@@ -300,7 +300,7 @@
   <text x="380" y="74" font-size="11" font-weight="700" fill="#a855f7">actual→square gap = RSS</text>
   <text x="380" y="90" font-size="11" font-weight="700" fill="#34d399">Explained = TSS − RSS = 1050 − 74 = 976</text>
 </svg>
-<figcaption>Har dotted actual→mean gap <b>TSS</b> mein contribute karta hai; har actual→square gap <b>RSS</b> mein. Explained variation $= \text{TSS} - \text{RSS} = 976$ — yeh point-to-point gaps ka koi <b>teesra set nahi</b> hai.</figcaption>
+<figcaption>Each dotted actual→mean gap contributes to <b>TSS</b>; each actual→square gap contributes to <b>RSS</b>. Explained variation $= \text{TSS} - \text{RSS} = 976$ — this is <b>not a third set</b> of point-to-point gaps.</figcaption>
 </figure>
 
 <h3>Interpret the landmarks</h3>
@@ -308,9 +308,9 @@
 <table>
 <thead><tr><th class="num">Value</th><th>Correct interpretation</th></tr></thead>
 <tbody>
-<tr><td class="num">$R^2 = 1$</td><td><b>Perfect fit:</b> predictions har actual value se match karti hain aur $\text{RSS} = 0$.</td></tr>
+<tr><td class="num">$R^2 = 1$</td><td><b>Perfect fit:</b> the predictions match every actual value and $\text{RSS} = 0$.</td></tr>
 <tr><td class="num">$R^2 = 0$</td><td><b>No improvement</b> over the mean-only baseline: $\text{RSS} = \text{TSS}$.</td></tr>
-<tr><td class="num">$0 &lt; R^2 &lt; 1$</td><td>Mean-only baseline se better, par kuch variation abhi bhi unexplained hai.</td></tr>
+<tr><td class="num">$0 &lt; R^2 &lt; 1$</td><td>Better than the mean-only baseline, but some variation is still unexplained.</td></tr>
 <tr><td class="num">$R^2 &lt; 0$</td><td><b>Worse</b> than the mean-only baseline on the evaluated data: $\text{RSS} &gt; \text{TSS}$.</td></tr>
 </tbody>
 </table>
@@ -318,21 +318,21 @@
 
 <div class="box danger">
   <div class="box-title">△ DO NOT LET THIS MISCONCEPTION SURVIVE</div>
-  <p style="margin:0">$R^2 = 0.93$ ka matlab <b>93% accuracy NAHI</b> hai, na hi "93% of predictions are correct", aur na hi "7% average error". $R^2$ ek <b>relative sum-of-squares comparison</b> hai mean baseline ke saath. Error <b>size</b> ke liye MAE ya RMSE report karo.</p>
+  <p style="margin:0">$R^2 = 0.93$ does <b>NOT</b> mean 93% accuracy, nor "93% of predictions are correct", nor "7% average error". $R^2$ is a <b>relative sum-of-squares comparison</b> against the mean baseline. For error <b>size</b>, report MAE or RMSE.</p>
 </div>
 
 <div class="solved">
   <header><span class="qtag">Practice P3</span><h4>Same RMSE, different $R^2$</h4></header>
   <div class="body">
-    <p><b>Q:</b> Do datasets ka same RMSE ho sakta hai par different $R^2$ values. Konsi additional property $R^2$ badalti hai?</p>
+    <p><b>Q:</b> Two datasets can have the same RMSE but different $R^2$ values. Which additional property changes $R^2$?</p>
     <div class="answer">The <b>spread (variance) of the target $y$ around its mean</b> — i.e. TSS.</div>
-    <p style="margin:.5rem 0 0"><b>Reasoning:</b> $R^2 = 1 - \frac{\text{RSS}}{\text{TSS}}$ aur $\text{RMSE} = \sqrt{\text{RSS}/n}$. Same RMSE (same $n$) ⟹ <b>same RSS</b>. Par $R^2$ <b>TSS par bhi</b> depend karta hai.</p>
-    <p style="margin:.5rem 0 0"><b>Concrete example:</b> Dono datasets mein $\text{RSS} = 74$ aur $n = 8$, to dono ka RMSE $= 3.04$.</p>
+    <p style="margin:.5rem 0 0"><b>Reasoning:</b> $R^2 = 1 - \frac{\text{RSS}}{\text{TSS}}$ and $\text{RMSE} = \sqrt{\text{RSS}/n}$. The same RMSE (same $n$) ⟹ <b>the same RSS</b>. But $R^2$ <b>also depends on TSS</b>.</p>
+    <p style="margin:.5rem 0 0"><b>Concrete example:</b> both datasets have $\text{RSS} = 74$ and $n = 8$, so both have RMSE $= 3.04$.</p>
     <ul style="margin:.4rem 0 0">
-      <li>Dataset 1: stipends 30–65 range mein, $\text{TSS} = 1050$ ⟹ $R^2 = 1 - 74/1050 = \mathbf{0.93}$ — excellent.</li>
-      <li>Dataset 2: stipends sab 47–48 ke paas, $\text{TSS} = 80$ ⟹ $R^2 = 1 - 74/80 = \mathbf{0.075}$ — almost useless.</li>
+      <li>Dataset 1: stipends in the 30–65 range, $\text{TSS} = 1050$ ⟹ $R^2 = 1 - 74/1050 = \mathbf{0.93}$ — excellent.</li>
+      <li>Dataset 2: stipends all clustered near 47–48, $\text{TSS} = 80$ ⟹ $R^2 = 1 - 74/80 = \mathbf{0.075}$ — almost useless.</li>
     </ul>
-    <p style="margin:.5rem 0 0"><b>Intuition:</b> agar sabka stipend lagbhag same hai, to mean baseline already bohot accha hai — usse behtar karna mushkil hai. Agar stipends bohot spread hain, to mean baseline weak hai aur usse behtar karna easy hai. <b>$R^2$ tumhari baseline ke difficulty par depend karta hai, sirf tumhare error par nahi.</b></p>
+    <p style="margin:.5rem 0 0"><b>Intuition:</b> if everyone's stipend is roughly the same, the mean baseline is already very good — beating it is hard. If stipends are widely spread, the mean baseline is weak and beating it is easy. <b>$R^2$ depends on how difficult your baseline is, not only on your error.</b></p>
   </div>
 </div>
 
@@ -340,21 +340,21 @@
 <h2 id="s5"><span class="h2-num">5</span>$R^2$ Limitations and Adjusted $R^2$ ⭐</h2>
 <div class="box hook">
   <div class="box-title">▷ Central Question</div>
-  <p style="margin:0">Agar ek student ke roll number ka <b>last digit</b> add karne se training $R^2$ thoda badh jaye, to kya us extra predictor ne model mein apni jagah <b>earn</b> kar li?</p>
+  <p style="margin:0">If adding the <b>last digit</b> of a student's roll number nudges training $R^2$ up slightly, has that extra predictor <b>earned</b> its place in the model?</p>
 </div>
 
-<p>Ordinary least squares mein, training data par intercept ke saath, ek predictor add karne se RSS <b>badh nahi sakti</b>; isliye training $R^2$ <b>ghat nahi sakta</b>. Ek useless feature bhi noise fit kar sakta hai. <b>$R^2$ fit ko reward karta hai par complexity ko charge nahi karta.</b></p>
+<p>In ordinary least squares, on the training data with an intercept, adding a predictor <b>cannot increase</b> RSS; therefore training $R^2$ <b>cannot decrease</b>. Even a useless feature can fit some noise. <b>$R^2$ rewards fit but never charges for complexity.</b></p>
 
 <div class="formula"><span class="flabel">Adjusted $R^2$</span>$$R^2_{\text{adj}} = 1 - (1 - R^2)\,\frac{n-1}{n-p-1} \qquad\text{equivalently}\qquad R^2_{\text{adj}} = 1 - \left(\frac{\text{RSS}}{\text{TSS}}\right)\left(\frac{n-1}{n-p-1}\right)$$</div>
-<p>where $n$ = number of observations and $p$ = number of predictors, <b>excluding the intercept</b>. Factor $\frac{n-1}{n-p-1}$ $p$ ke saath <b>badhta</b> hai, to ek naye predictor ko unexplained variation itni kam karni padegi ki wo <b>badi penalty ko overcome</b> kar sake.</p>
+<p>where $n$ = number of observations and $p$ = number of predictors, <b>excluding the intercept</b>. The factor $\frac{n-1}{n-p-1}$ <b>grows</b> with $p$, so a new predictor must reduce unexplained variation enough to <b>overcome that bigger penalty</b>.</p>
 
 <div class="box insight">
   <div class="box-title">★ Adjusted $R^2$ — term by term</div>
   <ul style="margin:0">
-    <li>$R^2$ model ka mean-only baseline ke upar <b>raw improvement</b> hai; $1 - R^2$ wo fraction hai jo <b>unexplained</b> bacha hai.</li>
-    <li>$n$ observations ki sankhya hai. Numerator $n-1$ target mean estimate karne se tied hai.</li>
-    <li>$p$ predictors ki sankhya hai, intercept excluding; $n - p - 1$ <b>residual degrees of freedom</b> hain.</li>
-    <li>Ratio $\frac{n-1}{n-p-1}$ unexplained fraction ko <b>enlarge</b> karta hai jaise predictors add hote hain. Bahar ka $1-$ use wapas ek adjusted explained-variation score mein convert kar deta hai.</li>
+    <li>$R^2$ is the model's <b>raw improvement</b> over the mean-only baseline; $1 - R^2$ is the fraction left <b>unexplained</b>.</li>
+    <li>$n$ is the number of observations. The numerator $n-1$ is tied to estimating the target mean.</li>
+    <li>$p$ is the number of predictors, excluding the intercept; $n - p - 1$ are the <b>residual degrees of freedom</b>.</li>
+    <li>The ratio $\frac{n-1}{n-p-1}$ <b>enlarges</b> the unexplained fraction as predictors are added. The outer $1-$ converts it back into an adjusted explained-variation score.</li>
   </ul>
 </div>
 
@@ -381,8 +381,8 @@
         $$R^2_A = 1 - \frac{74}{1050} = \mathbf{0.9295}, \qquad R^2_B = 1 - \frac{60}{1050} = \mathbf{0.9429}$$</li>
       <li><span class="sh">Decision</span>
         <div class="answer">Model B has the <b>higher raw $R^2$</b> (0.9429), but Model A has the <b>higher Adjusted $R^2$</b> (0.9013 &gt; 0.9000).</div>
-        <p style="margin:.4rem 0 0"><b>The roll-number feature did NOT earn its place.</b> Model B ne RSS kam ki (74 → 60) aur raw $R^2$ badha, par improvement itna chhota tha ki <b>teesre-predictor ki penalty offset nahi kar paaya</b>. Penalty factor $1.4 \to 1.75$ jump kar gaya — ek 25% badhi hui penalty, jabki unexplained fraction sirf $0.0705 \to 0.0571$ (19% reduction) hua.</p>
-        <p style="margin:.4rem 0 0"><small>Note: yahan $1-R^2 = \text{RSS}/\text{TSS}$ use karne se rounded $R^2$ values carry karne ki zaroorat nahi padti — <b>zyada accurate</b> hai.</small></p></li>
+        <p style="margin:.4rem 0 0"><b>The roll-number feature did NOT earn its place.</b> Model B reduced RSS (74 → 60) and raised raw $R^2$, but the improvement was too small to <b>offset the third-predictor penalty</b>. The penalty factor jumped $1.4 \to 1.75$ — a 25% bigger penalty — while the unexplained fraction only moved $0.0705 \to 0.0571$ (a 19% reduction).</p>
+        <p style="margin:.4rem 0 0"><small>Note: using $1-R^2 = \text{RSS}/\text{TSS}$ here avoids carrying rounded $R^2$ values forward — it is <b>more accurate</b>.</small></p></li>
     </ol>
   </div>
 </div>
@@ -390,10 +390,10 @@
 <div class="box insight">
   <div class="box-title">★ What Adjusted $R^2$ does — and does NOT — tell us</div>
   <ul style="margin:0">
-    <li>Same target aur observations par fit kiye gaye, par <b>different $p$</b> wale regression models compare karne ke liye useful.</li>
-    <li>Jab ek naya feature bohot kam explanatory value add karta hai to yeh <b>ghat sakta hai</b>; normally $R^2_{\text{adj}} \le R^2$.</li>
-    <li><b>Automatic feature-selection oracle nahi</b> hai, aur validation ya cross-validation ka replacement nahi hai.</li>
-    <li>$n &gt; p+1$ chahiye, aur $p$ mein intercept count nahi hota.</li>
+    <li>Useful for comparing regression models fitted on the same target and observations but with <b>different $p$</b>.</li>
+    <li>It <b>can decrease</b> when a new feature adds very little explanatory value; normally $R^2_{\text{adj}} \le R^2$.</li>
+    <li>It is <b>not an automatic feature-selection oracle</b>, and not a replacement for validation or cross-validation.</li>
+    <li>Requires $n &gt; p+1$, and $p$ does not count the intercept.</li>
   </ul>
 </div>
 
@@ -408,7 +408,7 @@
 <h3 id="s6"><span class="h2-num">6</span>Bridge: From Error Size to Error Identity</h3>
 <div class="box hook">
   <div class="box-title">▷ Central Question</div>
-  <p style="margin:0">Regression mein, 55 ki jagah 50 predict karna ek five-unit error banata hai. Agar ek classifier galat label predict kare, to "Ready" aur "Needs Practice" ke beech <b>numerical distance kya hai</b>?</p>
+  <p style="margin:0">In regression, predicting 50 instead of 55 is a five-unit error. But if a classifier predicts the wrong label, <b>what is the numerical distance</b> between "Ready" and "Needs Practice"?</p>
 </div>
 
 <div class="tbl-wrap">
@@ -424,15 +424,15 @@
 
 <div class="box takeaway">
   <div class="box-title">♦ Takeaway</div>
-  <p style="margin:0">Regression errors have <b>size</b>. Classification errors have <b>identity</b>. Agla sawaal yeh hai ki <b>kaunsi class kis dusri class se confuse</b> hui.</p>
+  <p style="margin:0">Regression errors have <b>size</b>. Classification errors have <b>identity</b>. The next question is <b>which class got confused with which</b>.</p>
 </div>
 
 <!-- ===================================== -->
 <h2 id="s7"><span class="h2-num">7</span>Multiclass Accuracy and the Confusion Matrix</h2>
-<p>Placement team ab ek doosra model use karti hai teen <b>internship-readiness bands</b> assign karne ke liye: <b>Ready (R)</b>, <b>Needs Practice (P)</b>, ya <b>Needs Support (S)</b>.</p>
+<p>The placement team now uses a second model to assign three <b>internship-readiness bands</b>: <b>Ready (R)</b>, <b>Needs Practice (P)</b>, or <b>Needs Support (S)</b>.</p>
 
 <h3>Master Test Data C</h3>
-<p><b>Needs Support</b> sabse chhoti class hai (4 students), par yeh <b>operationally important</b> hai kyunki in students ko timely intervention chahiye ho sakti hai.</p>
+<p><b>Needs Support</b> is the smallest class (4 students), but it is <b>operationally important</b> because these students may need timely intervention.</p>
 
 <div class="tbl-wrap">
 <table class="compact">
@@ -462,23 +462,23 @@
 
 <div class="formula"><span class="flabel">Accuracy</span>$$\text{Accuracy} = \frac{\text{exact matches}}{\text{total predictions}} = \frac{12}{18} = \frac{2}{3} = \mathbf{66.67\%}$$</div>
 <p><b>Number correct: 12 &nbsp;·&nbsp; Number of errors: 6</b></p>
-<p>Accuracy batati hai ki complete label kitni baar correct tha. Wo yeh <b>nahi</b> dikha sakti ki model mainly Ready ko Practice se confuse karta hai ya Needs-Support students ko miss karta hai.</p>
+<p>Accuracy tells us how often the complete label was correct. It <b>cannot</b> show whether the model mainly confuses Ready with Practice, or whether it misses Needs-Support students.</p>
 
 <div class="box insight">
   <div class="box-title">★ Why accuracy is not enough</div>
-  <p style="margin:0">Accuracy har wrong label ko <b>ek error</b> ginti hai, par wo us error ka <b>type ya direction</b> identify nahi karti. Do bilkul alag mistakes consider karo:</p>
+  <p style="margin:0">Accuracy counts every wrong label as <b>one error</b>, but it does not identify the <b>type or direction</b> of that error. Consider two completely different mistakes:</p>
   <ul style="margin:.6rem 0 0">
-    <li><b>Error Type 1 — "Missed Ready":</b> ek student jo actually <em>Ready</em> hai par model <em>Needs Practice</em> ya <em>Needs Support</em> predict karta hai. Student capable tha, phir bhi model use recognise nahi kar paaya.</li>
-    <li><b>Error Type 2 — "False Ready":</b> ek student jo actually <em>Needs Practice</em> ya <em>Needs Support</em> hai par model <em>Ready</em> predict karta hai. Student ko help chahiye thi, par model ne use ready label kar diya.</li>
+    <li><b>Error Type 1 — "Missed Ready":</b> a student who is actually <em>Ready</em> but the model predicts <em>Needs Practice</em> or <em>Needs Support</em>. The student was capable, yet the model failed to recognise it.</li>
+    <li><b>Error Type 2 — "False Ready":</b> a student who is actually <em>Needs Practice</em> or <em>Needs Support</em> but the model predicts <em>Ready</em>. The student needed help, but the model labelled them ready.</li>
   </ul>
-  <p style="margin:.6rem 0 0">Dono error types accuracy ko exactly <b>ek count</b> se kam karte hain. Accuracy score akela <b>in bilkul alag kism ki incorrect predictions mein farak nahi kar sakta</b>. Yeh nahi bata sakta ki model primarily help-needing students ko miss kar raha hai, ya struggling students ko galti se ready label kar raha hai. <b>Kis kism ki</b> galtiyan ho rahi hain aur <b>kaunsi classes confuse</b> ho rahi hain, yeh samajhne ke liye confusion matrix, precision aur recall chahiye.</p>
+  <p style="margin:.6rem 0 0">Both error types reduce accuracy by exactly <b>one count</b>. The accuracy score alone <b>cannot distinguish between these completely different kinds of incorrect prediction</b>. It cannot tell you whether the model is primarily missing students who need help, or wrongly labelling struggling students as ready. To understand <b>what kind</b> of mistakes are happening and <b>which classes are getting confused</b>, you need the confusion matrix, precision and recall.</p>
 </div>
 
 <div class="box def">
   <div class="box-title">Confusion-matrix convention (memorise this)</div>
   <ul style="margin:0">
     <li><b>Rows are actual classes</b>; columns are predicted classes (scikit-learn convention).</li>
-    <li>Diagonal cells exact matches hain; off-diagonal cells <b>specific confusions</b> hain.</li>
+    <li>The diagonal cells are exact matches; the off-diagonal cells are <b>specific confusions</b>.</li>
   </ul>
 </div>
 
@@ -515,16 +515,16 @@
         <tbody>
         <tr><td>(i) The cell (Actual R, Predicted S) counts Ready students labelled Support</td><td><span class="pill g">T</span></td><td>That is exactly S08 — value 1.</td></tr>
         <tr><td>(ii) The Predicted-S total of 4 means all four were actually Support</td><td><span class="pill r">F</span></td><td>Column S contains $1 + 1 + 2$: only <b>2</b> were truly Support; the other 2 were R and P.</td></tr>
-        <tr><td>(iii) Accuracy alone identifies every direction of error</td><td><span class="pill r">F</span></td><td>Accuracy sirf 12 vs 6 batati hai — wo 6 errors <b>kaunse</b> hain, yeh nahi.</td></tr>
+        <tr><td>(iii) Accuracy alone identifies every direction of error</td><td><span class="pill r">F</span></td><td>Accuracy only tells you 12 vs 6 — not <b>which</b> 6 the errors were.</td></tr>
         </tbody></table></div></li>
       <li><span class="sh">D. Application — S15 is corrected from Predicted P to Predicted S. What changes?</span>
         $$(S, P): 2 \to \mathbf{1}, \qquad (S, S): 2 \to \mathbf{3}, \qquad \text{Accuracy}: \frac{12}{18} \to \frac{\mathbf{13}}{18} = \mathbf{0.722}$$
         $$\text{Predicted-P total}: 7 \to \mathbf{6}, \qquad \text{Predicted-S total}: 4 \to \mathbf{5}$$
-        <div class="answer">Actual row totals are <b>unchanged</b> (8, 6, 4) — ground truth kabhi nahi badalta, sirf predictions badalti hain.</div></li>
+        <div class="answer">Actual row totals are <b>unchanged</b> (8, 6, 4) — ground truth never changes, only the predictions do.</div></li>
     </ol>
     <div class="box danger" style="margin-bottom:0">
       <div class="box-title">△ DO NOT LET THIS MISCONCEPTION SURVIVE</div>
-      <p style="margin:0">Hamesha matrix ka <b>orientation state karo</b>. Rows aur columns transpose karne se har off-diagonal cell <b>ek bilkul alag real-world error</b> represent karne lagta hai.</p>
+      <p style="margin:0">Always <b>state the orientation</b> of the matrix. Transposing rows and columns makes every off-diagonal cell represent <b>a completely different real-world error</b>.</p>
     </div>
   </div>
 </div>
@@ -533,12 +533,12 @@
 <h2 id="s8"><span class="h2-num">8</span>Needs-Support Focus: Precision, Recall, and F1 ⭐</h2>
 <div class="box hook">
   <div class="box-title">▷ Central Question</div>
-  <p style="margin:0">Is focused analysis ke liye, <b>Needs Support</b> ko positive class banao aur Ready + Needs Practice ko "Not Support" mein group kar do. Kaunsi predictions TP, FP, FN aur TN banti hain?</p>
+  <p style="margin:0">For this focused analysis, treat <b>Needs Support</b> as the positive class and group Ready + Needs Practice into "Not Support". Which predictions become TP, FP, FN and TN?</p>
 </div>
 
 <div class="box insight">
   <div class="box-title">★ Define the binary view first</div>
-  <p style="margin:0"><b>Positive</b> ka matlab wo class jo abhi evaluate ho rahi hai (yahan Needs Support) — iska matlab <b>"good" nahi</b>. <b>Negative</b> ka matlab baaki saari classes grouped (Ready ya Needs Practice) — iska matlab <b>"bad" nahi</b>. <b>True</b> ka matlab correct aur <b>false</b> ka matlab incorrect, is temporary binary view mein.</p>
+  <p style="margin:0"><b>Positive</b> means the class currently being evaluated (here Needs Support) — it does <b>not</b> mean "good". <b>Negative</b> means all the other classes grouped together (Ready or Needs Practice) — it does <b>not</b> mean "bad". <b>True</b> means correct and <b>false</b> means incorrect, within this temporary binary view.</p>
 </div>
 
 <figure>
@@ -613,7 +613,7 @@
 
 <div class="box insight">
   <div class="box-title">★ Important multiclass nuance</div>
-  <p style="margin:0">Ek <b>Ready → Practice</b> prediction full three-class task mein <b>galat</b> hai, phir bhi is temporary binary view mein wo <b>TN</b> hai — kyunki Support label correctly reject hua. TN binary confusion view ko complete karta hai, halaanki precision, recall aur F1 <b>use use nahi karte</b>.</p>
+  <p style="margin:0">A <b>Ready → Practice</b> prediction is <b>wrong</b> in the full three-class task, yet in this temporary binary view it counts as a <b>TN</b> — because the Support label was correctly rejected. TN completes the binary confusion view, even though precision, recall and F1 <b>never use it</b>.</p>
 </div>
 
 <h3>Metric map</h3>
@@ -621,9 +621,9 @@
 <table>
 <thead><tr><th>Metric</th><th>Formula</th><th>Meaning for Needs Support</th></tr></thead>
 <tbody>
-<tr><td><b>Precision</b></td><td>$\dfrac{TP}{TP + FP}$</td><td>Predicted Support alerts mein se, kitne <b>correct</b> hain?</td></tr>
-<tr><td><b>Recall / TPR</b></td><td>$\dfrac{TP}{TP + FN}$</td><td>Actual Support students mein se, kitne <b>found</b> hue?</td></tr>
-<tr><td><b>F1</b></td><td>$\dfrac{2\,\text{Prec}\cdot\text{Rec}}{\text{Prec} + \text{Rec}} = \dfrac{2TP}{2TP + FP + FN}$</td><td>Precision aur recall ka <b>harmonic balance</b>; sirf tab high jab <b>dono</b> high hon.</td></tr>
+<tr><td><b>Precision</b></td><td>$\dfrac{TP}{TP + FP}$</td><td>Of the predicted Support alerts, how many are <b>correct</b>?</td></tr>
+<tr><td><b>Recall / TPR</b></td><td>$\dfrac{TP}{TP + FN}$</td><td>Of the actual Support students, how many were <b>found</b>?</td></tr>
+<tr><td><b>F1</b></td><td>$\dfrac{2\,\text{Prec}\cdot\text{Rec}}{\text{Prec} + \text{Rec}} = \dfrac{2TP}{2TP + FP + FN}$</td><td>The <b>harmonic balance</b> of precision and recall; high only when <b>both</b> are high.</td></tr>
 </tbody>
 </table>
 </div>
@@ -633,7 +633,7 @@
   <ul style="margin:0">
     <li><b>Precision</b> uses <b>predicted</b> positives: $TP + FP$. &nbsp;<span style="color:var(--text-3)">(FP ↑ ⟹ Precision ↓ — Type I error)</span></li>
     <li><b>Recall / TPR</b> uses <b>actual</b> positives: $TP + FN$. &nbsp;<span style="color:var(--text-3)">(FN ↑ ⟹ Recall ↓ — Type II error)</span></li>
-    <li><b>F1</b> balances precision and recall and <b>does not use TN</b>. TN abhi bhi binary confusion view ko complete karta hai.</li>
+    <li><b>F1</b> balances precision and recall and <b>does not use TN</b>. TN still completes the binary confusion view.</li>
   </ul>
 </div>
 
@@ -657,12 +657,12 @@
 
 <div class="box insight">
   <div class="box-title">★ THE IMPORTANT PATTERN</div>
-  <p style="margin:0">Overall accuracy <b>0.667</b> hai, par model 4 actual Needs Support students mein se sirf <b>2</b> find karta hai. Uski Support precision, recall aur F1 <b>sab 0.500</b> hain. <b>Overall correctness ek chhoti, operationally important class par weak performance ko chhupa sakti hai.</b></p>
+  <p style="margin:0">Overall accuracy is <b>0.667</b>, yet the model finds only <b>2</b> of the 4 actual Needs Support students. Its Support precision, recall and F1 are <b>all 0.500</b>. <b>Overall correctness can hide weak performance on a small but operationally important class.</b></p>
 </div>
 
 <div class="box warn">
   <div class="box-title">△ Undefined cases</div>
-  <p style="margin:0">Agar ek model kisi class ko <b>kabhi predict hi nahi karta</b>, to uska precision denominator <b>zero</b> ho jaata hai. Agar evaluation set mein kisi class ka <b>koi actual example hi nahi</b> hai, to uska recall denominator zero ho jaata hai. Ek report mein <b>state karna chahiye</b> ki library ne undefined value ko kaise handle kiya (usually 0 set karke ya warning deke).</p>
+  <p style="margin:0">If a model <b>never predicts</b> some class, that class's precision denominator becomes <b>zero</b>. If the evaluation set contains <b>no actual example</b> of a class, its recall denominator is zero. A report <b>must state</b> how the library handled the undefined value (usually by setting it to 0 or raising a warning).</p>
 </div>
 
 <div class="solved">
@@ -672,14 +672,14 @@
     $$\text{Precision}_S = \frac{3}{3+2} = \frac{3}{5} = \mathbf{0.600}$$
     $$\text{Recall}_S = \frac{3}{3+1} = \frac{3}{4} = \mathbf{0.750}$$
     $$F1_S = \frac{2(3)}{2(3)+2+1} = \frac{6}{9} = \mathbf{0.667}$$
-    <p style="margin-top:.6rem"><b>Notice:</b> ek hi correction ne recall ko $0.500 \to 0.750$ (+50%) uthaya par precision sirf $0.500 \to 0.600$ — kyunki FP unchanged raha. Ek <b>FN ko TP</b> mein badalna <b>dono</b> ratios improve karta hai, par recall ko zyada.</p>
+    <p style="margin-top:.6rem"><b>Notice:</b> a single correction lifted recall $0.500 \to 0.750$ (+50%) but precision only $0.500 \to 0.600$ — because FP stayed unchanged. Turning an <b>FN into a TP</b> improves <b>both</b> ratios, but recall more.</p>
     <div class="tbl-wrap" style="margin-top:1rem">
     <table class="compact">
     <thead><tr><th>Cost scenario</th><th>Prioritise</th><th>Why</th></tr></thead>
     <tbody>
-    <tr><td>(a) Missing Needs Support students is costliest</td><td><span class="pill r">Recall</span></td><td>Missing = FN. Recall ka denominator ($TP+FN$) hi FN ko punish karta hai.</td></tr>
-    <tr><td>(b) Unnecessary Support alerts are costliest</td><td><span class="pill a">Precision</span></td><td>False alerts = FP. Precision ka denominator ($TP+FP$) FP ko punish karta hai.</td></tr>
-    <tr><td>(c) Both concerns matter</td><td><span class="pill b">F1</span></td><td>Harmonic mean sirf tab high hota hai jab <b>dono</b> high hon — ek ko sacrifice karke doosra maximise karna kaam nahi karega.</td></tr>
+    <tr><td>(a) Missing Needs Support students is costliest</td><td><span class="pill r">Recall</span></td><td>Missing = FN. Only recall's denominator ($TP+FN$) punishes FN.</td></tr>
+    <tr><td>(b) Unnecessary Support alerts are costliest</td><td><span class="pill a">Precision</span></td><td>False alerts = FP. Precision's denominator ($TP+FP$) punishes FP.</td></tr>
+    <tr><td>(c) Both concerns matter</td><td><span class="pill b">F1</span></td><td>The harmonic mean is high only when <b>both</b> are high — sacrificing one to maximise the other will not work.</td></tr>
     </tbody></table></div>
   </div>
 </div>
@@ -688,11 +688,11 @@
 <h2 id="s9"><span class="h2-num">9</span>Macro, Weighted, and Micro Averages ⭐</h2>
 <div class="box hook">
   <div class="box-title">▷ Central Question</div>
-  <p style="margin:0">Accuracy ek overall count deti hai. Jab precision, recall ya F1 ko <b>several classes par summarise</b> karna ho — to kya har class ko equal weight milna chahiye, ya bade classes ko zyada contribute karna chahiye?</p>
+  <p style="margin:0">Accuracy gives one overall count. When you need to <b>summarise precision, recall or F1 across several classes</b> — should every class get equal weight, or should bigger classes contribute more?</p>
 </div>
 
 <h3>Provided inputs for aggregation</h3>
-<p>Original Master Test Data C par wapas (Practice P9 ek what-if tha):</p>
+<p>Back to the original Master Test Data C (Practice P9 was a what-if):</p>
 <div class="tbl-wrap">
 <table class="compact">
 <thead><tr><th>Class</th><th class="num">Actual count</th><th class="num">Precision</th><th class="num">Recall</th><th class="num">F1</th></tr></thead>
@@ -717,7 +717,7 @@
 $$\text{Macro Precision} = \frac{0.857 + 0.571 + 0.500}{3} = \frac{1.928}{3} = \mathbf{0.643}$$
 $$\text{Macro Recall} = \frac{0.750 + 0.667 + 0.500}{3} = \frac{1.917}{3} = \mathbf{0.639}$$
 $$\text{Macro F1} = \frac{0.800 + 0.615 + 0.500}{3} = \frac{1.915}{3} = \mathbf{0.638}$$
-<p>Macro averaging <b>class size ignore</b> karta hai. Ise tab use karo jab ek chhoti class ko ek badi class jitna hi matter karna chahiye.</p>
+<p>Macro averaging <b>ignores class size</b>. Use it when a small class should matter as much as a large one.</p>
 
 <h3>Weighted average — use actual class count as the weight</h3>
 <div class="formula">$$\text{Weighted}(M) = \frac{8M_R + 6M_P + 4M_S}{18}$$</div>
@@ -730,7 +730,7 @@ $$\text{Weighted F1} = \frac{8(0.800) + 6(0.615) + 4(0.500)}{18} = \frac{6.40 + 
 $$\text{Micro Precision} = \frac{12}{12+6} = \frac{12}{18} = \mathbf{0.667}$$
 $$\text{Micro Recall} = \frac{12}{12+6} = \frac{12}{18} = \mathbf{0.667}$$
 $$\text{Micro F1} = \frac{2(12)}{2(12)+6+6} = \frac{24}{36} = \mathbf{0.667}$$
-<p>Har wrong single-label prediction predicted class ke liye <b>ek pooled FP</b> contribute karta hai aur missed actual class ke liye <b>ek pooled FN</b>. Isliye is task mein <b>micro precision, recall aur F1 accuracy ke barabar ho jaate hain</b>.</p>
+<p>Every wrong single-label prediction contributes <b>one pooled FP</b> for the predicted class and <b>one pooled FN</b> for the missed actual class. That is why, on this task, <b>micro precision, recall and F1 all equal accuracy</b>.</p>
 
 <div class="solved">
   <header><span class="qtag">Practice P10</span><h4>Choose the averaging rule</h4></header>
@@ -745,12 +745,12 @@ $$\text{Micro F1} = \frac{2(12)}{2(12)+6+6} = \frac{24}{36} = \mathbf{0.667}$$
     <tr><td><b>Micro</b></td><td class="num">0.667</td><td class="num">0.667</td><td class="num">0.667</td><td>Pooled counts; equals accuracy here</td></tr>
     </tbody></table></div>
     <p style="margin-top:1rem"><b>Why is weighted F1 (0.672) higher than macro F1 (0.638) here?</b></p>
-    <div class="answer">Kyunki <b>sabse weak class bhi sabse chhoti class hai.</b></div>
-    <p style="margin:.4rem 0 0">Needs Support ka F1 sabse kam (0.500) hai aur usme sirf 4 students hain. Macro use <b>poora $1/3$ vote</b> deta hai. Weighted use sirf $4/18 = 22\%$ weight deta hai, aur sabse strong class (Ready, F1 $=0.800$) ko $8/18 = 44\%$ weight deta hai. Weighting effectively model ki sabse badi weakness ko <b>down-weight</b> kar deti hai — isliye score upar aa jaata hai.</p>
-    <p style="margin:.4rem 0 0"><b>Practical lesson:</b> agar minority class operationally important hai (jaise Needs Support yahan hai), to <b>macro</b> report karo — weighted ek rosier picture dikhayega jo asli problem chhupa deta hai.</p>
+    <div class="answer">Because <b>the weakest class is also the smallest class.</b></div>
+    <p style="margin:.4rem 0 0">Needs Support has the lowest F1 (0.500) and contains only 4 students. Macro gives it a <b>full $1/3$ vote</b>. Weighted gives it only $4/18 = 22\%$ weight, and gives the strongest class (Ready, F1 $=0.800$) $8/18 = 44\%$ weight. Weighting effectively <b>down-weights</b> the model's biggest weakness — so the score rises.</p>
+    <p style="margin:.4rem 0 0"><b>Practical lesson:</b> if the minority class is operationally important (as Needs Support is here), report <b>macro</b> — weighted will paint a rosier picture that hides the real problem.</p>
     <div class="box danger" style="margin-bottom:0">
       <div class="box-title">△ DO NOT LET THIS MISCONCEPTION SURVIVE</div>
-      <p style="margin:0">Macro F1 class F1 scores ka <b>arithmetic average</b> hai. Yeh generally macro precision aur macro recall ka <b>harmonic mean NAHI</b> hai. (Check: harmonic mean of 0.643 and 0.639 = 0.641 ≠ 0.638.)</p>
+      <p style="margin:0">Macro F1 is the <b>arithmetic average</b> of the per-class F1 scores. It is generally <b>NOT</b> the harmonic mean of macro precision and macro recall. (Check: harmonic mean of 0.643 and 0.639 = 0.641 ≠ 0.638.)</p>
     </div>
   </div>
 </div>
@@ -759,7 +759,7 @@ $$\text{Micro F1} = \frac{2(12)}{2(12)+6+6} = \frac{24}{36} = \mathbf{0.667}$$
 <h2 id="s10"><span class="h2-num">10</span>Metric Choice and Final Synthesis</h2>
 <div class="box hook">
   <div class="box-title">▷ Central Question</div>
-  <p style="margin:0">Formula ya sabse bade dikhne wale score se shuru mat karo. <b>Decision</b> se shuru karo: kaunsi error costly hai, aur act karne ke liye kaunsi information chahiye?</p>
+  <p style="margin:0">Do not start from a formula or from whichever score looks biggest. Start from the <b>decision</b>: which error is costly, and what information do you need in order to act?</p>
 </div>
 
 <div class="solved">
@@ -787,7 +787,7 @@ $$\text{Micro F1} = \frac{2(12)}{2(12)+6+6} = \frac{24}{36} = \mathbf{0.667}$$
 
 <div class="box takeaway">
   <div class="box-title">♦ Takeaway</div>
-  <p style="margin:0">Ek model isliye accha nahi hota ki uska koi ek score high hai. Wo tab accha hota hai jab uske <b>errors us decision ke liye acceptable</b> hon jo hume leni hai, <b>us data par jo us duniya ko represent karta hai</b> jisme model use hoga.</p>
+  <p style="margin:0">A model is not good because one of its scores is high. It is good when its <b>errors are acceptable for the decision</b> we have to make, <b>on data that represents the world</b> the model will be used in.</p>
 </div>
 
 <div class="solved">
@@ -795,11 +795,11 @@ $$\text{Micro F1} = \frac{2(12)}{2(12)+6+6} = \frac{24}{36} = \mathbf{0.667}$$
   <div class="body">
     <ol class="steps">
       <li><span class="sh">1. How can two regression datasets have the same RMSE but different $R^2$ values?</span>
-        <p style="margin:.2rem 0 0">RMSE sirf $\text{RSS}/n$ par depend karta hai. $R^2 = 1 - \text{RSS}/\text{TSS}$ <b>TSS par bhi</b> depend karta hai — yaani target ka apne mean ke around spread. Same errors, par ek dataset mein targets tightly clustered hon (chhota TSS) to $R^2$ kam hoga, kyunki mean baseline ko beat karna mushkil hai. Spread-out targets (bada TSS) ke saath wahi errors high $R^2$ dete hain.</p></li>
+        <p style="margin:.2rem 0 0">RMSE depends only on $\text{RSS}/n$. But $R^2 = 1 - \text{RSS}/\text{TSS}$ <b>also depends on TSS</b> — the spread of the target around its own mean. With the same errors, a dataset whose targets are tightly clustered (small TSS) will show a lower $R^2$, because the mean baseline is hard to beat. With spread-out targets (large TSS) those same errors give a high $R^2$.</p></li>
       <li><span class="sh">2. Why did Model B obtain a higher $R^2$ but a lower Adjusted $R^2$ than Model A?</span>
-        <p style="margin:.2rem 0 0">Model B ne RSS 74 se 60 kar di, to raw $R^2$ $0.9295 \to 0.9429$ badh gaya (raw $R^2$ predictor add karne par kabhi ghat nahi sakta). Par B ek <b>teesra predictor</b> use karta hai, to penalty factor $\frac{n-1}{n-p-1}$ $\frac{7}{5} = 1.4$ se $\frac{7}{4} = 1.75$ ho gaya — <b>25% badi penalty</b>. Unexplained fraction sirf $0.0705 \to 0.0571$ (19% reduction) hui. 19% gain 25% penalty ko cover nahi kar paaya, to Adjusted $R^2$ $0.9013 \to 0.9000$ gir gaya.</p></li>
+        <p style="margin:.2rem 0 0">Model B cut RSS from 74 to 60, so raw $R^2$ rose $0.9295 \to 0.9429$ (raw $R^2$ can never fall when a predictor is added). But B uses a <b>third predictor</b>, so the penalty factor $\frac{n-1}{n-p-1}$ went from $\frac{7}{5} = 1.4$ to $\frac{7}{4} = 1.75$ — a <b>25% bigger penalty</b>. The unexplained fraction only moved $0.0705 \to 0.0571$ (a 19% reduction). A 19% gain could not cover a 25% penalty, so Adjusted $R^2$ fell $0.9013 \to 0.9000$.</p></li>
       <li><span class="sh">3. How can the classifier be 66.7% accurate while recall for Needs Support is only 50%?</span>
-        <p style="margin:.2rem 0 0">Accuracy <b>saare</b> 18 students par compute hoti hai aur <b>sabse badi class dominate</b> karti hai. Ready ke 8 students mein se 6 correct hain — akele yeh $6/18 = 33\%$ accuracy contribute karte hain. Needs Support mein sirf <b>4</b> students hain; 2 miss karna accuracy se sirf $2/18 \approx 11\%$ cost karta hai, <b>par us class ka recall aadha kar deta hai</b> ($2/4 = 0.50$). Yehi wajah hai ki overall accuracy ke saath <b>per-class recall</b> bhi report karna zaroori hai.</p></li>
+        <p style="margin:.2rem 0 0">Accuracy is computed over <b>all</b> 18 students and is <b>dominated by the largest class</b>. Of Ready's 8 students, 6 are correct — those alone contribute $6/18 = 33\%$ accuracy. Needs Support has only <b>4</b> students; missing 2 of them costs just $2/18 \approx 11\%$ of accuracy, <b>yet halves that class's recall</b> ($2/4 = 0.50$). That is why <b>per-class recall</b> must be reported alongside overall accuracy.</p></li>
     </ol>
   </div>
 </div>
@@ -810,15 +810,15 @@ $$\text{Micro F1} = \frac{2(12)}{2(12)+6+6} = \frac{24}{36} = \mathbf{0.667}$$
 <table>
 <thead><tr><th>Galti</th><th>Sahi Baat</th></tr></thead>
 <tbody>
-<tr><td>"$R^2 = 0.93$ means 93% accuracy"</td><td>$R^2$ ek <b>relative sum-of-squares comparison</b> hai mean baseline ke saath. Error size ke liye MAE/RMSE.</td></tr>
-<tr><td>"MSE $= 9.25$ means a typical miss of 9.25"</td><td>MSE <b>squared units</b> mein hai. Typical miss RMSE $= 3.04$ hai.</td></tr>
-<tr><td>Precision ke denominator mein $TP+FN$ likhna</td><td>Precision: $TP+FP$ (<b>predicted</b> positives). Recall: $TP+FN$ (<b>actual</b> positives).</td></tr>
-<tr><td>Confusion matrix ka orientation state na karna</td><td>Rows = actual, columns = predicted. Transpose karne se har off-diagonal cell ka meaning badal jaata hai.</td></tr>
-<tr><td>"Predicted-S total of 4 means 4 students were actually Support"</td><td>Column total mein FP bhi hain. Sirf 2 actually Support the.</td></tr>
-<tr><td>Macro F1 ko macro-P aur macro-R ka harmonic mean nikalna</td><td>Macro F1 = <b>per-class F1 scores ka arithmetic average</b>.</td></tr>
-<tr><td>Imbalanced data par sirf accuracy report karna</td><td>66.7% accuracy chhupa rahi thi ki minority class ka recall sirf 50% hai.</td></tr>
-<tr><td>Adjusted $R^2$ mein $p$ mein intercept count karna</td><td>$p$ = predictors <b>excluding</b> the intercept.</td></tr>
-<tr><td>MAPE ko zero ya near-zero actuals par use karna</td><td>$y_i = 0$ par undefined; zero ke paas explode ho jaata hai.</td></tr>
+<tr><td>"$R^2 = 0.93$ means 93% accuracy"</td><td>$R^2$ is a <b>relative sum-of-squares comparison</b> against the mean baseline. For error size, use MAE/RMSE.</td></tr>
+<tr><td>"MSE $= 9.25$ means a typical miss of 9.25"</td><td>MSE is in <b>squared units</b>. The typical miss is RMSE $= 3.04$.</td></tr>
+<tr><td>Writing $TP+FN$ in precision's denominator</td><td>Precision: $TP+FP$ (<b>predicted</b> positives). Recall: $TP+FN$ (<b>actual</b> positives).</td></tr>
+<tr><td>Not stating the orientation of the confusion matrix</td><td>Rows = actual, columns = predicted. Transposing changes the meaning of every off-diagonal cell.</td></tr>
+<tr><td>"Predicted-S total of 4 means 4 students were actually Support"</td><td>The column total also contains FP. Only 2 were actually Support.</td></tr>
+<tr><td>Taking macro F1 as the harmonic mean of macro-P and macro-R</td><td>Macro F1 = the <b>arithmetic average of the per-class F1 scores</b>.</td></tr>
+<tr><td>Reporting only accuracy on imbalanced data</td><td>66.7% accuracy was hiding a minority-class recall of just 50%.</td></tr>
+<tr><td>Counting the intercept inside $p$ in Adjusted $R^2$</td><td>$p$ = predictors <b>excluding</b> the intercept.</td></tr>
+<tr><td>Using MAPE on zero or near-zero actuals</td><td>Undefined at $y_i = 0$; explodes near zero.</td></tr>
 </tbody>
 </table>
 </div>
@@ -840,12 +840,12 @@ $$\text{Micro F1} = \frac{2(12)}{2(12)+6+6} = \frac{24}{36} = \mathbf{0.667}$$
 <div class="box takeaway">
   <div class="box-title">♦ By the end of this sheet you can…</div>
   <ul style="margin:0">
-    <li>Training loss aur evaluation metrics ka difference explain karna.</li>
-    <li>Ek regression dataset par MAE, MAPE, MSE, RMSE, $R^2$ aur Adjusted $R^2$ interpret karna.</li>
+    <li>Explain the difference between training loss and evaluation metrics.</li>
+    <li>Interpret MAE, MAPE, MSE, RMSE, $R^2$ and Adjusted $R^2$ on a regression dataset.</li>
     <li>Ek multiclass confusion matrix padhna (rows = actual, columns = predicted).</li>
-    <li>Needs-Support focus ke liye TP, FP, FN, TN, precision, recall/TPR aur F1 calculate karna.</li>
-    <li>Macro, weighted aur micro aggregation se class scores compare karna.</li>
-    <li>Metric ko <b>decision cost</b> se choose karna, sabse bade numerical score se nahi.</li>
+    <li>Calculate TP, FP, FN, TN, precision, recall/TPR and F1 for a Needs-Support focus.</li>
+    <li>Compare class scores using macro, weighted and micro aggregation.</li>
+    <li>Choose a metric from the <b>decision cost</b>, not from the biggest numerical score.</li>
   </ul>
 </div>
 
@@ -865,7 +865,7 @@ const MCQS = [
      'RMSE = 9.25 and MSE = 3.04',
      'MSE = 74 and RMSE = 8.60'],
   a:1,
-  e:'<b>B.</b> $\\text{MSE} = 74/8 = 9.25$ in <b>squared</b> units; $\\text{RMSE} = \\sqrt{9.25} = 3.04$ in target units. <b>A</b> is the single most common interpretation error — MSE ko target units mein padhna. <b>C</b> swaps them. <b>D</b> forgets to divide by $n$.' },
+  e:'<b>B.</b> $\\text{MSE} = 74/8 = 9.25$ in <b>squared</b> units; $\\text{RMSE} = \\sqrt{9.25} = 3.04$ in target units. <b>A</b> is the single most common interpretation error — reading MSE as though it were in target units. <b>C</b> swaps them. <b>D</b> forgets to divide by $n$.' },
 
 { d:'hard',
   q:'Model A ($p=2$, RSS 74) and Model B ($p=3$, RSS 60) are fitted on the same $n=8$ data with TSS $=1050$. Which is true?',
@@ -883,7 +883,7 @@ const MCQS = [
      'Precision $= 2/16$, Recall $= 12/14$',
      'Precision $= 12/14$, Recall $= 2/4$'],
   a:1,
-  e:'<b>B.</b> Precision uses <b>predicted</b> positives: $TP/(TP+FP) = 2/4$. Recall uses <b>actual</b> positives: $TP/(TP+FN) = 2/4$. Yahan dono coincidentally equal hain kyunki $FP = FN = 2$. <b>A</b>, <b>C</b>, <b>D</b> sab TN ko denominator mein ghusa rahe hain — <b>precision, recall aur F1 TN use karte hi nahi</b>.' },
+  e:'<b>B.</b> Precision uses <b>predicted</b> positives: $TP/(TP+FP) = 2/4$. Recall uses <b>actual</b> positives: $TP/(TP+FN) = 2/4$. Here the two happen to be equal because $FP = FN = 2$. <b>A</b>, <b>C</b> and <b>D</b> all sneak TN into the denominator — but <b>precision, recall and F1 never use TN</b>.' },
 
 { d:'hard',
   q:'Two regression datasets have identical RMSE but very different $R^2$. What causes this?',
@@ -892,7 +892,7 @@ const MCQS = [
      'One model used more predictors',
      'RMSE and $R^2$ are unrelated quantities'],
   a:1,
-  e:'<b>B.</b> $\\text{RMSE} = \\sqrt{\\text{RSS}/n}$ and $R^2 = 1 - \\text{RSS}/\\text{TSS}$. Same RMSE ⟹ same RSS. $R^2$ phir <b>TSS</b> par depend karta hai. Tightly clustered targets (small TSS) → mean baseline already strong → low $R^2$. <b>A</b> would also change RMSE. <b>C</b> is the Adjusted $R^2$ story, not this one. <b>D</b> false — dono RSS share karte hain.' },
+  e:'<b>B.</b> $\\text{RMSE} = \\sqrt{\\text{RSS}/n}$ and $R^2 = 1 - \\text{RSS}/\\text{TSS}$. The same RMSE ⟹ the same RSS. $R^2$ then depends on <b>TSS</b>. Tightly clustered targets (small TSS) → the mean baseline is already strong → a low $R^2$. <b>A</b> would also change RMSE. <b>C</b> is the Adjusted $R^2$ story, not this one. <b>D</b> is false — both share the same RSS.' },
 
 { d:'hard',
   q:'Overall accuracy is 0.667, but the Needs-Support recall is only 0.500. What is the correct explanation?',
@@ -901,7 +901,7 @@ const MCQS = [
      'Recall and accuracy always differ by chance',
      'The model is broken and should be discarded'],
   a:1,
-  e:'<b>B.</b> Ready ke 6 correct predictions alone $6/18 = 33\\%$ accuracy dete hain. 4-student Support class mein 2 miss karna accuracy se sirf $2/18$ leta hai par recall ko $2/4 = 0.50$ par gira deta hai. Yahi wajah hai ki aggregate metrics minority-class failures chhupa dete hain. <b>A</b> and <b>C</b> dodge the question. <b>D</b> overreacts — model useful ho sakta hai, bas Support recall improve karna padega.' },
+  e:'<b>B.</b> Ready\'s 6 correct predictions alone give $6/18 = 33\\%$ accuracy. Missing 2 of the 4-student Support class costs only $2/18$ of accuracy but drops its recall to $2/4 = 0.50$. This is exactly why aggregate metrics hide minority-class failures. <b>A</b> and <b>C</b> dodge the question. <b>D</b> overreacts — the model may well be useful, it just needs better Support recall.' },
 
 { d:'med',
   q:'In the confusion matrix, the Predicted-S column total is 4. What does this mean?',
@@ -910,7 +910,7 @@ const MCQS = [
      'Four students were correctly classified',
      'The model has 4 errors'],
   a:1,
-  e:'<b>B.</b> <b>Column</b> total = kitni baar wo class <b>predict</b> hui. Column S contains $1 + 1 + 2$: one Ready, one Practice, and two genuine Support. <b>A</b> confuses column total with <b>row</b> total (actual count, which is also 4 here — a deliberate coincidence in the data designed to catch exactly this mistake). <b>C</b> and <b>D</b> misread the diagonal.' },
+  e:'<b>B.</b> A <b>column</b> total = how many times that class was <b>predicted</b>. Column S contains $1 + 1 + 2$: one Ready, one Practice, and two genuine Support. <b>A</b> confuses the column total with the <b>row</b> total (the actual count, which is also 4 here — a deliberate coincidence in the data designed to catch exactly this mistake). <b>C</b> and <b>D</b> misread the diagonal.' },
 
 { d:'hard',
   q:'Weighted F1 is 0.672 while macro F1 is 0.638. Why is weighted higher?',
@@ -919,7 +919,7 @@ const MCQS = [
      'Macro averaging ignores the Ready class',
      'Weighted F1 uses TN while macro does not'],
   a:1,
-  e:'<b>B.</b> Macro har class ko $1/3$ deta hai; weighted Support ko sirf $4/18 = 22\\%$ aur Ready (F1 0.800) ko $44\\%$. Model ki sabse badi weakness effectively down-weight ho jaati hai. <b>A</b> false — agar weakest class sabse <b>badi</b> hoti to weighted <b>kam</b> hota. <b>C</b> and <b>D</b> are invented.' },
+  e:'<b>B.</b> Macro gives every class $1/3$; weighted gives Support only $4/18 = 22\\%$ and Ready (F1 0.800) $44\\%$. The model\'s biggest weakness gets effectively down-weighted. <b>A</b> is false — if the weakest class were the <b>largest</b>, weighted would come out <b>lower</b>. <b>C</b> and <b>D</b> are invented.' },
 
 { d:'hard',
   q:'A Ready student is predicted as Needs Practice. In the "Needs Support = positive" binary view, this is:',
@@ -928,7 +928,7 @@ const MCQS = [
      'A False Negative, because a class was missed',
      'Not counted at all, since neither label is Support'],
   a:1,
-  e:'<b>B.</b> Binary view <b>sirf</b> "Support vs Not Support" poochta hai. Student Support nahi hai (negative) aur model ne Support predict nahi kiya (negative) ⟹ <b>TN</b>. Wo three-class task mein galat hai, par is collapsed view mein correct. <b>A</b> and <b>C</b> apply the multiclass notion of "wrong" to a binary frame. <b>D</b> false — har row exactly ek cell mein jaati hai.' },
+  e:'<b>B.</b> The binary view asks <b>only</b> "Support vs Not Support". The student is not Support (negative) and the model did not predict Support (negative) ⟹ <b>TN</b>. It is wrong in the three-class task, but correct in this collapsed view. <b>A</b> and <b>C</b> apply the multiclass notion of "wrong" to a binary frame. <b>D</b> is false — every row lands in exactly one cell.' },
 
 { d:'med',
   q:'Missing actual Needs-Support students is the costliest error. Which metric should be prioritised?',
@@ -937,7 +937,7 @@ const MCQS = [
      'Accuracy, because it counts all errors',
      'Specificity, because it measures the negative class'],
   a:1,
-  e:'<b>B.</b> "Missing" = <b>FN</b>. Sirf recall ka denominator FN contain karta hai, to FN badhne par recall girti hai. <b>A</b> is the mirror answer — precision FP (false alerts) ke liye hai. <b>C</b> minority-class failures ko mask kar deti hai. <b>D</b> negative class ke baare mein hai, missed positives ke nahi.' },
+  e:'<b>B.</b> "Missing" = <b>FN</b>. Only recall\'s denominator contains FN, so recall falls as FN rises. <b>A</b> is the mirror answer — precision is for FP (false alerts). <b>C</b> masks minority-class failures. <b>D</b> is about the negative class, not about missed positives.' },
 
 { d:'hard',
   q:'Which statement about micro-averaging in this single-label multiclass task is correct?',
@@ -946,7 +946,7 @@ const MCQS = [
      'Micro averaging weights classes by their size',
      'Micro F1 is the harmonic mean of macro precision and macro recall'],
   a:1,
-  e:'<b>B.</b> Single-label multiclass mein har error ek class ke liye FP aur doosri ke liye FN banta hai, to pooled $FP = FN = 6$ aur teeno micro metrics $12/18 = 0.667$ ho jaate hain — exactly accuracy. <b>A</b> false — depends on the data. <b>C</b> describes <b>weighted</b> averaging. <b>D</b> is a fabricated relationship (and the worksheet explicitly warns macro F1 is not a harmonic mean of macro P and R).' },
+  e:'<b>B.</b> In single-label multiclass, every error becomes an FP for one class and an FN for another, so pooled $FP = FN = 6$ and all three micro metrics come to $12/18 = 0.667$ — exactly accuracy. <b>A</b> is false — it depends on the data. <b>C</b> describes <b>weighted</b> averaging. <b>D</b> is a fabricated relationship (and the worksheet explicitly warns that macro F1 is not a harmonic mean of macro P and R).' },
 ];
 </script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>

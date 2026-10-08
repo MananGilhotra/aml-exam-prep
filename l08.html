@@ -19,7 +19,7 @@
 <header class="hero">
   <div class="eyebrow">Worksheet 08 · Lecture 8</div>
   <h1>Polynomial Regression &amp;<br><span class="gradtext">The Five Assumptions</span></h1>
-  <p class="sub">Feature Transformation · Overfitting · aur Linear Regression ki paanch assumptions jo uske trustworthy hone ko decide karti hain.</p>
+  <p class="sub">Feature Transformation · Overfitting · and the five assumptions that decide whether Linear Regression can be trusted.</p>
   <div class="chips">
     <span class="chip accent">⏱ ~34 min</span><span class="chip">🧩 2 Parts</span>
     <span class="chip">📐 Singularity proof</span><span class="chip">✓ 10 MCQs</span>
@@ -28,7 +28,7 @@
 
 <div class="box hinglish">
   <div class="box-title">⚡ Ek Line Mein</div>
-  <p style="margin:0"><b>Part I:</b> Polynomial Regression koi naya algorithm nahi hai — wo sirf ek naya feature column ($x^2$) banata hai aur usi purane Linear Regression ko chala deta hai. Model <b>parameters mein linear</b> rehta hai, sirf <b>$x$ mein non-linear</b> hota hai. <b>Part II:</b> Linear Regression ke trustworthy hone ke liye 5 assumptions — Linearity, Normality of residuals, Homoscedasticity, No Autocorrelation, No Multicollinearity.</p>
+  <p style="margin:0"><b>Part I:</b> Polynomial Regression is not a new algorithm — it simply builds a new feature column ($x^2$) and runs the same old Linear Regression on it. The model stays <b>linear in the parameters</b> and is only <b>non-linear in $x$</b>. <b>Part II:</b> the 5 assumptions Linear Regression needs in order to be trustworthy — Linearity, Normality of residuals, Homoscedasticity, No Autocorrelation, No Multicollinearity.</p>
 </div>
 
 <!-- ============================================ -->
@@ -37,13 +37,13 @@
 <h3 id="s1"><span class="h2-num">1</span>Start from the failure of a straight line</h3>
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">Maan lo hum ek NST student ka <b>internship stipend</b> predict karna chahte hain ek feature se: <b>project depth score</b> (1 = basic project, 10 = strong, production-like portfolio).</p>
-  <p style="margin:.5rem 0 0">Pehli nazar mein, higher project depth ka matlab higher stipend hona chahiye. Par relationship <b>constant rate</b> se nahi badh sakti:</p>
+  <p style="margin:0">Suppose we want to predict an NST student's <b>internship stipend</b> from one feature: <b>project depth score</b> (1 = basic project, 10 = strong, production-like portfolio).</p>
+  <p style="margin:.5rem 0 0">At first glance, higher project depth should mean a higher stipend. But the relationship may not grow at a <b>constant rate</b>:</p>
   <ul style="margin:.4rem 0 0">
-    <li>Score 2 se 4 jaana thodi help karta hai.</li>
-    <li>Score 8 se 10 jaana <em>bohot zyada</em> help karta hai, kyunki strong projects better companies aur referrals unlock karte hain.</li>
+    <li>Going from score 2 to 4 helps a little.</li>
+    <li>Going from score 8 to 10 helps <em>a lot more</em>, because strong projects unlock better companies and referrals.</li>
   </ul>
-  <p style="margin:.5rem 0 0">Scatter plot <b>curve upward</b> kar sakta hai.</p>
+  <p style="margin:.5rem 0 0">So the scatter plot may <b>curve upward</b>.</p>
 </div>
 
 <figure>
@@ -69,21 +69,21 @@
     <text x="298" y="120" font-size="10.5" font-weight="700" fill="#0ea5e9">good model</text>
   </g>
 </svg>
-<figcaption>Right panel: data non-linear pattern follow kar raha hai — straight line (dashed) systematically miss kar rahi hai.</figcaption>
+<figcaption>Right panel: the data follows a non-linear pattern — the straight line (dashed) misses it systematically.</figcaption>
 </figure>
 
 <div class="formula"><span class="flabel">The ordinary one-feature Linear Regression model</span>$$y = \beta_0 + \beta_1 x$$</div>
-<p>Iske paas sirf <b>ek slope</b> hai. Slope constant hai. Agar $x$ ek unit badhta hai, predicted value <b>har jagah same amount</b> se badalti hai. Straight line ka exactly yahi matlab hai.</p>
-<p>Par scatter plot mein, ek extra unit of project depth ka effect <b>high $x$ par zyada</b> lagta hai vs low $x$ par. Hume ek aisa model chahiye jiska <b>slope badal sake</b> jaise $x$ badalta hai.</p>
+<p>This has only <b>one slope</b>, and that slope is constant. If $x$ increases by one unit, the predicted value changes by the <b>same amount everywhere</b>. That is exactly what a straight line means.</p>
+<p>But in the scatter plot, the effect of one extra unit of project depth looks <b>larger at high $x$</b> than at low $x$. We need a model whose <b>slope can change</b> as $x$ changes.</p>
 
 <!-- ============================================ -->
 <h3 id="s2"><span class="h2-num">2</span>The Simple Idea: Create a New Feature $x^2$</h3>
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">Polynomial Regression ko ek <b>bilkul naya algorithm mat samjho</b>. Ise ek <b>feature transformation</b> samjho: ek existing input column se ek naya input column banana. Hum <b>naya data collect nahi kar rahe</b>. Hum badal rahe hain ki <b>har record ko kaise represent</b> kiya jaata hai.</p>
+  <p style="margin:0">Do not think of Polynomial Regression as <b>a brand-new algorithm</b>. Think of it as a <b>feature transformation</b>: building a new input column out of an existing one. We are <b>not collecting new data</b>. We are changing <b>how each record is represented</b>.</p>
 </div>
 
-<p>For example: if the original feature value is $x = 4$, the new feature is $x^2 = 16$. If $x = 8$, then $x^2 = 64$. Notice that $x^2$ <b>grows faster when $x$ is large</b>. Yeh model ko <b>upar bend</b> karne ka ek tareeka de deta hai.</p>
+<p>For example: if the original feature value is $x = 4$, the new feature is $x^2 = 16$. If $x = 8$, then $x^2 = 64$. Notice that $x^2$ <b>grows faster when $x$ is large</b>. That gives the model a way to <b>bend upward</b>.</p>
 
 <h4>Example Dataset — NST Internship Stipend</h4>
 <div class="tbl-wrap">
@@ -131,24 +131,24 @@
     <text x="528" y="172">10</text><text x="600" y="172">100</text>
   </g>
 </svg>
-<figcaption>Ek input column, do model features. Koi naya data collect nahi hua — sirf representation badla.</figcaption>
+<figcaption>One input column, two model features. No new data was collected — only the representation changed.</figcaption>
 </figure>
 
 <div class="box insight">
   <div class="box-title">★ Key Insight — feature space</div>
-  <p style="margin:0">Ek <b>feature space</b> wo coordinate system hai jo un features se banta hai jo hum model ko dete hain.</p>
+  <p style="margin:0">A <b>feature space</b> is the coordinate system formed by the features we hand to the model.</p>
   <ul style="margin:.5rem 0 0">
-    <li>Sirf ek feature $x$ ke saath, har student <b>ek coordinate</b> se locate hota hai.</li>
-    <li>Do features $x$ aur $x^2$ ke saath, har student <b>do coordinates</b> se locate hota hai.</li>
+    <li>With only one feature $x$, each student is located by <b>one coordinate</b>.</li>
+    <li>With two features $x$ and $x^2$, each student is located by <b>two coordinates</b>.</li>
   </ul>
-  <p style="margin:.5rem 0 0">Target $y$ phir vertical axis ban jaata hai.</p>
+  <p style="margin:.5rem 0 0">The target $y$ then becomes the vertical axis.</p>
 </div>
 
 <!-- ============================================ -->
 <h3 id="s3"><span class="h2-num">3</span>The 3D Mental Model: A Curve Becomes a Plane</h3>
 <div class="box hook">
   <div class="box-title">▷ Hook</div>
-  <p style="margin:0">Ek minute ke liye $x^2$ ko $z$ rename kar do: $z = x^2$. Tab model ban jaata hai $y = \beta_0 + \beta_1 x + \beta_2 z$. Yeh axes $x$, $z$, aur $y$ wale three-dimensional space mein ek <b>plane</b> ka equation hai.</p>
+  <p style="margin:0">Rename $x^2$ as $z$ for a minute: $z = x^2$. The model then becomes $y = \beta_0 + \beta_1 x + \beta_2 z$. That is the equation of a <b>plane</b> in the three-dimensional space with axes $x$, $z$ and $y$.</p>
 </div>
 
 <figure>
@@ -172,14 +172,14 @@
   <text x="352" y="72" font-size="11.5" font-weight="700" fill="#38bdf8">the fitted plane</text>
   <text x="130" y="248" font-size="11.5" font-weight="700" fill="#f97316">same model seen along z = x²</text>
 </svg>
-<figcaption>Data points poore $(x, x^2)$ floor ko <b>fill nahi</b> karte, kyunki $x^2$ $x$ se tied hai. Points us path par lie karte hain jahan second coordinate pehle ka square hai.</figcaption>
+<figcaption>The data points do <b>not fill</b> the whole $(x, x^2)$ floor, because $x^2$ is tied to $x$. The points lie on the path where the second coordinate is the square of the first.</figcaption>
 </figure>
 
-<p>Original graph mein humne ek <b>curve</b> dekha. Par $x^2$ add karne ke baad, model ek <b>plane</b> fit kar raha hai. Jab us fitted plane ko <b>sirf us path ke along</b> dekha jaata hai, to wo original $(x, y)$ plot mein ek <b>curve</b> ki tarah dikhta hai.</p>
+<p>In the original graph we saw a <b>curve</b>. But after adding $x^2$, the model is fitting a <b>plane</b>. When that fitted plane is viewed <b>only along that path</b>, it appears as a <b>curve</b> in the original $(x, y)$ plot.</p>
 
 <div class="box takeaway">
   <div class="box-title">♦ Takeaway ⭐</div>
-  <p style="margin:0">Polynomial Regression ek naya algorithm <b>nahi</b> hai. Humne Linear Regression ko ek <b>better coordinate system</b> de diya. Model apne parameters $\beta_0, \beta_1, \beta_2$ mein abhi bhi <b>linear</b> hai. Wo sirf <b>original feature $x$ mein non-linear</b> hai.</p>
+  <p style="margin:0">Polynomial Regression is <b>not</b> a new algorithm. We simply gave Linear Regression a <b>better coordinate system</b>. The model is still <b>linear</b> in its parameters $\beta_0, \beta_1, \beta_2$. It is only <b>non-linear in the original feature $x$</b>.</p>
 </div>
 
 <!-- ============================================ -->
@@ -191,7 +191,7 @@
   <li><b>Degree 3:</b> $y = \beta_0 + \beta_1x + \beta_2x^2 + \beta_3x^3$ &nbsp;&nbsp;<span style="color:var(--text-3)">(can bend more flexibly)</span></li>
 </ul>
 <div class="formula"><span class="flabel">General degree-$n$ polynomial regression model</span>$$y = \beta_0 + \beta_1x + \beta_2x^2 + \cdots + \beta_nx^n$$</div>
-<p>Har new power sirf <b>ek aur feature column</b> hai. Coefficient $\beta_k$ control karta hai ki $x^k$ column prediction mein kitna contribute karta hai.</p>
+<p>Each new power is just <b>one more feature column</b>. The coefficient $\beta_k$ controls how much the $x^k$ column contributes to the prediction.</p>
 
 <figure>
 <svg viewBox="0 0 660 230" role="img" aria-label="Degree 1 underfits, degree 2 fits well, degree 8 overfits">
@@ -221,14 +221,14 @@
     <text x="106" y="206" text-anchor="middle" font-size="11.5" font-weight="700" fill="#ef4444">(Overfits)</text>
   </g>
 </svg>
-<figcaption>Increasing degree flexibility badhata hai — aur uske saath <b>overfitting ka risk</b> bhi.</figcaption>
+<figcaption>Increasing the degree increases flexibility — and with it the <b>risk of overfitting</b>.</figcaption>
 </figure>
 
 <div class="box danger">
   <div class="box-title">△ Warning — OVERFITTING</div>
-  <p style="margin:0"><b>Overfitting</b> ka matlab hai ki model training data ke <b>accidental fluctuations</b> capture kar leta hai, us stable pattern ki jagah jo future data par repeat hoga. Ek bohot high-degree polynomial apne aap ko twist karke training error kam kar sakta hai, par isse <b>naye students par better prediction guarantee nahi hoti</b>.</p>
-  <p style="margin:.6rem 0 0"><b>Classroom question:</b> Agar ek degree-8 curve har training point ke degree-2 curve se zyada paas se guzarti hai, to kya humein automatically degree 8 prefer karna chahiye?</p>
-  <p style="margin:.4rem 0 0"><b>Answer: Nahi.</b> Training error hamesha degree ke saath ghatti hai (ya same rehti hai) — wo model quality ka evidence nahi hai. Jo matter karta hai wo hai <b>validation/test error</b>. Degree-8 curve ne noise memorize kar liya hai; naye student par wo wildly galat predict kar sakti hai. Yahi <a href="l09.html">bias–variance tradeoff</a> hai.</p>
+  <p style="margin:0"><b>Overfitting</b> means the model captures the <b>accidental fluctuations</b> of the training data instead of the stable pattern that will repeat on future data. A very high-degree polynomial can twist itself to reduce training error, but that <b>guarantees nothing about predictions on new students</b>.</p>
+  <p style="margin:.6rem 0 0"><b>Classroom question:</b> If a degree-8 curve passes closer to every training point than the degree-2 curve does, should we automatically prefer degree 8?</p>
+  <p style="margin:.4rem 0 0"><b>Answer: no.</b> Training error always falls (or stays the same) as degree rises — it is not evidence of model quality. What matters is <b>validation/test error</b>. The degree-8 curve has memorised noise; on a new student it can be wildly wrong. This is exactly the <a href="l09.html">bias–variance tradeoff</a>.</p>
 </div>
 
 <div class="solved">
@@ -249,15 +249,15 @@
         <tr><td class="num">5</td><td class="num"><b>6</b></td><td><b>Yes (up to 4 bends)</b></td></tr>
         <tr><td class="num">$n$</td><td class="num"><b>$n+1$</b></td><td><b>Yes (up to $n-1$ bends)</b></td></tr>
         </tbody></table></div>
-        <p style="margin:.3rem 0 0"><small>Pattern: ek degree-$n$ polynomial ka derivative degree $n-1$ ka hai, jiski $n-1$ roots ho sakti hain — yaani $n-1$ turning points.</small></p></li>
+        <p style="margin:.3rem 0 0"><small>Pattern: the derivative of a degree-$n$ polynomial has degree $n-1$, which can have $n-1$ roots — that is, $n-1$ turning points.</small></p></li>
       <li><span class="sh">(d) True or False: Polynomial Regression uses a different optimization algorithm than Linear Regression</span>
         <div class="answer">False</div>
-        <p style="margin:.3rem 0 0"><b>Justify:</b> Naye feature columns banane ke baad, model apne parameters mein <b>abhi bhi linear</b> hai. Bilkul wahi OLS Normal Equation $\boldsymbol\beta^* = (\mathbf X^\top\mathbf X)^{-1}\mathbf X^\top\mathbf y$ apply hoti hai (ya wahi Gradient Descent). <b>Sirf design matrix $\mathbf X$ badalta hai</b> — algorithm bilkul nahi.</p></li>
+        <p style="margin:.3rem 0 0"><b>Justify:</b> after building the new feature columns, the model is <b>still linear</b> in its parameters. Exactly the same OLS Normal Equation $\boldsymbol\beta^* = (\mathbf X^\top\mathbf X)^{-1}\mathbf X^\top\mathbf y$ applies (or the same Gradient Descent). <b>Only the design matrix $\mathbf X$ changes</b> — the algorithm does not change at all.</p></li>
       <li><span class="sh">(e) Assertion–Reason</span>
         <p style="margin:.2rem 0 .4rem"><b>A:</b> A degree-20 polynomial on 25 data points will likely have lower <em>training</em> error than a degree-2 polynomial.<br>
         <b>R:</b> A higher-degree polynomial has more parameters and can twist itself to pass closer to every training point.</p>
         <div class="answer">(i) Both A and R are true, and R is the correct explanation of A ✓</div>
-        <p style="margin:.3rem 0 0">Dhyan do ki assertion carefully <b>"training error"</b> kehti hai. Agar wo "test error" kehti, to assertion <b>false</b> hoti — 25 points par degree 20 badly overfit karega.</p></li>
+        <p style="margin:.3rem 0 0">Note that the assertion carefully says <b>"training error"</b>. Had it said "test error", the assertion would be <b>false</b> — degree 20 on 25 points will badly overfit.</p></li>
     </ol>
   </div>
 </div>
@@ -267,8 +267,8 @@
 
 <div class="box def">
   <div class="box-title">Why assumptions matter</div>
-  <p style="margin:0">Polynomial Regression ne ek important lesson dikhaya: Linear Regression tab powerful hai jab <b>data ka representation real pattern se match</b> karta ho. Par model choose karne ke baad bhi, hume yeh poochna hota hai ki model <b>trustworthy tareeke se behave</b> kar raha hai ya nahi.</p>
-  <p style="margin:.6rem 0 0">Linear Regression kai assumptions par rely karta hai taaki estimates aur inferences ki <b>validity aur reliability</b> ensure ho. Yahan <b>inference</b> ka matlab hai variables ke beech relationship samajhna, coefficients interpret karna, aur yeh statements dena ki inputs mein changes output ko kaise affect karte hain.</p>
+  <p style="margin:0">Polynomial Regression showed an important lesson: Linear Regression is powerful when <b>the representation of the data matches the real pattern</b>. But even after choosing the model, we still have to ask whether the model is <b>behaving in a trustworthy way</b>.</p>
+  <p style="margin:.6rem 0 0">Linear Regression relies on several assumptions to ensure the <b>validity and reliability</b> of its estimates and inferences. Here <b>inference</b> means understanding relationships between variables, interpreting coefficients, and making statements about how changes in the inputs affect the output.</p>
   <p style="margin:.6rem 0 0"><b>Notation:</b> Residual $= $ actual value $-$ predicted value: &nbsp;$e = y - \hat y$</p>
   <p style="margin:.6rem 0 0"><b>The five key assumptions:</b></p>
   <ol style="margin:.3rem 0 0">
@@ -284,7 +284,7 @@
 <h3 id="s5"><span class="h2-num">5</span>Assumption 1 — Linearity</h3>
 <div class="box hook">
   <div class="box-title">▷ The assumption</div>
-  <p style="margin:0">Independent variables aur dependent variable ke beech ek <b>linear relationship</b> hai. Model assume karta hai ki independent variables mein changes dependent variable mein <b>proportional changes</b> laate hain.</p>
+  <p style="margin:0">There is a <b>linear relationship</b> between the independent variables and the dependent variable. The model assumes that changes in the independent variables produce <b>proportional changes</b> in the dependent variable.</p>
 </div>
 
 <figure>
@@ -308,19 +308,19 @@
     <text x="170" y="222" text-anchor="middle" font-size="11" style="fill:var(--text-2)">Independent Variable (x)</text>
   </g>
 </svg>
-<figcaption>Linearity ka matlab hai <b>central trend</b> ek straight line se achhe se represent honi chahiye. Ek curved pattern violation suggest karta hai.</figcaption>
+<figcaption>Linearity means the <b>central trend</b> should be well represented by a straight line. A curved pattern suggests a violation.</figcaption>
 </figure>
 
 <div class="box warn">
   <div class="box-title">△ Very common misconception</div>
-  <p style="margin:0">Linearity ka matlab <b>yeh NAHI</b> hai ki har point exactly line par lie kare. Real data mein noise hota hai. Iska matlab hai ki <b>central trend</b> ek straight line ya features ke linear combination se reasonably represent honi chahiye.</p>
+  <p style="margin:0">Linearity does <b>NOT</b> mean every point lies exactly on the line. Real data has noise. It means the <b>central trend</b> should be reasonably represented by a straight line, or by a linear combination of the features.</p>
 </div>
 
 <h4>How to check this assumption</h4>
 <ol>
-  <li><b>Scatter plots:</b> $y$ ko har independent variable ke against plot karo. Agar relationship linear lage, assumption likely satisfied hai. Nonlinear patterns violation indicate karte hain.</li>
-  <li><b>Residual plots:</b> Residuals ko predicted values ke against plot karo. Agar assumption hold karti hai, residuals <b>zero ke around randomly scattered</b> hone chahiye, bina kisi discernible pattern ke.</li>
-  <li><b>Polynomial terms:</b> Model mein polynomial terms add karo aur fit ko original linear model se compare karo. Agar naya model fit ko significantly improve karta hai, to yeh suggest karta hai ki linearity assumption violate ho rahi hai.</li>
+  <li><b>Scatter plots:</b> plot $y$ against each independent variable. If the relationship looks linear, the assumption is likely satisfied. Nonlinear patterns indicate a violation.</li>
+  <li><b>Residual plots:</b> plot the residuals against the predicted values. If the assumption holds, the residuals should be <b>randomly scattered around zero</b>, with no discernible pattern.</li>
+  <li><b>Polynomial terms:</b> add polynomial terms to the model and compare the fit with the original linear model. If the new model improves the fit significantly, that suggests the linearity assumption is being violated.</li>
 </ol>
 
 <figure>
@@ -353,14 +353,14 @@
     <text x="170" y="214" text-anchor="middle" font-size="11" style="fill:var(--text-2)">fitted value ŷ</text>
   </g>
 </svg>
-<figcaption>Linearity <b>residual patterns</b> ke through diagnose hoti hai. Left: healthy random band. Right: clear U-shape → linearity violated.</figcaption>
+<figcaption>Linearity is diagnosed through <b>residual patterns</b>. Left: a healthy random band. Right: a clear U-shape → linearity violated.</figcaption>
 </figure>
 
 <div class="box takeaway">
   <div class="box-title">What to do when this assumption fails</div>
   <ul style="margin:0">
-    <li><b>Transformations:</b> Logarithmic, square-root, ya other transformations apply karo taaki relationship zyada linear ho jaye.</li>
-    <li><b>Polynomial Regression:</b> Independent variables ke polynomial terms add karo taaki non-linear relationships capture ho. <b>(Yehi Part I tha!)</b></li>
+    <li><b>Transformations:</b> apply logarithmic, square-root or other transformations so the relationship becomes more linear.</li>
+    <li><b>Polynomial Regression:</b> add polynomial terms of the independent variables to capture non-linear relationships. <b>(That was Part I!)</b></li>
   </ul>
 </div>
 
@@ -368,9 +368,9 @@
 <h3 id="s6"><span class="h2-num">6</span>Assumption 2 — Normality of Residuals</h3>
 <div class="box hook">
   <div class="box-title">▷ The assumption</div>
-  <p style="margin:0">Error terms (residuals) roughly ek <b>normal distribution</b> follow karte hain jiska <b>mean zero</b> aur variance $\sigma^2$ hai.</p>
-  <p style="margin:.5rem 0 0"><b>Mean zero</b> ka matlab residuals zero ke around centered hain. Model ko systematically over-predict ya under-predict nahi karna chahiye.</p>
-  <p style="margin:.4rem 0 0"><b>Normal distribution</b> ka matlab zyadatar residuals chhote hain, aur bohot bade positive ya negative residuals <b>rare</b> hain.</p>
+  <p style="margin:0">The error terms (residuals) roughly follow a <b>normal distribution</b> with <b>mean zero</b> and variance $\sigma^2$.</p>
+  <p style="margin:.5rem 0 0"><b>Mean zero</b> means the residuals are centred around zero. The model should not systematically over-predict or under-predict.</p>
+  <p style="margin:.4rem 0 0"><b>Normal distribution</b> means most residuals are small, and very large positive or negative residuals are <b>rare</b>.</p>
 </div>
 
 <h4>How to check: Histogram of residuals</h4>
@@ -406,14 +406,14 @@
     <text x="170" y="214" text-anchor="middle" font-size="11" style="fill:var(--text-2)">Residual value</text>
   </g>
 </svg>
-<figcaption>Hum <b>perfect</b> bell curve expect nahi karte. Hum check kar rahe hain ki residuals zero ke around <b>roughly symmetric</b> hain aur extreme errors bohot zyada frequent nahi hain.</figcaption>
+<figcaption>We do not expect a <b>perfect</b> bell curve. We are checking that the residuals are <b>roughly symmetric</b> around zero and that extreme errors are not too frequent.</figcaption>
 </figure>
 
 <!-- ============================================ -->
 <h3 id="s7"><span class="h2-num">7</span>Assumption 3 — Homoscedasticity</h3>
 <div class="box hook">
   <div class="box-title">▷ The assumption</div>
-  <p style="margin:0">Error terms (residuals) ka <b>spread</b> independent variables ke saare levels par <b>constant</b> hona chahiye. Agar spread systematically badalta hai, to yeh <b>heteroscedasticity</b> hai, jo estimates ki efficiency ko affect kar sakti hai.</p>
+  <p style="margin:0">The <b>spread</b> of the error terms (residuals) should be <b>constant</b> across all levels of the independent variables. If the spread changes systematically, that is <b>heteroscedasticity</b>, which can affect the efficiency of the estimates.</p>
 </div>
 
 <figure>
@@ -451,20 +451,20 @@
     <text x="270" y="206" text-anchor="end" font-size="10.5" font-weight="700" fill="#ef4444">funnel shape</text>
   </g>
 </svg>
-<figcaption>Healthy residual plot mein, vertical spread left se right <b>roughly same</b> rehta hai. Heteroscedastic plot mein residuals chhoti predicted values par narrow aur badi predicted values par <b>wide</b> hote hain (funnel).</figcaption>
+<figcaption>In a healthy residual plot the vertical spread stays <b>roughly the same</b> from left to right. In a heteroscedastic plot the residuals are narrow at small predicted values and <b>wide</b> at large predicted values (a funnel).</figcaption>
 </figure>
 
 <div class="box takeaway">
   <div class="box-title">What to do when this assumption fails</div>
-  <p style="margin:0"><b>Transformations:</b> Logarithmic, square-root, ya inverse transformations apply karo taaki residuals ka variance stabilize ho.</p>
+  <p style="margin:0"><b>Transformations:</b> apply logarithmic, square-root or inverse transformations to stabilise the variance of the residuals.</p>
 </div>
 
 <!-- ============================================ -->
 <h3 id="s8"><span class="h2-num">8</span>Assumption 4 — No Autocorrelation of Errors</h3>
 <div class="box hook">
   <div class="box-title">▷ The assumption</div>
-  <p style="margin:0">Residuals mein koi apparent correlation ya pattern nahi hona chahiye. <b>Independence of errors</b> ka matlab hai ki ek residual hume agla residual predict karne mein help <b>nahi</b> karni chahiye.</p>
-  <p style="margin:.5rem 0 0">Yeh especially tab important hai jab data ka ek <b>natural order</b> ho (time series) — jaise daily stock prices, monthly sales, sensor readings over time, ya user activity logs.</p>
+  <p style="margin:0">There should be no apparent correlation or pattern in the residuals. <b>Independence of errors</b> means one residual should <b>not</b> help us predict the next residual.</p>
+  <p style="margin:.5rem 0 0">This matters especially when the data has a <b>natural order</b> (time series) — daily stock prices, monthly sales, sensor readings over time, or user activity logs.</p>
 </div>
 
 <figure>
@@ -492,7 +492,7 @@
     <text x="168" y="210" text-anchor="middle" font-size="10.5" style="fill:var(--text-2)">observation order</text>
   </g>
 </svg>
-<figcaption>Agar residuals ek pattern mein move karte hain, to model ne data mein kuch <b>structure unexplained</b> chhod diya hai. Errors independent random noise ki tarah behave nahi kar rahe.</figcaption>
+<figcaption>If the residuals move in a pattern, the model has left some <b>structure in the data unexplained</b>. The errors are not behaving like independent random noise.</figcaption>
 </figure>
 
 <div class="solved">
@@ -502,10 +502,10 @@
     <table>
     <thead><tr><th>Residual behaviour</th><th>Violated assumption</th><th>Why</th></tr></thead>
     <tbody>
-    <tr><td>(a) Residuals form a clear U-shaped curve when plotted against $\hat y$</td><td><span class="pill b">Linearity</span></td><td>Systematic curved pattern ka matlab hai straight-line form central trend capture nahi kar paa raha. Fix: polynomial terms ya transformation.</td></tr>
-    <tr><td>(b) Residual spread grows wider as $\hat y$ increases (funnel shape)</td><td><span class="pill a">Homoscedasticity</span></td><td>Spread constant nahi hai — yeh heteroscedasticity ki textbook definition hai. Fix: log/sqrt transformation.</td></tr>
-    <tr><td>(c) Histogram of residuals is heavily skewed to the right</td><td><span class="pill r">Normality</span></td><td>Residuals zero ke around symmetric nahi hain; extreme errors ek side par zyada frequent hain.</td></tr>
-    <tr><td>(d) Residuals in a time-series model show long runs of positive values followed by long runs of negative values</td><td><span class="pill g">No Autocorrelation</span></td><td>Ek residual agle ko predict karne mein help kar raha hai — errors independent nahi hain.</td></tr>
+    <tr><td>(a) Residuals form a clear U-shaped curve when plotted against $\hat y$</td><td><span class="pill b">Linearity</span></td><td>A systematic curved pattern means the straight-line form is not capturing the central trend. Fix: polynomial terms or a transformation.</td></tr>
+    <tr><td>(b) Residual spread grows wider as $\hat y$ increases (funnel shape)</td><td><span class="pill a">Homoscedasticity</span></td><td>The spread is not constant — this is the textbook definition of heteroscedasticity. Fix: log/sqrt transformation.</td></tr>
+    <tr><td>(c) Histogram of residuals is heavily skewed to the right</td><td><span class="pill r">Normality</span></td><td>The residuals are not symmetric around zero; extreme errors are more frequent on one side.</td></tr>
+    <tr><td>(d) Residuals in a time-series model show long runs of positive values followed by long runs of negative values</td><td><span class="pill g">No Autocorrelation</span></td><td>One residual is helping predict the next — the errors are not independent.</td></tr>
     </tbody></table></div>
   </div>
 </div>
@@ -514,33 +514,33 @@
 <h3 id="s9"><span class="h2-num">9</span>Assumption 5 — No Multicollinearity ⭐</h3>
 <div class="box hook">
   <div class="box-title">▷ The assumption</div>
-  <p style="margin:0"><b>Multicollinearity</b> tab hoti hai jab ek regression model mein do ya zyada independent variables <b>highly correlated</b> hote hain. Wo ek strong linear relationship exhibit karte hain, jisse <b>har variable ka individual effect isolate karna mushkil</b> ho jaata hai.</p>
+  <p style="margin:0"><b>Multicollinearity</b> occurs when two or more independent variables in a regression model are <b>highly correlated</b>. They exhibit a strong linear relationship, which makes it <b>hard to isolate the individual effect of each variable</b>.</p>
 </div>
 
 <h4>9.1 The setup</h4>
-<p>Maan lo humare paas do features $X_1$ aur $X_2$ hain, aur hum $Y$ predict karna chahte hain:</p>
+<p>Suppose we have two features $X_1$ and $X_2$, and we want to predict $Y$:</p>
 <div class="formula">$$Y = \beta_0 + \beta_1X_1 + \beta_2X_2 + \varepsilon_1$$</div>
-<p>Yahan $\varepsilon_1$ $Y$ ka wo part represent karta hai jo model explain nahi karta. Agar $X_1$ aur $X_2$ highly correlated hain, to:</p>
+<p>Here $\varepsilon_1$ represents the part of $Y$ that the model does not explain. If $X_1$ and $X_2$ are highly correlated, then:</p>
 <div class="formula">$$X_1 = a_0 + a_1X_2 + \varepsilon_2$$</div>
-<p>Agar hum $X_1$ ko $Y$ ke equation mein substitute karein, to model ban jaata hai:</p>
+<p>If we substitute $X_1$ into the equation for $Y$, the model becomes:</p>
 <div class="formula">$$Y \approx \underbrace{(\beta_0 + \beta_1 a_0)}_{C_0} + \underbrace{(\beta_1 a_1 + \beta_2)}_{C_1}X_2 + \underbrace{(\beta_1\varepsilon_2 + \varepsilon_1)}_{\text{combined noise}}$$</div>
-<p>So effectively, $Y$ <b>sirf $X_2$ ka linear function</b> ban jaata hai. Model $C_0$ aur $C_1$ find karne ki koshish karta hai, bajaye iske ki $\beta_1$ aur $\beta_2$ ke effects <b>clearly separate</b> kare. Isse yeh figure out karna mushkil ho jaata hai ki <b>har individual variable</b> $Y$ ko kitna affect karta hai.</p>
+<p>So effectively, $Y$ becomes <b>a linear function of $X_2$ alone</b>. The model ends up finding $C_0$ and $C_1$ instead of <b>cleanly separating</b> the effects of $\beta_1$ and $\beta_2$. That makes it hard to figure out how much <b>each individual variable</b> affects $Y$.</p>
 
 <h4>9.2 Inference vs Prediction ⭐</h4>
 <div class="box insight">
   <div class="box-title">★ Key Insight</div>
   <ul style="margin:0">
-    <li>Agar goal <b>inference</b> hai (relationships samajhna, coefficients interpret karna), to multicollinearity <b>bad</b> hai kyunki $\beta_1$ aur $\beta_2$ <b>unreliable</b> ho jaate hain.</li>
-    <li>Agar goal <b>prediction only</b> hai, to multicollinearity usually <b>less harmful</b> hai. Model phir bhi accha predict kar sakta hai, par individual coefficient values trustworthy nahi hongi.</li>
+    <li>If the goal is <b>inference</b> (understanding relationships, interpreting coefficients), multicollinearity is <b>bad</b>, because $\beta_1$ and $\beta_2$ become <b>unreliable</b>.</li>
+    <li>If the goal is <b>prediction only</b>, multicollinearity is usually <b>less harmful</b>. The model can still predict well, but the individual coefficient values will not be trustworthy.</li>
   </ul>
 </div>
 
 <h4>9.3 Perfect Multicollinearity</h4>
-<p>Agar $X_1$ aur $X_2$ <b>perfectly</b> correlated hain, to:</p>
+<p>If $X_1$ and $X_2$ are <b>perfectly</b> correlated, then:</p>
 <div class="formula">$$X_1 = a_0 + a_1X_2 \qquad \text{(no error term)}$$</div>
-<p>Ek feature doosre ka <b>perfect linear combination</b> hai. Recall the OLS equation:</p>
+<p>One feature is a <b>perfect linear combination</b> of another. Recall the OLS equation:</p>
 <div class="formula">$$\hat{\boldsymbol\beta} = (\mathbf X^\top\mathbf X)^{-1}\mathbf X^\top\mathbf y$$</div>
-<p>Jab $\mathbf X$ ke kuch columns doosre columns ka perfect linear combination hote hain, to $\mathbf X^\top\mathbf X$ matrix <b>singular</b> ban jaata hai, yaani uska determinant <b>zero</b> ho jaata hai.</p>
+<p>When some columns of $\mathbf X$ are a perfect linear combination of other columns, the matrix $\mathbf X^\top\mathbf X$ becomes <b>singular</b> — that is, its determinant becomes <b>zero</b>.</p>
 
 <div class="solved">
   <header><span class="qtag">9.4 · Proof</span><h4>Proof that $\mathbf X^\top\mathbf X$ is singular</h4></header>
@@ -558,7 +558,7 @@
         $$\det(\mathbf X^\top\mathbf X) = \mathbf 0$$</li>
       <li><span class="sh">Step 7</span> Hence:
         $$(\mathbf X^\top\mathbf X)^{-1}\ \textbf{does not exist}$$
-        <div class="answer">Aur isliye OLS closed-form solution ka <b>koi unique answer nahi</b> hai.</div></li>
+        <div class="answer">And therefore the OLS closed-form solution has <b>no unique answer</b>.</div></li>
     </ol>
   </div>
 </div>
@@ -610,22 +610,22 @@
     <ol class="steps">
       <li><span class="sh">(a) Which pairs are most likely to exhibit multicollinearity?</span>
         <div class="answer"><b>Pair 1:</b> $X_1$ (visitors) and $X_2$ (page views)</div>
-        <p style="margin:.3rem 0 .6rem"><b>Reason:</b> Page views <b>mechanically</b> visitors se generate hote hain — har visitor ek ya zyada pages dekhta hai. Ek badhega to doosra lagbhag definitely badhega. Correlation typically $&gt; 0.95$.</p>
+        <p style="margin:.3rem 0 .6rem"><b>Reason:</b> page views are generated <b>mechanically</b> from visitors — every visitor views one or more pages. If one goes up, the other almost certainly goes up. Correlation is typically $&gt; 0.95$.</p>
         <div class="answer"><b>Pair 2:</b> $X_3$ (marketing spend) and $X_4$ (ad clicks)</div>
-        <p style="margin:.3rem 0 0"><b>Reason:</b> Ad clicks <b>khareede</b> jaate hain marketing spend se. Zyada spend karo, zyada impressions, zyada clicks. Yeh essentially same underlying quantity ko do alag units mein measure kar rahe hain.</p></li>
+        <p style="margin:.3rem 0 0"><b>Reason:</b> ad clicks are <b>bought</b> with marketing spend. Spend more, get more impressions, get more clicks. These essentially measure the same underlying quantity in two different units.</p></li>
 
       <li><span class="sh">(b) If $X_1$ and $X_2$ have correlation 0.98, and the model gives $\beta_1 = 15.2$ and $\beta_2 = -14.8$, what is wrong with interpreting these coefficients individually?</span>
-        <p style="margin:.2rem 0 0">Yeh coefficients <b>bilkul trustworthy nahi</b> hain. Do bade, <b>opposite-signed</b> coefficients jo lagbhag ek doosre ko cancel kar dete hain ($15.2 - 14.8 = 0.4$) — yeh severe multicollinearity ka <b>classic signature</b> hai.</p>
-        <p style="margin:.4rem 0 0">Model $X_1$ aur $X_2$ ke effects ko <b>separate nahi kar paa raha</b>. Wo sirf unka combined effect capture kar raha hai. Literally interpret karne par $\beta_2 = -14.8$ ka matlab hoga "zyada page views se revenue <b>ghatta</b> hai" — jo <b>obviously absurd</b> hai.</p>
-        <p style="margin:.4rem 0 0">Aur yeh estimates <b>unstable</b> hain: kuch rows add/remove karne par coefficients $(40, -39)$ ya $(-10, 11)$ ban sakte hain, jabki <b>predictions lagbhag same</b> rahengi.</p></li>
+        <p style="margin:.2rem 0 0">These coefficients are <b>not trustworthy at all</b>. Two large, <b>opposite-signed</b> coefficients that almost cancel each other out ($15.2 - 14.8 = 0.4$) are the <b>classic signature</b> of severe multicollinearity.</p>
+        <p style="margin:.4rem 0 0">The model <b>cannot separate</b> the effects of $X_1$ and $X_2$. It is only capturing their combined effect. Taken literally, $\beta_2 = -14.8$ would mean "more page views <b>reduce</b> revenue" — which is <b>obviously absurd</b>.</p>
+        <p style="margin:.4rem 0 0">And these estimates are <b>unstable</b>: adding or removing a few rows could turn the coefficients into $(40, -39)$ or $(-10, 11)$, while the <b>predictions stay almost the same</b>.</p></li>
 
       <li><span class="sh">(c) If the team's goal is only to predict next month's revenue (not to understand which feature drives sales), should they worry about multicollinearity?</span>
         <div class="answer">No (mostly).</div>
-        <p style="margin:.3rem 0 0"><b>Justify:</b> Pure prediction ke liye multicollinearity <b>less harmful</b> hai. Combined effect correctly estimate ho jaata hai, to $\hat y$ accurate rehti hai. Caveats: (i) agar future mein $X_1$ aur $X_2$ ka relationship <b>badal jaata hai</b>, to extrapolation break ho sakta hai; (ii) near-singular $\mathbf X^\top\mathbf X$ numerically unstable hota hai.</p></li>
+        <p style="margin:.3rem 0 0"><b>Justify:</b> for pure prediction, multicollinearity is <b>less harmful</b>. The combined effect is still estimated correctly, so $\hat y$ stays accurate. Caveats: (i) if the relationship between $X_1$ and $X_2$ <b>changes</b> in future, extrapolation can break; (ii) a near-singular $\mathbf X^\top\mathbf X$ is numerically unstable.</p></li>
 
       <li><span class="sh">(d) Suppose the team discovers $X_4 = 0.5 \times X_3$ exactly. What specific mathematical problem will OLS encounter?</span>
-        <div class="answer"><b>Perfect multicollinearity</b> ⟹ $\mathbf X$ ke columns linearly dependent ⟹ $\det(\mathbf X^\top\mathbf X) = 0$ ⟹ $\mathbf X^\top\mathbf X$ singular ⟹ $(\mathbf X^\top\mathbf X)^{-1}$ exist nahi karta ⟹ OLS ka <b>koi unique solution nahi</b>.</div>
-        <p style="margin:.3rem 0 0">Practically, NumPy <code>LinAlgError: Singular matrix</code> throw karega. <b>Fix:</b> ek column drop kar do — wo koi nayi information de hi nahi raha.</p></li>
+        <div class="answer"><b>Perfect multicollinearity</b> ⟹ the columns of $\mathbf X$ are linearly dependent ⟹ $\det(\mathbf X^\top\mathbf X) = 0$ ⟹ $\mathbf X^\top\mathbf X$ is singular ⟹ $(\mathbf X^\top\mathbf X)^{-1}$ does not exist ⟹ OLS has <b>no unique solution</b>.</div>
+        <p style="margin:.3rem 0 0">In practice NumPy will raise <code>LinAlgError: Singular matrix</code>. <b>Fix:</b> drop one column — it was carrying no new information anyway.</p></li>
     </ol>
   </div>
 </div>
@@ -638,10 +638,10 @@
 <table>
 <thead><tr><th>Concept</th><th>Key idea</th></tr></thead>
 <tbody>
-<tr><td><b>Feature transformation</b></td><td>Existing columns se naye input columns banao ($x \to x, x^2$). Naya data collect nahi hota — sirf representation badalta hai.</td></tr>
+<tr><td><b>Feature transformation</b></td><td>Build new input columns from existing ones ($x \to x, x^2$). No new data is collected — only the representation changes.</td></tr>
 <tr><td><b>Degree-$n$ polynomial</b></td><td>$y = \beta_0 + \beta_1x + \cdots + \beta_nx^n$; $n+1$ feature columns (intercept sahit); up to $n-1$ bends.</td></tr>
-<tr><td><b>3D mental model</b></td><td>$z = x^2$ set karne par model $(x, z, y)$ space mein ek <b>plane</b> ban jaata hai; us plane ko $z = x^2$ path ke along dekhne par wo original $(x,y)$ plot mein <b>curve</b> dikhta hai.</td></tr>
-<tr><td><b>Overfitting risk</b></td><td>High degree training error kam karti hai par accidental noise fit kar leti hai; generalization <b>kharab</b> ho sakta hai. Validation error se judge karo.</td></tr>
+<tr><td><b>3D mental model</b></td><td>Setting $z = x^2$ makes the model a <b>plane</b> in $(x, z, y)$ space; viewing that plane along the $z = x^2$ path makes it look like a <b>curve</b> in the original $(x,y)$ plot.</td></tr>
+<tr><td><b>Overfitting risk</b></td><td>A high degree lowers training error but fits accidental noise; generalization can get <b>worse</b>. Judge by validation error.</td></tr>
 </tbody>
 </table>
 </div>
@@ -651,11 +651,11 @@
 <table>
 <thead><tr><th>Assumption</th><th>What it says</th><th>How to check</th><th>What to do if violated</th></tr></thead>
 <tbody>
-<tr><td><b>Linearity</b></td><td>Inputs aur output ke beech central trend linear hai</td><td>Scatter plots; residual vs fitted plot (no pattern); polynomial terms add karke fit compare</td><td>Log/sqrt transformations; <b>polynomial terms</b> add karo</td></tr>
-<tr><td><b>Normality of Residuals</b></td><td>Residuals roughly normal hain, mean zero, variance $\sigma^2$</td><td><b>Histogram of residuals</b> — bell-shaped aur zero-centered?</td><td>Target transform karo; outliers investigate karo; robust methods use karo</td></tr>
-<tr><td><b>Homoscedasticity</b></td><td>Residual spread $\hat y$ ke saare levels par constant hai</td><td>Residual vs predicted scatter — <b>funnel shape</b> dhoondo</td><td>Log/sqrt/inverse transformations se variance stabilize karo</td></tr>
-<tr><td><b>No Autocorrelation</b></td><td>Ek residual agle ko predict nahi karni chahiye</td><td>Residuals ko <b>observation order</b> ke against plot karo — patterns/runs dhoondo</td><td>Time-series methods use karo; lag features add karo</td></tr>
-<tr><td><b>No Multicollinearity</b></td><td>Features ek doosre ka linear combination nahi hone chahiye</td><td>Input–input <b>correlation matrix</b>; $\det(\mathbf X^\top\mathbf X)$; unstable/opposite-signed coefficients</td><td>Ek correlated feature <b>remove</b> karo; ya regularization/PCA use karo</td></tr>
+<tr><td><b>Linearity</b></td><td>The central trend between inputs and output is linear</td><td>Scatter plots; residual vs fitted plot (no pattern); add polynomial terms and compare the fit</td><td>Log/sqrt transformations; add <b>polynomial terms</b></td></tr>
+<tr><td><b>Normality of Residuals</b></td><td>Residuals are roughly normal, mean zero, variance $\sigma^2$</td><td><b>Histogram of residuals</b> — bell-shaped and zero-centred?</td><td>Transform the target; investigate outliers; use robust methods</td></tr>
+<tr><td><b>Homoscedasticity</b></td><td>Residual spread is constant across all levels of $\hat y$</td><td>Residual vs predicted scatter — look for a <b>funnel shape</b></td><td>Stabilise the variance with log/sqrt/inverse transformations</td></tr>
+<tr><td><b>No Autocorrelation</b></td><td>One residual should not predict the next</td><td>Plot the residuals against <b>observation order</b> — look for patterns/runs</td><td>Use time-series methods; add lag features</td></tr>
+<tr><td><b>No Multicollinearity</b></td><td>Features should not be linear combinations of one another</td><td>Input–input <b>correlation matrix</b>; $\det(\mathbf X^\top\mathbf X)$; unstable or opposite-signed coefficients</td><td><b>Remove</b> one correlated feature; or use regularization/PCA</td></tr>
 </tbody>
 </table>
 </div>
@@ -679,24 +679,24 @@
     <table>
     <thead><tr><th>Statement</th><th>T/F</th><th>Justification</th></tr></thead>
     <tbody>
-    <tr><td>Polynomial Regression requires a different training algorithm than Linear Regression</td><td><span class="pill r">F</span></td><td>Model parameters mein abhi bhi linear hai. Wahi OLS / Gradient Descent apply hoti hai; sirf $\mathbf X$ mein extra columns aate hain.</td></tr>
-    <tr><td>If $R^2$ increases when we add $x^3$ to the model, the cubic term is always useful</td><td><span class="pill r">F</span></td><td><b>Training</b> $R^2$ predictor add karne par kabhi ghat nahi sakta — useless feature bhi noise fit kar lega. Adjusted $R^2$ ya validation error dekho.</td></tr>
-    <tr><td>Heteroscedasticity means the model has unequal error spread across the prediction range</td><td><span class="pill g">T</span></td><td>Yeh literally uski definition hai — funnel-shaped residual plot.</td></tr>
-    <tr><td>Multicollinearity always makes the model's predictions inaccurate</td><td><span class="pill r">F</span></td><td>Prediction often <b>theek</b> rehti hai (combined effect correctly estimate ho jaata hai). Jo tootta hai wo <b>inference</b> hai — individual coefficients.</td></tr>
-    <tr><td>The linearity assumption requires every data point to lie exactly on a line</td><td><span class="pill r">F</span></td><td>Real data mein noise hota hai. Assumption <b>central trend</b> ke baare mein hai, individual points ke baare mein nahi.</td></tr>
+    <tr><td>Polynomial Regression requires a different training algorithm than Linear Regression</td><td><span class="pill r">F</span></td><td>The model is still linear in the parameters. The same OLS / Gradient Descent applies; only extra columns are added to $\mathbf X$.</td></tr>
+    <tr><td>If $R^2$ increases when we add $x^3$ to the model, the cubic term is always useful</td><td><span class="pill r">F</span></td><td><b>Training</b> $R^2$ can never fall when a predictor is added — even a useless feature will fit some noise. Look at Adjusted $R^2$ or validation error.</td></tr>
+    <tr><td>Heteroscedasticity means the model has unequal error spread across the prediction range</td><td><span class="pill g">T</span></td><td>This is literally its definition — the residual spread is not constant.</td></tr>
+    <tr><td>Multicollinearity always makes the model's predictions inaccurate</td><td><span class="pill r">F</span></td><td>Prediction is often <b>fine</b> (the combined effect is still estimated correctly). What breaks is <b>inference</b> — the individual coefficients.</td></tr>
+    <tr><td>The linearity assumption requires every data point to lie exactly on a line</td><td><span class="pill r">F</span></td><td>Real data has noise. The assumption is about the <b>central trend</b>, not about individual points.</td></tr>
     </tbody></table></div>
 
     <ol class="steps" style="margin-top:1.2rem">
       <li><span class="sh">(c) Find the Mistake — A student writes: "In perfect multicollinearity, $\mathbf X^\top\mathbf X$ has a determinant of 1, so it is invertible."</span>
         <div class="answer">Both parts are wrong. In perfect multicollinearity, $\det(\mathbf X^\top\mathbf X) = \mathbf 0$, so $\mathbf X^\top\mathbf X$ is <b>singular</b> and <b>NOT invertible</b>.</div>
         <p style="margin:.3rem 0 0"><b>Corrected statement:</b> "In perfect multicollinearity, the columns of $\mathbf X$ are linearly dependent, so $\det(\mathbf X^\top\mathbf X) = 0$, making $\mathbf X^\top\mathbf X$ singular; therefore $(\mathbf X^\top\mathbf X)^{-1}$ does not exist and OLS has no unique solution."</p>
-        <p style="margin:.3rem 0 0"><small>Note: determinant $=1$ actually invertibility <b>imply</b> karta hai — student ne exactly <b>ulti</b> condition likh di.</small></p></li>
+        <p style="margin:.3rem 0 0"><small>Note: a determinant of $=1$ actually <b>implies</b> invertibility — the student wrote exactly the <b>opposite</b> condition.</small></p></li>
 
       <li><span class="sh">(d) Predict the Outcome — An ML engineer predicts house prices using: square footage, number of rooms, and total area of all rooms (which equals square footage × fraction used as rooms). What specific problem will occur, and why?</span>
         <div class="answer"><b>Perfect (or near-perfect) multicollinearity</b> — leading to a singular or near-singular $\mathbf X^\top\mathbf X$.</div>
-        <p style="margin:.4rem 0 0"><b>Why:</b> Teesra feature <b>deterministically derive</b> hota hai pehle se. Agar wo fraction dataset mein constant hai (say 0.8), to <code>total_room_area = 0.8 × square_footage</code> — ek <b>exact</b> linear multiple. Tab columns linearly dependent hain, $\det(\mathbf X^\top\mathbf X) = 0$, aur OLS formula fail ho jaata hai.</p>
-        <p style="margin:.4rem 0 0">Agar fraction houses ke beech thoda vary karta hai, to columns <b>almost</b> dependent hain — matrix near-singular hai. Determinant technically nonzero hai, par microscopic. Inverse mathematically exist karta hai par <b>numerically explode</b> ho jaata hai: coefficients wildly unstable honge, opposite signs ke saath huge magnitudes, aur ek row change karne se wo bilkul badal jaayenge.</p>
-        <p style="margin:.4rem 0 0"><b>Fix:</b> teesra feature drop kar do — wo <b>koi nayi information contain nahi karta</b>.</p></li>
+        <p style="margin:.4rem 0 0"><b>Why:</b> the third feature is <b>derived deterministically</b> from the first. If that fraction is constant across the dataset (say 0.8), then <code>total_room_area = 0.8 × square_footage</code> — an <b>exact</b> linear multiple. The columns are then linearly dependent, $\det(\mathbf X^\top\mathbf X) = 0$, and the OLS formula fails.</p>
+        <p style="margin:.4rem 0 0">If the fraction varies slightly between houses, the columns are <b>almost</b> dependent — the matrix is near-singular. The determinant is technically nonzero, but microscopic. The inverse exists mathematically but <b>explodes numerically</b>: the coefficients will be wildly unstable, with huge magnitudes and opposite signs, and changing one row can flip them completely.</p>
+        <p style="margin:.4rem 0 0"><b>Fix:</b> drop the third feature — it <b>contains no new information</b>.</p></li>
     </ol>
   </div>
 </div>
@@ -707,14 +707,14 @@
 <table>
 <thead><tr><th>Galti</th><th>Sahi Baat</th></tr></thead>
 <tbody>
-<tr><td>"Polynomial Regression ek non-linear algorithm hai"</td><td>Wo <b>parameters mein linear</b> hai — sirf $x$ mein non-linear. Wahi OLS/GD use hota hai.</td></tr>
-<tr><td>"Higher degree hamesha better hai kyunki training error kam hota hai"</td><td>Training error degree ke saath hamesha ghatti hai. <b>Validation error</b> dekho — overfitting real hai.</td></tr>
-<tr><td>"Linearity ka matlab har point line par hona chahiye"</td><td>Sirf <b>central trend</b> linear honi chahiye. Noise expected hai.</td></tr>
-<tr><td>"Multicollinearity = thodi si correlation"</td><td><b>High</b> correlation ya exact linear dependence. Thodi correlation normal hai.</td></tr>
-<tr><td>"Multicollinearity predictions ko hamesha kharab kar deti hai"</td><td>Prediction often fine hoti hai. <b>Inference</b> tootti hai — individual coefficients unreliable.</td></tr>
-<tr><td>"Perfect multicollinearity mein $\det = 1$"</td><td>$\det = \mathbf 0$. Determinant 1 hota to matrix <b>invertible</b> hota.</td></tr>
-<tr><td>Heteroscedasticity aur autocorrelation ko confuse karna</td><td>Hetero = spread badalta hai ($\hat y$ ke against). Auto = pattern hai (<b>observation order</b> ke against).</td></tr>
-<tr><td>"Degree $n$ polynomial mein $n$ feature columns hote hain"</td><td>$n+1$ columns (intercept sahit): $[\mathbf 1, x, x^2, \dots, x^n]$.</td></tr>
+<tr><td>"Polynomial Regression is a non-linear algorithm"</td><td>It is <b>linear in the parameters</b> — only non-linear in $x$. The same OLS/GD is used.</td></tr>
+<tr><td>"A higher degree is always better because training error drops"</td><td>Training error always drops with degree. Look at <b>validation error</b> — overfitting is real.</td></tr>
+<tr><td>"Linearity means every point must lie on the line"</td><td>Only the <b>central trend</b> has to be linear. Noise is expected.</td></tr>
+<tr><td>"Multicollinearity = a bit of correlation"</td><td>It means <b>high</b> correlation or exact linear dependence. A little correlation is normal.</td></tr>
+<tr><td>"Multicollinearity always ruins the predictions"</td><td>Prediction is often fine. What breaks is <b>inference</b> — the individual coefficients become unreliable.</td></tr>
+<tr><td>"Perfect multicollinearity means $\det = 1$"</td><td>$\det = \mathbf 0$. A determinant of 1 would make the matrix <b>invertible</b>.</td></tr>
+<tr><td>Confusing heteroscedasticity with autocorrelation</td><td>Hetero = the spread changes (against $\hat y$). Auto = there is a pattern (against <b>observation order</b>).</td></tr>
+<tr><td>"A degree-$n$ polynomial has $n$ feature columns"</td><td>$n+1$ columns including the intercept: $[\mathbf 1, x, x^2, \dots, x^n]$.</td></tr>
 </tbody>
 </table>
 </div>
@@ -732,14 +732,14 @@
 <div class="box takeaway">
   <div class="box-title">♦ By the end of this sheet you can…</div>
   <ul style="margin:0">
-    <li>Explain karna ki ek straight line curved data par kyun fail hoti hai aur polynomial features use kaise fix karte hain.</li>
-    <li>Polynomial Regression ko ek <b>feature transformation</b> describe karna, naya algorithm nahi.</li>
-    <li>Visualize karna ki 2D curve 3D feature space mein plane kaise ban jaati hai.</li>
-    <li>High-degree polynomials ke saath overfitting ka risk identify karna.</li>
-    <li>Linear Regression ki paanchon assumptions state aur explain karna.</li>
-    <li>Har assumption ko scatter plots, residual plots ya histograms se check karna.</li>
-    <li>Explain karna ki perfect multicollinearity $(\mathbf X^\top\mathbf X)^{-1}$ ko impossible kyun bana deti hai.</li>
-    <li>Distinguish karna ki multicollinearity kab matter karti hai (inference) aur kab nahi (prediction).</li>
+    <li>Explain why a straight line fails on curved data and how polynomial features fix it.</li>
+    <li>Describe Polynomial Regression as a <b>feature transformation</b>, not a new algorithm.</li>
+    <li>Visualise how a 2D curve becomes a plane in 3D feature space.</li>
+    <li>Identify the overfitting risk that comes with high-degree polynomials.</li>
+    <li>State and explain all five assumptions of Linear Regression.</li>
+    <li>Check each assumption using scatter plots, residual plots or histograms.</li>
+    <li>Explain why perfect multicollinearity makes $(\mathbf X^\top\mathbf X)^{-1}$ impossible.</li>
+    <li>Distinguish when multicollinearity matters (inference) and when it does not (prediction).</li>
   </ul>
 </div>
 
@@ -759,19 +759,19 @@ const MCQS = [
      'It replaces the design matrix with a kernel matrix',
      'It can only be trained with Gradient Descent, never with OLS'],
   a:1,
-  e:'<b>B.</b> $x^2$ banana sirf ek <b>feature transformation</b> hai. $y = \\beta_0+\\beta_1x+\\beta_2x^2$ apne $\\beta$s mein linear hai, to wahi Normal Equation apply hoti hai — bas $\\mathbf X$ mein ek extra column. <b>A</b> and <b>D</b> invent a new algorithm. <b>C</b> describes kernel methods, a different topic.' },
+  e:'<b>B.</b> Building $x^2$ is just a <b>feature transformation</b>. $y = \\beta_0+\\beta_1x+\\beta_2x^2$ is linear in its $\\beta$s, so the same Normal Equation applies — just with one extra column in $\\mathbf X$. <b>A</b> and <b>D</b> invent a new algorithm. <b>C</b> describes kernel methods, a different topic.' },
 
 { d:'hard',
   q:'A degree-5 polynomial model. How many feature columns does $\\mathbf X$ have (including the intercept) and how many bends can the curve have?',
   o:['5 columns, 5 bends', '6 columns, up to 4 bends', '5 columns, up to 4 bends', '6 columns, 6 bends'],
   a:1,
-  e:'<b>B.</b> Columns: $[\\mathbf 1, x, x^2, x^3, x^4, x^5] = n+1 = 6$. Bends: derivative degree 4 hai, jiski at most 4 roots ho sakti hain ⟹ up to $n-1 = 4$ turning points. <b>A</b> and <b>C</b> forget the intercept column. <b>D</b> overcounts the bends.' },
+  e:'<b>B.</b> Columns: $[\\mathbf 1, x, x^2, x^3, x^4, x^5] = n+1 = 6$. Bends: the derivative has degree 4, which can have at most 4 roots ⟹ up to $n-1 = 4$ turning points. <b>A</b> and <b>C</b> forget the intercept column. <b>D</b> overcounts the bends.' },
 
 { d:'hard',
   q:'For $\\mathbf X = \\begin{bmatrix}1&1&2\\\\1&2&3\\\\1&3&4\\end{bmatrix}$ where Col 3 = Col 1 + Col 2, what is $\\det(\\mathbf X^\\top\\mathbf X)$?',
   o:['$1$', '$0$', '$6$', '$29$'],
   a:1,
-  e:'<b>B.</b> $\\mathbf X^\\top\\mathbf X = \\begin{bmatrix}3&6&9\\\\6&14&20\\\\9&20&29\\end{bmatrix}$ and $\\det = 3(6) - 6(-6) + 9(-6) = 18+36-54 = 0$. Dependent columns <b>hamesha</b> zero determinant dete hain. <b>A</b> is the mistake the worksheet explicitly asks you to find (det 1 would mean invertible). <b>C</b> is the first minor. <b>D</b> is the $(3,3)$ entry.' },
+  e:'<b>B.</b> $\\mathbf X^\\top\\mathbf X = \\begin{bmatrix}3&6&9\\\\6&14&20\\\\9&20&29\\end{bmatrix}$ and $\\det = 3(6) - 6(-6) + 9(-6) = 18+36-54 = 0$. Dependent columns <b>always</b> give a zero determinant. <b>A</b> is the mistake the worksheet explicitly asks you to find (det 1 would mean invertible). <b>C</b> is the first minor. <b>D</b> is the $(3,3)$ entry.' },
 
 { d:'hard',
   q:'A model with correlation 0.98 between $X_1$ and $X_2$ gives $\\beta_1 = 15.2$ and $\\beta_2 = -14.8$. What is the correct reading?',
@@ -780,13 +780,13 @@ const MCQS = [
      'The model is broken and cannot make predictions',
      'The correlation is irrelevant to the coefficients'],
   a:1,
-  e:'<b>B.</b> Model dono effects <b>separate nahi kar paa raha</b>, sirf combined effect ($15.2 - 14.8 = 0.4$) capture kar raha hai. Kuch rows change karne par coefficients $(40,-39)$ ban sakte hain jabki predictions same rahengi. <b>A</b> takes the absurd coefficient literally. <b>C</b> overstates — predictions usually fine hoti hain; <b>inference</b> tootti hai. <b>D</b> is the opposite of the truth.' },
+  e:'<b>B.</b> The model <b>cannot separate</b> the two effects and is only capturing the combined one ($15.2 - 14.8 = 0.4$). Change a few rows and the coefficients could become $(40,-39)$ while the predictions stay the same. <b>A</b> takes the absurd coefficient literally. <b>C</b> overstates it — predictions are usually fine; what breaks is <b>inference</b>. <b>D</b> is the opposite of the truth.' },
 
 { d:'med',
   q:'Residual spread grows wider as $\\hat y$ increases, forming a funnel. Which assumption is violated?',
   o:['Linearity', 'Normality of Residuals', 'Homoscedasticity', 'No Autocorrelation'],
   a:2,
-  e:'<b>C.</b> Homoscedasticity ka matlab hai <b>constant</b> residual spread. Funnel shape = spread badal raha hai = <b>heteroscedasticity</b>. <b>A</b> would show a curved pattern (U-shape), not a widening band. <b>B</b> is diagnosed from a histogram. <b>D</b> is diagnosed by plotting against <b>observation order</b>, not $\\hat y$.' },
+  e:'<b>C.</b> Homoscedasticity means a <b>constant</b> residual spread. A funnel shape = the spread is changing = <b>heteroscedasticity</b>. <b>A</b> would show a curved pattern (a U-shape), not a widening band. <b>B</b> is diagnosed from a histogram. <b>D</b> is diagnosed by plotting against <b>observation order</b>, not $\\hat y$.' },
 
 { d:'hard',
   q:'"The linearity assumption requires every data point to lie exactly on a line." True or false, and why?',
@@ -795,7 +795,7 @@ const MCQS = [
      'True, but only for simple linear regression',
      'False — linearity is about the residuals, not the data'],
   a:1,
-  e:'<b>B.</b> Sheet explicitly: "Linearity does <b>not</b> mean every point must lie exactly on a line. Real data has noise." Agar har point line par hota to residuals sab zero hote aur $R^2 = 1$. <b>A</b> and <b>C</b> repeat the misconception. <b>D</b> conflates linearity with the residual-based assumptions.' },
+  e:'<b>B.</b> Sheet explicitly: "Linearity does <b>not</b> mean every point must lie exactly on a line. Real data has noise." If every point lay on the line, all the residuals would be zero and $R^2 = 1$. <b>A</b> and <b>C</b> repeat the misconception. <b>D</b> conflates linearity with the residual-based assumptions.' },
 
 { d:'hard',
   q:'In the multicollinearity proof, what is the logical chain from dependent columns to "no OLS solution"?',
@@ -804,7 +804,7 @@ const MCQS = [
      '$\\mathbf X^\\top\\mathbf X$ is not symmetric, so it cannot be inverted',
      'The residuals become correlated, which breaks the Normal Equation'],
   a:1,
-  e:'<b>B.</b> Yeh exactly 7-step proof hai. Key move: $\\mathbf X\\mathbf c = \\mathbf 0$ ke dono sides ko $\\mathbf X^\\top$ se multiply karna — ab $\\mathbf X^\\top\\mathbf X$ ek non-zero vector ko zero bhej raha hai, to wo singular hai. <b>A</b> talks about $\\det(\\mathbf X)$, but $\\mathbf X$ is usually not even square. <b>C</b> false — $\\mathbf X^\\top\\mathbf X$ is always symmetric. <b>D</b> confuses assumptions 4 and 5.' },
+  e:'<b>B.</b> This is exactly the 7-step proof. The key move: multiply both sides of $\\mathbf X\\mathbf c = \\mathbf 0$ by $\\mathbf X^\\top$ — now $\\mathbf X^\\top\\mathbf X$ is sending a non-zero vector to zero, so it is singular. <b>A</b> talks about $\\det(\\mathbf X)$, but $\\mathbf X$ is usually not even square. <b>C</b> is false — $\\mathbf X^\\top\\mathbf X$ is always symmetric. <b>D</b> confuses assumptions 4 and 5.' },
 
 { d:'hard',
   q:'"If $R^2$ increases when we add $x^3$ to the model, the cubic term is always useful." Evaluate.',
@@ -813,7 +813,7 @@ const MCQS = [
      'False — adding $x^3$ always decreases $R^2$',
      'True, provided the increase is more than 0.01'],
   a:1,
-  e:'<b>B.</b> OLS mein ek predictor add karne se RSS badh nahi sakti (worst case coefficient $=0$), to training $R^2$ <b>ghat nahi sakta</b>. Isliye rise itself koi evidence nahi hai. <b>A</b> is exactly the trap. <b>C</b> is mathematically impossible. <b>D</b> invents an arbitrary threshold with no statistical basis.' },
+  e:'<b>B.</b> In OLS, adding a predictor cannot increase RSS (worst case its coefficient is $0$), so training $R^2$ <b>cannot decrease</b>. The rise is therefore no evidence at all. <b>A</b> is exactly the trap. <b>C</b> is mathematically impossible. <b>D</b> invents an arbitrary threshold with no statistical basis.' },
 
 { d:'med',
   q:'Which pairing of diagnostic to assumption is INCORRECT?',
@@ -822,7 +822,7 @@ const MCQS = [
      'Residuals vs observation order (long runs) → Linearity',
      'Input–input correlation matrix → No Multicollinearity'],
   a:2,
-  e:'<b>C</b> is the incorrect pairing (and therefore the answer). Observation order ke against long runs <b>autocorrelation</b> hai. Linearity residual vs <b>fitted value</b> plot mein U-shape se dikhti hai. <b>A</b>, <b>B</b>, <b>D</b> sab correct pairings hain.' },
+  e:'<b>C</b> is the incorrect pairing (and therefore the answer). Long runs against observation order indicate <b>autocorrelation</b>. Linearity shows up as a U-shape in the residual vs <b>fitted value</b> plot. <b>A</b>, <b>B</b> and <b>D</b> are all correct pairings.' },
 
 { d:'hard',
   q:'An engineer uses square footage, number of rooms, and total room area (= square footage × fraction used as rooms). What happens?',
@@ -831,7 +831,7 @@ const MCQS = [
      'The model will underfit because the features are redundant',
      'The residuals will become autocorrelated'],
   a:1,
-  e:'<b>B.</b> Teesra feature <b>deterministically</b> pehle se derive hota hai. Constant fraction ⟹ exact linear dependence ⟹ singular. Varying fraction ⟹ near-singular: determinant microscopic, inverse numerically explodes, coefficients ek row badalne par bilkul badal jaate hain. <b>A</b> misses the dependence. <b>C</b> reverses it — redundant features cause <b>instability</b>, not underfitting. <b>D</b> is a different assumption entirely.' },
+  e:'<b>B.</b> The third feature is <b>derived deterministically</b> from the first. A constant fraction ⟹ exact linear dependence ⟹ singular. A varying fraction ⟹ near-singular: the determinant is microscopic, the inverse explodes numerically, and the coefficients change completely when one row changes. <b>A</b> misses the dependence. <b>C</b> reverses it — redundant features cause <b>instability</b>, not underfitting. <b>D</b> is a different assumption entirely.' },
 ];
 </script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>

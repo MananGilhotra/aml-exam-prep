@@ -29,7 +29,7 @@
 <header class="hero">
   <div class="eyebrow">Last Minute</div>
   <h1><span class="gradtext">1-Hour Quick Revision</span></h1>
-  <p class="sub">Har lecture ke sirf <b>highest-yield</b> points. Har card ek question hai — pehle khud jawab socho, phir click karke check karo.</p>
+  <p class="sub">Only the <b>highest-yield</b> points from each lecture. Every card is a question — think of your own answer first, then click to check.</p>
   <div class="chips">
     <span class="chip accent">⏱ ~60 min</span><span class="chip">🃏 70+ flashcards</span><span class="chip">🎯 Exam-focused</span>
   </div>
@@ -37,29 +37,29 @@
 
 <div class="box warn">
   <div class="box-title">How to use this page</div>
-  <p style="margin:0">Har card par pehle <b>khud se answer bolo</b>, phir click karo. Agar galat aaye, us lecture ka <b>⚠ Common Mistakes</b> section dobara padho. Poora page ek baar mein karo — beech mein break mat lo, kyunki yeh connections banane ke liye design kiya gaya hai.</p>
+  <p style="margin:0">On every card, <b>say the answer out loud yourself</b> first, then click. If you get it wrong, re-read that lecture's <b>⚠ Common Mistakes</b> section. Do the whole page in one sitting — no breaks in between, since this is designed to build connections.</p>
 </div>
 
 <!-- ============================================== -->
 <h2 id="r0"><span class="h2-num">L0</span>From Code to AI, ML &amp; DL</h2>
 
-<details class="flash"><summary>Traditional Programming aur Machine Learning ka paradigm flip kya hai?</summary>
-<div class="a"><b>Traditional:</b> Data + <b>Rules</b> → Answers. &nbsp;<b>ML:</b> Data + <b>Answers</b> → Rules.<br>Traditional mein insaan rules likhta hai; ML mein algorithm rules <b>discover</b> karta hai.</div></details>
+<details class="flash"><summary>What is the paradigm flip between Traditional Programming and Machine Learning?</summary>
+<div class="a"><b>Traditional:</b> Data + <b>Rules</b> → Answers. &nbsp;<b>ML:</b> Data + <b>Answers</b> → Rules.<br>In traditional programming the human writes the rules; in ML the algorithm <b>discovers</b> them.</div></details>
 
-<details class="flash"><summary>AI, ML aur DL ka relation kya hai — aur AI mein aisa kya hai jo ML mein nahi?</summary>
-<div class="a">$\text{DL} \subset \text{ML} \subset \text{AI}$.<br>AI mein <b>non-learning systems</b> bhi aate hain — jaise <b>search algorithms</b> (Google Maps routing). Wo AI hain par ML nahi.</div></details>
+<details class="flash"><summary>How do AI, ML and DL relate — and what is in AI that is not in ML?</summary>
+<div class="a">$\text{DL} \subset \text{ML} \subset \text{AI}$.<br>AI also includes <b>non-learning systems</b> — such as <b>search algorithms</b> (Google Maps routing). Those are AI but not ML.</div></details>
 
-<details class="flash"><summary>"Deep" Learning mein "deep" ka technically matlab kya hai?</summary>
-<div class="a"><b>Structural architecture</b> — dozens ya hundreds of <b>hidden layers</b> sequentially stacked. Yeh training data ke size, tuning depth ya feature count ke baare mein <b>nahi</b> hai.</div></details>
+<details class="flash"><summary>What does "deep" technically mean in Deep Learning?</summary>
+<div class="a">The <b>structural architecture</b> — dozens or hundreds of <b>hidden layers</b> stacked sequentially. It is <b>not</b> about the size of the training data, the depth of tuning, or the feature count.</div></details>
 
-<details class="flash"><summary>Reinforcement Learning ko baaki teen paradigms se fundamentally kya alag karta hai?</summary>
-<div class="a">Wo <b>koi static dataset use hi nahi karta</b>. Agent ek <b>unknown environment</b> explore karke apna <b>khud ka training signal generate</b> karta hai.<br><b>Trap:</b> "unlabelled data use karta hai" galat hai — unsupervised learning bhi wahi karta hai.</div></details>
+<details class="flash"><summary>What fundamentally separates Reinforcement Learning from the other three paradigms?</summary>
+<div class="a">It <b>uses no static dataset at all</b>. The agent explores an <b>unknown environment</b> and <b>generates its own training signal</b>.<br><b>Trap:</b> "it uses unlabelled data" is wrong — unsupervised learning does that too.</div></details>
 
 <details class="flash"><summary>3 core tasks aur unke output types?</summary>
 <div class="a"><b>Regression</b> → continuous scalar (supervised) · <b>Classification</b> → discrete label (supervised) · <b>Clustering</b> → natural groups (unsupervised)</div></details>
 
 <details class="flash"><summary>Image classification vs image segmentation?</summary>
-<div class="a"><b>Classification</b> poori image ko <b>ek label</b> deta hai. <b>Segmentation</b> <b>har pixel</b> ko label karta hai, ek map produce karke ki image ka har region kya contain karta hai.</div></details>
+<div class="a"><b>Classification</b> gives the whole image <b>one label</b>. <b>Segmentation</b> labels <b>every pixel</b>, producing a map of what each region of the image contains.</div></details>
 
 <!-- ============================================== -->
 <h2 id="r1"><span class="h2-num">L1</span>Lifecycle Part 1</h2>
@@ -70,200 +70,200 @@
 <b>Max Abs</b> $\frac{X}{\max|X|}$ → sparse (preserves zeros) ·
 <b>Robust</b> $\frac{X-\text{Med}}{Q_3-Q_1}$ → heavy outliers</div></details>
 
-<details class="flash"><summary>Min-Max scaling outliers ke saath kyun fail hota hai?</summary>
-<div class="a">Ek outlier denominator $(X_{\max}-X_{\min})$ ko <b>blow up</b> kar deta hai, jisse baaki saari normal values <b>0 ke paas squash</b> ho jaati hain aur indistinguishable ban jaati hain.<br><b>Example:</b> $[100,150,200,250,50000]$ → $0, 0.001, 0.002, 0.003, 1$</div></details>
+<details class="flash"><summary>Why does Min-Max scaling fail with outliers?</summary>
+<div class="a">A single outlier <b>blows up</b> the denominator $(X_{\max}-X_{\min})$, which <b>squashes</b> all the other normal values <b>near 0</b> and makes them indistinguishable.<br><b>Example:</b> $[100,150,200,250,50000]$ → $0, 0.001, 0.002, 0.003, 1$</div></details>
 
-<details class="flash"><summary>Robust scaling ki 4 steps aur $[100,150,200,250,50000]$ ka answer?</summary>
+<details class="flash"><summary>The 4 steps of robust scaling, and the answer for $[100,150,200,250,50000]$?</summary>
 <div class="a">Median $=200$ · $Q_1 = \frac{100+150}{2} = 125$ · $Q_3 = \frac{250+50000}{2} = 25125$ · IQR $=25000$<br>
 $X=100 \to \frac{-100}{25000} = \mathbf{-0.004}$ &nbsp;·&nbsp; $X=50000 \to \frac{49800}{25000} = \mathbf{1.992}$</div></details>
 
-<details class="flash"><summary>PIN code ko kaunsa feature type classify karoge, aur kyun?</summary>
-<div class="a"><b>Categorical (Nominal)</b>. Wo <b>dikhta</b> number jaisa hai par uspar arithmetic meaningless hai — 110001 + 110002 ka koi matlab nahi. Star ratings (1–5) similarly <b>Ordinal</b> hain, continuous numerical nahi.</div></details>
+<details class="flash"><summary>Which feature type would you classify a PIN code as, and why?</summary>
+<div class="a"><b>Categorical (Nominal)</b>. It <b>looks</b> like a number but arithmetic on it is meaningless — 110001 + 110002 means nothing. Star ratings (1–5) are similarly <b>Ordinal</b>, not continuous numerical.</div></details>
 
-<details class="flash"><summary>Label Encoding KNN ko mislead karta hai par Decision Tree ko nahi. Kyun?</summary>
-<div class="a"><b>KNN distances compute karta hai</b> — $|Red-Green|=2$ vs $|Red-Blue|=1$ ek fabricated similarity ban jaati hai.<br><b>Tree thresholds par split karta hai</b> — "value $\le 0.5$?" — magnitude ka koi role nahi.</div></details>
+<details class="flash"><summary>Label Encoding misleads KNN but not a Decision Tree. Why?</summary>
+<div class="a"><b>KNN computes distances</b> — $|Red-Green|=2$ vs $|Red-Blue|=1$ becomes a fabricated similarity.<br><b>A tree splits on thresholds</b> — "is value $\le 0.5$?" — so magnitude plays no role.</div></details>
 
-<details class="flash"><summary>1000 categories par One-Hot vs Binary — kitne columns?</summary>
+<details class="flash"><summary>One-Hot vs Binary for 1000 categories — how many columns?</summary>
 <div class="a">One-Hot: <b>1000 columns</b> (curse of dimensionality). Binary: $\lceil\log_2 1000\rceil = $ <b>~10 columns</b>.</div></details>
 
-<details class="flash"><summary>EDA checklist ke 7 goals?</summary>
+<details class="flash"><summary>The 7 goals of the EDA checklist?</summary>
 <div class="a">1. Dataset Structure · 2. Missing Values · 3. Outliers · 4. Duplicates · 5. Distributions · 6. Relationships · 7. <b>Class Imbalance</b></div></details>
 
-<details class="flash"><summary>95% Class A / 5% Class B. Model hamesha A predict karta hai → 95% accuracy. Useful?</summary>
-<div class="a"><b>Nahi.</b> Class B ka <b>recall $= 0$</b> hai. Model ne kuch seekha hi nahi — sirf majority class guess kar raha hai. Yeh <b>class imbalance</b> hai; accuracy jhoot bol rahi hai.</div></details>
+<details class="flash"><summary>95% Class A / 5% Class B. The model always predicts A → 95% accuracy. Useful?</summary>
+<div class="a"><b>No.</b> Class B's <b>recall is $0$</b>. The model has learnt nothing — it is just guessing the majority class. This is <b>class imbalance</b>; accuracy is lying.</div></details>
 
 <!-- ============================================== -->
 <h2 id="r2"><span class="h2-num">L2</span>Lifecycle Part 2</h2>
 
-<details class="flash"><summary>Parameter vs Hyperparameter — ek line mein difference?</summary>
-<div class="a"><b>Parameter:</b> model <b>khud</b> seekhta hai, <b>training ke dauraan</b> (weights $w_1$, intercept $w_0$, bias).<br>
-<b>Hyperparameter:</b> engineer <b>manually</b> set karta hai, <b>training se pehle</b> (<code>max_depth</code>, <code>n_estimators</code>, <code>learning_rate</code>).<br>
+<details class="flash"><summary>Parameter vs Hyperparameter — the difference in one line?</summary>
+<div class="a"><b>Parameter:</b> the model learns it <b>itself</b>, <b>during training</b> (weights $w_1$, intercept $w_0$, bias).<br>
+<b>Hyperparameter:</b> the engineer sets it <b>manually</b>, <b>before training</b> (<code>max_depth</code>, <code>n_estimators</code>, <code>learning_rate</code>).<br>
 <b>Keyword:</b> "learned during" = parameter.</div></details>
 
 <details class="flash"><summary>Split ratio aur golden rule?</summary>
-<div class="a"><b>70% Train · 15% Validation · 15% Test.</b><br><b>Golden rule: Split FIRST, engineer SECOND.</b> Test set sirf <b>ek baar</b>, aakhir mein.</div></details>
+<div class="a"><b>70% Train · 15% Validation · 15% Test.</b><br><b>Golden rule: Split FIRST, engineer SECOND.</b> The test set is used <b>once</b>, at the very end.</div></details>
 
-<details class="flash"><summary>Poore dataset ka mean nikaal ke, phir split karke, training set impute karna — leakage hai?</summary>
-<div class="a"><b>Haan, definitely.</b> Us mean mein <b>test set ki rows ki information</b> baithi hai — yaani test ne training ko influence kiya. Test score ab artificially optimistic hai.<br><b>Sahi:</b> pehle split, phir <b>sirf training rows</b> se mean, aur wahi mean teeno par apply.</div></details>
+<details class="flash"><summary>Computing the mean over the whole dataset, then splitting, then imputing the training set — is that leakage?</summary>
+<div class="a"><b>Yes, definitely.</b> That mean carries <b>information from the test-set rows</b> — meaning the test set influenced training. The test score is now artificially optimistic.<br><b>Right way:</b> split first, compute the mean from <b>the training rows only</b>, and apply that same mean to all three sets.</div></details>
 
-<details class="flash"><summary>Training loop ki 5 steps (correct order)?</summary>
+<details class="flash"><summary>The 5 steps of the training loop (in the correct order)?</summary>
 <div class="a">1. <b>Initialize</b> (random weights) → 2. <b>Forward Pass</b> (predictions) → 3. <b>Compute Loss</b> (MSE) → 4. <b>Backward Pass</b> (gradient descent) → 5. <b>Convergence Check</b></div></details>
 
 <details class="flash"><summary>MAE, RMSE, $R^2$ — kab kaunsa?</summary>
 <div class="a"><b>MAE</b> — "on average how many units off?" (interpretable, equal weight).<br>
-<b>RMSE</b> — jab ek <b>bada</b> error catastrophic ho (squaring punish karti hai).<br>
-<b>$R^2$</b> — "random guessing/baseline se kitna behtar?" (relative).</div></details>
+<b>RMSE</b> — when one <b>large</b> error is catastrophic (the squaring punishes it).<br>
+<b>$R^2$</b> — "how much better than random guessing / the baseline?" (relative).</div></details>
 
 <details class="flash"><summary>Periodic vs Triggered retraining?</summary>
-<div class="a"><b>Periodic:</b> fixed schedule (monthly), <b>performance ki parwah kiye bina</b>.<br>
-<b>Triggered:</b> monitoring accuracy ko threshold ke <b>neeche detect kare</b> tab fire hota hai.<br>
-Unpredictable events (drought, pandemic) ke liye <b>Triggered</b> chahiye.</div></details>
+<div class="a"><b>Periodic:</b> a fixed schedule (monthly), <b>regardless of performance</b>.<br>
+<b>Triggered:</b> fires when monitoring detects accuracy <b>below a threshold</b>.<br>
+For unpredictable events (drought, pandemic) you need <b>Triggered</b>.</div></details>
 
 <!-- ============================================== -->
 <h2 id="r3"><span class="h2-num">L3</span>Simple Linear Regression</h2>
 
-<details class="flash"><summary>Teen loss attempts aur har ek ka problem?</summary>
-<div class="a"><b>1. Signed</b> $\sum e_i$ → positives aur negatives <b>cancel</b> ho jaate hain (0 total ≠ perfect model).<br>
-<b>2. Absolute</b> $\sum|e_i|$ → $e=0$ par <b>differentiable nahi</b> (sharp V corner).<br>
-<b>3. Squared ✓</b> $\sum e_i^2$ → non-negative, smooth, par <b>outliers ke prati sensitive</b>.</div></details>
+<details class="flash"><summary>The three loss attempts, and the problem with each?</summary>
+<div class="a"><b>1. Signed</b> $\sum e_i$ → positives and negatives <b>cancel</b> out (a total of 0 ≠ a perfect model).<br>
+<b>2. Absolute</b> $\sum|e_i|$ → <b>not differentiable</b> at $e=0$ (a sharp V corner).<br>
+<b>3. Squared ✓</b> $\sum e_i^2$ → non-negative, smooth, but <b>sensitive to outliers</b>.</div></details>
 
-<details class="flash"><summary>Squared error ke teen properties?</summary>
+<details class="flash"><summary>The three properties of squared error?</summary>
 <div class="a">1. <b>Always non-negative</b> (no cancellation) · 2. <b>Differentiable everywhere</b> (derivative of $x^2$ is $2x$, defined at 0) · 3. <b>Penalizes large errors quadratically</b></div></details>
 
-<details class="flash"><summary>Error 10× bada hone par squared penalty kitni badi?</summary>
-<div class="a"><b>100×</b>, not 10×. $10^2 = 100$ vs $1^2 = 1$. Penalty <b>quadratically</b> grow karti hai.</div></details>
+<details class="flash"><summary>If the error is 10× larger, how much larger is the squared penalty?</summary>
+<div class="a"><b>100×</b>, not 10×. $10^2 = 100$ vs $1^2 = 1$. The penalty grows <b>quadratically</b>.</div></details>
 
-<details class="flash"><summary>OLS ke do formulas — aur konsa pehle compute karna hai?</summary>
+<details class="flash"><summary>The two OLS formulas — and which one do you compute first?</summary>
 <div class="a">$$m = \frac{\sum(x_i-\bar x)(y_i-\bar y)}{\sum(x_i-\bar x)^2}, \qquad c = \bar y - m\bar x$$
-<b>$m$ pehle</b> (kyunki $c$ ke formula mein $m$ chahiye).</div></details>
+<b>$m$ first</b> (because the formula for $c$ needs $m$).</div></details>
 
-<details class="flash"><summary>OLS derivation ki #1 mistake kya hai?</summary>
-<div class="a">$\sum_{i=1}^{n} c = c$ likhna. <b>Correct:</b> $\sum_{i=1}^{n} c = \mathbf{nc}$ — $c$ constant hai, use $n$ baar add kar rahe ho.</div></details>
+<details class="flash"><summary>What is the #1 mistake in the OLS derivation?</summary>
+<div class="a">Writing $\sum_{i=1}^{n} c = c$. <b>Correct:</b> $\sum_{i=1}^{n} c = \mathbf{nc}$ — $c$ is a constant, and you are adding it $n$ times.</div></details>
 
-<details class="flash"><summary>OLS line kis point se hamesha guzarti hai — aur kyun?</summary>
-<div class="a"><b>$(\bar x, \bar y)$</b> — data ka centroid.<br>Proof: $\hat y(\bar x) = m\bar x + c = m\bar x + (\bar y - m\bar x) = \bar y$ ✓</div></details>
+<details class="flash"><summary>Which point does the OLS line always pass through — and why?</summary>
+<div class="a"><b>$(\bar x, \bar y)$</b> — the centroid of the data.<br>Proof: $\hat y(\bar x) = m\bar x + c = m\bar x + (\bar y - m\bar x) = \bar y$ ✓</div></details>
 
-<details class="flash"><summary>Agar saare $x_i$ identical hon to kya hota hai?</summary>
-<div class="a">$x_i - \bar x = 0$ har $i$ ke liye ⟹ $\sum(x_i-\bar x)^2 = 0$ ⟹ <b>division by zero</b> ⟹ $m$ <b>undefined</b>.<br>Geometrically: saare points ek <b>vertical line</b> par hain — uska slope exist hi nahi karta.</div></details>
+<details class="flash"><summary>What happens if all the $x_i$ are identical?</summary>
+<div class="a">$x_i - \bar x = 0$ for every $i$ ⟹ $\sum(x_i-\bar x)^2 = 0$ ⟹ <b>division by zero</b> ⟹ $m$ is <b>undefined</b>.<br>Geometrically: all the points lie on a <b>vertical line</b> — whose slope simply does not exist.</div></details>
 
-<details class="flash"><summary>Outlier add karne par OLS line uski taraf jaayegi ya door?</summary>
-<div class="a"><b>Toward</b> the outlier. Optimizer $\sum e^2$ minimize kar raha hai; us huge squared term ko shrink karne ka tareeka line ko outlier ki <b>taraf kheenchna</b> hai — chahe baaki saare points ka fit kharab ho jaye.</div></details>
+<details class="flash"><summary>When an outlier is added, does the OLS line move toward it or away from it?</summary>
+<div class="a"><b>Toward</b> the outlier. The optimizer is minimizing $\sum e^2$; the way to shrink that huge squared term is to <b>pull the line toward</b> the outlier — even if the fit for every other point gets worse.</div></details>
 
 <!-- ============================================== -->
 <h2 id="r4"><span class="h2-num">L4</span>Multiple Linear Regression</h2>
 
-<details class="flash"><summary>$\mathbf X$, $\boldsymbol\beta$, $\hat{\mathbf y}$, $\mathbf X^\top\mathbf X$ ke dimensions?</summary>
+<details class="flash"><summary>The dimensions of $\mathbf X$, $\boldsymbol\beta$, $\hat{\mathbf y}$ and $\mathbf X^\top\mathbf X$?</summary>
 <div class="a">$\mathbf X$: $n\times(m{+}1)$ · $\boldsymbol\beta$: $(m{+}1)\times1$ · $\hat{\mathbf y}$: $n\times1$ · $\mathbf X^\top\mathbf X$: $(m{+}1)\times(m{+}1)$<br>
-<b>Trap:</b> 200 rows, 5 features → $\mathbf X^\top\mathbf X$ is $\mathbf{6\times6}$ (intercept column count karo!), not $5\times5$.</div></details>
+<b>Trap:</b> 200 rows, 5 features → $\mathbf X^\top\mathbf X$ is $\mathbf{6\times6}$ (count the intercept column!), not $5\times5$.</div></details>
 
-<details class="flash"><summary>Loss ka expanded form aur teeno term types?</summary>
+<details class="flash"><summary>The expanded form of the loss, and the three term types?</summary>
 <div class="a">$$L(\boldsymbol\beta) = \underbrace{\mathbf y^\top\mathbf y}_{\text{constant}} \underbrace{-\,2\mathbf y^\top\mathbf X\boldsymbol\beta}_{\text{linear}} + \underbrace{\boldsymbol\beta^\top\mathbf X^\top\mathbf X\boldsymbol\beta}_{\text{quadratic}}$$
-Teen types ⟹ teen identities chahiye.</div></details>
+Three types ⟹ three identities are needed.</div></details>
 
 <details class="flash"><summary>Teen matrix calculus identities?</summary>
 <div class="a">$$\frac{\partial c}{\partial\boldsymbol\beta} = \mathbf 0 \qquad \frac{\partial(\mathbf a^\top\boldsymbol\beta)}{\partial\boldsymbol\beta} = \mathbf a \qquad \frac{\partial(\boldsymbol\beta^\top\mathbf A\boldsymbol\beta)}{\partial\boldsymbol\beta} = 2\mathbf A\boldsymbol\beta$$
-Teesri sirf <b>symmetric</b> $\mathbf A$ ke liye — aur $\mathbf X^\top\mathbf X$ hamesha symmetric hai ✓</div></details>
+The third holds only for <b>symmetric</b> $\mathbf A$ — and $\mathbf X^\top\mathbf X$ is always symmetric ✓</div></details>
 
-<details class="flash"><summary>Normal Equation aur uska solution?</summary>
+<details class="flash"><summary>The Normal Equation and its solution?</summary>
 <div class="a">$$\mathbf X^\top\mathbf X\boldsymbol\beta = \mathbf X^\top\mathbf y \qquad\Longrightarrow\qquad \boldsymbol\beta^* = (\mathbf X^\top\mathbf X)^{-1}\mathbf X^\top\mathbf y$$</div></details>
 
-<details class="flash"><summary>Loss expansion mein do middle terms kyun combine ho jaate hain?</summary>
-<div class="a">Dono <b>$1\times1$ scalars</b> hain, aur ek scalar ka transpose khud wahi scalar hota hai. So $\mathbf y^\top\mathbf X\boldsymbol\beta = \boldsymbol\beta^\top\mathbf X^\top\mathbf y$, giving $-2\mathbf y^\top\mathbf X\boldsymbol\beta$.</div></details>
+<details class="flash"><summary>Why do the two middle terms combine in the loss expansion?</summary>
+<div class="a">Both are <b>$1\times1$ scalars</b>, and the transpose of a scalar is that same scalar. So $\mathbf y^\top\mathbf X\boldsymbol\beta = \boldsymbol\beta^\top\mathbf X^\top\mathbf y$, giving $-2\mathbf y^\top\mathbf X\boldsymbol\beta$.</div></details>
 
-<details class="flash"><summary>Inversion cost kyun $O(k^3)$ hai?</summary>
-<div class="a">Gauss–Jordan elimination mein <b>teen nested loops</b>: outer $k$ pivot columns × middle $k$ rows per pivot × inner $\sim 2k$ elements = $2k^3 \to O(k^3)$.<br>$m = 10{,}000$ → $10^{12}$ operations (one trillion).</div></details>
+<details class="flash"><summary>Why is the inversion cost $O(k^3)$?</summary>
+<div class="a">Gauss–Jordan elimination has <b>three nested loops</b>: $k$ outer pivot columns × $k$ middle rows per pivot × $\sim 2k$ inner elements = $2k^3 \to O(k^3)$.<br>$m = 10{,}000$ → $10^{12}$ operations — which is exactly why Gradient Descent exists.</div></details>
 
 <details class="flash"><summary>OLS aur Gradient Descent alag answers denge?</summary>
-<div class="a"><b>Nahi.</b> Loss <b>convex</b> hai — ek hi global minimum. OLS wahan jump karta hai; GD wahan walk karke pahuchta hai.</div></details>
+<div class="a"><b>No.</b> The loss is <b>convex</b> — there is only one global minimum. OLS jumps straight there; GD walks there.</div></details>
 
 <!-- ============================================== -->
 <h2 id="r5"><span class="h2-num">L5–L6</span>Gradient Descent Family</h2>
 
 <details class="flash"><summary>MSE gradient aur BGD update rule?</summary>
 <div class="a">$$\nabla L = \frac{2}{m}\mathbf X^\top(\mathbf X\boldsymbol\theta - \mathbf y) \qquad \boldsymbol\theta := \boldsymbol\theta - \alpha\frac{2}{m}\mathbf X^\top(\mathbf X\boldsymbol\theta - \mathbf y)$$
-<b>Convention alert:</b> agar loss $\frac{1}{2m}\|\cdot\|^2$ ho to factor 2 <b>gayab</b> ho jaata hai.</div></details>
+<b>Convention alert:</b> if the loss is $\frac{1}{2m}\|\cdot\|^2$, the factor of 2 <b>disappears</b>.</div></details>
 
-<details class="flash"><summary>"Batch" Gradient Descent ko Batch kyun kehte hain?</summary>
-<div class="a">Kyunki gradient <b>poori matrix $\mathbf X$</b> aur <b>poore vector $\mathbf y$</b> use karta hai — <b>har single training example har single update step mein contribute</b> karta hai.</div></details>
+<details class="flash"><summary>Why is "Batch" Gradient Descent called Batch?</summary>
+<div class="a">Because the gradient uses the <b>entire matrix $\mathbf X$</b> and the <b>entire vector $\mathbf y$</b> — <b>every single training example contributes to every single update step</b>.</div></details>
 
-<details class="flash"><summary>Simultaneous update kyun mandatory hai?</summary>
-<div class="a">Saare partial derivatives <b>same old $\boldsymbol\theta$</b> par evaluate hone chahiye. Agar $\theta_0$ update karke phir <b>naye</b> $\theta_0$ se $\theta_1$ ka derivative nikaalo, to tum ek <b>mixed, undefined point</b> ka gradient compute kar rahe ho.</div></details>
+<details class="flash"><summary>Why is the simultaneous update mandatory?</summary>
+<div class="a">All the partial derivatives must be evaluated at the <b>same old $\boldsymbol\theta$</b>. If you update $\theta_0$ and then take the derivative for $\theta_1$ using the <b>new</b> $\theta_0$, you are computing the gradient at a <b>mixed, undefined point</b>.</div></details>
 
-<details class="flash"><summary>$f(x,y)=x^2+y^2$, point $(3,4)$, $\alpha = 1$ — kya hota hai?</summary>
-<div class="a">$\nabla f = [6,8]^\top$. $[3,4] - 1\cdot[6,8] = \mathbf{[-3,-4]}$.<br>Loss dono par <b>same</b> ($25$) — <b>overshoot</b>! Agla step wapas $(3,4)$ le jaayega — infinite oscillation. Yeh "$\alpha$ too large" ka exact demonstration hai.</div></details>
+<details class="flash"><summary>$f(x,y)=x^2+y^2$, point $(3,4)$, $\alpha = 1$ — what happens?</summary>
+<div class="a">$\nabla f = [6,8]^\top$. $[3,4] - 1\cdot[6,8] = \mathbf{[-3,-4]}$.<br>The loss is the <b>same</b> at both ($25$) — an <b>overshoot</b>! The next step takes you back to $(3,4)$ — infinite oscillation. This is the exact demonstration of "$\alpha$ too large".</div></details>
 
 <details class="flash"><summary>Updates per epoch — teeno methods?</summary>
 <div class="a"><b>Batch GD:</b> 1 &nbsp;·&nbsp; <b>SGD:</b> $m$ &nbsp;·&nbsp; <b>Mini-Batch:</b> $\lceil m/b\rceil$<br>
 <b>Classic trap:</b> $m = 1000$, $b = 100$ → <b>10</b> updates, not 1000.</div></details>
 
 <details class="flash"><summary>Cost per update — teeno methods?</summary>
-<div class="a">Batch $O(md)$ · SGD $O(d)$ · Mini-Batch $O(bd)$. Cost <b>per epoch</b> teeno ke liye $O(md)$ hai.</div></details>
+<div class="a">Batch $O(md)$ · SGD $O(d)$ · Mini-Batch $O(bd)$. The cost <b>per epoch</b> is $O(md)$ for all three.</div></details>
 
-<details class="flash"><summary>SGD mein shuffling kyun critical hai?</summary>
-<div class="a">Real datasets <b>ordered</b> hote hain (date, class, region). Bina shuffling ke consecutive updates <b>true learning signal ki jagah ordering pattern</b> follow karti hain — biased update sequences.</div></details>
+<details class="flash"><summary>Why is shuffling critical in SGD?</summary>
+<div class="a">Real datasets are <b>ordered</b> (by date, class, region). Without shuffling, consecutive updates follow <b>the ordering pattern instead of the true learning signal</b> — giving biased update sequences.</div></details>
 
-<details class="flash"><summary>SGD ke baare mein 4 misconceptions aur corrections?</summary>
-<div class="a">1. "Most data ignore karta hai" → ek <b>update</b> ek sample, ek <b>epoch</b> saare.<br>
-2. "Loss har update par girni chahiye" → noisy update par <b>temporarily badh sakti</b> hai.<br>
-3. "Zyada updates = faster convergence" → har update <b>sasti par kam accurate</b>.<br>
-4. "Stochastic = random parameters" → randomness sirf <b>sample selection</b> mein hai.</div></details>
+<details class="flash"><summary>Four misconceptions about SGD, and their corrections?</summary>
+<div class="a">1. "It ignores most of the data" → one <b>update</b> uses one sample, one <b>epoch</b> uses all of them.<br>
+2. "The loss must fall at every update" → it <b>can temporarily rise</b> on a noisy update.<br>
+3. "More updates = faster convergence" → each update is <b>cheaper but less accurate</b>.<br>
+4. "Stochastic = random parameters" → the randomness is only in the <b>sample selection</b>.</div></details>
 
-<details class="flash"><summary>Ek student SGD likhta hai par gradients accumulate karke end mein update karta hai — kya implement hua?</summary>
-<div class="a"><b>Batch Gradient Descent.</b> Update line <b>sample loop ke andar</b> honi chahiye, bahar nahi. Yahi wo <b>ek line</b> hai jo BGD aur SGD ke beech move karti hai.</div></details>
+<details class="flash"><summary>A student writes SGD but accumulates the gradients and updates at the end — what have they implemented?</summary>
+<div class="a"><b>Batch Gradient Descent.</b> The update line must be <b>inside the sample loop</b>, not outside it. That is the <b>one line</b> that moves between BGD and SGD.</div></details>
 
 <!-- ============================================== -->
 <h2 id="r7"><span class="h2-num">L7</span>Evaluation Metrics</h2>
 
-<details class="flash"><summary>MSE aur RMSE ke units mein kya difference hai?</summary>
-<div class="a">MSE <b>squared units</b> mein hai (e.g. (thousand INR)²). RMSE <b>target units</b> mein.<br>
-"MSE = 9.25 means typical miss of 9.25" — <b>FALSE</b>. Typical miss RMSE $= 3.04$ hai.</div></details>
+<details class="flash"><summary>What is the difference between the units of MSE and RMSE?</summary>
+<div class="a">MSE is in <b>squared units</b> (e.g. (thousand INR)²). RMSE is in <b>target units</b>.<br>
+"MSE = 9.25 means typical miss of 9.25" — <b>FALSE</b>. The typical miss is RMSE $= 3.04$.</div></details>
 
-<details class="flash"><summary>$R^2$ ki formula aur uska sabse bada misconception?</summary>
+<details class="flash"><summary>The formula for $R^2$, and its biggest misconception?</summary>
 <div class="a">$$R^2 = 1 - \frac{\text{RSS}}{\text{TSS}}$$
-<b>Misconception:</b> $R^2 = 0.93$ ka matlab 93% accuracy NAHI hai, na hi "93% predictions correct", na hi "7% average error". Yeh ek <b>relative sum-of-squares comparison</b> hai mean baseline ke saath.</div></details>
+<b>Misconception:</b> $R^2 = 0.93$ does NOT mean 93% accuracy, nor "93% of predictions correct", nor "7% average error". It is a <b>relative sum-of-squares comparison</b> against the mean baseline.</div></details>
 
-<details class="flash"><summary>Do datasets ka same RMSE par different $R^2$ — kyun?</summary>
-<div class="a">Same RMSE ⟹ same RSS. Par $R^2$ <b>TSS par bhi</b> depend karta hai — target ka mean ke around spread.<br>Tightly clustered targets (small TSS) → mean baseline already strong → <b>low $R^2$</b>. Spread-out targets → high $R^2$.</div></details>
+<details class="flash"><summary>Two datasets with the same RMSE but different $R^2$ — why?</summary>
+<div class="a">The same RMSE ⟹ the same RSS. But $R^2$ <b>also depends on TSS</b> — the spread of the target around its mean.<br>Tightly clustered targets (small TSS) → the mean baseline is already strong → <b>low $R^2$</b>. Spread-out targets → high $R^2$.</div></details>
 
-<details class="flash"><summary>Adjusted $R^2$ ki formula — aur $p$ mein intercept count hota hai?</summary>
+<details class="flash"><summary>The Adjusted $R^2$ formula — and does $p$ count the intercept?</summary>
 <div class="a">$$R^2_{\text{adj}} = 1 - (1-R^2)\frac{n-1}{n-p-1} = 1 - \left(\frac{\text{RSS}}{\text{TSS}}\right)\left(\frac{n-1}{n-p-1}\right)$$
 $p$ = predictors <b>excluding</b> the intercept. Requires $n &gt; p+1$.</div></details>
 
-<details class="flash"><summary>Model B ka $R^2$ zyada par Adjusted $R^2$ kam — kyun?</summary>
-<div class="a">B ne RSS kam ki ($74 \to 60$), to raw $R^2$ badha ($0.9295 \to 0.9429$). Par uske $p$ badhne se penalty factor $\frac{7}{5} = 1.4 \to \frac{7}{4} = 1.75$ ho gaya — <b>25% badi penalty</b> vs sirf <b>19% kam</b> unexplained fraction. Net: $R^2_{\text{adj}}$ $0.9013 \to 0.9000$ gira.</div></details>
+<details class="flash"><summary>Model B has a higher $R^2$ but a lower Adjusted $R^2$ — why?</summary>
+<div class="a">B reduced RSS ($74 \to 60$), so raw $R^2$ rose ($0.9295 \to 0.9429$). But its larger $p$ pushed the penalty factor from $\frac{7}{5} = 1.4$ to $\frac{7}{4} = 1.75$ — a <b>25% bigger penalty</b> against only a <b>19% smaller</b> unexplained fraction. Net result: $R^2_{\text{adj}}$ fell $0.9013 \to 0.9000$.</div></details>
 
-<details class="flash"><summary>Precision aur Recall ke denominators?</summary>
+<details class="flash"><summary>The denominators of Precision and Recall?</summary>
 <div class="a"><b>Precision</b> $= \frac{TP}{TP+FP}$ — <b>P</b>redicted positives.<br>
 <b>Recall</b> $= \frac{TP}{TP+FN}$ — <b>R</b>eal (actual) positives.<br>
-<b>F1 TN use karta hi nahi.</b></div></details>
+<b>F1 never uses TN at all.</b></div></details>
 
-<details class="flash"><summary>FP aur FN kis metric ko hurt karte hain?</summary>
-<div class="a"><b>FP</b> (Type I, false alert) → <b>Precision</b> girti hai.<br>
-<b>FN</b> (Type II, miss) → <b>Recall</b> girti hai.<br>
+<details class="flash"><summary>Which metric does FP hurt, and which does FN hurt?</summary>
+<div class="a"><b>FP</b> (Type I, a false alert) → <b>Precision</b> falls.<br>
+<b>FN</b> (Type II, a miss) → <b>Recall</b> falls.<br>
 Missing costly? → <b>Recall</b>. False alerts costly? → <b>Precision</b>. Both? → <b>F1</b>.</div></details>
 
-<details class="flash"><summary>Macro, Weighted, Micro — teeno mein difference?</summary>
-<div class="a"><b>Macro:</b> har class ko <b>equal vote</b> ($\frac1C\sum M_c$).<br>
-<b>Weighted:</b> class size se weight ($\frac{\sum n_cM_c}{\sum n_c}$).<br>
-<b>Micro:</b> pehle TP/FP/FN <b>pool</b> karo. Single-label multiclass mein micro $=$ <b>accuracy</b>.</div></details>
+<details class="flash"><summary>Macro, Weighted, Micro — what is the difference between the three?</summary>
+<div class="a"><b>Macro:</b> every class gets an <b>equal vote</b> ($\frac1C\sum M_c$).<br>
+<b>Weighted:</b> weighted by class size ($\frac{\sum n_cM_c}{\sum n_c}$).<br>
+<b>Micro:</b> <b>pool</b> the TP/FP/FN first. In single-label multiclass, micro $=$ <b>accuracy</b>.</div></details>
 
-<details class="flash"><summary>Weighted F1 (0.672) macro F1 (0.638) se zyada kyun tha?</summary>
-<div class="a">Kyunki <b>sabse weak class bhi sabse chhoti thi</b> (Needs Support: F1 $=0.500$, sirf 4 of 18). Macro use $\frac13$ vote deta hai; weighted sirf $\frac{4}{18} = 22\%$. Weighting ne model ki sabse badi weakness <b>down-weight</b> kar di.</div></details>
+<details class="flash"><summary>Why was weighted F1 (0.672) higher than macro F1 (0.638)?</summary>
+<div class="a">Because <b>the weakest class was also the smallest</b> (Needs Support: F1 $=0.500$, only 4 of 18). Macro gives it a $\frac13$ vote; weighted gives it only $\frac{4}{18} = 22\%$. The weighting <b>down-weighted</b> the model's biggest weakness.</div></details>
 
-<details class="flash"><summary>66.7% accuracy par ek class ka recall sirf 50% — kaise?</summary>
-<div class="a">Accuracy <b>sabse badi class se dominate</b> hoti hai. Ready ke 6 correct alone $6/18 = 33\%$ dete hain. Support class mein sirf 4 students — 2 miss karna accuracy se $2/18 \approx 11\%$ leta hai par <b>us class ka recall aadha</b> kar deta hai.</div></details>
+<details class="flash"><summary>66.7% accuracy but one class has only 50% recall — how?</summary>
+<div class="a">Accuracy is <b>dominated by the largest class</b>. Ready's 6 correct alone give $6/18 = 33\%$. The Support class has only 4 students — missing 2 costs just $2/18 \approx 11\%$ of accuracy but <b>halves that class's recall</b>.</div></details>
 
 <!-- ============================================== -->
 <h2 id="r8"><span class="h2-num">L8</span>Polynomial Regression &amp; Assumptions</h2>
 
-<details class="flash"><summary>Polynomial Regression naya algorithm hai?</summary>
-<div class="a"><b>Nahi.</b> Wo ek <b>feature transformation</b> hai. Model apne <b>parameters mein abhi bhi linear</b> hai — wahi OLS / Gradient Descent apply hota hai, bas $\mathbf X$ mein extra columns aate hain.</div></details>
+<details class="flash"><summary>Is Polynomial Regression a new algorithm?</summary>
+<div class="a"><b>No.</b> It is a <b>feature transformation</b>. The model is <b>still linear in its parameters</b> — the same OLS / Gradient Descent applies, just with extra columns in $\mathbf X$.</div></details>
 
 <details class="flash"><summary>Degree $n$ polynomial — kitne columns, kitne bends?</summary>
-<div class="a"><b>$n+1$ columns</b> (intercept sahit) aur <b>up to $n-1$ bends</b> (derivative degree $n-1$ hai, jiski $n-1$ roots ho sakti hain).</div></details>
+<div class="a"><b>$n+1$ columns</b> (including the intercept) and <b>up to $n-1$ bends</b> (the derivative has degree $n-1$, which can have $n-1$ roots).</div></details>
 
-<details class="flash"><summary>"$R^2$ badh gaya jab $x^3$ add kiya, to cubic term useful hai" — sahi?</summary>
-<div class="a"><b>Galat.</b> <b>Training</b> $R^2$ predictor add karne par <b>kabhi ghat nahi sakta</b> — ek useless feature bhi noise fit kar lega. Adjusted $R^2$ ya validation error dekho.</div></details>
+<details class="flash"><summary>"$R^2$ rose when I added $x^3$, so the cubic term is useful" — correct?</summary>
+<div class="a"><b>Wrong.</b> <b>Training</b> $R^2$ <b>can never fall</b> when a predictor is added — even a useless feature will fit some noise. Look at Adjusted $R^2$ or validation error.</div></details>
 
 <details class="flash"><summary>5 assumptions — naam aur diagnostic?</summary>
 <div class="a">1. <b>Linearity</b> → residual vs fitted (U-shape = bad)<br>
@@ -272,118 +272,118 @@ Missing costly? → <b>Recall</b>. False alerts costly? → <b>Precision</b>. Bo
 4. <b>No autocorrelation</b> → residual vs <b>observation order</b><br>
 5. <b>No multicollinearity</b> → input–input correlation; $\det(\mathbf X^\top\mathbf X)$</div></details>
 
-<details class="flash"><summary>Heteroscedasticity aur autocorrelation confuse mat karo — kya difference hai?</summary>
-<div class="a"><b>Hetero:</b> spread <b>badalta</b> hai, $\hat y$ ke against plot karne par (funnel).<br>
-<b>Auto:</b> residuals mein <b>pattern</b> hai, <b>observation order</b> ke against plot karne par (runs/waves).</div></details>
+<details class="flash"><summary>Do not confuse heteroscedasticity with autocorrelation — what is the difference?</summary>
+<div class="a"><b>Hetero:</b> the spread <b>changes</b> when plotted against $\hat y$ (a funnel).<br>
+<b>Auto:</b> there is a <b>pattern</b> in the residuals when plotted against <b>observation order</b> (runs/waves).</div></details>
 
-<details class="flash"><summary>Multicollinearity prediction ko kharab karti hai ya inference ko?</summary>
-<div class="a"><b>Inference</b> ko. Individual coefficients unreliable ho jaate hain (bade opposite-signed values jo cancel karte hain). <b>Prediction usually theek</b> rehti hai kyunki combined effect correctly estimate ho jaata hai.</div></details>
+<details class="flash"><summary>Does multicollinearity ruin prediction or inference?</summary>
+<div class="a"><b>Inference.</b> The individual coefficients become unreliable (large opposite-signed values that cancel out). <b>Prediction is usually fine</b>, because the combined effect is still estimated correctly.</div></details>
 
-<details class="flash"><summary>Perfect multicollinearity ka singularity chain (7 steps ka summary)?</summary>
-<div class="a">$\exists\,\mathbf c \ne \mathbf 0$ with $\mathbf X\mathbf c = \mathbf 0$ ⟹ $\mathbf X^\top\mathbf X\mathbf c = \mathbf 0$ ⟹ $\mathbf X^\top\mathbf X$ ek non-zero vector ko zero bhejta hai ⟹ <b>singular</b> ⟹ $\det = \mathbf 0$ ⟹ $(\mathbf X^\top\mathbf X)^{-1}$ <b>exist nahi karta</b>.</div></details>
+<details class="flash"><summary>The singularity chain of perfect multicollinearity (the 7-step summary)?</summary>
+<div class="a">$\exists\,\mathbf c \ne \mathbf 0$ with $\mathbf X\mathbf c = \mathbf 0$ ⟹ $\mathbf X^\top\mathbf X\mathbf c = \mathbf 0$ ⟹ $\mathbf X^\top\mathbf X$ sends a non-zero vector to zero ⟹ <b>singular</b> ⟹ $\det = \mathbf 0$ ⟹ $(\mathbf X^\top\mathbf X)^{-1}$ <b>does not exist</b>.</div></details>
 
-<details class="flash"><summary>"Linearity ka matlab har point line par hona chahiye" — sahi?</summary>
-<div class="a"><b>Galat.</b> Real data mein noise hota hai. Assumption sirf yeh hai ki <b>central trend</b> ek straight line (ya features ka linear combination) se reasonably represent ho.</div></details>
+<details class="flash"><summary>"Linearity means every point must lie on the line" — correct?</summary>
+<div class="a"><b>Wrong.</b> Real data has noise. The assumption is only that the <b>central trend</b> is reasonably represented by a straight line (or a linear combination of the features).</div></details>
 
 <!-- ============================================== -->
 <h2 id="r9"><span class="h2-num">L9</span>Bias–Variance</h2>
 
-<details class="flash"><summary>MSE decomposition aur sabse common galti?</summary>
+<details class="flash"><summary>The MSE decomposition, and the most common mistake?</summary>
 <div class="a">$$\text{MSE} = \text{Bias}^2 + \text{Variance} + \operatorname{Var}(\varepsilon)$$
-<b>Galti:</b> bias ko <b>square karna bhool jaana</b>. Bias 2, variance 3, noise 1 → MSE $= 4+3+1 = \mathbf 8$, not 6.</div></details>
+<b>Mistake:</b> <b>forgetting to square the bias</b>. Bias 2, variance 3, noise 1 → MSE $= 4+3+1 = \mathbf 8$, not 6.</div></details>
 
-<details class="flash"><summary>Bias aur Variance ki definitions?</summary>
+<details class="flash"><summary>The definitions of Bias and Variance?</summary>
 <div class="a">$$\text{Bias}(x) = E[\hat f(x)] - f(x) \qquad \text{Variance}(x) = E\!\left[(\hat f(x) - E[\hat f(x)])^2\right]$$
-<b>Bias</b> = average prediction truth se kitni door. <b>Variance</b> = samples badalne par predictions kitni hilti hain.</div></details>
+<b>Bias</b> = how far the average prediction is from the truth. <b>Variance</b> = how much the predictions move when the samples change.</div></details>
 
-<details class="flash"><summary>High bias aur high variance ko error curves se kaise diagnose karo?</summary>
-<div class="a"><b>High bias:</b> training aur validation error <b>dono high aur ek dusre ke paas</b>.<br>
-<b>High variance:</b> training error low, validation error <b>bohot zyada</b> (bada gap).</div></details>
+<details class="flash"><summary>How do you diagnose high bias vs high variance from the error curves?</summary>
+<div class="a"><b>High bias:</b> training and validation error are <b>both high and close to each other</b>.<br>
+<b>High variance:</b> training error is low, validation error is <b>much higher</b> (a large gap).</div></details>
 
-<details class="flash"><summary>Zyada data kab help karega — aur kab nahi?</summary>
-<div class="a"><b>High variance</b> par <b>haan</b> — gap close hone lagta hai.<br>
-<b>High bias</b> par <b>nahi</b> — curves already saath hain aur high plateau par hain; model <b>structurally limited</b> hai. Model badlo, data volume nahi.</div></details>
+<details class="flash"><summary>When will more data help — and when will it not?</summary>
+<div class="a">For <b>high variance</b>, <b>yes</b> — the gap starts closing.<br>
+For <b>high bias</b>, <b>no</b> — the curves already meet and sit on a high plateau; the model is <b>structurally limited</b>. Change the model, not the data volume.</div></details>
 
-<details class="flash"><summary>Irreducible error kya hai — kya better algorithm use hata sakta hai?</summary>
-<div class="a">$\operatorname{Var}(\varepsilon)$ — wo randomness jo <b>data mein already maujood</b> hai.<br>
-<b>Nahi</b> — koi bhi amount of flexible modelling use nahi hata sakta. Ise kam karne ke liye <b>better measurements ya better features</b> chahiye.</div></details>
+<details class="flash"><summary>What is irreducible error — can a better algorithm remove it?</summary>
+<div class="a">$\operatorname{Var}(\varepsilon)$ — the randomness that is <b>already present in the data</b>.<br>
+<b>No</b> — no amount of flexible modelling can remove it. Reducing it needs <b>better measurements or better features</b>.</div></details>
 
 <!-- ============================================== -->
 <h2 id="r10"><span class="h2-num">L10</span>Feature Selection</h2>
 
 <details class="flash"><summary>3 feature behaviours?</summary>
-<div class="a"><b>Relevant</b> — stable information jo target predict karne mein help kare.<br>
-<b>Redundant</b> — wahi information jo kisi aur feature mein pehle se hai (CGPA_copy).<br>
-<b>Irrelevant</b> — varies par target ke saath koi stable relationship nahi (Random_number).</div></details>
+<div class="a"><b>Relevant</b> — stable information that helps predict the target.<br>
+<b>Redundant</b> — the same information that another feature already carries (CGPA_copy).<br>
+<b>Irrelevant</b> — it varies but has no stable relationship with the target (Random_number).</div></details>
 
-<details class="flash"><summary>Student_ID ki variance bohot high hai — to wo useful hai?</summary>
-<div class="a"><b>Nahi.</b> Variance ek <b>necessary-but-not-sufficient</b> screen hai. Student_ID ka $r = -0.02$ hai target ke saath. Feature ko <b>vary karna AUR target ke saath co-vary karna</b> dono chahiye.</div></details>
+<details class="flash"><summary>Student_ID has very high variance — so is it useful?</summary>
+<div class="a"><b>No.</b> Variance is a <b>necessary-but-not-sufficient</b> screen. Student_ID has $r = -0.02$ with the target. A feature must <b>both vary AND co-vary with the target</b>.</div></details>
 
-<details class="flash"><summary>$y = x^2$ par Pearson correlation kya hai — aur wo kya sikhata hai?</summary>
+<details class="flash"><summary>What is the Pearson correlation for $y = x^2$ — and what does it teach?</summary>
 <div class="a">$x = [-2,-1,0,1,2]$, $\bar x = 0$, $\bar y = 2$. Numerator $= -4+1+0-1+4 = 0$, so $r = \mathbf 0$.<br>
-Ek $|r| \ge 0.30$ filter ek <b>perfectly predictive</b> feature ko REMOVE kar dega. Pearson sirf <b>linear</b> association measure karta hai.</div></details>
+An $|r| \ge 0.30$ filter would REMOVE a <b>perfectly predictive</b> feature. Pearson measures only <b>linear</b> association.</div></details>
 
 <details class="flash"><summary>Exhaustive vs sequential search cost?</summary>
 <div class="a"><b>Exhaustive:</b> $2^p - 1$ (exponential). $p=30$ → 1,073,741,823.<br>
 <b>Sequential path:</b> $\frac{p(p+1)}{2}$ (quadratic). $p=30$ → 465.</div></details>
 
-<details class="flash"><summary>Forward vs Backward selection — kab kaunsa natural hai?</summary>
-<div class="a"><b>Forward:</b> $p$ bada, final subset <b>chhota</b> (100 mein se ~10 rakhni hai). Full model fit karne ki zaroorat hi nahi.<br>
-<b>Backward:</b> model saare $p$ fit kar sakta hai aur final subset <b>zyadatar</b> retain karta hai (100 mein se ~90).</div></details>
+<details class="flash"><summary>Forward vs Backward selection — when is each one natural?</summary>
+<div class="a"><b>Forward:</b> $p$ is large and the final subset is <b>small</b> (keep ~10 out of 100). You never even need to fit the full model.<br>
+<b>Backward:</b> the model can fit all $p$ and the final subset retains <b>most</b> of them (~90 out of 100).</div></details>
 
-<details class="flash"><summary>Forward aur backward alag subsets select kar lein — bug hai?</summary>
-<div class="a"><b>Nahi.</b> Dono <b>greedy</b> hain aur alag paths explore karte hain. Ek baar feature removed/skipped ho gaya to reconsider nahi hota. <b>Expected behaviour</b> hai.</div></details>
+<details class="flash"><summary>Forward and backward select different subsets — is that a bug?</summary>
+<div class="a"><b>No.</b> Both are <b>greedy</b> and explore different paths. Once a feature is removed or skipped it is never reconsidered. This is <b>expected behaviour</b>.</div></details>
 
-<details class="flash"><summary>Feature selection ka golden rule?</summary>
-<div class="a"><b>Selection cross-validation ke ANDAR hona chahiye</b>, har fold ke <b>training portion se hi</b>. Poore dataset par select karke phir CV karna = <b>data leakage</b> = optimistically biased score.</div></details>
+<details class="flash"><summary>The golden rule of feature selection?</summary>
+<div class="a"><b>Selection must happen INSIDE cross-validation</b>, using <b>only the training portion</b> of each fold. Selecting on the whole dataset and then cross-validating = <b>data leakage</b> = an optimistically biased score.</div></details>
 
-<details class="flash"><summary>$x$ aur $x^2$ highly correlated hain — squared term drop kar do?</summary>
-<div class="a"><b>Nahi, bina validate kiye nahi.</b> Wo correlation ek <b>mathematical artefact</b> hai. Squared term specifically <b>curvature</b> capture karne ke liye add kiya gaya tha. Use hataane se model ki bend karne ki ability chali jaati hai.</div></details>
+<details class="flash"><summary>$x$ and $x^2$ are highly correlated — should you drop the squared term?</summary>
+<div class="a"><b>No, not without validating.</b> That correlation is a <b>mathematical artefact</b>. The squared term was added specifically to capture <b>curvature</b>. Removing it removes the model's ability to bend.</div></details>
 
 <!-- ============================================== -->
 <h2 id="r11"><span class="h2-num">L11</span>PCA</h2>
 
-<details class="flash"><summary>PCA ki one-line definition?</summary>
-<div class="a">Ek <b>unsupervised linear feature-extraction</b> method jo <b>orthogonal axes (principal components)</b> ka naya set dhoondta hai jinke along data ka <b>variance maximized</b> hota hai.</div></details>
+<details class="flash"><summary>The one-line definition of PCA?</summary>
+<div class="a">An <b>unsupervised linear feature-extraction</b> method that finds a new set of <b>orthogonal axes (principal components)</b> along which the <b>variance of the data is maximized</b>.</div></details>
 
 <details class="flash"><summary>Feature selection vs feature extraction — core difference?</summary>
-<div class="a"><b>Selection:</b> original columns <b>keep ya discard</b> karo. Original meanings preserve hote hain.<br>
-<b>Extraction (PCA):</b> coordinate system <b>rotate</b> karo, phir project karo. Naye components original features ke <b>combinations</b> hain.</div></details>
+<div class="a"><b>Selection:</b> <b>keep or discard</b> original columns. The original meanings are preserved.<br>
+<b>Extraction (PCA):</b> <b>rotate</b> the coordinate system, then project. The new components are <b>combinations</b> of the original features.</div></details>
 
-<details class="flash"><summary>Mean centering compulsory kyun hai?</summary>
-<div class="a">Variance-along-$\mathbf u$ formula mein mean term $\mathbf u^\top\bar{\mathbf X}$ appear karta hai. Centering isse <b>exactly zero</b> bana deta hai. Warna PC₁ <b>origin se mean tak</b> ki direction pick karta hai, spread ki nahi.</div></details>
+<details class="flash"><summary>Why is mean centering compulsory?</summary>
+<div class="a">The mean term $\mathbf u^\top\bar{\mathbf X}$ appears in the variance-along-$\mathbf u$ formula. Centering makes it <b>exactly zero</b>. Otherwise PC₁ picks the direction <b>from the origin to the mean</b>, not the direction of the spread.</div></details>
 
-<details class="flash"><summary>Standardization bhi hamesha zaroori hai?</summary>
-<div class="a"><b>Nahi</b> — wo <b>conditional</b> hai. Jab features ke <b>different units/scales</b> hon tab apply karo. Same units par centering alone kaafi hai.</div></details>
+<details class="flash"><summary>Is standardization always necessary too?</summary>
+<div class="a"><b>No</b> — it is <b>conditional</b>. Apply it when the features have <b>different units/scales</b>. With shared units, centering alone is enough.</div></details>
 
-<details class="flash"><summary>Covariance matrix ki formula aur dimensions?</summary>
+<details class="flash"><summary>The covariance matrix formula and its dimensions?</summary>
 <div class="a">$$S = \frac{1}{n-1}X_c^\top X_c \qquad (p\times p,\ \text{symmetric})$$
 Diagonal = feature <b>variances</b>. Off-diagonal = pairwise <b>covariances</b>.</div></details>
 
-<details class="flash"><summary>Eigenvalue ka geometric matlab PCA mein kya hai?</summary>
-<div class="a">Us principal direction ke along projected data ki <b>variance (spread)</b>. Bada $\lambda$ = zyada information. $\lambda = 0$ = us direction mein <b>koi variation nahi</b> — bina loss ke discard kiya ja sakta hai.</div></details>
+<details class="flash"><summary>What does an eigenvalue mean geometrically in PCA?</summary>
+<div class="a">The <b>variance (spread)</b> of the projected data along that principal direction. A larger $\lambda$ = more information. $\lambda = 0$ = <b>no variation at all</b> in that direction — it can be discarded with no loss.</div></details>
 
-<details class="flash"><summary>Principal components uncorrelated kyun hote hain?</summary>
-<div class="a">$S$ ek <b>real symmetric</b> matrix hai, to spectral theorem se uske eigenvectors <b>mutually orthogonal</b> chune ja sakte hain. Orthogonal directions par centered data project karne se scores ki <b>covariance zero</b> ho jaati hai.</div></details>
+<details class="flash"><summary>Why are principal components uncorrelated?</summary>
+<div class="a">$S$ is a <b>real symmetric</b> matrix, so by the spectral theorem its eigenvectors can be chosen <b>mutually orthogonal</b>. Projecting centered data onto orthogonal directions makes the <b>covariance of the scores zero</b>.</div></details>
 
-<details class="flash"><summary>$W_k$ ke dimensions aur projection formula?</summary>
-<div class="a">$W_k$ is $\mathbf{p \times k}$ (columns = pehle $k$ eigenvectors, har ek length $p$).<br>
+<details class="flash"><summary>The dimensions of $W_k$ and the projection formula?</summary>
+<div class="a">$W_k$ is $\mathbf{p \times k}$ (its columns are the first $k$ eigenvectors, each of length $p$).<br>
 $Z = X_cW_k$ is $(n\times p)(p\times k) = \mathbf{n\times k}$ ✓</div></details>
 
-<details class="flash"><summary>Test set par PCA kaise apply karo?</summary>
+<details class="flash"><summary>How do you apply PCA to the test set?</summary>
 <div class="a">$$Z_{\text{test}} = \left(X_{\text{test}} - \mathbf 1_{\text{test}}\boldsymbol\mu_{\text{tr}}^\top\right)W_k$$
-<b>Stored training</b> $\boldsymbol\mu$, $\mathbf s$ aur $W_k$ use karo. <b>KABHI</b> test par refit mat karo.</div></details>
+Use the <b>stored training</b> $\boldsymbol\mu$, $\mathbf s$ and $W_k$. <b>NEVER</b> refit on test.</div></details>
 
-<details class="flash"><summary>Variance maximize karna aur reconstruction error minimize karna — same kyun hai?</summary>
-<div class="a">Pythagorean decomposition: $\|\mathbf x_i\|^2 = z_i^2 + \|\mathbf e_i\|^2$. Total norm $\mathbf u$ par depend hi nahi karta, to $\sum z_i^2$ <b>max</b> karna aur $\sum\|\mathbf e_i\|^2$ <b>min</b> karna exactly same optimisation hai.</div></details>
+<details class="flash"><summary>Why is maximizing variance the same as minimizing reconstruction error?</summary>
+<div class="a">Pythagorean decomposition: $\|\mathbf x_i\|^2 = z_i^2 + \|\mathbf e_i\|^2$. The total norm does not depend on $\mathbf u$ at all, so <b>maximizing</b> $\sum z_i^2$ and <b>minimizing</b> $\sum\|\mathbf e_i\|^2$ are exactly the same optimisation.</div></details>
 
-<details class="flash"><summary>PCA ke teen failure cases?</summary>
-<div class="a"><b>1. Circular/isotropic data</b> — $\lambda_1 \approx \lambda_2$, koi dominant direction nahi.<br>
-<b>2. Symmetric classes</b> — PC₁ par project karne se classes <b>merge</b> ho jaati hain.<br>
-<b>3. Nonlinear manifolds</b> — linear PCA curved structure <b>unroll nahi</b> kar sakta.</div></details>
+<details class="flash"><summary>The three failure cases of PCA?</summary>
+<div class="a"><b>1. Circular/isotropic data</b> — $\lambda_1 \approx \lambda_2$, no dominant direction.<br>
+<b>2. Symmetric classes</b> — projecting onto PC₁ makes the classes <b>merge</b>.<br>
+<b>3. Nonlinear manifolds</b> — linear PCA <b>cannot unroll</b> a curved structure.</div></details>
 
-<details class="flash"><summary>90% variance threshold se $k$ choose kar liya — kaafi hai?</summary>
-<div class="a"><b>Nahi.</b> EVR ek <b>unsupervised</b> criterion hai — wo $y$ dekhta hi nahi. Discarded variance mein wo direction ho sakti hai jo $y$ ki sabse zyada predictive hai. $k$ ko <b>hyperparameter</b> ki tarah CV ke andar validate karo.</div></details>
+<details class="flash"><summary>You chose $k$ from a 90% variance threshold — is that enough?</summary>
+<div class="a"><b>No.</b> EVR is an <b>unsupervised</b> criterion — it never looks at $y$. The discarded variance may contain the direction most predictive of $y$. Validate $k$ as a <b>hyperparameter</b> inside CV.</div></details>
 
 <!-- ============================================== -->
 <h2 id="traps">🚨 The 15 Traps That Repeat Most</h2>
@@ -414,7 +414,7 @@ $Z = X_cW_k$ is $(n\times p)(p\times k) = \mathbf{n\times k}$ ✓</div></details
 <h2 id="oneliners">⚡ 60-Second One-Liners</h2>
 <div class="grid g2">
   <div class="box def" style="margin:0"><div class="box-title">The whole course in one sentence</div>
-    <p style="margin:0">Data ko clean karo → split karo → model banao → optimize karo → measure karo → generalization improve karo.</p></div>
+    <p style="margin:0">Clean the data → split it → build the model → optimize it → measure it → improve generalization.</p></div>
   <div class="box def" style="margin:0"><div class="box-title">Why squared error?</div>
     <p style="margin:0">Non-negative (no cancellation) + differentiable everywhere (clean calculus) + punishes large errors. Cost: outlier-sensitive.</p></div>
   <div class="box def" style="margin:0"><div class="box-title">Why gradient descent?</div>
@@ -435,30 +435,30 @@ $Z = X_cW_k$ is $(n\times p)(p\times k) = \mathbf{n\times k}$ ✓</div></details
 <h2 id="checklist">✅ Final Checklist — can you do all of these?</h2>
 <div class="box takeaway">
   <ul style="margin:0">
-    <li>Min-Max, Z-Score aur Robust scaling <b>by hand</b> compute karna.</li>
-    <li>Ek encoding choose karke justify karna (Label / Ordinal / One-Hot / Binary).</li>
-    <li>OLS ke $m$ aur $c$ ki poori derivation likhna, including $\sum c = nc$ step.</li>
-    <li>5-point dataset par $m$, $c$ aur ek prediction compute karna.</li>
-    <li>Design matrix banana aur $\boldsymbol\beta^* = (\mathbf X^\top\mathbf X)^{-1}\mathbf X^\top\mathbf y$ by hand solve karna (det + adjugate).</li>
-    <li>Teeno matrix calculus identities state karna aur unse Normal Equation derive karna.</li>
-    <li>Batch GD ka ek full epoch matrix operations se execute karna.</li>
-    <li>BGD, SGD aur Mini-Batch ke updates/epoch aur costs compare karna.</li>
-    <li>MAE, MAPE, MSE, RMSE, $R^2$, Adjusted $R^2$ ek table se nikaalna.</li>
-    <li>Confusion matrix se TP/FP/FN/TN, precision, recall, F1 nikaalna.</li>
-    <li>Macro vs weighted vs micro averages compute karna aur farak explain karna.</li>
+    <li>Compute Min-Max, Z-Score and Robust scaling <b>by hand</b>.</li>
+    <li>Choose and justify an encoding (Label / Ordinal / One-Hot / Binary).</li>
+    <li>Write the full derivation of OLS $m$ and $c$, including the $\sum c = nc$ step.</li>
+    <li>Compute $m$, $c$ and one prediction on a 5-point dataset.</li>
+    <li>Build the design matrix and solve $\boldsymbol\beta^* = (\mathbf X^\top\mathbf X)^{-1}\mathbf X^\top\mathbf y$ by hand (det + adjugate).</li>
+    <li>State all three matrix-calculus identities and derive the Normal Equation from them.</li>
+    <li>Execute one full epoch of Batch GD using matrix operations.</li>
+    <li>Compare the updates/epoch and costs of BGD, SGD and Mini-Batch.</li>
+    <li>Work out MAE, MAPE, MSE, RMSE, $R^2$ and Adjusted $R^2$ from a table.</li>
+    <li>Work out TP/FP/FN/TN, precision, recall and F1 from a confusion matrix.</li>
+    <li>Compute macro vs weighted vs micro averages and explain the difference.</li>
     <li>5 assumptions naam lena, diagnostic batana, aur fix batana.</li>
-    <li>$\det(\mathbf X^\top\mathbf X) = 0$ ka proof chain likhna.</li>
-    <li>$\text{MSE} = \text{Bias}^2 + \text{Var} + \text{Noise}$ se numbers nikaalna.</li>
-    <li>Learning curves se high bias vs high variance diagnose karna.</li>
-    <li>$2^p - 1$ vs $\frac{p(p+1)}{2}$ compute karna aur forward/backward trace karna.</li>
-    <li>Ek $2\times2$ covariance matrix ka eigen-decomposition by hand karna aur EVR nikaalna.</li>
-    <li>Har case mein leakage ka sahi fold-by-fold procedure describe karna.</li>
+    <li>Write the proof chain for $\det(\mathbf X^\top\mathbf X) = 0$.</li>
+    <li>Work out the numbers from $\text{MSE} = \text{Bias}^2 + \text{Var} + \text{Noise}$.</li>
+    <li>Diagnose high bias vs high variance from learning curves.</li>
+    <li>Compute $2^p - 1$ vs $\frac{p(p+1)}{2}$ and trace forward/backward search.</li>
+    <li>Do the eigen-decomposition of a $2\times2$ covariance matrix by hand and find the EVR.</li>
+    <li>Describe the correct fold-by-fold procedure for leakage in each case.</li>
   </ul>
 </div>
 
 <div class="box hinglish">
-  <div class="box-title">🎯 Ab kya?</div>
-  <p style="margin:0">Agar yeh saare cards clear ho gaye, to <a href="mock-test.html"><b>Mock Test (60 questions)</b></a> attempt karo. Jo galat ho, sirf un lectures ke <b>⚠ Common Mistakes</b> aur <b>⚡ Quick Revision</b> sections dobara dekho. <a href="formula-sheet.html">Formula Sheet</a> ko exam se 15 min pehle ek final scan do.</p>
+  <div class="box-title">🎯 What next?</div>
+  <p style="margin:0">Once all these cards are clear, attempt the <a href="mock-test.html"><b>Mock Test (60 questions)</b></a>. For whatever goes wrong, revisit only the <b>⚠ Common Mistakes</b> and <b>⚡ Quick Revision</b> sections of those lectures. Give the <a href="formula-sheet.html">Formula Sheet</a> one final scan 15 minutes before the exam.</p>
 </div>
 
 </div>
